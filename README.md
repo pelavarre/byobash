@@ -76,3 +76,7 @@ To define 'cd.py' to mean fix what's wrong with 'cd', you have to define 'cd.py'
     source ~/Public/byobash/bin/bashrc.source
 
 It works, but it's not pretty, because Linux Bash and Mac Zsh don't yet do their half of this work. Comments in the source spell out exactly which tests your Shell will fail if you try to do this more simply, before more people show up to teach your Shell to properly welcome such corrections.
+
+## Prior work
+
+The tech here first came online buried deep inside of GitHub > PELaVarre > [PyBashish](https://github.com/pelavarre/pybashish)
