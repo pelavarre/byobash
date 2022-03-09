@@ -1,0 +1,66 @@
+#!/usr/bin/env python3
+
+"""
+usage: source <(~/Public/byobash/bin/cat_bashrc_source.py)
+
+print some first lines to speak into Bash
+
+examples:
+  cd ~/Public/
+  git clone https://github.com/pelavarre/byobash.git
+  bin/cat_bashrc_source.py  # see what it will do
+  bin/cat_bashrc_source.py  # see it again
+  source <(~/Public/byobash/bin/cat_bashrc_source.py)  # trust it
+"""
+
+# FIXME: add ArgParse
+# FIXME: add a --dupe option to still add what exists, just for test
+
+
+import __main__
+import os
+import pdb
+
+import byotools as byo
+
+_ = pdb
+
+
+FILE = __main__.__file__
+DIRNAME = os.path.dirname(__main__.__file__)
+
+
+def main():
+    add_some_dirnames(dirnames=[DIRNAME])
+
+
+def add_some_dirnames(dirnames):
+    print(": begin Bash sourcelines from {}".format(byo.ShPath(FILE)))
+    for dirname in dirnames:
+        add_one_dirname(dirname)
+    print(": end Bash sourcelines from {}".format(byo.ShPath(FILE)))
+
+
+def add_one_dirname(dirname):
+    """Make a ShLine to add the DirName into the Path"""
+    absname = os.path.abspath(dirname)
+
+    env_path = os.getenv("PATH")
+    if env_path is None:
+        shline = "export PATH={}".format(absname)
+    else:
+        shline = 'export PATH="$PATH:{}"'.format(absname)
+
+    if absname in env_path.split(os.pathsep):
+
+        return
+
+    print(shline)
+
+
+if __name__ == "__main__":
+    with byo.BrokenPipeSink():
+        main()
+
+
+# copied from:  git clone https://github.com/pelavarre/byobash.git
