@@ -5,7 +5,7 @@ Type a command line into Bash, but end its verb in ".py" to go with your own def
 
 Got preferences?
 
-Got your own correct opinion on wich defaults, options, examples, and help lines should come to you now, from your own tools inside Bash?
+Got your own correct opinion on which defaults, options, examples, and help lines should come to you now, from your own tools inside Bash?
 
 Look here, you can afford to spell out your opinion quickly in simple code. You can roll your own simple accomodations in the workplace, while your workplace is a Shell in a Terminal, such as Linux Bash or Mac Zsh. You can curate the fixes yourself, keep some fixes secret, crowd-source the rest.
 
