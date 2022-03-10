@@ -1,4 +1,4 @@
-# byobash/Makefile:  Run the self-test's
+# byobash/Makefile:  Run a self test
 
 
 default: black flake8 selftest
@@ -8,7 +8,7 @@ default: black flake8 selftest
 
 
 black:
-	source ~/bin/pips.source && black $$PWD/../byobash/
+	. ~/bin/pips.source && black $$PWD/../byobash/
 
 
 FLAKE8_OPTS=--max-line-length=999 --ignore=E203,W503
@@ -18,7 +18,7 @@ FLAKE8_OPTS=--max-line-length=999 --ignore=E203,W503
 
 
 flake8:
-	source ~/bin/pips.source && flake8 ${FLAKE8_OPTS} $$PWD/../byobash/
+	. ~/bin/pips.source && flake8 ${FLAKE8_OPTS} $$PWD/../byobash/
 
 
 selftest:
@@ -35,5 +35,36 @@ selftest:
 	:
 	rm -fr bin/__pycache__/
 	:
+
+
+setup:
+	exit 3
+
+	mkdir -p ~/.venvs
+	cd ~/.venvs/
+	rm -fr pips/  # casually destructive
+
+	python3 -m venv --prompt PIPS pips
+	source pips/bin/activate  # works in Bash, doesn't work inside Makefile's
+
+	which pip
+	pip freeze |wc -l  # often 0
+
+	pip install --upgrade pip
+	pip install --upgrade wheel
+
+	pip install --upgrade black
+	pip install --upgrade flake8  # includes:  pip install --upgrade mccabe
+	pip install --upgrade flake8-import-order
+
+	pip freeze |wc -l  # often 11
+
+
+# notes:
+#
+#   1 ) Linux Sh understands '.' but does Not understand 'source'
+#   2 ) work through our 'setup:' instructions to get your own '. ~/bin/pips.source'
+#
+
 
 # copied from:  git clone https://github.com/pelavarre/byobash.git
