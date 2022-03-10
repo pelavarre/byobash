@@ -60,6 +60,7 @@ setup:
 	pip freeze |wc -l  # often 11
 
 
+#
 # notes:
 #
 #   1 ) Linux Sh understands '.' but does Not understand 'source'

@@ -6,8 +6,10 @@ usage: import byotools as byo
 define a pile of conveniences for writing Python
 """
 
+# TODO: less silence when run as __main__
+
+
 import contextlib
-import dataclasses
 import os
 import pdb
 import shlex
@@ -113,17 +115,24 @@ class BrokenPipeSink(contextlib.ContextDecorator):
         #
 
 
-@dataclasses.dataclass
 class ShPath:
     """Wrap a Sh Path to print it more concisely"""
 
-    pathname: str
+    def __init__(self, pathname):
+        self.pathname = pathname
 
     def __str__(self):
         shortpath = os_path_shortpath(self.pathname)
         shpath = shlex_shortquote(shortpath)
 
         return shpath
+
+
+#
+# notes:
+#
+#   1 ) '@dataclasses.dataclass' is new since Jun/2018 Python 3.7
+#
 
 
 # copied from:  git clone https://github.com/pelavarre/byobash.git

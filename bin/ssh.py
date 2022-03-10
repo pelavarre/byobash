@@ -16,6 +16,8 @@ examples:
 
 # TODO: does 'ssh -ttt' carry more force than 'ssh -tt'?
 
+# FIXME: add ArgParse
+
 
 import __main__
 
