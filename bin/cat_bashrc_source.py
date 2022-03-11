@@ -11,6 +11,7 @@ examples:
   bin/cat_bashrc_source.py  # see what it will do
   bin/cat_bashrc_source.py  # see it again
   source <(~/Public/byobash/bin/cat_bashrc_source.py)  # trust it
+  export PATH="${PATH:+$PATH:}$HOME/Public/byobash/bin"  # replace it
 """
 
 # FIXME: add ArgParse
@@ -20,6 +21,7 @@ examples:
 import __main__
 import os
 import pdb
+import sys
 
 import byotools as byo
 
@@ -31,7 +33,10 @@ DIRNAME = os.path.dirname(__main__.__file__)
 
 
 def main():
-    add_some_dirnames(dirnames=[DIRNAME])
+    if not sys.argv[1:]:
+        add_some_dirnames(dirnames=[DIRNAME])
+    else:
+        print(__main__.__doc__.strip())
 
 
 def add_some_dirnames(dirnames):

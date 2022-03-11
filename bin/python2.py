@@ -21,10 +21,28 @@ examples:
 
 
 import __main__
+import sys
+import textwrap
 
 
 if __name__ == "__main__":
-    print(__main__.__doc__.strip())
+
+    if sys.argv[1:]:
+        print(__main__.__doc__.strip())
+
+        sys.exit(0)
+
+    SUGGESTION = textwrap.dedent(
+        """
+        : Jul/2010 Python 2.7  # minor release date
+        : Jun/2016 Python 2.7.12  # micro release date
+        : Mar/2019 Python 2.7.16  # micro release date
+        : Oct/2019 Python 2.7.17  # micro release date
+        : Apr/2020 Python 2.7.18  # micro release date
+        """
+    ).strip()
+
+    print(SUGGESTION)
 
 
 # copied from:  git clone https://github.com/pelavarre/byobash.git
