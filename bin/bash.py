@@ -11,6 +11,7 @@ options:
   --norc       launch without running personal startup files
 
 examples:
+  export |grep SHLVL
   bash --noprofile --norc
 """
 

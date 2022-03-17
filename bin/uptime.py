@@ -1,0 +1,3 @@
+# uptime --pretty
+# Linux only
+
