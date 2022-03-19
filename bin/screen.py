@@ -11,11 +11,12 @@ options:
 
 examples:
   screen -ls  # list how many you have
+  rm -fr screenlog.0  # delete the default logfile
   screen -L -S Screen1  # make a screen, give it a name, and log what happens
   screen -ls
   screen -d  # ⌃A D  # detach the one you're in
   screen -ls
-  screen -x Shared1  # attach the one you like
+  screen -x Screen1  # attach the one you like
   echo $STY  # say if you're inside a Screen or not
   # ⌃A ?  # show Keyboard Shortcuts
   # ⌃A A  # send an ordinary Control+A keystroke
@@ -24,6 +25,7 @@ examples:
   screen -X hardcopy -h t.transcript  # make a log of the last few rows shown
   exit  # ⌃D  # close and delete this Screen
   screen -ls
+  cat screenlog.0  # interpret the Esc sequences in the defaultlog
 """
 
 # FIXME: add ArgParse
@@ -48,7 +50,7 @@ if __name__ == "__main__":
         screen -ls
         screen -d  # ⌃A D  # detach the one you're in
         screen -ls
-        screen -x Shared1  # attach the one you like
+        screen -x Screen1  # attach the one you like
         echo $STY  # say if you're inside a Screen or not
         # ⌃A ?  # show Keyboard Shortcuts
         # ⌃A A  # send an ordinary Control+A keystroke
