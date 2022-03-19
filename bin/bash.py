@@ -32,6 +32,7 @@ if __name__ == "__main__":
 
     SUGGESTION = textwrap.dedent(
         """
+        export |grep SHLVL
         bash --noprofile --norc
         """
     ).strip()

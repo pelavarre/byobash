@@ -1,0 +1,5 @@
+work more at
+
+    clear.py sleep.py stty.py uptime.py watch.py
+
+    cv

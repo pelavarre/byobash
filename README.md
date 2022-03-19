@@ -55,7 +55,7 @@ looks like this
     ...
     $
 
-You can learn to press <Dot> <Tab> <Return> in place of <Return>,
+You can learn to press \<Dot\> \<Tab\> \<Return\> in place of \<Return\>,
 as often as you need a tool to wake up and welcome you competently
 into your own everyday work.
 Work once briefly to retune your Bash to receive this signal well, and

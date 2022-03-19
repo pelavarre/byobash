@@ -10,6 +10,7 @@ options:
   -f      launch without running startup files
 
 examples:
+  export |grep SHLVL
   zsh -f
 """
 
@@ -30,6 +31,7 @@ if __name__ == "__main__":
 
     SUGGESTION = textwrap.dedent(
         """
+        export |grep SHLVL
         zsh -f
         """
     ).strip()
