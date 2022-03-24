@@ -33,10 +33,15 @@ _ = pdb
 FILE = __main__.__file__
 DIRNAME = os.path.dirname(__main__.__file__)
 
+DEMO_BROKEN_PIPE_SINK = False
+
 
 def main():
     if not sys.argv[1:]:
         add_some_dirnames(dirnames=[DIRNAME])
+        if DEMO_BROKEN_PIPE_SINK:
+            for _ in range(54321):
+                print(_)
     else:
         print(__main__.__doc__.strip())
 
@@ -66,8 +71,11 @@ def add_one_dirname(dirname):
 
 
 if __name__ == "__main__":
-    with byo.BrokenPipeSink():
+    if DEMO_BROKEN_PIPE_SINK:
         main()
+    else:
+        with byo.BrokenPipeSink():
+            main()
 
 
 # copied from:  git clone https://github.com/pelavarre/byobash.git

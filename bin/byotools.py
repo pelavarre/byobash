@@ -74,7 +74,7 @@ def shlex_shortquote(arg):
     return quoted
 
 
-class BrokenPipeSink(contextlib.ContextDecorator):
+class BrokenPipeSink:
     """
     Exit nonzero, but leave Stderr empty, at unhandled BrokenPipeError's
 

@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+# python3 -i
+# echo |python3 -m pdb
+# pdb pm post-mortem
+# pdb bt back-trace
+
 """
 usage: python3.py [-h]  ...
 
