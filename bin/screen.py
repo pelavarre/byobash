@@ -10,10 +10,10 @@ options:
   -t          forward control of the local terminal (-tt for more force)
 
 examples:
-  screen -ls  # list how many you have
   rm -fr screenlog.0  # delete the default logfile
   screen -L -S Screen1  # make a screen, give it a name, and log what happens
-  screen -ls
+  screen -ls  # list how many you have
+  screen ls  # say '[screen is terminating]'
   screen -d  # ⌃A D  # detach the one you're in
   screen -ls
   screen -x Screen1  # attach the one you like
@@ -25,7 +25,7 @@ examples:
   screen -X hardcopy -h t.transcript  # make a log of the last few rows shown
   exit  # ⌃D  # close and delete this Screen
   screen -ls
-  cat screenlog.0  # interpret the Esc sequences in the defaultlog
+  cat screenlog.0  # interpret the Esc sequences in the default logfile
 """
 
 # FIXME: add ArgParse
@@ -45,9 +45,10 @@ if __name__ == "__main__":
 
     SUGGESTION = textwrap.dedent(
         """
-        screen -ls  # list how many you have
+        rm -fr screenlog.0  # delete the default logfile
         screen -L -S Screen1  # make a screen, give it a name, and log what happens
-        screen -ls
+        screen -ls  # list how many you have
+        screen ls  # say '[screen is terminating]'
         screen -d  # ⌃A D  # detach the one you're in
         screen -ls
         screen -x Screen1  # attach the one you like
@@ -59,6 +60,7 @@ if __name__ == "__main__":
         screen -X hardcopy -h t.transcript  # make a log of the last few rows shown
         exit  # ⌃D  # close and delete this Screen
         screen -ls
+        cat screenlog.0  # interpret the Esc sequences in the default logfile
         """
     ).strip()
 

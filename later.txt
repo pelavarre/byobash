@@ -1,3 +1,7 @@
+pass through to next .py in the Sh Path chain
+    and then to the next without Ext in the Sh Path chain
+        except fall back to first of chain when self Not found
+
 work more at
 
     clear.py sleep.py stty.py uptime.py watch.py
