@@ -7,3 +7,15 @@ work more at
     clear.py sleep.py stty.py uptime.py watch.py
 
     cv
+
+dream up a way to capture such idioms as
+
+    id -un
+    hostname
+    echo $PWD
+
+    git branch
+    git log --oneline --no-decorate -1
+    git describe --always --dirty
+
+fill out tab-completion, such as recent host names for Ssh
