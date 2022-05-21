@@ -29,6 +29,8 @@ examples:
 """
 
 # FIXME: add ArgParse
+#  screen vi  # demo as prefix
+# screen.py -r  # pick the latest, and autonumber them a b c ..., don't demand just one
 
 
 import __main__

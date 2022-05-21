@@ -1,3 +1,6 @@
+cat.py
+    'should work with my latest' was a note i took that meant something
+
 pass through to next .py in the Sh Path chain
     and then to the next without Ext in the Sh Path chain
         except fall back to first of chain when self Not found
