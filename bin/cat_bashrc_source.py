@@ -16,6 +16,7 @@ examples:
   export PATH="$PATH:$HOME/Public/byobash/bin"  &&: work less hard on a non-empty Path
 """
 
+# FIXME: deliver the 'alias cd.py' we promised
 # FIXME: add ArgParse
 # FIXME: add a --dupe option to still add what exists, just for test
 

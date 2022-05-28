@@ -2,6 +2,10 @@
 Type a command line into Bash,
 but end its verb in ".py" to go with your own defaults and options
 
+Press \<Dot\> \<Tab\> \<Return\> in place of \<Return\>,
+as often as you need a tool to wake up and welcome you competently
+into your own everyday work
+
 ## Demo
 
 Got preferences?
@@ -12,7 +16,7 @@ should come to you now, from your own tools inside Bash?
 Look here, you can afford to spell out your opinion quickly in simple code.
 You can roll your own simple accomodations in the workplace,
 while your workplace is a Shell in a Terminal, such as Linux Bash or Mac Zsh.
-You can curate the fixes yourself, keep some fixes secret, crowd-source the rest.
+You can curate the fixes yourself, keep some fixes secret, crowd-source the rest
 
 For example, you don't have to back off resignedly and
 put up with such talk-to-the-hand nonsense as
@@ -46,7 +50,7 @@ looks like this
     21
     $
 
-And telling "ssh" to give you the better examples
+And telling "ssh" to give you better examples
 looks like this
 
     $ ssh.py --h
@@ -59,10 +63,10 @@ You can learn to press \<Dot\> \<Tab\> \<Return\> in place of \<Return\>,
 as often as you need a tool to wake up and welcome you competently
 into your own everyday work.
 Work once briefly to retune your Bash to receive this signal well, and
-you'll have Bash itself treating you more kindly, as often you ask for it.
+you'll have Bash itself treating you more kindly, as often you ask for it
 
 The year 1972 was a long time ago now.
-You actually don't have to keep it in place to misrule over you.
+You actually don't have to keep it in place in misrule over you
 
 ## Basic install
 
@@ -80,28 +84,34 @@ Any time you know your Shell Path isn't empty, you can get by instead with just
 
 Regrettably,
 most of these Py files run well only if you copy the "byotools.py" file in with them.
-Tell me if this headache bothers you, we have ways to fix it.
+Tell us if this headache bothers you, we have ways to fix it
 
 You probably don't need to
 exit and relaunch your Shell to pick up new executable files,
-just dropping them into your Shell Path should be enough.
+just dropping them into your Shell Path should be enough
 
 ## Advanced install
 
-Your Shell shoves extra hard against you correcting its "builtin" commands.
+Your Shell shoves extra hard against you correcting its "builtin" commands
 
-For example, the Linux Bash Shell defines no API to let you fix its "cd" command.
+For example, the Linux Bash Shell defines no API to let you fix its "cd" command
 
 To define 'cd.py' to mean fix what's wrong with 'cd',
 you have to define 'cd.py' as a Shell Alias
+
+You can do this yourself
+
+    alias cd.py=$PWD/bin/cd.py
+
+or you can call us to do it for you
 
     cd ~/Public/
     git clone https://github.com/pelavarre/byobash.git
     source <(~/Public/byobash/bin/cat_bashrc_source.py)
 
-This works, but it's not pretty, because
+This works, but it's not pretty, exactly because
 Linux Bash and Mac Zsh don't yet do their half of this work.
-Comments in the source spell out exactly which tests your Shell will fail
+Comments in our source spell out exactly which tests your Shell will fail
 if you try to do this more simply,
 before more people show up to teach your Shell to properly welcome such interventions.
 
