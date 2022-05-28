@@ -15,22 +15,14 @@ examples:
   ssh -t localhost  "cd $PWD && bash -i"  # Ssh to same Cd but out there
   ssh -t localhost  bash -l  # '-l' for Bash to more login, not just shell out
 """
+# todo: does 'ssh -ttt' carry more force than 'ssh -tt'?
 
-# TODO: does 'ssh -ttt' carry more force than 'ssh -tt'?
 
-import __main__
-import sys
-import textwrap
+import byotools
 
 
 if __name__ == "__main__":
+    byotools.main()
 
-    if sys.argv[1:]:
-        print(__main__.__doc__.strip())
 
-        sys.exit(0)
-
-    doc = __main__.__doc__
-    epilog = doc[doc.index("examples:") :]
-    tests = "\n".join(epilog.splitlines()[1:])
-    print(textwrap.dedent(tests))
+# copied from:  git clone https://github.com/pelavarre/byobash.git

@@ -25,19 +25,12 @@ examples:
   reset  &&: clear Terminal history, but also sleep 1000ms
 """
 
-import __main__
-import sys
-import textwrap
+
+import byotools
 
 
 if __name__ == "__main__":
+    byotools.main()
 
-    if sys.argv[1:]:
-        print(__main__.__doc__.strip())
 
-        sys.exit(0)
-
-    doc = __main__.__doc__
-    epilog = doc[doc.index("examples:") :]
-    tests = "\n".join(epilog.splitlines()[1:])
-    print(textwrap.dedent(tests))
+# copied from:  git clone https://github.com/pelavarre/byobash.git

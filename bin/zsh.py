@@ -11,32 +11,15 @@ options:
 
 examples:
   export |grep SHLVL
-  zsh -f
+  zsh -f  &&: run with less local quirks
 """
 
-# FIXME: add ArgParse
 
-
-import __main__
-import sys
-import textwrap
+import byotools
 
 
 if __name__ == "__main__":
-
-    if sys.argv[1:]:
-        print(__main__.__doc__.strip())
-
-        sys.exit(0)
-
-    SUGGESTION = textwrap.dedent(
-        """
-        export |grep SHLVL
-        zsh -f
-        """
-    ).strip()
-
-    print(SUGGESTION)
+    byotools.main()
 
 
 # copied from:  git clone https://github.com/pelavarre/byobash.git

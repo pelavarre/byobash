@@ -17,22 +17,11 @@ examples:
 """
 
 
-import __main__
-import sys
-import textwrap
+import byotools
 
 
 if __name__ == "__main__":
-
-    if sys.argv[1:]:
-        print(__main__.__doc__.strip())
-
-        sys.exit(0)
-
-    doc = __main__.__doc__
-    epilog = doc[doc.index("examples:") :]
-    tests = "\n".join(epilog.splitlines()[1:])
-    print(textwrap.dedent(tests))
+    byotools.main()
 
 
 # copied from:  git clone https://github.com/pelavarre/byobash.git

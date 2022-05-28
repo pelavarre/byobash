@@ -7,35 +7,17 @@ look at what each keystroke means, or mess with it
 
 options:
   --help       show this help message and exit
+
+examples:
+  : bash chrome emacs macos screen slack ssh stty tmux vim
 """
 
-import __main__
-import sys
-import textwrap
+
+import byotools
 
 
 if __name__ == "__main__":
+    byotools.main()
 
-    if sys.argv[1:]:
-        print(__main__.__doc__.strip())
 
-        sys.exit(0)
-
-    SUGGESTION = textwrap.dedent(
-        """
-
-        : # Stty keys
-        : # Bash keys
-        : # Ssh keys
-        : # macOS keys
-        : # Screen keys
-        : # TMux keys
-        : # Emacs keys
-        : # Vim keys
-        : # Slack keys
-        : # Chrome keys
-
-        """
-    ).strip()
-
-    print(SUGGESTION)
+# copied from:  git clone https://github.com/pelavarre/byobash.git

@@ -10,13 +10,65 @@ examples:
 """
 
 
+import __main__
 import os
 import pdb
 import shlex
 import signal
+import subprocess
 import sys
+import textwrap
+
 
 _ = pdb
+
+
+def main():
+    """Run a Py File with Help Lines & Examples in Main Doc, from the Sh Command Line"""
+
+    # Fetch many kinds of args
+
+    sys_stdin_isatty = sys.stdin.isatty()
+
+    env_ps1 = os.getenv("PS1")
+    env_zsh = env_ps1.strip().endswith("%#")
+
+    basename = os.path.basename(sys.argv[0])
+    (root, ext) = os.path.splitext(basename)
+    assert ext == ".py", dict(basename=basename)
+
+    parms = sys.argv[1:]
+
+    doc = __main__.__doc__
+    epilog = doc[doc.index("examples:") :]
+
+    examples = "\n".join(epilog.splitlines()[1:])
+    examples = textwrap.dedent(examples)
+    examples = examples if env_zsh else examples.replace("&&:", "#")
+
+    # Default to print example usage
+
+    if sys_stdin_isatty and not parms:
+        print(examples)
+
+        sys.exit(0)
+
+    # Service any one of "--help", "--hel", "--he", or "--h" given before "--"
+
+    for parm in parms:
+        if parm.startswith("--h") and "--help".startswith(parm):
+            print(doc)
+
+            sys.exit(0)
+
+    # Form an ArgV to forward the Command Line
+
+    argv = list(sys.argv[:-1]) if (sys.argv[-1] in ("-", "--")) else sys.argv
+    argv[0] = root
+
+    run = subprocess.run(argv)
+    if run.returncode:
+        sys.stderr.write("{}: + exit {}\n".format(basename, run.returncode))
 
 
 def os_path_homepath(path):
