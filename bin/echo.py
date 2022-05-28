@@ -14,8 +14,11 @@ options:
 note:
   \e is \x1B Esc
   \c stops the print and implies -n
+  try 'echo' with no args, when your Echo mistakes 'echo --' to mean 'echo.py -- --'
 
 examples:
+  echo.py  &&: call Echo Py with no args to show these examples
+  echo.py --  &&: echo one empty line
   echo -n $'\e[8;50;89t'  &&: revert Terminal to 50 Rows x 89 Columns
   echo -ne '\e[H\e[2J'  &&: echo -ne '\e[2J\e[3J\e[H'  &&: clear Terminal history
   which -a echo  &&: list variations of Echo

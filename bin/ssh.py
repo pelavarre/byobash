@@ -10,15 +10,13 @@ options:
   -t          forward control of the local terminal (-tt for more force)
 
 examples:
+  ssh.py  &&: call Ssh Py with no args to show these examples
   ssh -t localhost  'cd /usr/bin/ && bash -i'  # Ssh to your choice of Cd
   ssh -t localhost  "cd $PWD && bash -i"  # Ssh to same Cd but out there
   ssh -t localhost  bash -l  # '-l' for Bash to more login, not just shell out
 """
 
 # TODO: does 'ssh -ttt' carry more force than 'ssh -tt'?
-
-# FIXME: add ArgParse
-
 
 import __main__
 import sys
@@ -32,16 +30,7 @@ if __name__ == "__main__":
 
         sys.exit(0)
 
-    SUGGESTION = textwrap.dedent(
-        """
-        ssh -t localhost  'cd /usr/bin/ && bash -i'  # Ssh to your choice of Cd
-        ssh -t localhost  "cd $PWD && bash -i"  # Ssh to same Cd but out there
-        ssh -t localhost  bash -l  # '-l' for Bash to more login, not just shell out
-        ssh-add -L |grep ^ssh-rsa-cert |ssh-keygen -L -f - |grep Valid
-        """
-    ).strip()
-
-    print(SUGGESTION)
-
-
-# copied from:  git clone https://github.com/pelavarre/byobash.git
+    doc = __main__.__doc__
+    epilog = doc[doc.index("examples:") :]
+    tests = "\n".join(epilog.splitlines()[1:])
+    print(textwrap.dedent(tests))
