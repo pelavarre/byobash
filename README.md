@@ -1,10 +1,11 @@
 # byobash
-Type a command line into Bash,
-but end its verb in ".py" to go with your own defaults and options
 
-Press \<Dot\> \<Tab\> \<Return\> in place of \<Return\>,
-as often as you need a tool to wake up and welcome you competently
-into your own everyday work
+Type a command line into Bash,
+but end the verb in ".py" to get your own defaults and options
+
+Odds on you'll see the verb end in ".py"
+if you try pressing  \<Dot\> \<Tab\> \<Return\> in place of \<Return\>
+- You shouldn't have to press the P and the Y
 
 ## Demo
 
@@ -13,35 +14,22 @@ Got preferences?
 Got your own correct opinion on which defaults, options, examples, and help lines
 should come to you now, from your own tools inside Bash?
 
-Look here, you can afford to spell out your opinion quickly in simple code.
-You can roll your own simple accomodations in the workplace,
+Look, you can quickly easily code your opinion.
+You can roll your own simple accomodations of you in the workplace,
 while your workplace is a Shell in a Terminal, such as Linux Bash or Mac Zsh.
 You can curate the fixes yourself, keep some fixes secret, crowd-source the rest
 
-For example, you don't have to back off resignedly and
-put up with such talk-to-the-hand nonsense as
+For instance, telling Ssh to give you better examples
+can look like this
 
-    $ cp
-    cp: missing file operand
-    Try 'cp --help' for more information
-    + exit 1
+    $ ssh.py
+    ssh.py --help  &&: show this help message and exit
+    ssh -t localhost 'cd /usr/bin/ && bash -i'  &&: Ssh to your choice of Cd
+    ...
     $
 
-Telling "cp" to stop forcing you to spell out all its options and arguments
-looks like this
-
-    $ touch file
-    $ cp.py
-    + cp -ipR file file~2~
-    $
-
-    $ mkdir files
-    $ cp.py
-    + cp -ipR files/ files~2~/
-    $
-
-As another example, telling "ssh" to give you the TL;DR of its Man Page
-looks like this
+Likewise, telling Ssh to give you the TL;DR of its Man Page
+can look like this
 
     $ man ssh |wc -l
     922
@@ -50,72 +38,72 @@ looks like this
     21
     $
 
-And telling "ssh" to give you better examples
-looks like this
+The year 1972 was a long time ago now.
+You don't actually have to keep it in place in misrule over you
 
-    $ ssh.py --h
-    ...
-    ssh -t localhost 'cd /usr/bin/ && bash -i'  # Ssh to your choice of Cd
-    ...
+Like you don't have to back off resignedly and
+put up with such talk-to-the-hand nonsense as
+
+    $ cp
+    cp: missing file operand
+    Try 'cp --help' for more information
+    + exit 1
     $
 
-You can learn to press \<Dot\> \<Tab\> \<Return\> in place of \<Return\>,
-as often as you need a tool to wake up and welcome you competently
-into your own everyday work.
-Work once briefly to retune your Bash to receive this signal well, and
-you'll have Bash itself treating you more kindly, as often you ask for it
+Telling Cp to stop forcing you to spell out all its options and arguments for us
+can look like this
 
-The year 1972 was a long time ago now.
-You actually don't have to keep it in place in misrule over you
+    $ touch file
+    $ cp.py
+    + cp -ipR file file~
+    $
+
+    $ mkdir files
+    $ cp.py
+    + cp -ipR files/ files~/
+    $
 
 ## Basic install
 
 Copy the Py files you want into your Shell Path
 
-Like you can patch in the whole directory of ByoBash Py files like so
+Like you can patch in the whole directory of ByoBash Py file, like so
 
     cd ~/Public/
     git clone https://github.com/pelavarre/byobash.git
     export PATH="${PATH:+$PATH:}$PWD/byobash/bin"
 
-Any time you know your Shell Path isn't empty, you can get by instead with just
+If you do know your Shell Path isn't empty, you can say this more simply, like so
 
     export PATH="$PATH:$HOME/Public/byobash/bin"
 
-Regrettably,
-most of these Py files run well only if you copy the "byotools.py" file in with them.
-Tell us if this headache bothers you, we have ways to fix it
+You don't need to exit and relaunch your Shell to make these Py files work for you,
+just dropping these Py files into your Shell Path is enough
 
-You probably don't need to
-exit and relaunch your Shell to pick up new executable files,
-just dropping them into your Shell Path should be enough
+You can patch your '~/.bashrc' or '~/.zshrc' configuration of your Shell,
+if you want youre Shell to add these Py files into your Shell Path
+as often as you open up a new Terminal window
+
+    export PATH="${PATH:+$PATH:}:$HOME/Public/byobash/bin"
 
 ## Advanced install
 
-Your Shell shoves extra hard against you correcting its "builtin" commands
+Odds on you've told your Shell to give some permissions
+only to commands coded inside Process Memory,
+not also to commands coded as Files outside of Process Memory.
 
-For example, the Linux Bash Shell defines no API to let you fix its "cd" command
+For example, your 'cd' will change your Working Dir, but your '/usr/bin/cd' won't
 
-To define 'cd.py' to mean fix what's wrong with 'cd',
-you have to define 'cd.py' as a Shell Alias
+    % which -a cd
+    cd: shell built-in command
+    /usr/bin/cd
+    % 
 
-You can do this yourself
+But if you then do want 'cd.py' to change your Working Dir,
+you've got to install 'cd.py' in some special way, such as
 
-    alias cd.py=$PWD/bin/cd.py
+    function cd.py () { cd "$(~/Public/pybashish/bin/cd.py bin)"; }
 
-or you can call us to do it for you
+## Copied from
 
-    cd ~/Public/
-    git clone https://github.com/pelavarre/byobash.git
-    source <(~/Public/byobash/bin/cat_bashrc_source.py)
-
-This works, but it's not pretty, exactly because
-Linux Bash and Mac Zsh don't yet do their half of this work.
-Comments in our source spell out exactly which tests your Shell will fail
-if you try to do this more simply,
-before more people show up to teach your Shell to properly welcome such interventions.
-
-## Prior work
-
-The tech here first came online buried deep inside of
-GitHub > PELaVarre > [PyBashish](https://github.com/pelavarre/pybashish)
+Copied from:  git clone https://github.com/pelavarre/pybashish.git
