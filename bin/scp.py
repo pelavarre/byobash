@@ -1,2 +1,2 @@
-should print the ps1 to guide the Scp
-
+# should print the ps1 to guide the Scp
+#

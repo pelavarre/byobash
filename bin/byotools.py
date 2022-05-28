@@ -4,12 +4,12 @@
 usage: import byotools as byo
 
 define a pile of conveniences for writing Python
+
+examples:
+  tbd - such as one line per Def
 """
 
-# TODO: less silence when run as __main__
 
-
-import contextlib
 import os
 import pdb
 import shlex
@@ -126,6 +126,13 @@ class ShPath:
         shpath = shlex_shortquote(shortpath)
 
         return shpath
+
+
+# do run from the Command Line, when not imported into some other main module
+if __name__ == "__main__":
+    print("usage: import byotools as byo", file=sys.stderr)
+
+    sys.exit(2)
 
 
 #

@@ -1,3 +1,12 @@
+dreaming since May/2022 =>
+
+ship better Arg Doc first
+then drop better code into .py --python3
+then run it at .py
+
+
+earlier thoughts =>
+
 cat.py
     'should work with my latest' was a note i took that meant something
 
@@ -22,3 +31,6 @@ dream up a way to capture such idioms as
     git describe --always --dirty
 
 fill out tab-completion, such as recent host names for Ssh
+
+
+# copied from:  git clone https://github.com/pelavarre/byobash.git

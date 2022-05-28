@@ -9,11 +9,11 @@ examples:
   cd ~/Public/
   git clone https://github.com/pelavarre/byobash.git
   cd byobash/
-  bin/cat_bashrc_source.py  # see what it will do
-  bin/cat_bashrc_source.py  # see it again
-  source <(~/Public/byobash/bin/cat_bashrc_source.py)  # trust it
-  export PATH="${PATH:+$PATH:}$HOME/Public/byobash/bin"  # do some of it yourself
-  export PATH="$PATH:$HOME/Public/byobash/bin"  # work less hard on a non-empty Path
+  bin/cat_bashrc_source.py  &&: see what it will do
+  bin/cat_bashrc_source.py  &&: see it again
+  source <(~/Public/byobash/bin/cat_bashrc_source.py)  &&: trust it
+  export PATH="${PATH:+$PATH:}$HOME/Public/byobash/bin"  &&: do some of it yourself
+  export PATH="$PATH:$HOME/Public/byobash/bin"  &&: work less hard on a non-empty Path
 """
 
 # FIXME: add ArgParse

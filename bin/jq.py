@@ -1,1 +1,1 @@
-|jq.py should default to |jq .
+# |jq.py should default to |jq .

@@ -1,1 +1,1 @@
-lspci -t -vvvv  # but how many V needed?
+# lspci - t - vvvv  # but how many V needed?

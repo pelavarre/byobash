@@ -1,3 +1,3 @@
-vim $(which ...)
-
-) lights for matching/ not
+# vim $(which ...)
+#
+# ) lights for matching/ not

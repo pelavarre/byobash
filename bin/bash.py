@@ -11,11 +11,10 @@ options:
   --norc       launch without running personal startup files
 
 examples:
-  export |grep SHLVL
-  bash --noprofile --norc
+  bash --noprofile --norc  &&: run with less local quirks
+  export |grep SHLVL  &&: show how deeply incepted
+  set |grep -e ^PS1= -e ^PS4=  &&: show the outer and incepted shell prompts
 """
-
-# FIXME: add ArgParse
 
 
 import __main__
@@ -30,14 +29,10 @@ if __name__ == "__main__":
 
         sys.exit(0)
 
-    SUGGESTION = textwrap.dedent(
-        """
-        export |grep SHLVL
-        bash --noprofile --norc
-        """
-    ).strip()
-
-    print(SUGGESTION)
+    doc = __main__.__doc__
+    epilog = doc[doc.index("examples:") :]
+    tests = "\n".join(epilog.splitlines()[1:])
+    print(textwrap.dedent(tests))
 
 
 # copied from:  git clone https://github.com/pelavarre/byobash.git
