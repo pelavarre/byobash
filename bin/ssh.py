@@ -14,6 +14,7 @@ examples:
   ssh -t localhost  'cd /usr/bin/ && bash -i'  # Ssh to your choice of Cd
   ssh -t localhost  "cd $PWD && bash -i"  # Ssh to same Cd but out there
   ssh -t localhost  bash -l  # '-l' for Bash to more login, not just shell out
+  ssh-add -L |grep ^ssh-rsa-cert |ssh-keygen -L -f - |grep Valid
 """
 # todo: does 'ssh -ttt' carry more force than 'ssh -tt'?
 
