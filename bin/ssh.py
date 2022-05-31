@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
 """
-usage: ssh.py [-h] [-t] ...
+usage: ssh.py [--h] [-t] ...
 
 shell out to a host
 
 options:
-  -h, --help  show this help message and exit
-  -t          forward control of the local terminal (-tt for more force)
+  --help  show this help message and exit
+  -t      forward control of the local terminal (-tt for more force)
 
 examples:
   ssh.py  &&: call Ssh Py with no args to show these examples

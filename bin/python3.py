@@ -6,12 +6,12 @@
 # pdb bt back-trace
 
 """
-usage: python3.py [-h]  ...
+usage: python3.py [--h]  ...
 
 interpret Python language
 
 options:
-  -h, --help     show this help message and exit
+  --help         show this help message and exit
   -V, --version  print Python version (-VV for more force)
 
 examples:

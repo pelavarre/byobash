@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-usage: zsh.py [--help] [-f] ...
+usage: zsh.py [--h] [-f] ...
 
 shell out to a host
 

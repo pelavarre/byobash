@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-usage: bash.py [--help] [--noprofile] [--norc] ...
+usage: bash.py [--h] [--noprofile] [--norc] ...
 
 shell out to a host
 

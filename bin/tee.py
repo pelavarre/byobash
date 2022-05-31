@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 
 r"""
-usage: tee.py [-h] [-a] [FILE ...]
+usage: tee.py [--h] [-a] [FILE ...]
 
 read from Stdin and write the bytes read into each File in order
 
 positional arguments:
-  FILE                  the file to drop trailing lines from (default: stdin)
+  FILE    the file to drop trailing lines from (default: stdin)
 
 options:
-  -h, --help            show this help message and exit
-  -a                    append to the Files that already exist, don't create those
+  --help  show this help message and exit
+  -a      append to the Files that already exist, don't create those
 
 notes:
   give Args or Stdin, or print a prompt, to stop more Tee's from hanging silently

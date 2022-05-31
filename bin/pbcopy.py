@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 
 """
-usage: pbcopy.py [-h]
+usage: pbcopy.py [--h]
 
 copy Stdin into the main Os Pasteboard (aka Clipboard)
 
 options:
-  -h, --help  show this help message and exit
+  --help  show this help message and exit
 
 notes:
-  switch to Apple macOS, out of Linux or G Shell, to find this built-in
+  switch to Apple macOS, out of Linux or G Shell, to find PBCopy and PBPaste built-in
 
 examples:
   function c () { echo + pbcopy >&2; pbcopy "$@"; }

@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 
 r"""
-usage: cat.py [-h] [-E] [-e] [-n] [-T] [-t] [-v] [FILE ...]
+usage: cat.py [--h] [-E] [-e] [-n] [-T] [-t] [-v] [FILE ...]
 
 copy each line of input bytes (or chars) to output (as if "cat"enating them slowly)
 
 positional arguments:
-  FILE                  a file to copy out (default: stdin)
+  FILE                  a file to copy out (such as '-' to mean Stdin)
 
 options:
-  -h, --help            show this help message and exit
+  --help                show this help message and exit
   -E, --show-ends       print each \n lf as $ lf
   -e                    call for -E and -v
   -n, --number          number each line of output, up from 1, with \t tabs
@@ -23,6 +23,8 @@ notes:
 
 examples:
   python -c 'import this' |tail -n +3 |cat -n |expand
+  ... |cat -n |expand
+  ... |cat -etv
 """
 
 

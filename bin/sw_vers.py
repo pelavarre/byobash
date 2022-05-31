@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
 """
-usage: sw_vers.py [-h]  ...
+usage: sw_vers.py [--h]  ...
 
 print macOS version
 
 options:
-  -h, --help  show this help message and exit
+  --help  show this help message and exit
 
 examples:
   sw_vers  # such as:  macOS 12.2.1 21D62

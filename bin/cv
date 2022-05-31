@@ -1,3 +1,0 @@
-# cv = c = pbcopy when stdin is not tty, and leave stdout unwritten
-# cv = v = pbpaste when stdin is tty & stdout is or is not1
-# cv, yea mark early eof, but break line before that mark

@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
 """
-usage: screen.py [-h] [-t] ...
+usage: screen.py [--h] [-t] ...
 
 limit a Terminal window to a few rows and columns shared between hosts
 
 options:
-  -h, --help  show this help message and exit
-  -t          forward control of the local terminal (-tt for more force)
+  --help  show this help message and exit
+  -t      forward control of the local terminal (-tt for more force)
 
 examples:
   rm -fr screenlog.0  # delete the default logfile

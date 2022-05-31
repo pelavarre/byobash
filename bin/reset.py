@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 r"""
-usage: reset.py [-h] [-x]
+usage: reset.py [--h] [-x]
 
 erase the lines of the Terminal and start again in the top left
 

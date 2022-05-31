@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-usage: cal.py [--help] [-h] [-H YMD] [-M | -S] [Y]
+usage: cal.py [--h] [-h] [-H YMD] [-M | -S] [Y]
 
 show what weekday it is or was or will be, of which year and month
 

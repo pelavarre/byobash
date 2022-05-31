@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
 """
-usage: bind.py ...
+usage: bind.py [--h] ...
 
 look at what each keystroke means, or mess with it
 
 options:
-  --help       show this help message and exit
+  --help  show this help message and exit
 
 examples:
   : bash chrome emacs macos screen slack ssh stty tmux vim
