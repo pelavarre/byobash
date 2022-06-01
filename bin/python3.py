@@ -54,4 +54,26 @@ if __name__ == "__main__":
     byotools.main()
 
 
+_ = """
+
+python3 AttributeError: 'Namespace' object has no attribute 'c'
+should tell us
+
+from argparse import Namespace as space
+
+s = space(a=1, b=2)
+print(s)
+# Namespace(a=1, b=2)
+
+print(list(_ for _ in dir(s) if not _.startswith("_")))
+# ['a', 'b']
+print(list(vars(s).keys()))
+# ['a', 'b']
+
+s.c
+# AttributeError: 'Namespace' object has no attribute 'c'
+
+"""
+
+
 # copied from:  git clone https://github.com/pelavarre/byobash.git

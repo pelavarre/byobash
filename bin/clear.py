@@ -25,6 +25,8 @@ examples:
   reset  &&: clear Terminal history, but also sleep 1000ms
 """
 
+# FIXME: do the for-real Clear Terminal History when called as:  clear.py --
+
 
 import byotools
 
