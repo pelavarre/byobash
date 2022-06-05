@@ -9,30 +9,37 @@ options:
   --help  show this help message and exit
   -x      clear like Mac
 
-notes:
-  fall back to Echo, to clear your Terminal as well as ⌘W ⌘N does
-  call Clear twice
-
-  substitute the examples of 'echo -ne' for 'clear' if you can't accept a default of '-x'
-  some Clear never clear scrollback, as if 'clear -x' always
-  some Clear never clear scrollback, as if 'clear -x' always
-
 examples:
-  clear.py  &&: clear Terminal history
-  clear.py -x  &&: echo -ne '\e[H\e[2J'  # scroll all lines up and away
-  clear && clear  &&: clear Terminal history, and write a screen of history, if at Linux
-  echo -ne '\e[H\e[2J' && echo -ne '\e[2J\e[3J\e[H'  &&: clear Terminal history
-  reset  &&: clear Terminal history, but also sleep 1000ms
+  echo -ne '\e[H\e[2J\e[3J'  &&: clear Lines on and above Screen, in a MacOs Terminal
+  clear.py --  &&: this first option
+  echo -ne '\e[3J\e[H\e[2J'  &&: clear Lines above Screen, & scroll Lines on Screen away
+  clear  &&: this second option, at Linux, but who wants this??
+  echo -ne 'e[H\e[2J'  &&: scroll Lines on Screen away
+  clear  &&: this third option
+  clear -x  &&: this same third option, but at Linux or at Mac
+  clear && clear  &&: clear Lines above, and scroll a Blank Screen above, if at Linux
+  date; seq 40 ; date ; seq 40 ; date  # fill much Screen wih distinct lines
+  reset  &&: clear Lines on and above Screen, but also sleep 1000ms
 """
 
-# FIXME: do the for-real Clear Terminal History when called as:  clear.py --
 
+import sys
 
 import byotools
 
 
+def main():
+
+    if sys.argv[1:] != "--".split():
+
+        byotools.main()  # FIXME: rename as '.exit'
+
+    esc = "\x1B"
+    print(r"\e[H\e[2J\e[3J".replace(r"\e", esc), end="")
+
+
 if __name__ == "__main__":
-    byotools.main()
+    main()
 
 
 # copied from:  git clone https://github.com/pelavarre/byobash.git
