@@ -18,9 +18,11 @@ examples:
   clear  &&: this third option
   clear -x  &&: this same third option, but at Linux or at Mac
   clear && clear  &&: clear Lines above, and scroll a Blank Screen above, if at Linux
-  date; seq 40 ; date ; seq 40 ; date  # fill much Screen wih distinct lines
+  date; seq 40 ; date ; seq 40 ; date  &&: fill much Screen wih distinct lines
   reset  &&: clear Lines on and above Screen, but also sleep 1000ms
 """
+# clear |hexdump -C  # show the 'e[H\e[2J' of Mac Clear, or '\e[3J\e[H\e[2J' at Linux
+# reset 2>&1 |hexdump -C  # show the codes written by Linux Reset
 
 
 import sys
