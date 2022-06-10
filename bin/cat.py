@@ -34,5 +34,6 @@ import byotools
 if __name__ == "__main__":
     byotools.main()
 
+    # FIXME distinguish 'cat.py -tvn' as showing U+00A0 Nbsp and ending all lines
 
 # copied from:  git clone https://github.com/pelavarre/byobash.git
