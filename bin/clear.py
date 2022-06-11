@@ -31,7 +31,7 @@ def main():
 
     if sys.argv[1:] != "--".split():
 
-        byotools.main()  # FIXME: rename as '.exit'
+        byotools.exit()
 
     esc = "\x1B"
     print(r"\e[H\e[2J\e[3J".replace(r"\e", esc), end="")

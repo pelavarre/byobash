@@ -51,7 +51,8 @@ import byotools
 
 
 if __name__ == "__main__":
-    byotools.main()
+
+    byotools.exit()
 
 
 _ = """

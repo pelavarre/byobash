@@ -23,7 +23,7 @@ import textwrap
 _ = pdb
 
 
-def main():
+def exit():
     """Run a Py File with Help Lines & Examples in Main Doc, from the Sh Command Line"""
 
     # Fetch many kinds of args
@@ -69,6 +69,8 @@ def main():
     run = subprocess.run(argv)
     if run.returncode:
         sys.stderr.write("{}: + exit {}\n".format(basename, run.returncode))
+
+    sys.exit()
 
 
 def os_path_homepath(path):

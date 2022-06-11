@@ -23,7 +23,8 @@ import byotools
 
 
 if __name__ == "__main__":
-    byotools.main()
+
+    byotools.exit()
 
 
 # copied from:  git clone https://github.com/pelavarre/byobash.git
