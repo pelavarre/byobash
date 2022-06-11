@@ -1,11 +1,12 @@
 # byobash
 
 Type a command line into Bash,
-but end the verb in ".py" to get your own defaults and options
+but end the verb in ".py" to get your own defaults and options,
+and end the verb in ".py --" to get your own corrections to its meaning
 
 Odds on you'll see the verb end in ".py"
-if you try pressing  \<Dot\> \<Tab\> \<Return\> in place of \<Return\>
-- You shouldn't have to press the P and the Y
+if you try pressing  \<Dot\> \<Tab\> \<Return\> in place of \<Return\>,
+so you shouldn't have to press the P and the Y
 
 ## Demo
 
@@ -14,13 +15,14 @@ Got preferences?
 Got your own correct opinion on which defaults, options, examples, and help lines
 should come to you now, from your own tools inside Bash?
 
-Look, you can quickly easily code your opinion.
+Look, here you can quickly easily code your opinion.
 You can roll your own simple accomodations of you in the workplace,
-while your workplace is a Shell in a Terminal, such as Linux Bash or Mac Zsh.
+while your workplace is a Shell in a Terminal,
+such as Linux Bash or Mac Zsh or GMail's GCloud Bash inside your Browser.
 You can curate the fixes yourself, keep some fixes secret, crowd-source the rest
 
-For instance, telling Ssh to give you better examples
-can look like this
+For example, you can type S S H and then Dot Tab Return
+to get Ssh to give you better examples
 
     $ ssh.py
     ssh.py --help  &&: show this help message and exit
@@ -28,8 +30,8 @@ can look like this
     ...
     $
 
-Likewise, telling Ssh to give you the TL;DR of its Man Page
-can look like this
+Likewise, you can type S S H Space Dash Dash H Return
+to get Ssh to give you the TL;DR of its voluminous Man Page
 
     $ man ssh |wc -l
     922
@@ -38,10 +40,10 @@ can look like this
     21
     $
 
-The year 1972 was a long time ago now.
-You don't actually have to keep it in place in misrule over you
+The year 1972 was a long time ago now
+- you don't actually have to keep it in place in misrule over you
 
-Like you don't have to back off resignedly and
+For example, iyou don't have to back off resignedly and
 put up with such talk-to-the-hand nonsense as
 
     $ cp
@@ -54,12 +56,12 @@ Telling Cp to stop forcing you to spell out all its options and arguments for us
 can look like this
 
     $ touch file
-    $ cp.py
-    + cp -ipR file file~
+    $ cp.py --
+    + cp -ip file file~
     $
 
     $ mkdir files
-    $ cp.py
+    $ cp.py --
     + cp -ipR files/ files~/
     $
 
@@ -67,22 +69,22 @@ can look like this
 
 Copy the Py files you want into your Shell Path
 
-Like you can patch in the whole directory of ByoBash Py file, like so
+Like you can patch in our whole Dir into your Path, like so
 
     cd ~/Public/
     git clone https://github.com/pelavarre/byobash.git
     export PATH="${PATH:+$PATH:}$PWD/byobash/bin"
 
-If you do know your Shell Path isn't empty, you can say this more simply, like so
+When you do know your Shell Path isn't empty, you can say this more simply, like so
 
     export PATH="$PATH:$HOME/Public/byobash/bin"
 
 You don't need to exit and relaunch your Shell to make these Py files work for you,
 just dropping these Py files into your Shell Path is enough
 
-You can patch your '~/.bashrc' or '~/.zshrc' configuration of your Shell,
-if you want youre Shell to add these Py files into your Shell Path
-as often as you open up a new Terminal window
+When you want your Shell to make these Py files work for you
+as often as you open up a new Terminal window,
+you can patch your '~/.bashrc' or '~/.zshrc' configuration of your Shell, like so
 
     export PATH="${PATH:+$PATH:}:$HOME/Public/byobash/bin"
 
@@ -97,9 +99,9 @@ For example, your 'cd' will change your Working Dir, but your '/usr/bin/cd' won'
     % which -a cd
     cd: shell built-in command
     /usr/bin/cd
-    % 
+    %
 
-But if you then do want 'cd.py' to change your Working Dir,
+So then if you then do want 'cd.py' to change your Working Dir,
 you've got to install 'cd.py' in some special way, such as
 
     function cd.py () { cd "$(~/Public/pybashish/bin/cd.py bin)"; }
