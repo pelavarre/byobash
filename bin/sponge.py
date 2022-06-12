@@ -10,7 +10,7 @@ options:
 
 quirks:
   Linux Terminal Stdin echoes ⌃D EOF as "" without "\n", vs macOS as "^D" without "\n"
-  GCloud Bash comes with 'sponge' defined, as if by:  apt install moreutils
+  GShell comes with 'sponge' defined, as if by:  apt install moreutils
 
 examples:
   cat |sponge.py --  &&: let you finish typing, and press ⌃D EOF, before echoing it all

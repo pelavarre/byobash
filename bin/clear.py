@@ -25,7 +25,7 @@ examples:
   tput clear 2>&1 |tee >(hexdump -C)  &&: call and trace TPut Clear
   reset 2>&1 |tee >(hexdump -C)  &&: call and trace Reset, at Linux
 """
-# todo: find a Clear that deletes Scrollback, inside default GCloud TMux Enabled
+# todo: find a Clear that deletes Scrollback, inside default GShell TMux Enabled
 # todo: call and trace Reset, at Mac
 
 

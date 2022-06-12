@@ -18,7 +18,7 @@ should come to you now, from your own tools inside Bash?
 Look, here you can quickly easily code your opinion.
 You can roll your own simple accomodations of you in the workplace,
 while your workplace is a Shell in a Terminal,
-such as Linux Bash or Mac Zsh or GMail's GCloud Bash inside your Browser.
+such as Linux Bash or Mac Zsh or GMail's GCloud GShell Bash inside your Browser.
 You can curate the fixes yourself, keep some fixes secret, crowd-source the rest
 
 For example, you can type S S H and then Dot Tab Return
@@ -104,7 +104,11 @@ For example, your 'cd' will change your Working Dir, but your '/usr/bin/cd' won'
 So then if you then do want 'cd.py' to change your Working Dir,
 you've got to install 'cd.py' in some special way, such as
 
-    function cd.py () { cd "$(~/Public/byobash/bin/cd.py \"$@\")"; }
+    function cd.py () { cd "$(~/Public/byobash/bin/cd.py $@)"; }
+
+This special install works well in Zsh, it works ok in Bash, but in Bash
+you have to type '?' Question Marks in place of ' ' Spaces to find Dirs whose
+Names have Spaces in them
 
 ## Copied from
 
