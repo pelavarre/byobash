@@ -3,14 +3,17 @@
 r"""
 usage: reset.py [--h] [-x]
 
-erase the lines of the Terminal and start again in the top left
+erase the Screen and Scrollback of the Terminal, move the Cursor to Top Left of Screen
 
 options:
   --help  show this help message and exit
 
+quirks:
+  GShell default TMux keeps Scrollback
+
 examples:
   reset  &&: 1000ms slow, but more reliable than:  clear
-  reset 2>&1 |hexdump -C  &&: disclose what bytes Reset writes, if at Linux
+  reset 2>&1 |tee >(hexdump -C)  &&: call and trace Reset, at Linux
 """
 # todo: doc what bytes written
 

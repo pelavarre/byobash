@@ -14,6 +14,7 @@ quirks:
 
 examples:
   cat |sponge.py --  &&: let you finish typing, and press ⌃D EOF, before echoing it all
+  sponge.py --  &&: same effect
   echo $'\xC0\x80' |sponge.py -- |hexdump -C  &&: forward UnicodeDecodeError accurately
 """
 
