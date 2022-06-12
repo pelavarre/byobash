@@ -24,41 +24,78 @@ import argparse
 import difflib
 import os
 import pathlib
+import shlex
+import string
+import subprocess
 import sys
 
 import byotools
 
 
 def main():
+    """Run from the Command Line"""
 
-    # Forward the absence of CLI Parms into ByoTools Exit
+    args = parse_python_args()
+
+    # First compile
+
+    if args.file:
+        shfile = shlex_quote(args.file)
+
+        pdb_shline = "python3 -m pdb {}".format(shfile)
+
+        black_shline = "black {}".format(shfile)
+
+        flake8_shline = "flake8"
+        flake8_shline += " --max-line-length=999 --max-complexity 10 --ignore="
+        flake8_shline += "E203"  # Black '[ : ]' rules over E203 whitespace before ':'
+        flake8_shline += ",W503"  # Black over Flake8 W503 line break before binary op
+        flake8_shline += " {}".format(shfile)
+
+        subprocess_run(pdb_shline, check=True)
+        subprocess_run(black_shline, check=True)
+        subprocess_run(flake8_shline, check=True)
+
+    # Run after compiline
+
+    shparms = ""
+    if args.i:
+        shparms += " -i"
+    if args.module:
+        shmodule = shlex_quote(args.module)
+        shparms += " -m {}".format(shmodule)
+    if args.file:
+        shparms += " {}".format(shfile)
+
+    python3_shline = "python3 {}".format(shparms)
+
+    subprocess_run(python3_shline, check=True)
+
+
+def parse_python_args():
+    """Take Parms from the Command Line"""
+
+    # Call ByoTools Exit in the absence of Parms
 
     parms = sys.argv[1:]
     if not parms:
 
         byotools.exit()
 
-    # Take Parms from the Command Line
+    # Call ArgParse in the presence of Parms
 
     parser = compile_python_argdoc()
     args = parser.parse_args()
 
     try:
-        lines = pathlib.Path(args.file).read_text()
+        _ = pathlib.Path(args.file).read_text()
     except FileNotFoundError:
 
         byotools.exit()
 
-    _ = lines
+    # Return the Parsed Parms
 
-    # todo: call echo |python3 -m pdb
-    # todo: call Black
-    # todo: call Flake8
-    # todo: call the file
-
-    sys.stderr.write("python.py: not yet implemented at {}\n".format(args))
-
-    sys.exit(3)
+    return args
 
 
 def compile_python_argdoc():
@@ -74,6 +111,7 @@ def compile_python_argdoc():
     parser.add_argument(
         "-m",
         metavar="MODULE",
+        dest="module",
         help="import the module and call it with positional arguments and options",
     )
 
@@ -168,6 +206,56 @@ def exit_unless_doc_eq(doc, verbs, parser):
         print("\n".join(diff_lines))
 
         sys.exit(1)  # trust caller to log SystemExit exceptions well
+
+
+# deffed in many files  # missing from Python till Oct/2019 Python 3.8
+def shlex_quote(arg):
+    """Mark up with quote marks and backslashes , but only as needed"""
+
+    # Trust the library, if available
+
+    if hasattr(shlex, "quote"):
+        quoted = shlex.quote(arg)
+
+        return quoted
+
+    # Emulate the library roughly, because often good enough
+
+    mostly_harmless = set(
+        "%+,-./"  # not: !"#$&'()*
+        + string.digits
+        + ":=@"  # not ;<>?
+        + string.ascii_uppercase
+        + "_"  # not [\]^
+        + string.ascii_lowercase
+        + ""  # not {|}~
+    )
+
+    likely_harmful = set(arg) - set(mostly_harmless)
+    if likely_harmful:
+        quoted = repr(arg)  # as if the Py rules agree with Sh rules
+
+        return quoted
+
+    return arg
+
+
+# deffed in many files  # since Sep/2015 Python 3.5
+def subprocess_run(shline, check):
+    """
+    Launch another Process at the LocalHost
+    """
+
+    sys.stderr.write("+ {}\n".format(shline))
+
+    argv = shlex.split(shline)
+    run = subprocess.run(argv, stdin=subprocess.PIPE)
+
+    exitstatus = run.returncode
+    if check and exitstatus:
+        sys.stderr.write("+ exit {}\n".format(exitstatus))
+
+        sys.exit(exitstatus)
 
 
 # do run from the Command Line, when not imported into some other main module
