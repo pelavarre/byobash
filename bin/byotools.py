@@ -28,8 +28,6 @@ def exit():
 
     # Fetch many kinds of args
 
-    sys_stdin_isatty = sys.stdin.isatty()
-
     env_ps1 = os.getenv("PS1")
     env_zsh = env_ps1.strip().endswith("%#")
 
@@ -44,11 +42,12 @@ def exit():
 
     examples = "\n".join(epilog.splitlines()[1:])
     examples = textwrap.dedent(examples)
+    examples = "\n" + examples.strip() + "\n"
     examples = examples if env_zsh else examples.replace("&&:", "#")
 
     # Default to print example usage
 
-    if sys_stdin_isatty and not parms:
+    if not parms:
         print(examples)
 
         sys.exit(0)
@@ -190,7 +189,7 @@ if __name__ == "__main__":
 
 
 #
-# notes:
+# quirks:
 #
 #   1 ) '@dataclasses.dataclass' is new since Jun/2018 Python 3.7
 #

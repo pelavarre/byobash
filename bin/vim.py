@@ -1,11 +1,7 @@
-# vim $(which ...)
-#
-# ) lights for matching/ not
-
 #!/usr/bin/env python3
 
 """
-usage: todo
+usage: vim.py
 
 todo
 
@@ -15,6 +11,8 @@ options:
 examples:
   :
 """
+# todo: vim $(which ...)
+# todo: ) lights for matching/ not
 
 
 import byotools

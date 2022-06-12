@@ -1,18 +1,16 @@
-# which - a
-# exists
-
 #!/usr/bin/env python3
 
 """
-usage: todo
+usage: which.py [-a] ...
 
 todo
 
 options:
-  --help       show this help message and exit
+  --help  show this help message and exit
+  -a      show all the Search-Hit's, not just the first
 
 examples:
-  :
+  which -a  # show all the Search hits, not us
 """
 
 

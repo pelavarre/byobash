@@ -8,8 +8,8 @@ copy Stdin into the main Os Pasteboard (aka Clipboard)
 options:
   --help  show this help message and exit
 
-notes:
-  switch to Apple macOS, out of Linux or G Shell, to find PBCopy and PBPaste built-in
+quirks:
+  switch to Apple macOS, out of Linux or GShell, to find PBCopy and PBPaste built-in
 
 examples:
   function c () { echo + pbcopy >&2; pbcopy "$@"; }

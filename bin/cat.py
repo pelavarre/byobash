@@ -18,7 +18,7 @@ options:
   -v, --show-nonprinting
                         keep \n, \t, & us-ascii r"[ -~]", convert the rest to \ escapes
 
-notes:
+quirks:
   give Args or Stdin, or print a prompt, to stop more Cat's from hanging silently
 
 examples:

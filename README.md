@@ -104,8 +104,8 @@ For example, your 'cd' will change your Working Dir, but your '/usr/bin/cd' won'
 So then if you then do want 'cd.py' to change your Working Dir,
 you've got to install 'cd.py' in some special way, such as
 
-    function cd.py () { cd "$(~/Public/pybashish/bin/cd.py bin)"; }
+    function cd.py () { cd "$(~/Public/byobash/bin/cd.py \"$@\")"; }
 
 ## Copied from
 
-Copied from:  git clone https://github.com/pelavarre/pybashish.git
+Copied from:  git clone https://github.com/pelavarre/byobash.git

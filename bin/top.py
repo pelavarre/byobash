@@ -1,12 +1,7 @@
-# 1
-# t
-# t
-# E
-
 #!/usr/bin/env python3
 
 """
-usage: todo
+usage: top.py
 
 todo
 
@@ -14,7 +9,7 @@ options:
   --help       show this help message and exit
 
 examples:
-  :
+  1 t t E  &: inside of Top, are goodness  # todo: explain why
 """
 
 

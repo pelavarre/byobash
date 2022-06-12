@@ -8,8 +8,9 @@ read all of Stdin, echo its Eof into Stderr, and only then write it all to Stdou
 options:
   --help  show this help message and exit
 
-note:
+quirks:
   Linux Terminal Stdin echoes ⌃D EOF as "" without "\n", vs macOS as "^D" without "\n"
+  GCloud Bash comes with 'sponge' defined, as if by:  apt install moreutils
 
 examples:
   cat |sponge.py --  &&: let you finish typing, and press ⌃D EOF, before echoing it all
@@ -28,9 +29,13 @@ def main():
 
         byotools.exit()
 
+    isatty = sys.stdin.isatty()
+    if isatty:
+        sys.stderr.write("sponge.py: Press ⌃D EOF to quit\n")
+
     in_bytes = sys.stdin.buffer.read()
 
-    if sys.stdin.isatty():
+    if isatty:
         sys.stderr.write("\n")
         sys.stderr.flush()
 

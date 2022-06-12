@@ -8,8 +8,8 @@ copy the main Os Pasteboard (aka Clipboard) to Stdout
 options:
   --help  show this help message and exit
 
-notes:
-  switch to Apple macOS, out of Linux or G Shell, to find PBPaste and PBCopy built-in
+quirks:
+  switch to Apple macOS, out of Linux or GShell, to find PBPaste and PBCopy built-in
 
 examples:
   function c () { echo + pbcopy >&2; pbcopy "$@"; }

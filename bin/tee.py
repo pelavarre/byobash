@@ -12,7 +12,7 @@ options:
   --help  show this help message and exit
   -a      append to the Files that already exist, don't create those
 
-notes:
+quirks:
   give Args or Stdin, or print a prompt, to stop more Tee's from hanging silently
 
 examples:

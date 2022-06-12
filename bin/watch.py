@@ -1,9 +1,7 @@
-# summary transcript at exit, whole & summary transcript while it runs
-
 #!/usr/bin/env python3
 
 """
-usage: todo
+usage: watch.py [--h] ...
 
 todo
 
@@ -13,6 +11,7 @@ options:
 examples:
   :
 """
+# todo: summary transcript at exit, whole & summary transcript while it runs
 
 
 import byotools

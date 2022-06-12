@@ -1,10 +1,7 @@
-# uptime --pretty
-# Linux only
-
 #!/usr/bin/env python3
 
 """
-usage: todo
+usage: uptime [--h] ...
 
 todo
 
@@ -12,7 +9,7 @@ options:
   --help       show this help message and exit
 
 examples:
-  :
+  uptime --pretty  &: say less, more clearly, at Linux or GShell
 """
 
 

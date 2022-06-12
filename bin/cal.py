@@ -16,7 +16,7 @@ options:
   -M      start the weeks on UK Monday's, not US Sunday's (default: true)
   -S      start the weeks on US Sunday's, not UK Monday's (default: false)
 
-notes:
+quirks:
   type 'ncal -M -b' to get flat weeks started on UK Monday's, from more Cal's
   type '-m' before M, and M in place of MD or D, from more Cal's
   call Cal twice to get the month of weeks around today, from more Cal's

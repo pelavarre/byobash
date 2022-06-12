@@ -1,10 +1,7 @@
-# should print the ps1 to guide the Scp
-#
-
 #!/usr/bin/env python3
 
 """
-usage: todo
+usage: scp.py [--h] ...
 
 todo
 
@@ -12,7 +9,7 @@ options:
   --help       show this help message and exit
 
 examples:
-  :
+  scp.py --  &&: guide the next Scp with:  echo $(id -un)@$(hostname):$(pwd):/.
 """
 
 

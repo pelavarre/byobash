@@ -61,7 +61,7 @@ setup:
 
 
 #
-# notes:
+# quirks:
 #
 #   1 ) Linux Sh understands '.' but does Not understand 'source'
 #   2 ) work through our 'setup:' instructions to get your own '. ~/bin/pips.source'

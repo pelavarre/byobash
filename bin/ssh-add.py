@@ -1,9 +1,7 @@
-# cross reference ssh.py
-
 #!/usr/bin/env python3
 
 """
-usage: todo
+usage: ssh-add.py
 
 todo
 
@@ -11,7 +9,9 @@ options:
   --help       show this help message and exit
 
 examples:
-  :
+  ssh-add -l
+  ssh-add -L |grep ^ssh-rsa-cert |ssh-keygen -L -f - |grep Valid
+  ssh.py --h
 """
 
 

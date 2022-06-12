@@ -10,17 +10,22 @@ options:
   -x      scroll up and away all the Rows of the Screen, do Not delete Scrollback
 
 examples:
-  clear.py --  &&: deletes Scrollback
-  echo -ne '\e[3J\e[H\e[2J'  &&: deletes Scrollback
-  echo -ne '\e[H\e[2J\e[3J'  &&: keeps one Screen, call twice to blank that Screen
-  echo -ne '\e[H\e[2J'  &&: deletes no Scrollback, same as H 2J 3J at G Cloud
+
+  clear.py --  &&: deletes Scrollback, like ⌘K, except GShell ignores 3J while TMux
+
+  echo -ne '\e[H\e[2J\e[3J'  &&: deletes Scrollback, like ⌘K at Mac of Mac or Linux
+  echo -ne '\e[3J\e[H\e[2J'  &&: keeps one Screen, call twice to blank that Screen
+  echo -ne '\e[H\e[2J'  &&: scroll Screen away, but keep Scrollback, like ⌃L
+
   reset  &&: deletes all Scrollback but also sleeps 1000ms
+
   echo && seq 40 && echo && seq 50 && echo && seq 60 && echo  &&: fill Screens for test
-  clear 2>&1 |tee >(hexdump -C)  &&: call and trace Clear, at Mac or Linux
-  tput clear 2>&1 |tee >(hexdump -C)  &&: call and trace TPut Clear, at Mac or Linux
+
+  clear 2>&1 |tee >(hexdump -C)  &&: call and trace Clear
+  tput clear 2>&1 |tee >(hexdump -C)  &&: call and trace TPut Clear
   reset 2>&1 |tee >(hexdump -C)  &&: call and trace Reset, at Linux
 """
-# todo: find a Clear that deletes Scrollback, inside G Cloud
+# todo: find a Clear that deletes Scrollback, inside default GCloud TMux Enabled
 # todo: call and trace Reset, at Mac
 
 

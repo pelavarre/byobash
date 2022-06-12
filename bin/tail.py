@@ -14,7 +14,7 @@ options:
   -n COUNT, --lines COUNT
                         how many leading lines to show (default: 25)
 
-notes:
+quirks:
   give '-' in place of '-n ' to get the same result more easily
   give '-n +' to mean drop leading lines, and just '+' sometimes works too
   give '-25' to occupy as much of a 2022 display as '-10' occupied a 1972 display

@@ -1,9 +1,7 @@
-# define keys to quit and pass now, to quit and fail now
-
 #!/usr/bin/env python3
 
 """
-usage: todo
+usage: sleep.py [--h] ...
 
 todo
 
@@ -11,7 +9,7 @@ options:
   --help       show this help message and exit
 
 examples:
-  :
+  sleep.py --  &&: sleep for 3 Seconds, but reply to ⌃T and quit at ⌃C
 """
 
 
