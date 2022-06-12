@@ -8,7 +8,7 @@
 """
 usage: python3.py [--h]  ...
 
-interpret Python language
+interpret Python 3 language
 
 options:
   --help         show this help message and exit

@@ -3,7 +3,7 @@
 """
 usage: python2.py [--h]  ...
 
-interpret Python language
+interpret Python 2 language
 
 options:
   --help         show this help message and exit

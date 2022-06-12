@@ -38,13 +38,14 @@ DEMO_BROKEN_PIPE_SINK = False
 
 
 def main():
-    if not sys.argv[1:]:
+    parms = sys.argv[1:]
+    if parms:
+        print(__main__.__doc__.strip())
+    else:
         add_some_dirnames(dirnames=[DIRNAME])
         if DEMO_BROKEN_PIPE_SINK:
             for _ in range(54321):
                 print(_)
-    else:
-        print(__main__.__doc__.strip())
 
 
 def add_some_dirnames(dirnames):

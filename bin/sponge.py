@@ -25,7 +25,8 @@ import byotools
 
 def main():
 
-    if sys.argv[1:] != "--".split():
+    parms = sys.argv[1:]
+    if parms != "--".split():
 
         byotools.exit()
 
