@@ -21,7 +21,7 @@ quirks:
 examples:
   python.py  &&: show these examples
   python.py bin/python.py  &&: test this tool on itself
-  python.py p.py -xyz PARM1  &&: call 'p.py' after calling Black & Flake8 to polish it
+  python.py p.py -xyz PARM1  &&: call 'p.py' after calling Black and Flake8 to polish it
 """
 
 
@@ -42,6 +42,13 @@ import byotools
 
 def main():
     """Run from the Command Line"""
+
+    # Fall back to 'python3' after this 'python.py', not all the way back to 'python'
+
+    main_dir = os.path.dirname(__file__)
+    sys.argv[0] = os.path.join(main_dir, "python3.py")
+
+    # Take Parms from the Command Line
 
     args = parse_python_args()
 

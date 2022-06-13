@@ -65,6 +65,14 @@ def exit():
     argv = list(sys.argv[:-1]) if (sys.argv[-1] in ("-", "--")) else sys.argv
     argv[0] = root
 
+    shline = ""
+    for arg in argv:
+        if shline:
+            shline += " "
+        shline += shlex.quote(arg)
+
+    sys.stderr.write("+ {}\n".format(shline))
+
     run = subprocess.run(argv)
     if run.returncode:
         sys.stderr.write("{}: + exit {}\n".format(basename, run.returncode))
@@ -108,23 +116,6 @@ def os_path_shortpath(path):
 
     concise = names[0]
     return concise
-
-
-def shlex_shortquote(arg):
-    """Return the Arg quoted to pass through the Shell, but drop unnecessary quotes"""
-
-    quoted = shlex.quote(arg)
-    argv = shlex.split(arg)
-    assert len(argv) == 1, (arg, argv)
-    assert argv[-1] == arg, (arg, argv)
-
-    quoteless = quoted[1:][:-1]
-    quoteless_argv = shlex.split(quoteless)
-    if argv == quoteless_argv:
-
-        return quoteless
-
-    return quoted
 
 
 class BrokenPipeSink:
@@ -176,7 +167,7 @@ class ShPath:
 
     def __str__(self):
         shortpath = os_path_shortpath(self.pathname)
-        shpath = shlex_shortquote(shortpath)
+        shpath = shlex.quote(shortpath)
 
         return shpath
 
