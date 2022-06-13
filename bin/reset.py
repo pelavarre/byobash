@@ -3,7 +3,7 @@
 r"""
 usage: reset.py [--h] [-x]
 
-erase the Screen and Scrollback of the Terminal, move the Cursor to Top Left of Screen
+wipe the Screen, delete the Scrollback, leave the Cursor at Top Left
 
 options:
   --help  show this help message and exit

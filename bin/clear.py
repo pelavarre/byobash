@@ -3,11 +3,11 @@
 r"""
 usage: clear.py [--h] [-x]
 
-erase the Screen and Scrollback of the Terminal, move the Cursor to Top Left of Screen
+wipe the Screen, delete the Scrollback, leave the Cursor at Top Left
 
 options:
   --help  show this help message and exit
-  -x      scroll up and away all the Rows of the Screen, do Not delete Scrollback
+  -x      do Not delete the Scrollback, just scroll the Rows of the Screen up into it
 
 quirks:
   at GShell: ignores ⌘K, ignores \e[3J in default TMux, and ⌃L deletes Rows on Screen
