@@ -97,7 +97,7 @@ def main():
     for parm in args.file_parms:
         shparms += " {}".format(shlex_quote(parm))
 
-    python3_shline = "python3 {}".format(shparms)
+    python3_shline = "python3{}".format(shparms)
     subprocess_run(python3_shline, stdin=None, check=True)
 
 
