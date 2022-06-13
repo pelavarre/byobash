@@ -22,6 +22,7 @@ examples:
 # todo: fallback from failed arg to looser, like add '*' to one arg
 # todo: ls -C tabular defaults to \t Tabs, hurrah
 # todo: ls -C tabular defaults to single column seps calc'ed on 8 column Tabs, boo
+# todo: ls -A, as promoted by GShell for du -sh $(ls -A)
 
 
 import byotools

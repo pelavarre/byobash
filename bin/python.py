@@ -1,26 +1,33 @@
 #!/usr/bin/env python3
 
 """
-usage: python.py [-h] [-i] [-m MODULE] FILE
+usage: python.py [--help] [-i] [-m MODULE] FILE ...
 
 interpret Python 3 or Python 2 language
 
 positional arguments:
-  FILE        the Python file to run
+  FILE       the Python file to run
+  ...        options or positional arguments to forward into the FILE
 
 options:
-  -h, --help  show this help message and exit
-  -i          insert a breakpoint at process exit
-  -m MODULE   import the module and call it with positional arguments and options
+  --help     show this help message and exit
+  -i         insert a breakpoint at process exit
+  -m MODULE  import the module and call it with positional arguments and options
+
+quirks:
+  quits at SyntaxError, else calls Black to reform the code, and Flake8 to review it
+  creates and updates the Dir '~/.venvs/byobash/' to host Black & Flake8
 
 examples:
-  bin/python.py bin/python.py  &&: test this tool on itself
-  python.py p.py hi BYO Python  &&: run 'p.py' after calling Black & Flake8 to polish it
+  python.py  &&: show these examples
+  python.py bin/python.py  &&: test this tool on itself
+  python.py p.py -xyz PARM1  &&: call 'p.py' after calling Black & Flake8 to polish it
 """
 
 
 import __main__
 import argparse
+import datetime as dt
 import difflib
 import os
 import pathlib
@@ -28,6 +35,7 @@ import shlex
 import string
 import subprocess
 import sys
+import textwrap
 
 import byotools
 
@@ -36,6 +44,10 @@ def main():
     """Run from the Command Line"""
 
     args = parse_python_args()
+
+    # Create or update or accept unchanged the VEnv Dir of Black & Flake8
+
+    activate_shline = venv_refresh("%Y-%m")
 
     # First compile
 
@@ -46,17 +58,26 @@ def main():
 
         black_shline = "black {}".format(shfile)
 
+        black_shshline = "{} && {}".format(activate_shline, black_shline)
+        black_shshline = "bash -c {!r}".format(black_shshline)
+
         flake8_shline = "flake8"
         flake8_shline += " --max-line-length=999 --max-complexity 10 --ignore="
         flake8_shline += "E203"  # Black '[ : ]' rules over E203 whitespace before ':'
         flake8_shline += ",W503"  # Black over Flake8 W503 line break before binary op
         flake8_shline += " {}".format(shfile)
 
-        subprocess_run(pdb_shline, check=True)
-        subprocess_run(black_shline, check=True)
-        subprocess_run(flake8_shline, check=True)
+        flake8_shshline = "{} && {}".format(activate_shline, flake8_shline)
+        flake8_shshline = "bash -c {!r}".format(flake8_shshline)
 
-    # Run after compiline
+        subprocess_run(pdb_shline, check=True)
+        sys.stderr.write("+\n")
+        subprocess_run(black_shshline, check=True)
+        sys.stderr.write("+\n")
+        subprocess_run(flake8_shshline, check=True)
+        sys.stderr.write("+\n")
+
+    # Run after compile
 
     shparms = ""
     if args.i:
@@ -66,19 +87,20 @@ def main():
         shparms += " -m {}".format(shmodule)
     if args.file:
         shparms += " {}".format(shfile)
+    for parm in args.file_parms:
+        shparms += " {}".format(shlex_quote(parm))
 
     python3_shline = "python3 {}".format(shparms)
-
-    subprocess_run(python3_shline, check=True)
+    subprocess_run(python3_shline, stdin=None, check=True)
 
 
 def parse_python_args():
     """Take Parms from the Command Line"""
 
-    # Call ByoTools Exit in the absence of Parms
+    # Call ByoTools Exit in the absence of Parms, or when Parms led by '--help'
 
     parms = sys.argv[1:]
-    if not parms:
+    if (not parms) or (parms[0].startswith("--h") and "--help".startswith(parms[0])):
 
         byotools.exit()
 
@@ -86,6 +108,15 @@ def parse_python_args():
 
     parser = compile_python_argdoc()
     args = parser.parse_args()
+
+    # Print Help and Quit, on request
+
+    if args.help:
+        parser.print_help()
+
+        sys.exit(0)
+
+    # Require the FILE to exist
 
     try:
         _ = pathlib.Path(args.file).read_text()
@@ -101,10 +132,13 @@ def parse_python_args():
 def compile_python_argdoc():
     """Construct the ArgumentParser"""
 
-    parser = compile_argdoc(epi="examples:")
+    parser = compile_argdoc(add_help=False, epi="quirks:")
 
     parser.add_argument("file", metavar="FILE", help="the Python file to run")
 
+    parser.add_argument(
+        "--help", action="store_true", help="show this help message and exit"
+    )
     parser.add_argument(
         "-i", action="store_true", help="insert a breakpoint at process exit"
     )
@@ -113,6 +147,12 @@ def compile_python_argdoc():
         metavar="MODULE",
         dest="module",
         help="import the module and call it with positional arguments and options",
+    )
+    parser.add_argument(
+        "file_parms",
+        metavar="...",
+        nargs=argparse.REMAINDER,
+        help="options or positional arguments to forward into the FILE",
     )
 
     doc = __main__.__doc__.strip()
@@ -128,12 +168,101 @@ def compile_python_argdoc():
 
 
 #
+# Create and update the Dir '~/.venvs/byobash/' to host Black & Flake8
+#
+
+
+def venv_refresh(stamper):
+    """Create and update the Dir '~/.venvs/byobash/' to host Black & Flake8"""
+
+    venv = os.path.expanduser("~/.venvs/byobash")
+
+    if not os.path.exists(venv):
+
+        venv_create(venv)
+        venv_update(venv)
+
+    elif venv_gone_stale(venv, stamper=stamper):
+
+        venv_update(venv)
+
+    activate_shline = "source ~/.venvs/byobash/bin/activate"
+
+    return activate_shline
+
+
+def venv_create(venv):
+    """Create the VEnv Dir"""
+
+    byobash_venv = os.path.expanduser("~/.venvs/byobash")
+    assert venv == byobash_venv, dict(venv=venv, byobash_venv=byobash_venv)
+
+    quoted_shchars = """
+        mkdir -p ~/.venvs/byobash
+        cd ~/.venvs/ && python3 -m venv byobash
+        source ~/.venvs/byobash/bin/activate && which pip
+    """
+
+    shchars = textwrap.dedent(quoted_shchars).strip()
+
+    shlines = shchars.splitlines()
+    for shline in shlines:
+        shshline = "bash -c {!r}".format(shline)
+        subprocess_run(shshline, check=True)
+
+    # test with:  rm -fr ~/.venvs/byobash/
+
+
+def venv_gone_stale(venv, stamper):
+    """Return truthy when StrFTime of Stamper has changed"""
+
+    stat = os.stat(venv)
+    then = dt.datetime.fromtimestamp(stat.st_mtime)
+
+    now = dt.datetime.now()
+
+    if then.strftime(stamper) != now.strftime(stamper):
+
+        return True
+
+    # test with:  touch -d2021-12-31T00:00:00 ~/.venvs/byobash/
+
+
+def venv_update(venv):
+    """Init or Update the VEnv Dir"""
+
+    byobash_venv = os.path.expanduser("~/.venvs/byobash")
+    assert venv == byobash_venv, dict(venv=venv, byobash_venv=byobash_venv)
+
+    activate_shline = "source ~/.venvs/byobash/bin/activate"
+
+    quoted_shchars = """
+        activate && pip install --upgrade pip
+        activate && pip install --upgrade wheel
+
+        activate && pip install --upgrade black
+        activate && pip install --upgrade flake8
+        activate && pip install --upgrade flake8-import-order
+
+        touch ~/.venvs/byobash
+    """
+
+    shchars = textwrap.dedent(quoted_shchars).strip()
+    shchars = shchars.replace("activate", activate_shline)
+
+    shlines = shchars.splitlines()
+    for shline in shlines:
+        shshline = "bash -c {!r}".format(shline)
+        subprocess_run(shshline, check=True)
+
+
+#
 # Run on top of a layer of general-purpose Python idioms
 #
 
 
 # deffed in many files  # missing from docs.python.org
-def compile_argdoc(epi):
+def compile_argdoc(epi, add_help=True):
     """Construct an ArgumentParser, without defining Positional Args and Options"""
 
     doc = __main__.__doc__
@@ -150,7 +279,7 @@ def compile_argdoc(epi):
     parser = argparse.ArgumentParser(
         prog=prog,
         description=description,
-        add_help=True,
+        add_help=add_help,
         formatter_class=argparse.RawTextHelpFormatter,
         epilog=epilog,
     )
@@ -241,7 +370,7 @@ def shlex_quote(arg):
 
 
 # deffed in many files  # since Sep/2015 Python 3.5
-def subprocess_run(shline, check):
+def subprocess_run(shline, stdin=subprocess.PIPE, check=True):
     """
     Launch another Process at the LocalHost
     """
@@ -249,7 +378,7 @@ def subprocess_run(shline, check):
     sys.stderr.write("+ {}\n".format(shline))
 
     argv = shlex.split(shline)
-    run = subprocess.run(argv, stdin=subprocess.PIPE)
+    run = subprocess.run(argv, stdin=stdin)
 
     exitstatus = run.returncode
     if check and exitstatus:
