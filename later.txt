@@ -1,3 +1,9 @@
+dreaming since Jun/2022 =>
+
+collapse '  &&: ' to '  # ' only when leading '  '  both present
+    or some other way of remembering to insert both '  '
+
+
 dreaming since May/2022 =>
 
 ship better Arg Doc first

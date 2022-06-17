@@ -16,16 +16,19 @@ options:
   -T, --show-tabs       show each \t tab as \ t backslash tee
   -t                    call for -T and -v
   -v, --show-nonprinting
-                        keep \n, \t, & us-ascii r"[ -~]", convert the rest to \ escapes
+                        forward the input formatted as a Python String or Bytes Literal
 
 quirks:
   give Args or Stdin, or print a prompt, to stop more Cat's from hanging silently
 
 examples:
-  python -c 'import this' |tail -n +3 |cat -n |expand
-  ... |cat -n |expand
-  ... |cat -etv
+  python -c 'import this' |tail -n +3 |cat -n |expand  &&: demo Cat N
+  seq 5|cat -n |cat.py -v  &&: show Line-Breaks inside a Python String Literal
+  echo $'\xC0\x80' |cat.py -v  &&: show UnicodeDecodeError inside a Python Bytes Literal
+  ... |cat -n |expand  &&: make Spaces of the Cat N Tabs
+  ... |cat -etv  &&: show the Spaces, if any, that precede Line-Break's
 """
+# todo: code the Python String/Bytes Literals
 
 
 import byotools

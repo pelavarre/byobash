@@ -26,6 +26,7 @@ examples:
 
   clear 2>&1 |tee >(hexdump -C)  &&: call and trace Clear
   tput clear 2>&1 |tee >(hexdump -C)  &&: call and trace TPut Clear
+  diff -u <(clear |hexdump -C) <(tput clear |hexdump -C)  &&: commonly no difference
   reset 2>&1 |tee >(hexdump -C)  &&: call and trace Reset, at Linux
 """
 # todo: find a Clear or Reset that deletes Scrollback, inside GShell default TMux
