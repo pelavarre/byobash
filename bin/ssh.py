@@ -19,6 +19,9 @@ examples:
 """
 # todo: does 'ssh -ttt' carry more force than 'ssh -tt'?
 
+# todo:  ssh.py --  &&: list recent hostnames
+# todo:  ssh.py localhost  &&: retry when connection drops
+
 
 import byotools
 

@@ -3,8 +3,9 @@
 # stty -a
 # stty -ixon
 # stty ixon
-# stty cols 89
-# stty rows 50
+#
+# stty cols 89  # and you can lie
+# stty rows 50  # and you can lie
 #
 # echo -n $'\e[8;'$(stty size |cut -d' ' -f1)';101t'  &&: 'one-hundred one (101) cols'
 # echo -n $'\e[8;'$(stty size |cut -d' ' -f1)';89t'  &&: 'eighty-nine (89) cols'

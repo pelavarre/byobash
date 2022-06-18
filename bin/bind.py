@@ -11,6 +11,7 @@ options:
 examples:
   : bash chrome emacs macos screen slack ssh stty tmux vim
 """
+# consistency across distribution of:  £ ← ↑ → ↓ ⇧ ⋮ ⌃ ⌘ ⌥ ⎋
 
 
 import byotools

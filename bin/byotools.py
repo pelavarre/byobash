@@ -23,8 +23,46 @@ import textwrap
 _ = pdb
 
 
-def exit():
+def doc_format_graf(doc, index=-1, dented=False):
+    """Pick one Paragraph out of a DocString"""
+
+    grafs = doc_to_grafs(doc)
+    graf = grafs[index]
+
+    if not dented:
+        grafdoc = "\n".join(graf[1:])
+        grafdoc = textwrap.dedent(grafdoc)
+        graf = grafdoc.split()
+
+    return graf
+
+
+def doc_to_grafs(doc):
+    """Pick each Paragraph out of a DocString"""
+
+    grafs = list()
+
+    lines = doc.splitlines()
+    for line in lines + [""]:
+        strip = line.strip()
+        if strip:
+            graf.append(line)
+        elif graf:
+            grafs.append(graf)
+            graf = list()
+
+    return grafs
+
+
+def exit(name=None, epi=None):
     """Run a Py File with Help Lines & Examples in Main Doc, from the Sh Command Line"""
+
+    # Actually don't exit, when just imported
+
+    if name is not None:
+        if name != "__main__":
+
+            return
 
     # Fetch many kinds of args
 
@@ -38,12 +76,18 @@ def exit():
     parms = sys.argv[1:]
 
     doc = __main__.__doc__
-    epilog = doc[doc.index("examples:") :]
 
-    examples = "\n".join(epilog.splitlines()[1:])
-    examples = textwrap.dedent(examples)
-    examples = "\n" + examples.strip() + "\n"
-    examples = examples if env_zsh else examples.replace("&&:", "#")
+    epi_ = "examples:" if (epi is None) else epi
+
+    examples = doc
+    if epi_ in doc:
+
+        epilog = doc[doc.index(epi_) :]
+
+        examples = "\n".join(epilog.splitlines()[1:])
+        examples = textwrap.dedent(examples)
+        examples = "\n" + examples.strip() + "\n"
+        examples = examples if env_zsh else examples.replace("&&:", "#")
 
     # Default to print example usage
 

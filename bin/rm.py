@@ -13,12 +13,11 @@ options:
 
 examples:
   rm.py  &&: call Rm Py with no args to show these examples
+  rm -fr dirname/  &&: remove Dir if present, but don't remove a File of the same name
   rm.py --  &&: move the last of the 'ls -1rt' into the '__pycache__/%m%d/' dir
-
-examples:
-  rm.py  &&: call Rm Py with no args to show these examples
   ls.py  &&: the 'ls -C' view of:  ls -1rt |tail -3
 """
+# todo:  rm -fr dir/  ^^
 
 
 import byotools

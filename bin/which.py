@@ -12,6 +12,14 @@ options:
 examples:
   which -a  # show all the Search hits, not us
 """
+# cross-ref whence
+
+# todo: focus on one-letter, two-letter, three-letter names
+# and starts with "_" and starts with "__" when not ended with "_"
+
+# declare -f v
+# alias |grep A=
+# Zsh type -f -- v
 
 
 import byotools

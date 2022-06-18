@@ -14,8 +14,13 @@ quirks:
 examples:
   reset  &&: 1000ms slow, but more reliable than:  clear
   reset 2>&1 |tee >(hexdump -C)  &&: call and trace Reset, at Linux
+  reset.py  &&: about as reliable as 'clear', but much faster
+  echo -ne '\e[8;'$(stty size | cut -d' ' -f1)';89t'  &&: 89 cols
 """
 # todo: doc what bytes written
+
+
+import sys
 
 
 import byotools
@@ -23,7 +28,13 @@ import byotools
 
 if __name__ == "__main__":
 
-    byotools.exit()
+    parms = sys.argv[1:]
+    if parms != "--".split():
+
+        byotools.exit()
+
+    esc = "\x1B"
+    print(r"\e[H\e[2J\e[3J".replace(r"\e", esc), end="")
 
 
 # copied from:  git clone https://github.com/pelavarre/byobash.git

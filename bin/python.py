@@ -23,6 +23,8 @@ examples:
   python.py bin/python.py  &&: test this tool on itself
   python.py p.py -xyz PARM1  &&: call 'p.py' after calling Black and Flake8 to polish it
 """
+# todo: help trace where blank 'print()' and 'sys.stderr.write("\n")' come from
+# todo: help notice 'print("python.py:' appearing outside of 'python.py'
 
 
 import __main__

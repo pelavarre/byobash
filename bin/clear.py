@@ -20,6 +20,9 @@ examples:
   echo -ne '\e[3J\e[H\e[2J'  &&: keep one Screen, but blank that Screen if called twice
   echo -ne '\e[H\e[2J'  &&: scroll Screen away, but keep Scrollback, like ⌃L
 
+  echo -ne '\e[8;'$(stty size | cut -d' ' -f1)';89t'  &&: 89 cols
+  echo -ne '\e[8;'$(stty size | cut -d' ' -f1)';101t'  &&: 101 cols
+
   reset  &&: sleep 100ms and delete all Scrollback (but not from GShell TMux)
 
   echo && seq 40 && echo && seq 50 && echo && seq 60 && echo  &&: fill Screens for test
