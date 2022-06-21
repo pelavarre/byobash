@@ -6,7 +6,8 @@ usage: import byotools as byo
 define a pile of conveniences for writing Python
 
 examples:
-  tbd - such as one line per Def
+  byo.exit()  # take no Parms to print Examples, '--help' to print Help, else work
+  byo.exit(__name__)  # like 'byo.exit()' but return without exit when imported
 """
 
 
@@ -100,7 +101,9 @@ def exit(name=None, epi=None):
 
     for parm in parms:
         if parm.startswith("--h") and "--help".startswith(parm):
+            print()
             print(doc)
+            print()
 
             sys.exit(0)
 
@@ -216,7 +219,11 @@ class ShPath:
         return shpath
 
 
-# do run from the Command Line, when not imported into some other main module
+#
+# Run from the Command Line, when not imported into some other Main module
+#
+
+
 if __name__ == "__main__":
     print("usage: import byotools as byo", file=sys.stderr)
 

@@ -3,7 +3,7 @@
 r"""
 usage: sponge.py [--h]
 
-read all of Stdin, echo its Eof into Stderr, and only then write it all to Stdout
+read all of Stdin, echo its Eof into Stderr, write it all to Stdout
 
 options:
   --help  show this help message and exit
@@ -26,10 +26,14 @@ import byotools as byo
 
 def main():
 
+    # Parse the Command Line
+
     parms = sys.argv[1:]
     if parms != "--".split():
 
         byo.exit()
+
+    # Read all of Stdin, echo its Eof into Stderr, write it all to Stdout
 
     isatty = sys.stdin.isatty()
     if isatty:

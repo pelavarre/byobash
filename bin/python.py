@@ -397,9 +397,11 @@ def subprocess_run(shline, stdin=subprocess.PIPE, check=True):
         sys.exit(exitstatus)
 
 
-# do run from the Command Line, when not imported into some other main module
-if __name__ == "__main__":
+#
+# Run from the Command Line, when not imported into some other Main module
+#
 
+if __name__ == "__main__":
     main()
 
 

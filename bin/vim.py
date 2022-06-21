@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 
 """
-usage: vim.py
+usage: vim.py [--help] [-u VIMRC]
 
 todo
 
 options:
-  --help       show this help message and exit
+  --help    show this help message and exit
+  -u VIMRC  edit after running a file (default: '~/.vimrc')
 
 examples:
-  :
+  vim -u /dev/null ~/.vimrc
 """
-# vim -u /dev/null
 
 # todo: vim $(which ...)
 # todo: ) lights for matching/ not
@@ -27,9 +27,7 @@ examples:
 import byotools as byo
 
 
-if __name__ == "__main__":
-
-    byo.exit()
+byo.exit(__name__)
 
 
 # copied from:  git clone https://github.com/pelavarre/byobash.git
