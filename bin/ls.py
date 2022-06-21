@@ -25,12 +25,12 @@ examples:
 # todo: ls -A, as promoted by GShell for du -sh $(ls -A)
 
 
-import byotools
+import byotools as byo
 
 
 if __name__ == "__main__":
 
-    byotools.exit()
+    byo.exit()
 
 
 # copied from:  git clone https://github.com/pelavarre/byobash.git

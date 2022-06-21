@@ -31,12 +31,12 @@ examples:
 # todo: code the Python String/Bytes Literals
 
 
-import byotools
+import byotools as byo
 
 
 if __name__ == "__main__":
 
-    byotools.exit()
+    byo.exit()
 
     # FIXME distinguish 'cat.py -tvn' as showing U+00A0 Nbsp and ending all lines
 

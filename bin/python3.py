@@ -47,12 +47,12 @@ examples:
 # https://packages.ubuntu.com/jammy/python/ Ubuntu Apr/2022  => Mar/2022 Python 3.10.4
 
 
-import byotools
+import byotools as byo
 
 
 if __name__ == "__main__":
 
-    byotools.exit()
+    byo.exit()
 
 
 _ = """

@@ -23,7 +23,7 @@ examples:
 import sys
 
 
-import byotools
+import byotools as byo
 
 
 if __name__ == "__main__":
@@ -31,7 +31,7 @@ if __name__ == "__main__":
     parms = sys.argv[1:]
     if parms != "--".split():
 
-        byotools.exit()
+        byo.exit()
 
     esc = "\x1B"
     print(r"\e[H\e[2J\e[3J".replace(r"\e", esc), end="")

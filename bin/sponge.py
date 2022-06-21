@@ -21,7 +21,7 @@ examples:
 
 import sys
 
-import byotools
+import byotools as byo
 
 
 def main():
@@ -29,7 +29,7 @@ def main():
     parms = sys.argv[1:]
     if parms != "--".split():
 
-        byotools.exit()
+        byo.exit()
 
     isatty = sys.stdin.isatty()
     if isatty:

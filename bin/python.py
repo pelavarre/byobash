@@ -39,7 +39,8 @@ import subprocess
 import sys
 import textwrap
 
-import byotools
+
+import byotools as byo
 
 
 def main():
@@ -111,7 +112,7 @@ def parse_python_args():
     parms = sys.argv[1:]
     if (not parms) or (parms[0].startswith("--h") and "--help".startswith(parms[0])):
 
-        byotools.exit()
+        byo.exit()
 
     # Call ArgParse in the presence of Parms
 
@@ -131,7 +132,7 @@ def parse_python_args():
         _ = pathlib.Path(args.file).read_text()
     except FileNotFoundError:
 
-        byotools.exit()
+        byo.exit()
 
     # Return the Parsed Parms
 
