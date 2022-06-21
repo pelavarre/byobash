@@ -24,38 +24,51 @@ import textwrap
 _ = pdb
 
 
-def doc_format_graf(doc, index=-1, dented=False):
-    """Pick one Paragraph out of a DocString"""
-
-    grafs = doc_to_grafs(doc)
-    graf = grafs[index]
-
-    if not dented:
-        grafdoc = "\n".join(graf[1:])
-        grafdoc = textwrap.dedent(grafdoc)
-        graf = grafdoc.split()
-
-    return graf
-
-
 def doc_to_grafs(doc):
     """Pick each Paragraph out of a DocString"""
 
     grafs = list()
 
     lines = doc.splitlines()
-    for line in lines + [""]:
-        strip = line.strip()
-        if strip:
+
+    graf = list()
+    for line in lines:
+
+        # Collect every Empty Line and every More Dented Line
+
+        if not line:
+
+            if graf:
+                graf.append(line)
+
+        elif graf and (len_dent(line) > len_dent(graf[0])):
+
             graf.append(line)
-        elif graf:
-            grafs.append(graf)
+
+        else:
+
+            # Capture this Graf before the next Graf
+
+            strip = graf_strip(graf)
+            if strip:
+                grafs.append(strip)
+
+            # Begin again
+
             graf = list()
+            if line:
+                graf.append(line)
+
+    # Capture the last Graf before the End
+
+    strip = graf_strip(graf)
+    if strip:
+        grafs.append(strip)
 
     return grafs
 
 
-def exit(name=None, epi=None):
+def exit(name=None):
     """Run a Py File with Help Lines & Examples in Main Doc, from the Sh Command Line"""
 
     # Actually don't exit, when just imported
@@ -76,33 +89,37 @@ def exit(name=None, epi=None):
 
     parms = sys.argv[1:]
 
+    # Pick the trailing Paragraph of Example Tests out of the Main Arg Doc
+
     doc = __main__.__doc__
 
-    epi_ = "examples:" if (epi is None) else epi
+    grafs = doc_to_grafs(doc)
+    last_graf = grafs[-1]
+    tests = graf_dehang(last_graf)
+    tests = graf_strip(tests)
+    testdoc = "\n".join(tests)
 
-    examples = doc
-    if epi_ in doc:
+    sh_testdoc = testdoc if env_zsh else testdoc.replace("&&:", "#")
 
-        epilog = doc[doc.index(epi_) :]
-
-        examples = "\n".join(epilog.splitlines()[1:])
-        examples = textwrap.dedent(examples)
-        examples = "\n" + examples.strip() + "\n"
-        examples = examples if env_zsh else examples.replace("&&:", "#")
-
-    # Default to print example usage
+    # Default to print the Example Tests, and exit zero like "--help" does
 
     if not parms:
-        print(examples)
+
+        print()
+        print(sh_testdoc)
+        print()
 
         sys.exit(0)
 
-    # Service any one of "--help", "--hel", "--he", or "--h" given before "--"
+    # Serve any one of "--help", "--hel", "--he", or "--h" given before "--"
 
     for parm in parms:
         if parm.startswith("--h") and "--help".startswith(parm):
+
             print()
-            print(doc)
+            print()
+            print(doc.strip())
+            print()
             print()
 
             sys.exit(0)
@@ -125,6 +142,53 @@ def exit(name=None, epi=None):
         sys.stderr.write("{}: + exit {}\n".format(basename, run.returncode))
 
     sys.exit()
+
+
+def graf_dehang(graf):
+    """Pick the lines below the head line of a paragraph"""
+
+    grafdoc = "\n".join(graf[1:])
+    grafdoc = textwrap.dedent(grafdoc)
+    graf = grafdoc.splitlines()
+
+    return graf
+
+
+def graf_strip(graf):
+    """Remove the leading Empty Lines and the trailing Empty Lines"""
+
+    # Remove off the leading Empty Lines
+
+    lindex = 0
+    for index in range(len(graf)):
+        lindex = index
+        if graf[lindex]:
+
+            break
+
+    # Remove off the trailing Empty Lines
+
+    rindex = len(graf)
+    for index in range(len(graf)):
+        rindex = len(graf) - 1 - index
+        if graf[rindex]:
+            rindex += 1
+
+            break
+
+    # Succeed
+
+    strip = graf[lindex:rindex]
+
+    return strip
+
+
+def len_dent(line):
+    """Count the Spaces at the Left of a Line"""
+
+    result = len(line) - len(line.lstrip())
+
+    return result
 
 
 def os_path_homepath(path):
