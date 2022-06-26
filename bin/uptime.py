@@ -10,6 +10,7 @@ options:
 
 examples:
   uptime --pretty  &: say less, more clearly, at Linux or GShell
+  uptime.py --pretty  &: just as good at MacOS too
 """
 
 

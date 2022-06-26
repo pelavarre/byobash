@@ -24,8 +24,10 @@ import textwrap
 _ = pdb
 
 
-def doc_to_grafs(doc):
+def splitgrafs(doc, keepends=False):
     """Pick each Paragraph out of a DocString"""
+
+    assert not keepends  # FIXME: develop keepends=True
 
     grafs = list()
 
@@ -68,7 +70,7 @@ def doc_to_grafs(doc):
     return grafs
 
 
-def exit(name=None):
+def exit(name=None, str_parms=None):
     """Run a Py File with Help Lines & Examples in Main Doc, from the Sh Command Line"""
 
     # Actually don't exit, when just imported
@@ -78,30 +80,46 @@ def exit(name=None):
 
             return
 
-    # Fetch many kinds of args
-
-    env_ps1 = os.getenv("PS1")
-    env_zsh = env_ps1.strip().endswith("%#")
-
-    basename = os.path.basename(sys.argv[0])
-    (root, ext) = os.path.splitext(basename)
-    assert ext == ".py", dict(basename=basename)
+    # Actually don't exit, when the Caller wants to take the Parms
 
     parms = sys.argv[1:]
+
+    if str_parms is not None:
+        wants = shlex.split(str_parms)
+        if parms == wants:
+
+            return
+
+    # Exit in one way or another
+
+    exit_via_argdoc_last_graf()
+    exit_via_argdoc()
+    exit_via_command()
+
+
+def exit_via_argdoc_last_graf():
+    """Exit after printing last Graf, if no Parms"""
 
     # Pick the trailing Paragraph of Example Tests out of the Main Arg Doc
 
     doc = __main__.__doc__
 
-    grafs = doc_to_grafs(doc)
+    grafs = splitgrafs(doc)
     last_graf = grafs[-1]
+
     tests = graf_dehang(last_graf)
     tests = graf_strip(tests)
     testdoc = "\n".join(tests)
 
+    # Choose an End-of-ShLine Comment Style for Paste of Sh Command Lines
+
+    env_ps1 = os.getenv("PS1")
+    env_zsh = env_ps1.strip().endswith("%#") if env_ps1 else False
     sh_testdoc = testdoc if env_zsh else testdoc.replace("&&:", "#")
 
     # Default to print the Example Tests, and exit zero like "--help" does
+
+    parms = sys.argv[1:]
 
     if not parms:
 
@@ -111,9 +129,18 @@ def exit(name=None):
 
         sys.exit(0)
 
-    # Serve any one of "--help", "--hel", "--he", or "--h" given before "--"
+
+def exit_via_argdoc():
+    """Exit after printing ArgDoc, if '--h' or '--he' or ... '--help' before '--'"""
+
+    doc = __main__.__doc__
+    parms = sys.argv[1:]
 
     for parm in parms:
+        if parm == "--":
+
+            break
+
         if parm.startswith("--h") and "--help".startswith(parm):
 
             print()
@@ -124,7 +151,14 @@ def exit(name=None):
 
             sys.exit(0)
 
-    # Form an ArgV to forward the Command Line
+
+def exit_via_command():
+    """Forward the Command as the Argv of a Subprocess"""
+
+    basename = os.path.basename(sys.argv[0])
+
+    (root, ext) = os.path.splitext(basename)
+    assert ext == ".py", dict(basename=basename)
 
     argv = list(sys.argv[:-1]) if (sys.argv[-1] in ("-", "--")) else sys.argv
     argv[0] = root

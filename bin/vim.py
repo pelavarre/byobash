@@ -22,6 +22,7 @@ examples:
 # vim.py to take:  triage/scraps/jv_sad_builds.py:775
 # integrate with 'pbpaste, pbcopy'
 #
+# todo: Linux Vim splits lines from Command+Click, Linux Less does Not, Mac Vim hmm
 
 
 import byotools as byo

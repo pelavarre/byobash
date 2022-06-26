@@ -8,16 +8,16 @@ limit a Terminal window to a few rows and columns shared between hosts
 options:
   --help  show this help message and exit
   -ls                  list the Screens you have made
-  -L                   give the Screen a LogFile and flush that LogFile often
-  -Logfile LOG         choose a name for the LogFile (default: 'screenlog.0')
+  -L                   frequently flush a copy of the Screen output into './screenlog.0'
   -d                   detach the one you're in (or you can press ⌃A D)
-  -r [CLUE]            find a Screen by name, and re-attach that Screen
+  -r [CLUE]            re-attach a Screen found by name (default: list all Screens)
   -X hardcopy -h SNAP  export a LogFile of what Less Mode can see
 
 quirks:
   '-r' fails when you give no CLUE, if there is more than one Screen
   says 'Copy mode' to mean it's working in the Less Mode
   says 'Copy mode aborted' to mean it's back to working in the default Mode
+  takes a '-Logfile LOGFILE' option at Linux to separate LogFiles from a shared Dir
 
 examples:
 
@@ -28,7 +28,7 @@ examples:
   screen -d  &&: detach the one you're in (or you can press ⌃A D)
   exit &&: delete this Screen that you've made (or you can press ⌃D)
 
-  screen -S Screen1 -L -Logfile screenlog.0  &&: name the Screen and give it a LogFile
+  screen -S Screen1 -L  &&: name the Screen, often flush its Output to './screenlog.0'
   screen -r Screen1  &&: find a Screen by name, and re-attach that Screen
   # ⌃A ?  &&: show Keyboard Shortcuts
   # ⌃A A  &&: send an ordinary Control+A keystroke
@@ -42,7 +42,10 @@ examples:
   less -FIRX screenlog.0  &&: trust and run the Esc sequences
   less screenlog.0  &&: show the Esc sequences without running them
 """
+# talk out how best to clear Bash History for a Bash Screen
+# Linux only -Logfile LOG         choose a name for the LogFile (default: 'screenlog.0')
 # screen.py -r  # pick the latest, and autonumber them a b c ..., don't demand just one
+# screen.pr --rt  # sort by latest last
 # -t      forward control of the local terminal (-tt for more force)
 
 

@@ -23,10 +23,46 @@ examples:
 # todo: function cv () { ... tee >(pbcopy) when stdin/stdout both not tty ... }
 
 
+import sys
+
+
 import byotools as byo
+
+
+try:
+    import AppKit  # often from VEnv of:  pip install --upgrade pyobjc
+except ModuleNotFoundError:
+    AppKit = None
+
+
+if AppKit:
+
+    pb = AppKit.NSPasteboard.generalPasteboard()
+
+    pbpaste = pb.stringForType_(AppKit.NSStringPboardType)
+    in_chars = str(pbpaste)
+
+    print(in_chars)
+
+    out_chars = in_chars + in_chars
+
+    pbcopy = out_chars
+    nsobject = AppKit.NSObject.alloc().init()
+    pb.declareTypes_owner_([AppKit.NSStringPboardType], nsobject)
+    pb.setString_forType_(pbcopy, AppKit.NSStringPboardType)
+
+    print(out_chars)
+
+    sys.exit(3)
 
 
 byo.exit(__name__)
 
 
+# todo:
+_ = """
+"""
+
+
+# todo: posted as
 # copied from:  git clone https://github.com/pelavarre/byobash.git

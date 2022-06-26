@@ -19,24 +19,44 @@ options:
                         forward the input formatted as a Python String or Bytes Literal
 
 quirks:
-  give Args or Stdin, or print a prompt, to stop more Cat's from hanging silently
+  classic Cat forces you to guess when to prompt for input
+  Mac 'cat -tv' does Not distinguish $'\xC2\xA0' NonBreakingSpace from $'\x20' Space
+  few Linux bother to define 'pbpaste' and 'pbcopy'
+
+temporary workaround:
+  alias cat.py=~/Public/pybashish/bin/cat.py
 
 examples:
-  python -c 'import this' |tail -n +3 |cat -n |expand  &&: demo Cat N
-  seq 5|cat -n |cat.py -v  &&: show Line-Breaks inside a Python String Literal
-  echo $'\xC0\x80' |cat.py -v  &&: show UnicodeDecodeError inside a Python Bytes Literal
-  ... |cat -n |expand  &&: make Spaces of the Cat N Tabs
-  ... |cat -etv  &&: show the Spaces, if any, that precede Line-Break's
+
+  cat  &&: hangs till you provide input
+  cat.py  &&: show these examples and exit
+
+  cat -  &&: hangs till you provide input
+  cat.py -  &&: prompts for input
+
+  echo $'some Spaces "\x20\xC2\xA0" more equal than others' |cat -tv  &&: fails at Mac
+
+  echo $'some Spaces "\x20\xC2\xA0" more equal than others' |pbcopy
+  pbpaste |cat -tv  &&: fails for macOS Paste, wrongly showing Nbsp as Sp
+
+  echo $'some Spaces "\x20\xC2\xA0" more equal than others' |cat.py -tv  &&: works
+  echo $'\xC0\x80' |cat.py -tv  &&: still works, despite UnicodeDecodeError
+
+  seq 100 105|cat -n |expand  &&: demo Cat N numbering things
+  seq 100 105|cat -n |cat.py -tv  &&: show Tabs as \t, but don't show Line-Break's
+  paste <(seq 4 9) <(seq 100 105) |cat -tv  &&: show counting up from 4, not from 1
+
+  echo "   " |cat -etv  &&: show the Spaces before each Line-Break
+
+  cat /proc/cpuinfo |grep processor |wc -l  &&: count Cpu Cores at Linux
 """
-# todo: code the Python String/Bytes Literals
+# todo: stop needing the Temporary Workaround
 
 
 import byotools as byo
 
 
 byo.exit(__name__)
-
-# FIXME distinguish 'cat.py -tvn' as showing U+00A0 Nbsp and ending all lines
 
 
 # copied from:  git clone https://github.com/pelavarre/byobash.git

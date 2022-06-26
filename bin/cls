@@ -1,0 +1,2 @@
+echo "+ clear.py --" "$@" >&2
+clear.py -- "$@"

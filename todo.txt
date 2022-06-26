@@ -1,5 +1,7 @@
 dreaming since Jun/2022 =>
 
+ship 'README.py', not just 'README.md'
+
 collapse '  &&: ' to '  # ' only when leading '  '  both present
     or some other way of remembering to insert both '  '
 

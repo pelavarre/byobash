@@ -3,57 +3,64 @@
 r"""
 usage: clear.py [--h] [-x]
 
-wipe the Screen, delete the Scrollback, leave the Cursor at Top Left
+wipe the Screen, delete the Scrollback, and leave the Cursor at Top Left
 
 options:
   --help  show this help message and exit
-  -x      do Not delete the Scrollback, just scroll the Rows of the Screen up into it
+  -x      instead, scroll the Rows on Screen, away into the Scrollback
+
+limits:
+  Byo Clear Py works in Mac, Linux, & Chrome GShell
 
 quirks:
-  at GShell: ignores ⌘K, ignores \e[3J in default TMux, and ⌃L deletes Rows on Screen
+  Mac Clear scrolls the Rows on Screen, away into the Scrollback, same as 'clear -x'
+  Linux 'clear -x' loses the Rows on Screen, doesn't scroll them into Scrollback
+  Linux Clear says 3J H 2J in place of H 2 J 3J, doesn't delete all Scrollback
+  Linux Clear called twice says 3J H 2J 3J H 2J, so wipes Scrollback, doesn't delete it
+  Chrome GShell Clear works, but its 'clear -x' breaks like Terminal Linux
+  Safari GShell Clear breaks like Terminal Linux 'clear -x' & doesn't delete Scrollback
 
 examples:
 
-  clear.py --  &&: delete Scrollback, like ⌘K at Mac of Mac or Linux
+  clear.py  &&: show these examples and exit
 
-  echo -ne '\e[H\e[2J\e[3J'  &&: delete Scrollback, like ⌘K
-  echo -ne '\e[3J\e[H\e[2J'  &&: keep one Screen, but blank that Screen if called twice
-  echo -ne '\e[H\e[2J'  &&: scroll Screen away, but keep Scrollback, like ⌃L
+  cls  &&: clear Terminal history, like ⌘K
 
-  echo -ne '\e[8;'$(stty size | cut -d' ' -f1)';89t'  &&: 89 cols
-  echo -ne '\e[8;'$(stty size | cut -d' ' -f1)';101t'  &&: 101 cols
+  clear.py --  &&: clear Terminal history, like ⌘K
+  clear.py -x  &&: scroll the Rows on Screen, like ⌃L
 
-  reset  &&: sleep 100ms and delete all Scrollback (but not from GShell TMux)
+  echo -ne '\e[H\e[2J\e[3J'  &&: clear Terminal History, like ⌘K
+  echo -ne '\e[H\e[2J'  &&: scroll the Rows on Screen, like ⌃L
+  echo -ne '\e[8;50;89t'  &&: change to 50 Rows x 89 Columns
+  tput clear  &&: alt Clear
+  reset  &&: alt Clear, commonly includes a 1s sleep
 
   echo && seq 40 && echo && seq 50 && echo && seq 60 && echo  &&: fill Screens for test
-
   clear 2>&1 |tee >(hexdump -C)  &&: call and trace Clear
   tput clear 2>&1 |tee >(hexdump -C)  &&: call and trace TPut Clear
-  diff -u <(clear |hexdump -C) <(tput clear |hexdump -C)  &&: commonly no difference
-  reset 2>&1 |tee >(hexdump -C)  &&: call and trace Reset, at Linux
+  diff -u <(clear |hexdump -C) <(tput clear |hexdump -C)  &&: show no diff
 """
-# todo: find a Clear or Reset that deletes Scrollback, inside GShell default TMux
-# todo: call and trace Reset, at Mac
 
 
 import sys
 
+
 import byotools as byo
 
 
-def main():
+if __name__ == "__main__":
 
     parms = sys.argv[1:]
-    if parms != "--".split():
+
+    esc = "\x1B"
+    if parms == ["--"]:
+        print(r"\e[H\e[2J\e[3J".replace(r"\e", esc), end="")
+    elif parms == ["-x"]:
+        print(r"\e[H\e[2J".replace(r"\e", esc), end="")
+    else:
 
         byo.exit()
 
-    esc = "\x1B"
-    print(r"\e[H\e[2J\e[3J".replace(r"\e", esc), end="")
 
-
-if __name__ == "__main__":
-    main()
-
-
+# posted into:  https://github.com/pelavarre/byobash/blob/main/bin/clear.py
 # copied from:  git clone https://github.com/pelavarre/byobash.git

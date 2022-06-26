@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# virtualenv --python=python2 --prompt=PY2 py2  # for work based in history as stale as Aug/2015 and older
+
 """
 usage: python2.py [--h]  ...
 

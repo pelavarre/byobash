@@ -21,6 +21,8 @@ examples:
   ls.py  &&: the 'ls -C' view of:  ls -w1rt |tail -3
 """
 
+# todo: learn to faithfully copy sym links too
+
 
 import byotools as byo
 

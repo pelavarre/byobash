@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# assert should, occasion
+
 """
 usage: python.py [--help] [-i] [-m MODULE] FILE ...
 

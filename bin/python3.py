@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# python3 -m venv --prompt=PY3 py3  # standard since Sep/2015 Python 3.5
+
 # python3 -i
 # echo |python3 -m pdb
 # pdb pm post-mortem
@@ -25,8 +27,8 @@ examples:
   : Dec/2016 Python 3.6  # minor release date
   : : Mar/2018 Python 3.6.5  # micro release date
   : : Jul/2019 Python 3.6.9  # micro release date
-  : Dec/2016 CPython 3.6  # minor release date  # key-insertion-ordered dict's
-  : Jun/2018 Python 3.7  # minor release date  # key-insertion-ordered dict's
+  : Dec/2016 CPython 3.6  # minor release date  # Dict Keys ordered by Insertion
+  : Jun/2018 Python 3.7  # minor release date  # Dict Keys ordered by Insertion
   : : Mar/2019 Python 3.7.3  # micro release date
   : : Dec/2019 Python 3.7.6  # micro release date
   : Oct/2019 Python 3.8  # minor release date

@@ -24,6 +24,8 @@ examples:
 # todo: ls -C tabular defaults to single column seps calc'ed on 8 column Tabs, boo
 # todo: ls -A, as promoted by GShell for du -sh $(ls -A)
 
+# todo: ls DIR1 DIR2 should mark them up for paste into Mv, such as:  dir1/.
+
 
 import byotools as byo
 

@@ -1,26 +1,50 @@
 #!/usr/bin/env python3
 
 """
-usage: ssh.py [--h] [-t] ...
+usage: ssh.py [--h] [-t] [-f CONFIG] ...
 
 shell out to a host
 
 options:
-  --help  show this help message and exit
-  -t      forward control of the local terminal (-tt for more force)
+  --help     show this help message and exit
+  -t         forward control of the local terminal (-tt for more force)
+  -F CONFIG  choose a file of options (default: ~/.ssh/config)
 
 examples:
   ssh.py  &&: call Ssh Py with no args to show these examples
-  ssh -t localhost  'cd /usr/bin/ && bash -i'  # Ssh to your choice of Cd
-  ssh -t localhost  "cd $PWD && bash -i"  # Ssh to same Cd but out there
-  ssh -t localhost  bash -l  # '-l' for Bash to more login, not just shell out
-  ssh-add -l
-  ssh-add -L |grep ^ssh-rsa-cert |ssh-keygen -L -f - |grep Valid
+  ssh -F /dev/null localhost  &&: go there without a custom Config File
+  ssh -t localhost  'cd /usr/bin/ && bash -i'  &&: Ssh out to your choice of Cd
+  ssh -t localhost  "cd $PWD && bash -i"  &&: Ssh out to remote Cd same as local
+  ssh -t localhost  bash -l  &&: start up Bash more like Login, don't just Interact
+  ssh-add -l  &&: list the loaded Ssh Keys
+  echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK"  &&: show an Env Var Linux needs for Ssh Keys
+  echo "SSH_AGENT_PID=$SSH_AGENT_PID"  &&: show another Env Var Linux needs for Ssh Keys
+  ssh-add -L |grep ^ssh-rsa-cert |ssh-keygen -L -f - |grep Valid  &&: show expiry
 """
+# ssh-keygen -R localhost  # to cut it out of '~/.ssh/known_hosts'
+# todo: smashing SSH_AUTH_SOCK/ SSH_AGENT_PID empties 'ssh-add -l' at Linux
 # todo: does 'ssh -ttt' carry more force than 'ssh -tt'?
-
 # todo:  ssh.py --  &&: list recent hostnames
 # todo:  ssh.py localhost  &&: retry when connection drops
+# todo:  bin/gcloud auth login
+# todo:  bin/gcloud cloud-shell ssh
+
+# WARNING: REMOTE HOST IDENTIFICATION HAS CHANGED!
+# IT IS POSSIBLE THAT SOMEONE IS DOING SOMETHING NASTY!
+
+# ssh -F /dev/null $CLUSTER
+#
+# ssh -o UserKnownHostsFile=/dev/null $CLUSTER
+# ssh -o StrictHostKeyChecking=no $CLUSTER
+# ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $CLUSTER
+#
+# bash -c "echo SQUIRREL; hostname; python3 -c 'import socket; print(socket.getfqdn())'"
+#
+# The authenticity of host 'cluster... (...)' can't be established.
+# ECDSA key fingerprint is SHA256:...
+# Are you sure you want to continue connecting (yes/no/[fingerprint])?
+#
+# ssh-keygen -R $CLUSTER
 
 
 import byotools as byo

@@ -1,11 +1,12 @@
 # byobash
 
 Type a command line into Bash,
-but end the verb in ".py" to get your own defaults and options,
-and end the verb in ".py --" to get your own corrections to its meaning
+but end the verb in ".py" to show your own examples,
+or end the verb in ".py --h" show your own notes,
+or end the verb in ".py --" to run your own corrections to defaults and behavior
 
-Odds on you'll see the verb end in ".py"
-if you try pressing  \<Dot\> \<Tab\> \<Return\> in place of \<Return\>,
+Press \<Dot\> \<Tab\> \<Re$turn\> after typing the verb,
+and you'll see your Bash end the verb in ".py " for you,
 so you shouldn't have to press the P and the Y
 
 ## Demo
@@ -15,7 +16,7 @@ Got preferences?
 Got your own correct opinion on which defaults, options, examples, and help lines
 should come to you now, from your own tools inside Bash?
 
-Look, here you can quickly easily code your opinion.
+Look here, yes you can quickly easily code and ship your own opinion.
 You can roll your own simple accomodations of you in the workplace,
 while your workplace is a Shell in a Terminal,
 such as Linux Bash or Mac Zsh or GMail's GCloud GShell Bash inside your Browser.
@@ -43,7 +44,7 @@ to get Ssh to give you the TL;DR of its voluminous Man Page
 The year 1972 was a long time ago now
 - you don't actually have to keep it in place in misrule over you
 
-For example, iyou don't have to back off resignedly and
+For example, you don't have to back off resignedly and
 put up with such talk-to-the-hand nonsense as
 
     $ cp
@@ -69,7 +70,7 @@ can look like this
 
 Copy the Py files you want into your Shell Path
 
-Like you can patch in our whole Dir into your Path, like so
+Like you can patch our whole Dir into your Path, like so
 
     cd ~/Public/
     git clone https://github.com/pelavarre/byobash.git
@@ -106,10 +107,12 @@ you've got to install 'cd.py' in some special way, such as
 
     function cd.py () { cd "$(~/Public/byobash/bin/cd.py $@)"; }
 
-This special install works well in Zsh, it works ok in Bash, but in Bash
-you have to type '?' Question Marks in place of ' ' Spaces to find Dirs whose
-Names have Spaces in them
+This special install works well in Zsh.
+This special install works ok in Bash, but for Bash
+you do have to type '?' Question Marks in place of ' ' Spaces
+to find Dirs whose Names have Spaces in them
 
 ## Copied from
 
+Posted into:  https://github.com/pelavarre/byobash#readme
 Copied from:  git clone https://github.com/pelavarre/byobash.git

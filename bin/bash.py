@@ -15,6 +15,7 @@ examples:
   export |grep SHLVL  &&: show how deeply incepted
   set |grep -e ^PS1= -e ^PS4=  &&: show the outer and incepted shell prompts
 """
+# talk out how best to clear Bash History for a Bash Screen
 
 
 import byotools as byo
