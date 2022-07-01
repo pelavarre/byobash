@@ -77,4 +77,5 @@ s.c
 """
 
 
+# posted into:  https://github.com/pelavarre/byobash/blob/main/bin/python3.py
 # copied from:  git clone https://github.com/pelavarre/byobash.git

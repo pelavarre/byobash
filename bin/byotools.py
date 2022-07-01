@@ -335,4 +335,5 @@ if __name__ == "__main__":
 #
 
 
+# posted into:  https://github.com/pelavarre/byobash/blob/main/bin/byotools.py
 # copied from:  git clone https://github.com/pelavarre/byobash.git

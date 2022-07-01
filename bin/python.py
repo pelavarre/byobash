@@ -82,7 +82,7 @@ def main():
         flake8_shshline = "{} && {}".format(activate_shline, flake8_shline)
         flake8_shshline = "bash -c {!r}".format(flake8_shshline)
 
-        subprocess_run(pdb_shline, check=True)
+        subprocess_run(pdb_shline, stdout=subprocess.PIPE, check=True)
         sys.stderr.write("+\n")
         subprocess_run(black_shshline, check=True)
         sys.stderr.write("+\n")
@@ -382,7 +382,7 @@ def shlex_quote(arg):
 
 
 # deffed in many files  # since Sep/2015 Python 3.5
-def subprocess_run(shline, stdin=subprocess.PIPE, check=True):
+def subprocess_run(shline, stdin=subprocess.PIPE, stdout=None, check=None):
     """
     Launch another Process at the LocalHost
     """
@@ -390,7 +390,7 @@ def subprocess_run(shline, stdin=subprocess.PIPE, check=True):
     sys.stderr.write("+ {}\n".format(shline))
 
     argv = shlex.split(shline)
-    run = subprocess.run(argv, stdin=stdin)
+    run = subprocess.run(argv, stdin=stdin, stdout=stdout, check=False)
 
     exitstatus = run.returncode
     if check and exitstatus:
@@ -407,4 +407,5 @@ if __name__ == "__main__":
     main()
 
 
+# posted into:  https://github.com/pelavarre/byobash/blob/main/bin/python.py
 # copied from:  git clone https://github.com/pelavarre/byobash.git

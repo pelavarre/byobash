@@ -59,4 +59,5 @@ import byotools as byo
 byo.exit(__name__)
 
 
+# posted into:  https://github.com/pelavarre/byobash/blob/main/bin/cat.py
 # copied from:  git clone https://github.com/pelavarre/byobash.git
