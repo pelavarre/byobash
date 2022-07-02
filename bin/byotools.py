@@ -44,44 +44,12 @@ def exit(name=None, str_parms=None):
 
             return
 
-    # Exit in one way or another
+    # Exit in one way or another, but always run the tests inside 'exit_via_testdoc'
 
     exit_via_testdoc()
+
     exit_via_argdoc()
     exit_via_command()
-
-
-def exit_via_testdoc():
-    """Exit after printing last Graf, if no Parms"""
-
-    # Pick the trailing Paragraph of Example Tests out of the Main Arg Doc
-
-    doc = __main__.__doc__
-
-    grafs = splitgrafs(doc)
-    last_graf = grafs[-1]
-
-    tests = graf_dehang(last_graf)
-    tests = graf_strip(tests)
-    testdoc = "\n".join(tests)
-
-    # Choose an End-of-ShLine Comment Style for Paste of Sh Command Lines
-
-    env_ps1 = os.getenv("PS1")
-    env_zsh = env_ps1.strip().endswith("%#") if env_ps1 else False
-    sh_testdoc = testdoc if env_zsh else testdoc.replace("&&:", "#")
-
-    # Default to print the Example Tests, and exit zero like "--help" does
-
-    parms = sys.argv[1:]
-
-    if not parms:
-
-        print()
-        print(sh_testdoc)
-        print()
-
-        sys.exit(0)
 
 
 def exit_via_argdoc():
@@ -132,8 +100,41 @@ def exit_via_command():
     sys.exit()
 
 
+def exit_via_testdoc():
+    """Exit after printing last Graf, if no Parms"""
+
+    # Pick the trailing Paragraph of Example Tests out of the Main Arg Doc
+
+    doc = __main__.__doc__
+
+    grafs = splitgrafs(doc)
+    last_graf = grafs[-1]
+
+    tests = graf_dehang(last_graf)
+    tests = graf_strip(tests)
+    testdoc = "\n".join(tests)
+
+    # Choose an End-of-ShLine Comment Style for Paste of Sh Command Lines
+
+    env_ps1 = os.getenv("PS1")
+    env_zsh = env_ps1.strip().endswith("%#") if env_ps1 else False
+    sh_testdoc = testdoc if env_zsh else testdoc.replace("&&:", "#")
+
+    # Default to print the Example Tests, and exit zero like "--help" does
+
+    parms = sys.argv[1:]
+
+    if not parms:
+
+        print()
+        print(sh_testdoc)
+        print()
+
+        sys.exit(0)
+
+
 def graf_dehang(graf):
-    """Pick the lines below the head line of a paragraph"""
+    """Pick the lines below the head line of a paragraph, and dedent them"""
 
     grafdoc = "\n".join(graf[1:])
     grafdoc = textwrap.dedent(grafdoc)
@@ -145,38 +146,19 @@ def graf_dehang(graf):
 def graf_strip(graf):
     """Remove the leading Empty Lines and the trailing Empty Lines"""
 
-    # Remove off the leading Empty Lines
+    join = "\n".join(graf)
+    strip = join.strip("\n")
+    splitlines = strip.splitlines()
 
-    lindex = 0
-    for index in range(len(graf)):
-        lindex = index
-        if graf[lindex]:
-
-            break
-
-    # Remove off the trailing Empty Lines
-
-    rindex = len(graf)
-    for index in range(len(graf)):
-        rindex = len(graf) - 1 - index
-        if graf[rindex]:
-            rindex += 1
-
-            break
-
-    # Succeed
-
-    strip = graf[lindex:rindex]
-
-    return strip
+    return splitlines
 
 
 def len_dent(line):
     """Count the Spaces at the Left of a Line"""
 
-    result = len(line) - len(line.lstrip())
+    length = len(line) - len(line.lstrip())
 
-    return result
+    return length
 
 
 def os_path_homepath(path):
@@ -294,7 +276,7 @@ class BrokenPipeSink:
 
         if isinstance(exc, BrokenPipeError):  # catch this one
             null_fileno = os.open(os.devnull, flags=os.O_WRONLY)
-            os.dup2(null_fileno, sys.stdout.fileno())  # avoid the next one
+            os.dup2(null_fileno, sys.stdout.fileno())  # duck the rest of them
 
             sys.exit(self.returncode)
 
@@ -316,23 +298,7 @@ class ShPath:
 
         return shpath
 
-
-#
-# Run from the Command Line, when not imported into some other Main module
-#
-
-
-if __name__ == "__main__":
-    print("usage: import byotools as byo", file=sys.stderr)
-
-    sys.exit(2)
-
-
-#
-# quirks:
-#
-#   1 ) '@dataclasses.dataclass' is new since Jun/2018 Python 3.7
-#
+    # could depend on '@dataclasses.dataclass', since Jun/2018 Python 3.7
 
 
 # posted into:  https://github.com/pelavarre/byobash/blob/main/bin/byotools.py

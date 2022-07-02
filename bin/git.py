@@ -1,7 +1,7 @@
 # -gla could be -gl --author=$USER
 #
 # define a pile of functions: -grhu, -gcl, etc
-# trace what they mean
+# trace what they mean - with inverse globs for concision, like at:  -ga bin/*.py
 # keep a history of what they said
 #
 # tune for Screen Height at default chop of -glqv, etc

@@ -7,6 +7,15 @@ default: black flake8 selftest
 	:
 
 
+push: default
+	# FIXME: solve cd.py inside
+	# FIXME:    for F in $(find . |grep '[.]py$'); do python3 $F >/dev/null; done
+	: did you mean:  git push
+	: press ⌃D to execute, or ⌃C to quit
+	cat -
+	git push
+
+
 black:
 	. ~/bin/pips.source && black $$PWD/../byobash/
 
