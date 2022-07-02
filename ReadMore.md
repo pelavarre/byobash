@@ -68,14 +68,14 @@ And when you forget the examples, we bring those fast back to you too
 
 ## Insist they give you mercy
 
-Like ok so I must accept what happens when I strike Return after C D into a macOS Terminal,
-plebe that I am, I can't afford to push a broad distribution of change for the better there
+Like ok so I must accept what happens when I strike Return after C D into a macOS Terminal.
+Plebe that I am, I can't afford to push a broad distribution of change for the better there
 
 But still they leave me safe and free to define what Return means after C D Dot Tab, and
 after C D Dot Tab Dash Dash, and
 after C D Dot Tab Dash Dash H
 
-Now my own two C D keys work for me too, no longer just for them - Suddenly now for me too, their system has mercy
+Suddenly now, my own two C D keys work for me too, no longer just for them - Suddenly now, for me too, their system has mercy
 
 ## Got it? Pay it forward?
 
@@ -89,10 +89,13 @@ If yes, please tell me you get it?
 
 So far, besides me, i've found one friend who gets it enough to retweet it, back on 14/June/2022
 
-How about we get things going now, passing the word out and out so more people come meet with their chance of mercy,
+How about we get things going now, passing the word out now
+
+We want more and more people come meet with their chance of mercy,
 lost and buried inside their Sh Terminals,
 hidden away from me at least,
-cross all these last fifty years?
+cross all these last fifty years.
+Don't we?
 
 ## Copied from
 
