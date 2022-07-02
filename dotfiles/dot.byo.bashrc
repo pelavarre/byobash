@@ -1,9 +1,11 @@
 # dotfiles/dot.byo.bashrc
 
-
 function cd.py () {
-    'cd' "$(~/Public/byobash/bin/cd.py $@)"
-    dirs -p |head -1  # same as Bash:  dirs +0
+  if [ "$#" = 1 ] && [ "$1" = "--" ]; then
+    'cd' ~/Desktop && (dirs -p |head -1)
+  else
+    'cd' "$(~/Public/byobash/bin/cd.py $@)" && (dirs -p |head -1)
+  fi
 }
 
 
