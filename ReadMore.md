@@ -75,7 +75,7 @@ But still they leave me safe and free to define what Return means after C D Dot 
 after C D Dot Tab Dash Dash, and
 after C D Dot Tab Dash Dash H
 
-Suddenly now, my own two C D keys work for me too, no longer just for them - Suddenly now, for me too, their system has mercy
+Suddenly now, my own two C D keys work for me too, no longer just for them - **Suddenly now, for me too, their system has mercy**
 
 ## Got it? Pay it forward?
 
@@ -91,11 +91,11 @@ So far, besides me, i've found one friend who gets it enough to retweet it, back
 
 How about we get things going now, passing the word out now
 
-We want more and more people come meet with their chance of mercy,
+**We want more and more people come meet with their chance of mercy**,
 lost and buried inside their Sh Terminals,
 hidden away from me at least,
 across all these last fifty years.
-Don't we?
+**Don't we?**
 
 ## Copied from
 
