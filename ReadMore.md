@@ -94,7 +94,7 @@ How about we get things going now, passing the word out now
 We want more and more people come meet with their chance of mercy,
 lost and buried inside their Sh Terminals,
 hidden away from me at least,
-cross all these last fifty years.
+across all these last fifty years.
 Don't we?
 
 ## Copied from
