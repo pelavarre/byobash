@@ -5,7 +5,7 @@ but end the verb in ".py" to show your own examples,
 or end the verb in ".py --h" show your own notes,
 or end the verb in ".py --" to run your own corrections to defaults and behavior
 
-Press \<Dot\> \<Tab\> \<Re$turn\> after typing the verb,
+Press \<Dot\> \<Tab\> \<Return\> after typing the verb,
 and you'll see your Bash end the verb in ".py " for you,
 so you shouldn't have to press the P and the Y
 
