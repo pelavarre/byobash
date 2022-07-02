@@ -1,9 +1,5 @@
 # ByoBash > ReadMore.md
 
-**Do you get it?**
-
-Are our words coherent enough that you get it, focused well enough, ordered well enough, that you get it in a hurry?
-
 ## Grok it first, then pass the word, to people working with Sh Terminals
 
 **You should feel agency and power**, when you work with a machine or a system.
@@ -83,7 +79,11 @@ Suddenly now for me too, their system has mercy
 
 Do you get it? Do you grok it?
 
-Tell us me got it? So far, besides me, i've found one friend who gets it enough to retweet it, back on 14/June/2022
+Are our words coherent enough that you get it, focused well enough, ordered well enough, that you get it in a hurry?
+
+If not, please tell us - we can make it better
+
+If yes, please tell me you get it? So far, besides me, i've found one friend who gets it enough to retweet it, back on 14/June/2022
 
 How about we get things going now, passing the word out and out so more people come meet with their chance of mercy,
 lost and buried inside their Sh Terminals across all these last fifty years?
