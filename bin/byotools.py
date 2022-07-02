@@ -24,52 +24,6 @@ import textwrap
 _ = pdb
 
 
-def splitgrafs(doc, keepends=False):
-    """Pick each Paragraph out of a DocString"""
-
-    assert not keepends  # FIXME: develop keepends=True
-
-    grafs = list()
-
-    lines = doc.splitlines()
-
-    graf = list()
-    for line in lines:
-
-        # Collect every Empty Line and every More Dented Line
-
-        if not line:
-
-            if graf:
-                graf.append(line)
-
-        elif graf and (len_dent(line) > len_dent(graf[0])):
-
-            graf.append(line)
-
-        else:
-
-            # Capture this Graf before the next Graf
-
-            strip = graf_strip(graf)
-            if strip:
-                grafs.append(strip)
-
-            # Begin again
-
-            graf = list()
-            if line:
-                graf.append(line)
-
-    # Capture the last Graf before the End
-
-    strip = graf_strip(graf)
-    if strip:
-        grafs.append(strip)
-
-    return grafs
-
-
 def exit(name=None, str_parms=None):
     """Run a Py File with Help Lines & Examples in Main Doc, from the Sh Command Line"""
 
@@ -92,12 +46,12 @@ def exit(name=None, str_parms=None):
 
     # Exit in one way or another
 
-    exit_via_argdoc_last_graf()
+    exit_via_testdoc()
     exit_via_argdoc()
     exit_via_command()
 
 
-def exit_via_argdoc_last_graf():
+def exit_via_testdoc():
     """Exit after printing last Graf, if no Parms"""
 
     # Pick the trailing Paragraph of Example Tests out of the Main Arg Doc
@@ -261,6 +215,52 @@ def os_path_shortpath(path):
 
     concise = names[0]
     return concise
+
+
+def splitgrafs(doc, keepends=False):
+    """Pick each Paragraph out of a DocString"""
+
+    assert not keepends  # FIXME: develop keepends=True
+
+    grafs = list()
+
+    lines = doc.splitlines()
+
+    graf = list()
+    for line in lines:
+
+        # Collect every Empty Line and every More Dented Line
+
+        if not line:
+
+            if graf:
+                graf.append(line)
+
+        elif graf and (len_dent(line) > len_dent(graf[0])):
+
+            graf.append(line)
+
+        else:
+
+            # Capture this Graf before the next Graf
+
+            strip = graf_strip(graf)
+            if strip:
+                grafs.append(strip)
+
+            # Begin again
+
+            graf = list()
+            if line:
+                graf.append(line)
+
+    # Capture the last Graf before the End
+
+    strip = graf_strip(graf)
+    if strip:
+        grafs.append(strip)
+
+    return grafs
 
 
 class BrokenPipeSink:

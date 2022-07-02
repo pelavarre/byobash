@@ -16,6 +16,8 @@ examples:
   set |grep -e ^PS1= -e ^PS4=  &&: show the outer and incepted shell prompts
 """
 # talk out how best to clear Bash History for a Bash Screen
+# todo: tab completion of:  mv -i *.jp
+# ⌃X⌃E to edit a line
 
 
 import byotools as byo

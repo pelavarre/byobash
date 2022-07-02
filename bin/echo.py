@@ -29,10 +29,11 @@ bash install:
 examples:
 
   echo.py  &&: show these examples and exit
+  echo.py --h  &&: show this help message and exit
 
   rm /dev/null/child  &&: test Exit Code 1
   bash -c 'exit 3'  &&: test Exit Code 3
-  echo.py -- &&: echo "+ exit $?"  &&: mention the last Exit Status ReturnCode once
+  echo.py --  &&: echo "+ exit $?"  &&: mention the last Exit Status ReturnCode once
 
   echo -ne '\e[H\e[2J\e[3J'  &&: clear Terminal history, like ⌘, but see:  clear.py --h
 
@@ -45,7 +46,20 @@ examples:
 import byotools as byo
 
 
-byo.exit(__name__)
+byo.exit(__name__, str_parms="--")
+
+print(
+    """
+function echo.py {
+  local xc=$?
+  if [ "$#" = 1 ] && [ "$1" = "--" ]; then
+    echo "+ exit $xc"
+  else
+    command echo.py "$@"
+  fi
+}
+"""
+)
 
 
 # posted into:  https://github.com/pelavarre/byobash/blob/main/bin/echo.py

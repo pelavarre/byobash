@@ -32,6 +32,9 @@
 
 # git diff --name-only HEAD~1
 
+# git add -p
+# git describe --always --dirty
+
 
 # posted into:  https://github.com/pelavarre/byobash/blob/main/bin/git.py
 # copied from:  git clone https://github.com/pelavarre/byobash.git

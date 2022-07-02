@@ -1,3 +1,11 @@
+# todo.txt
+
+
+dreaming since Jul/2022 =>
+
+easy grep of just dot configuration, without also picking up dot histoy
+
+
 dreaming since Jun/2022 =>
 
 ship 'README.py', not just 'README.md'
