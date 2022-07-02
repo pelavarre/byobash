@@ -1,118 +1,95 @@
-# byobash
+# ByoBash > ReadMore.md
 
-Type a command line into Bash,
-but end the verb in ".py" to show your own examples,
-or end the verb in ".py --h" show your own notes,
-or end the verb in ".py --" to run your own corrections to defaults and behavior
+**Do you get it?**
 
-Press \<Dot\> \<Tab\> \<Return\> after typing the verb,
-and you'll see your Bash end the verb in ".py " for you,
-so you shouldn't have to press the P and the Y
+Are our words coherent enough that you get it, focused well enough, ordered well enough, that you get it in a hurry?
 
-## Demo
+## Grok it first, then pass the word, to people working with Sh Terminals
 
-Got preferences?
+**You should feel agency and power**, when you work with a machine or a system.
+You should feel you can change it, you should feel we've invite you to improve it.
+You should feel that our pushback of "we've always done it this way" can't stop you.
+Else we've got it wrong
 
-Got your own correct opinion on which defaults, options, examples, and help lines
-should come to you now, from your own tools inside Bash?
+\- words by Cristóbal Sciutto, as remixed by me in June/2022
 
-Look here, yes you can quickly easily code and ship your own opinion.
-You can roll your own simple accomodations of you in the workplace,
-while your workplace is a Shell in a Terminal,
-such as Linux Bash or Mac Zsh or GMail's GCloud GShell Bash inside your Browser.
-You can curate the fixes yourself, keep some fixes secret, crowd-source the rest
+## Come to know you've got options you can afford
 
-For example, you can type S S H and then Dot Tab Return
-to get Ssh to give you better examples
+We're here picking out a way for you to **feel you're correcting the code in your Terminal Shell** - You aren't actually correcting any of the original broken things, not precisely, for on purpose we leave the originals in place undisturbed, for fixing them perturbs a million more things we'd have to manage well
 
-    $ ssh.py
-    ssh.py --help  &&: show this help message and exit
-    ssh -t localhost 'cd /usr/bin/ && bash -i'  &&: Ssh to your choice of Cd
-    ...
-    $
+But close enough
 
-Likewise, you can type S S H Space Dash Dash H Return
-to get Ssh to give you the TL;DR of its voluminous Man Page
+We're giving you **three gifts**, into the first minute after you download them
 
-    $ man ssh |wc -l
-    922
-    $
-    $ ssh.py --h |wc -l
-    21
-    $
+1 ) **your own examples**, at "p.py"
 
-The year 1972 was a long time ago now
-- you don't actually have to keep it in place in misrule over you
+2 ) **your own notes**, at "p.py --h"
 
-For example, you don't have to back off resignedly and
-put up with such talk-to-the-hand nonsense as
+3 ) **your own tweaks** to defaults and behavior, at "p.py --"
 
-    $ cp
-    cp: missing file operand
-    Try 'cp --help' for more information
-    + exit 1
-    $
+We're indexing these gifts for you, by the 1st word of your next Sh Line
 
-Telling Cp to stop forcing you to spell out all its options and arguments for us
-can look like this
+We're teaching you to drop these gifts into your own Sh Terminal Input Line Search Index, for you to find them again behind Dot Tab now, or to find them again after you fix them up
 
-    $ touch file
-    $ cp.py --
-    + cp -ip file file~
-    $
+## Learn better, learn faster
 
-    $ mkdir files
-    $ cp.py --
-    + cp -ipR files/ files~/
-    $
+Bring these gifts into your life, to serve as **things for you to think with**
 
-## Basic install
+**You will noticeably accelerate the rate at which
+you pick up and adopt new slang into your own Sh Command Line**
 
-Copy the Py files you want into your Shell Path
+You won't get lost in coining too much new Sh slang too rapidly, and
+you won't hide your Sh work away from people learning over your shoulder,
+because we consciously keep up a strong trace of the laborious conventional old 1972 ways of saying what you mean
 
-Like you can patch our whole Dir into your Path, like so
+For example,
+we make it quick and easy for you destroy every new file that you forgot to 'git add',
+but not too easy
 
-    cd ~/Public/
-    git clone https://github.com/pelavarre/byobash.git
-    export PATH="${PATH:+$PATH:}$PWD/byobash/bin"
+    $ git.py gcl
+    did you mean:  git clean -ffxdq
+    press ⌃D to execute, or ⌃C to quit
 
-When you do know your Shell Path isn't empty, you can say this more simply, like so
+Ditto,
+we make it quick and easy for you bury all your recent Commits into your 'git reflog',
+but not too easy
 
-    export PATH="$PATH:$HOME/Public/byobash/bin"
+    $ git.py grhu
+    did you mean:  git reset --hard @{upstream}
+    press ⌃D to execute, or ⌃C to quit
 
-You don't need to exit and relaunch your Shell to make these Py files work for you,
-just dropping these Py files into your Shell Path is enough
+And when you forget the issue, we bring it back to you fast,
+to bring you quickly back up to speed
 
-When you want your Shell to make these Py files work for you
-as often as you open up a new Terminal window,
-you can patch your '~/.bashrc' or '~/.zshrc' configuration of your Shell, like so
+    git.py gcl --h
+    git.pu grhu --h
 
-    export PATH="${PATH:+$PATH:}:$HOME/Public/byobash/bin"
+And when you forget the examples, we bring those fast back to you too
 
-## Advanced install
+    git.py
 
-Odds on you've told your Shell to give some permissions
-only to commands coded inside Process Memory,
-not also to commands coded as Files outside of Process Memory.
+## Insist they give you mercy
 
-For example, your 'cd' will change your Working Dir, but your '/usr/bin/cd' won't
+Like ok so I must accept what happens when I strike Return after C D into a macOS Terminal,
+plebe that I am, I can't afford to push a broad distribution of change for the better there
 
-    % which -a cd
-    cd: shell built-in command
-    /usr/bin/cd
-    %
+But they leave me safe and free to define what Return means after C D Dot Tab, and after C D Dot Tab Dash Dash, and after C D Dot Tab Dash Dash H
 
-So then if you then do want 'cd.py' to change your Working Dir,
-you've got to install 'cd.py' in some special way, such as
+Now my own two C D keys work for me too, no longer just for them
 
-    function cd.py () { cd "$(~/Public/byobash/bin/cd.py $@)"; }
+Suddenly now for me too, their system has mercy
 
-This special install works well in Zsh.
-This special install works ok in Bash, but for Bash
-you do have to type '?' Question Marks in place of ' ' Spaces
-to find Dirs whose Names have Spaces in them
+## Got it? Pay it forward?
+
+Do you get it? Do you grok it?
+
+Tell us me got it? So far, besides me, i've found one friend who gets it enough to retweet it, back on 14/June/2022
+
+How about we get things going now, passing the word out and out so more people come meet with their chance of mercy,
+lost and buried inside their Sh Terminals across all these last fifty years?
 
 ## Copied from
 
-Posted into:  https://github.com/pelavarre/byobash#readme
+Posted into:  https://github.com/pelavarre/byobash/blob/main/ReadMore.md
+
 Copied from:  git clone https://github.com/pelavarre/byobash.git
