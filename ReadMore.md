@@ -60,7 +60,7 @@ And when you forget the issue, we bring it back to you fast,
 to bring you quickly back up to speed
 
     git.py gcl --h
-    git.pu grhu --h
+    git.py grhu --h
 
 And when you forget the examples, we bring those fast back to you too
 
