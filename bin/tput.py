@@ -11,11 +11,9 @@ positional arguments:
 options:
   --help   show this help message and exit
 
-limits:
-  Byo TPut Py works in Mac, Linux, & Chrome GShell
-
-see also:
-  Clear, Echo, Reset
+quirks:
+  works in Mac, Linux, & Chrome GShell
+  works well with: clear.py, echo.py, reset.py
 
 examples:
   echo && seq 40 && echo && seq 50 && echo && seq 60 && echo  &&: fill Screens for test

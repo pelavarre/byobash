@@ -2,13 +2,20 @@
 
 Type the first Word of any Command Line into your Terminal Shell, and then
 
-1 ) press the 2 keys \<Dot\> \<Tab\> before \<Return\> to show **your own examples** at "verb.py " or
+1 ) press the 2 keys \<Dot\> \<Tab\> before \<Return\>
+to show **your own examples**
+at "verb.py " or
 
-2 ) press the 5 keys \<Dot\> \<Tab\> \<Dash\> \<Dash\> \<H\> before \<Return\> to show **your own notes** at "verb.py --h", or
+2 ) press the 5 keys \<Dot\> \<Tab\> \<Dash\> \<Dash\> \<H\>
+before \<Return\> to show **your own notes**
+at "verb.py --h", or
 
-3 ) press the 4 keys \<Dot\> \<Tab\> \<Dash\> \<Dash\> \<H\> before \<Return\> to run **your own corrections to defaults and behavior** at "verb.py --"
+3 ) press the 4 keys \<Dot\> \<Tab\> \<Dash\> \<Dash\> \<H\>
+before \<Return\> to run **your own corrections to defaults and behavior**
+at "verb.py --"
 
-You pressing those two leading 2 keys \<Dot\> \<Tab\> will tell your Terminal to immediately type out the ".py " part for you,
+You pressing those two leading 2 keys \<Dot\> \<Tab\>
+will tell your Terminal to immediately type out the ".py " part for you,
 after you set up your Sh Path in this way
 
 ## Motivation
@@ -17,12 +24,14 @@ Got preferences?
 
 **Got your own correct opinion of
 which defaults, options, examples, and help lines
-should come work with you now**, for your tools and mine, inside of your Terminal Shell?
+should come work with you now,**
+for your tools and mine, inside of your Terminal Shell?
 
 Look here, yes you can quickly easily code and ship your own opinion.
 
 You can roll your own good cheap strong accomodations of you in the workplace,
-while you work inside some such Terminal Shell as Linux Bash, Mac Zsh, or a Gmail GShell.
+while you work inside
+some such Terminal Shell as Linux Bash, Mac Zsh, or a Gmail GShell.
 You can curate the fixes yourself, keep some fixes secret, crowd-source the rest
 
 ## Demo
@@ -95,8 +104,10 @@ then you can patch your '\~/.bashrc' or '\~/.zshrc' configuration of your Shell,
 
     export PATH="${PATH:+$PATH:}:$HOME/Public/byobash/bin"
 
-If you take our files in a la carte, one by one, then for now you'll also need to take in a copy of our non-executable "byotools.py" file.
-If instead you want to embed a copy of that file into the one file you're taking, then you'll have to change one sourceline of it
+If you take our files in a la carte, one by one, then
+for now you'll also need to take in a copy of our non-executable "byotools.py" file.
+If instead you want to embed a copy of that file into the one file you're taking,
+then you'll have to change one sourceline of it
 
     - import byotools as byo
     + import __main__ as byo
@@ -130,11 +141,15 @@ you've got to install them in some special way, such as
     }
 
 When you forget how this works, 'bin/cd.py --' will remind you, because there's no other way for it to help you then.
-Ditto, 'bin/echo.py --' will tell you how to install it forcefully enough to let it fetch your Sh '$?' before your Sh '$?' clears itself
+Ditto, 'bin/echo.py --' will tell you how to install it
+forcefully enough to let it fetch your Sh '$?' before your Sh '$?' clears itself
 
-Technical Note: the specific example of '/usr/bin/cd' arrives by default inside macOS, as part of Apple's effort to follow Posix, but few Linuxes bother to conform so well there
+Technical Note: the specific example of '/usr/bin/cd' arrives by default inside macOS,
+as part of Apple's effort to follow Posix, but
+few Linuxes bother to conform so well there
 
 ## Copied from
 
 Posted into:  https://github.com/pelavarre/byobash#readme
+
 Copied from:  git clone https://github.com/pelavarre/byobash.git

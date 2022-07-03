@@ -13,6 +13,7 @@ examples:
 
 import __main__
 import os
+import pathlib
 import pdb
 import shlex
 import signal
@@ -27,14 +28,14 @@ _ = pdb
 def exit(name=None, str_parms=None):
     """Run a Py File with Help Lines & Examples in Main Doc, from the Sh Command Line"""
 
-    # Actually don't exit, when just imported
+    # Actually quit early, don't exit, when just imported
 
     if name is not None:
         if name != "__main__":
 
             return
 
-    # Actually don't exit, when the Caller wants to take the Parms
+    # Actually quit early, don't exit, when the Caller wants to take the Parms
 
     parms = sys.argv[1:]
 
@@ -53,10 +54,12 @@ def exit(name=None, str_parms=None):
 
 
 def exit_via_argdoc():
-    """Exit after printing ArgDoc, if '--h' or '--he' or ... '--help' before '--'"""
+    """Exit after printing ArgDoc, if '--help' or '--hel' or ... '--h' before '--'"""
 
     doc = __main__.__doc__
     parms = sys.argv[1:]
+
+    # Actually quit early, don't exit, when no '--help' Parm supplied
 
     for parm in parms:
         if parm == "--":
@@ -64,6 +67,8 @@ def exit_via_argdoc():
             break
 
         if parm.startswith("--h") and "--help".startswith(parm):
+
+            # Else exit after printing ArgDoc
 
             print()
             print()
@@ -77,6 +82,8 @@ def exit_via_argdoc():
 def exit_via_command():
     """Forward the Command as the Argv of a Subprocess"""
 
+    # Collect many Args
+
     basename = os.path.basename(sys.argv[0])
 
     (root, ext) = os.path.splitext(basename)
@@ -85,11 +92,15 @@ def exit_via_command():
     argv = list(sys.argv[:-1]) if (sys.argv[-1] in ("-", "--")) else sys.argv
     argv[0] = root
 
+    # Form a ShLine
+
     shline = ""
     for arg in argv:
         if shline:
             shline += " "
         shline += shlex.quote(arg)
+
+    # Trace and run the ShLine, but trace NonZero Exit Status ReturnCode, if any
 
     sys.stderr.write("+ {}\n".format(shline))
 
@@ -97,13 +108,54 @@ def exit_via_command():
     if run.returncode:
         sys.stderr.write("{}: + exit {}\n".format(basename, run.returncode))
 
-    sys.exit()
+    sys.exit()  # Exit None, not Exit 0, after resorting to calling an Executable File
+
+
+def exit_via_patchdoc(patchdoc):  # todo: pick the PatchDoc out of the ArgDoc
+    """Exit after printing PatchDoc, if "--" is the only Parm"""
+
+    # Collect many Args
+
+    parms = sys.argv[1:]
+
+    patchdoc_body = textwrap.dedent(patchdoc)
+    patchdoc_body = patchdoc_body.strip()
+    dented_patchdoc = textwrap.indent(patchdoc_body, "  ")
+
+    # Demand one accurate copy of the PatchDoc in the ArgDoc
+
+    assert dented_patchdoc in __main__.__doc__
+
+    # Demand one accurate copy of the PatchDoc in the DotFiles
+
+    bin_dir = os.path.dirname(__file__)
+    dotfiles_dir = os.path.join(bin_dir, os.pardir, "dotfiles")
+    pathname = os.path.join(dotfiles_dir, "dot.byo.bashrc")
+
+    path = pathlib.Path(pathname)
+    dotfiles_doc = path.read_text()
+
+    assert patchdoc_body in dotfiles_doc
+
+    # Actually quit early, don't exit, when no '--' Parm supplied
+
+    if parms != ["--"]:
+
+        return
+
+    # Else exit after printing PatchDoc
+
+    print()
+    print(patchdoc_body)
+    print()
+
+    sys.exit(0)
 
 
 def exit_via_testdoc():
     """Exit after printing last Graf, if no Parms"""
 
-    # Pick the trailing Paragraph of Example Tests out of the Main Arg Doc
+    # Collect many Args
 
     doc = __main__.__doc__
 
@@ -114,13 +166,13 @@ def exit_via_testdoc():
     tests = graf_strip(tests)
     testdoc = "\n".join(tests)
 
-    # Choose an End-of-ShLine Comment Style for Paste of Sh Command Lines
+    # Choose a local End-of-ShLine Comment Style, for Paste of Sh Command Lines
 
     env_ps1 = os.getenv("PS1")
     env_zsh = env_ps1.strip().endswith("%#") if env_ps1 else False
     sh_testdoc = testdoc if env_zsh else testdoc.replace("&&:", "#")
 
-    # Default to print the Example Tests, and exit zero like "--help" does
+    # Actually quit early, don't exit, when Parms supplied
 
     parms = sys.argv[1:]
 

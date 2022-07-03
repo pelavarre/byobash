@@ -9,11 +9,11 @@ options:
   --help  show this help message and exit
   -x      instead, scroll the Rows on Screen, away into the Scrollback
 
-limits:
+quirks:
+
   Byo Clear Py works in Mac, Linux, & Chrome GShell
 
-quirks:
-  Mac Clear scrolls the Rows on Screen, away into the Scrollback, same as 'clear -x'
+  Mac Clear scrolls the Rows on Screen, away into the Scrollback, same as 'clear.py -x'
   Linux 'clear -x' loses the Rows on Screen, doesn't scroll them into Scrollback
   Linux Clear says 3J H 2J in place of H 2 J 3J, doesn't delete all Scrollback
   Linux Clear called twice says 3J H 2J 3J H 2J, so wipes Scrollback, doesn't delete it

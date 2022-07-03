@@ -8,10 +8,10 @@ wipe the Screen, delete the Scrollback, and leave the Cursor at Top Left
 options:
   --help  show this help message and exit
 
-limits:
+quirks:
+
   Byo Reset Py works in Mac, Linux, & Chrome GShell
 
-quirks:
   Mac Reset scrolls top Screen Row into Scrollback and doesn't delete Scrollback
   Mac refuses to trace Reset:  reset: standard error: Inappropriate ioctl for device
   Chrome GShell Reset works

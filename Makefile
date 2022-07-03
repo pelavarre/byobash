@@ -8,8 +8,6 @@ default: black flake8 selftest
 
 
 push: default
-	# FIXME: solve cd.py inside
-	# FIXME:    for F in $(find . |grep '[.]py$'); do python3 $F >/dev/null; done
 	: did you mean:  git push
 	: press ⌃D to execute, or ⌃C to quit
 	cat -
@@ -32,18 +30,9 @@ flake8:
 
 selftest:
 	:
-	rm -fr bin/__pycache__/
+	for F in $$(find . |grep '[.]py$$'); do python3 $$F >/dev/null; done
 	:
-	bin/cat_bashrc_source.py
-	:
-	PATH="$$PATH:$$PWD/bin" bin/cat_bashrc_source.py
-	:
-	/bin/bash -c 'source <(bin/cat_bashrc_source.py)'
-	python -c ''  # call twice to workaround 'bash -c' returning too soon
-	python -c ''
-	:
-	rm -fr bin/__pycache__/
-	:
+# as if:  for F in $(find . |grep '[.]py$'); do python3 $F >/dev/null; done
 
 
 setup:

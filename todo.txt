@@ -3,6 +3,8 @@
 
 dreaming since Jul/2022 =>
 
+form my own ~/.bashrc, ~/.zshrc, from parts, as part of:  make push
+
 easy grep of just dot configuration, without also picking up dot histoy
 
 

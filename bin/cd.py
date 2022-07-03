@@ -1,26 +1,34 @@
 #!/usr/bin/env python3
 
 r"""
-usage: cd.py [--h] [DIR]
+usage: cd.py [--h] [--pwd] [DIR]
 
-change working Dir
+change the Working Dir in Sh Memory
 
 positional arguments:
-  DIR     the directory to work in next (default: $HOME)
+  DIR          the directory to work in next (default: '~/Desktop')
 
 options:
-  --help  show this help message and exit
+  --help       show this help message and exit
+  --for-chdir  print to Stdout what the in-memory Sh Cd needs to hear
 
 quirks:
-  spaces in Args come through Zsh just fine, but separate Args in Bash
+  Zsh and Bash take '(dirs -p |head -1)', but only Bash takes 'dirs +0'
+  most Cd default to '~' in place of '~/Desktop'
+  many Cd lose Args past the first Arg
 
-bash install:
+advanced bash install:
 
-  function cd.py () {
-    if [ "$#" = 1 ] && [ "$1" = "--" ]; then
-      'cd' ~/Desktop && (dirs -p |head -1)
+  function 'cd.py' () {
+    : : 'Print some kind of Help, else change the Sh Working Dir' : :
+    if [ "$#" = 0 ]; then
+      command cd.py
+    elif [ "$#" = 1 ] && [ "$1" = "-" ]; then
+      'cd' -
+    elif [ "$#" = 1 ] && [[ "$1" =~ ^--h ]] && [[ "--help" =~ ^"$1" ]]; then
+      command cd.py --help
     else
-      'cd' "$(~/Public/byobash/bin/cd.py $@)" && (dirs -p |head -1)
+      'cd' "$(command cd.py --for-chdir $@)" && (dirs -p |head -1)
     fi
   }
 
@@ -28,8 +36,9 @@ examples:
 
   cd.py  &&: show these examples and exit
   cd.py --h  &&: show this help message and exit
-
   cd.py --  &&: go to Desktop Dir inside Home Dir, same as:  cd ~/Desktop
+  command cd.py --  &&: show the Advanced Bash Install of Cd Py and exit
+  cd.py -  &&: toggle back to previous Sh Working Dir, same as:  cd -
 
   cd.py ~  &&: go to Home Dir, same as:  cd ~
   cd.py .  &&: stay put, same as:  cd .
@@ -44,39 +53,70 @@ import sys
 import byotools as byo
 
 
-if __name__ == "__main__":
-
-    try:
-        sys.stdout = sys.stderr  # todo: stop never printing to Stdout
-        byo.exit_via_testdoc()
-        byo.exit_via_argdoc()
-    except SystemExit:
-        sys.__stdout__.write(".\n")
-
-        raise
+def main():
+    """Run from the Sh Command Line"""
 
     parms = sys.argv[1:]
-    if parms == ["--"]:
-        print(
-            """
-  function cd.py () {
-    if [ "$#" = 1 ] && [ "$1" = "--" ]; then
-      'cd' ~/Desktop && (dirs -p |head -1)
+
+    patchdoc = """
+
+  function 'cd.py' () {
+    : : 'Print some kind of Help, else change the Sh Working Dir' : :
+    if [ "$#" = 0 ]; then
+      command cd.py
+    elif [ "$#" = 1 ] && [ "$1" = "-" ]; then
+      'cd' -
+    elif [ "$#" = 1 ] && [[ "$1" =~ ^--h ]] && [[ "--help" =~ ^"$1" ]]; then
+      command cd.py --help
     else
-      'cd' "$(~/Public/byobash/bin/cd.py $@)" && (dirs -p |head -1)
+      'cd' "$(command cd.py --for-chdir $@)" && (dirs -p |head -1)
     fi
   }
-"""
-        )
-    elif parms == ["-"]:
-        default_None = None
-        env_oldpwd = os.environ.get("OLDPWD", default_None)
-        if env_oldpwd is not None:
-            sys.__stdout__.write("{}\n".format(env_oldpwd))
-        else:
-            sys.__stdout__.write("{}\n".format(sys.argv[1]))
-    else:
-        sys.__stdout__.write("{}\n".format(sys.argv[1]))
+
+    """
+
+    # Define some forms of 'cd.py'
+
+    byo.exit_via_patchdoc(patchdoc)  # command cd.py --
+    byo.exit_via_testdoc()  # cd.py
+    byo.exit_via_argdoc()  # cd.py --help
+
+    # Pick out the '--for-chdir' option in full, or abbreviated
+
+    for_chdir = None
+    if parms:
+        if parms[0].startswith("--f"):
+            if "--for-chdir".startswith(parms[0]):
+                for_chdir = True
+
+    # Define 'command cd.py --for-chdir --'
+
+    if for_chdir and (parms[1:] == ["--"]):
+        print(os.path.expanduser("~/Desktop"))
+
+        sys.exit(0)
+
+    # Define 'command cd.py --for-chdir DIR'
+
+    if for_chdir and not parms[2:]:
+        print(parms[1])
+
+        sys.exit(0)
+
+    # Reject other usage
+
+    sys.stderr.write("usage: cd.py [--h] [--for-chdir] [DIR]\n")
+
+    sys.exit(2)  # Exit 2, not Exit 1, for wrong usage
+
+
+#
+# Run from the Command Line, when not imported into some other Main module
+#
+
+
+if __name__ == "__main__":
+    main()
 
 
 # posted into:  https://github.com/pelavarre/byobash/blob/main/bin/cd.py
