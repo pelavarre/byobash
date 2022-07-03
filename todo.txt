@@ -3,6 +3,23 @@
 
 dreaming since Jul/2022 =>
 
+fill out the rest of Git Py
+
+    alias q='git.py'
+    alias qcd='git.py cd'
+    ...
+
+implement the rest of the Helped Examples
+    cp.py
+    mv.py
+    ...
+
+forward down the Path
+    resolve the Path to give only first seen of each Real Path
+        while dropping the absence of Real Path
+    then find Self exactly once
+        and forward to the Next After Self
+
 form my own ~/.bashrc, ~/.zshrc, from parts, as part of:  make push
 
 easy grep of just dot configuration, without also picking up dot histoy
@@ -51,4 +68,5 @@ dream up a way to capture such idioms as
 fill out tab-completion, such as recent host names for Ssh
 
 
+# posted into:  https://github.com/pelavarre/byobash/blob/main/bin/todo.txt
 # copied from:  git clone https://github.com/pelavarre/byobash.git

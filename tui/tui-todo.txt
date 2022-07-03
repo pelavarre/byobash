@@ -1,0 +1,11 @@
+# tui/todo.txt
+
+noughts and crosses, tic-tac-toe
+draughts, checkers
+chess
+loser's chess
+3D chess
+
+
+# posted into:  https://github.com/pelavarre/byobash/blob/main/bin/tui-todo.txt
+# copied from:  git clone https://github.com/pelavarre/byobash.git

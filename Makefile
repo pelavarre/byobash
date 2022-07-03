@@ -8,6 +8,9 @@ default: black flake8 selftest
 
 
 push: default
+	git log --oneline --no-decorate -1
+	git describe --always --dirty
+	:
 	: did you mean:  git push
 	: press ⌃D to execute, or ⌃C to quit
 	cat -
@@ -66,4 +69,5 @@ setup:
 #
 
 
+# posted into:  https://github.com/pelavarre/byobash/blob/main/Makefile
 # copied from:  git clone https://github.com/pelavarre/byobash.git

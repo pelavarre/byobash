@@ -1,5 +1,0 @@
-noughts and crosses, tic-tac-toe
-draughts, checkers
-chess
-loser's chess
-3D chess
