@@ -1,5 +1,5 @@
 """
-usage: p.py [--h]
+usage: cd bin/ && python3 p.py [--h]
 
 demo how to fork ByoBash by downloading 1 File and writing 3 Lines of Code
 

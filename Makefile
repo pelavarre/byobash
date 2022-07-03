@@ -9,6 +9,7 @@ default: black flake8 selftest
 
 push: default
 	git log --oneline --no-decorate -1
+	git status --short --ignored
 	git describe --always --dirty
 	:
 	: did you mean:  git push
@@ -34,8 +35,9 @@ flake8:
 selftest:
 	:
 	for F in $$(find . |grep '[.]py$$'); do python3 $$F >/dev/null; done
+	rm -fr bin/__pycache__/
 	:
-# as if:  for F in $(find . |grep '[.]py$'); do python3 $F >/dev/null; done
+# ..... # as if:  for F in $(find . |grep '[.]py$'); do python3 $F >/dev/null; done
 
 
 setup:

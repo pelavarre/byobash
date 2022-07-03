@@ -25,6 +25,15 @@ import textwrap
 _ = pdb
 
 
+def alt_main_doc():
+    """Form an Alt Main Doc to fall back on, when no '__main__.__doc__' found"""
+
+    filename = os.path.basename(__main__.__file__)
+    alt_main_doc = ALT_MAIN_DOC.replace("p.py", filename)
+
+    return alt_main_doc
+
+
 def exit(name=None, shparms=None):
     """Run a Py File with Help Lines & Examples in Main Doc, from the Sh Command Line"""
 
@@ -37,7 +46,7 @@ def exit(name=None, shparms=None):
 
     # Actually quit early, don't exit, when the Caller wants to take the Parms
 
-    parms = sys.argv[1:]
+    parms = sys.argv[1:]  # these 'parms' are the 'shlex.split' of the 'shparms'
 
     if shparms is not None:
         wants = shlex.split(shparms)
@@ -57,7 +66,10 @@ def exit_via_argdoc():
     """Exit after printing ArgDoc, if '--help' or '--hel' or ... '--h' before '--'"""
 
     doc = __main__.__doc__
-    parms = sys.argv[1:]
+    doc = alt_main_doc() if (doc is None) else doc
+    doc = alt_main_doc() if (doc is None) else doc
+
+    parms = sys.argv[1:]  # these 'parms' are the 'shlex.split' of the 'shparms'
 
     # Actually quit early, don't exit, when no '--help' Parm supplied
 
@@ -116,7 +128,10 @@ def exit_via_patchdoc(patchdoc):  # todo: pick the PatchDoc out of the ArgDoc
 
     # Collect many Args
 
-    parms = sys.argv[1:]
+    doc = __main__.__doc__
+    doc = alt_main_doc() if (doc is None) else doc
+
+    parms = sys.argv[1:]  # these 'parms' are the 'shlex.split' of the 'shparms'
 
     patchdoc_body = textwrap.dedent(patchdoc)
     patchdoc_body = patchdoc_body.strip()
@@ -124,7 +139,7 @@ def exit_via_patchdoc(patchdoc):  # todo: pick the PatchDoc out of the ArgDoc
 
     # Demand one accurate copy of the PatchDoc in the ArgDoc
 
-    assert dented_patchdoc in __main__.__doc__
+    assert dented_patchdoc in doc
 
     # Demand one accurate copy of the PatchDoc in the DotFiles
 
@@ -158,6 +173,7 @@ def exit_via_testdoc():
     # Collect many Args
 
     doc = __main__.__doc__
+    doc = alt_main_doc() if (doc is None) else doc
 
     grafs = splitgrafs(doc)
     last_graf = grafs[-1]
@@ -174,7 +190,7 @@ def exit_via_testdoc():
 
     # Actually quit early, don't exit, when Parms supplied
 
-    parms = sys.argv[1:]
+    parms = sys.argv[1:]  # these 'parms' are the 'shlex.split' of the 'shparms'
 
     if not parms:
 
@@ -351,6 +367,28 @@ class ShPath:
         return shpath
 
     # could depend on '@dataclasses.dataclass', since Jun/2018 Python 3.7
+
+
+QUOTED_ALT_MAIN_DOC = """
+
+    usage: cd bin/ && python3 p.py [--h]
+
+    demo how to fork ByoBash by downloading 1 File and writing 3 Lines of Code
+
+    options:
+      --help  show this help message and exit
+
+    examples:
+      ls -1 byotools.py p.py  # show you have come to work here with us
+      python3 p.py  # show these examples and exit
+      python3 p.py --h  # show this help message and exit
+      python3 p.py --  # do your choice of some other work for you
+      cat p.py |cat -n |expand  # show how this works
+
+"""
+
+ALT_MAIN_DOC = textwrap.dedent(QUOTED_ALT_MAIN_DOC)
+ALT_MAIN_DOC = ALT_MAIN_DOC.strip()
 
 
 # posted into:  https://github.com/pelavarre/byobash/blob/main/bin/byotools.py

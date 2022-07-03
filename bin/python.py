@@ -91,18 +91,17 @@ def main():
 
     # Run after compile
 
-    shparms = ""
+    python3_shline = "python3"
     if args.i:
-        shparms += " -i"
+        python3_shline += " -i"
     if args.module:
         shmodule = shlex_quote(args.module)
-        shparms += " -m {}".format(shmodule)
+        python3_shline += " -m {}".format(shmodule)
     if args.file:
-        shparms += " {}".format(shfile)
+        python3_shline += " {}".format(shfile)
     for parm in args.file_parms:
-        shparms += " {}".format(shlex_quote(parm))
+        python3_shline += " {}".format(shlex_quote(parm))
 
-    python3_shline = "python3{}".format(shparms)
     subprocess_run(python3_shline, stdin=None, check=True)
 
 
