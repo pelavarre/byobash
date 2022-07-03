@@ -16,7 +16,7 @@ examples:
 
 import byotools as byo
 
-byo.exit(str_parms="--")
+byo.exit(shparms="--")
 
 print("welcome to CLI NoteTaking with ByoBash Flair, can you dig it?")
 

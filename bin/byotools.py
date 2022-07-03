@@ -25,7 +25,7 @@ import textwrap
 _ = pdb
 
 
-def exit(name=None, str_parms=None):
+def exit(name=None, shparms=None):
     """Run a Py File with Help Lines & Examples in Main Doc, from the Sh Command Line"""
 
     # Actually quit early, don't exit, when just imported
@@ -39,8 +39,8 @@ def exit(name=None, str_parms=None):
 
     parms = sys.argv[1:]
 
-    if str_parms is not None:
-        wants = shlex.split(str_parms)
+    if shparms is not None:
+        wants = shlex.split(shparms)
         if parms == wants:
 
             return

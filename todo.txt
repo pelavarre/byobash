@@ -68,5 +68,5 @@ dream up a way to capture such idioms as
 fill out tab-completion, such as recent host names for Ssh
 
 
-# posted into:  https://github.com/pelavarre/byobash/blob/main/bin/todo.txt
+# posted into:  https://github.com/pelavarre/byobash/blob/main/todo.txt
 # copied from:  git clone https://github.com/pelavarre/byobash.git

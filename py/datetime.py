@@ -45,5 +45,5 @@ print(f"{y}Y {m}M {w}W {d}D {H}h {M}m {S}s")
 """
 
 
-# posted into:  https://github.com/pelavarre/byobash/blob/main/bin/datetime.py
+# posted into:  https://github.com/pelavarre/byobash/blob/main/py/datetime.py
 # copied from:  git clone https://github.com/pelavarre/byobash.git

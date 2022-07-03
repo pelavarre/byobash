@@ -39,7 +39,7 @@ import byotools as byo
 
 if __name__ == "__main__":
 
-    byo.exit(str_parms="--")
+    byo.exit(shparms="--")
 
     esc = "\x1B"
     print(r"\e[H\e[2J\e[3J".replace(r"\e", esc), end="")

@@ -45,6 +45,7 @@ examples:
   echo -ne '\e[8;'$(stty size |cut -d' ' -f1)';89t'  &&: change to 89 Columns
   echo -ne '\e[8;'$(stty size |cut -d' ' -f1)';101t'  &&: change to 101 Columns
 """
+# todo:  do these work better when spelled differently, as:  echo -n $'...'
 
 
 import byotools as byo

@@ -1,20 +1,25 @@
-"""
-usage: python3 py/0630pl.py --
+#!/usr/bin/env python3
 
-link the end of each Sourcefile to a copy of itself on the Web, and a Git Repo inviting change to it
+"""
+usage: python3 py/blacker.py [--h] [--]
+
+tweak up the Sourcefiles found in this Dirs of Dirs, for people
 
 options:
   --help  show this help message and exit
 
 quirks:
-  semi-anonymous
-  newborn
+  i ) adds a Posted-Into Link to this File as found on the Web
+  ii ) adds a Copied-From Git Clone Line to invite you into editing this File for us
+  iii ) trusts the Makefile to call Black and Flake8 before this File
+  iv ) doesn't limit itself to the Git-Add'ed Sourcefiles
+  v ) doesn't save changes till you call it with Parms
 
 examples:
-  python3 py/0630pl.py  # show these examples and exit
-  python3 py/0630pl.py --h  # show this help message and exit
-  python3 py/0630pl.py --  # edit the Files of these nearby Dirs
-  make push  # implicitly call all Py Files near here, without Parms, as a SelfTest
+  python3 py/blacker.py  # show these examples and exit
+  python3 py/blacker.py --h  # show this help message and exit
+  python3 py/blacker.py --  # edit the Files of these nearby Dirs
+  make push  # implicitly call all Py Files near here, but without Parms, as a SelfTest
 """
 
 
@@ -38,14 +43,14 @@ except ImportError:
 
 # Declare Templates
 
-POSTED = "# posted into:  https://github.com/pelavarre/byobash/blob/main/bin/"
+POSTED = "# posted into:  https://github.com/pelavarre/byobash/blob/main/"
 COPIED = "# copied from:  git clone https://github.com/pelavarre/byobash.git"
 
 
 def main():
     """Run from the Sh Command Line"""
 
-    byo.exit()  # do nothing without Parms
+    byo.exit(shparms="--")  # do nothing without Parms
 
     # Choose Files to Review and Edit
 
@@ -56,11 +61,15 @@ def main():
     hits.append("todo.txt")
     hits.append("tui/tui-todo.txt")
 
+    approved_hits = list()
+    for hit in hits:
+        (_, ext) = os.path.splitext(hit)
+        if ext:
+            approved_hits.append(hit)
+
     # Visit each File once
 
-    for hit in hits:
-        filename = os.path.basename(hit)
-
+    for hit in approved_hits:
         path = pathlib.Path(hit)
         if not path.is_dir():
 
@@ -88,7 +97,7 @@ def main():
                 olines.append("")
                 olines.append("")
 
-            olines.append(POSTED + filename)
+            olines.append(POSTED + hit)
             olines.append(COPIED)
 
             olines.append("")
@@ -112,5 +121,5 @@ if __name__ == "__main__":
     main()
 
 
-# posted into:  https://github.com/pelavarre/byobash/blob/main/bin/0630pl.py
+# posted into:  https://github.com/pelavarre/byobash/blob/main/py/blacker.py
 # copied from:  git clone https://github.com/pelavarre/byobash.git

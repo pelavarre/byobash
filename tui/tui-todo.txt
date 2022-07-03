@@ -7,5 +7,5 @@ loser's chess
 3D chess
 
 
-# posted into:  https://github.com/pelavarre/byobash/blob/main/bin/tui-todo.txt
+# posted into:  https://github.com/pelavarre/byobash/blob/main/tui/tui-todo.txt
 # copied from:  git clone https://github.com/pelavarre/byobash.git

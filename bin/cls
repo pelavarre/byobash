@@ -1,6 +1,2 @@
 echo "+ clear.py --" "$@" >&2
 clear.py -- "$@"
-
-
-# posted into:  https://github.com/pelavarre/byobash/blob/main/bin/cls
-# copied from:  git clone https://github.com/pelavarre/byobash.git
