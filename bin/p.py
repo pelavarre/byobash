@@ -7,7 +7,7 @@ options:
   --help  show this help message and exit
 
 examples:
-  ls byotools.py p.py  # show you have come to work here with us
+  ls -1 byotools.py p.py  # show you have come to work here with us
   python3 p.py  # show these examples and exit
   python3 p.py --h  # show this help message and exit
   python3 p.py --  # do your choice of some other work for you
@@ -18,7 +18,7 @@ import byotools as byo
 
 byo.exit(str_parms="--")
 
-print("hello to the CLI Note-Taking World of ByoBash, have you grokked 'p.py'?")
+print("welcome to CLI NoteTaking with ByoBash Flair, can you dig it?")
 
 
 # posted into:  https://github.com/pelavarre/byobash/blob/main/bin/p.py
