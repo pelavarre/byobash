@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+# deffed in many packages  # missing from:  https://pypi.org
 """
 usage: import byotools as byo
 
@@ -17,6 +18,7 @@ import pathlib
 import pdb
 import shlex
 import signal
+import string
 import subprocess
 import sys
 import textwrap
@@ -35,7 +37,7 @@ def alt_main_doc():
 
 
 def exit(name=None, shparms=None):
-    """Run a Py File with Help Lines & Examples in Main Doc, from the Sh Command Line"""
+    """Exit after printing TestDoc, or ArgDoc, or running a Subprocess, else return"""
 
     # Actually quit early, don't exit, when just imported
 
@@ -59,7 +61,7 @@ def exit(name=None, shparms=None):
     exit_via_testdoc()
 
     exit_via_argdoc()
-    exit_via_command()
+    exit_via_shcommand()
 
 
 def exit_via_argdoc():
@@ -91,8 +93,8 @@ def exit_via_argdoc():
             sys.exit(0)
 
 
-def exit_via_command():
-    """Forward the Command as the Argv of a Subprocess"""
+def exit_via_shcommand():
+    """Forward the Command as the Argv of a Subprocess, and exit"""
 
     # Collect many Args
 
@@ -201,34 +203,6 @@ def exit_via_testdoc():
         sys.exit(0)
 
 
-def graf_dehang(graf):
-    """Pick the lines below the head line of a paragraph, and dedent them"""
-
-    grafdoc = "\n".join(graf[1:])
-    grafdoc = textwrap.dedent(grafdoc)
-    graf = grafdoc.splitlines()
-
-    return graf
-
-
-def graf_strip(graf):
-    """Remove the leading Empty Lines and the trailing Empty Lines"""
-
-    join = "\n".join(graf)
-    strip = join.strip("\n")
-    splitlines = strip.splitlines()
-
-    return splitlines
-
-
-def len_dent(line):
-    """Count the Spaces at the Left of a Line"""
-
-    length = len(line) - len(line.lstrip())
-
-    return length
-
-
 def os_path_homepath(path):
     """Return the Path relative to Env Home if below Env Home, else the AbsPath"""
 
@@ -267,6 +241,124 @@ def os_path_shortpath(path):
     return concise
 
 
+#
+# Run on top of a layer of general-purpose Python idioms,
+#   while these are missing from:  https://docs.python.org
+#
+
+
+# deffed in many files  # missing from Python
+def graf_dehang(graf):
+    """Pick the lines below the head line of a paragraph, and dedent them"""
+
+    grafdoc = "\n".join(graf[1:])
+    grafdoc = textwrap.dedent(grafdoc)
+    graf = grafdoc.splitlines()
+
+    return graf
+
+
+# deffed in many files  # missing from Python
+def graf_strip(graf):
+    """Remove the leading Empty Lines and the trailing Empty Lines"""
+
+    join = "\n".join(graf)
+    strip = join.strip("\n")
+    splitlines = strip.splitlines()
+
+    return splitlines
+
+
+# deffed in many files  # missing from Python
+def len_dent(line):
+    """Count the Spaces at the Left of a Line"""
+
+    length = len(line) - len(line.lstrip())
+
+    return length
+
+
+SH_PLAIN = (  # all printable Ascii except not " !#$&()*;<>?[]^`{|}~" and " and ' and \
+    "%+,-./"
+    + string.digits
+    + ":=@"
+    + string.ascii_uppercase
+    + "_"
+    + string.ascii_lowercase
+)
+
+
+SH_QUOTABLE = SH_PLAIN + " " + "!#&()*;<>?[]^{|}~"
+# all printable Ascii except not $ Dollar and ` Backtick, and not " and ' and \
+
+
+# deffed in many files  # missing from Python
+def shlex_min_quote(parm):
+    """Quote, but quote compactly despite '"' and '~', when that's still easy"""
+
+    # Follow the Library, when they agree no quote marks required
+
+    quoted = shlex_quote(parm)
+    if quoted[:1] not in ("'", '"'):
+
+        return quoted
+
+    # Try accepting the ~ Tilde when the Parm does Not start with the ~ Tilde
+
+    unplain = set(parm) - set(SH_PLAIN)
+    if not parm.startswith("~"):
+        if unplain == set("~"):
+
+            return parm
+
+    # Try the " DoubleQuote to shrink it
+
+    unquotable = set(parm) - set(SH_QUOTABLE) - set("'")
+    if not unquotable:
+        doublequoted = '"' + parm + '"'
+        if len(doublequoted) < len(quoted):
+
+            return doublequoted
+
+    # Give up and settle for the Library's work
+
+    return quoted
+
+    # todo: figure out when the ^ Caret is plain enough to need no quoting
+    # todo: figure out when the {} Braces are plain enough to need no quoting
+    # todo: figure out when the ! Bang is plain enough to need no quoting
+
+    # todo: figure out when the * ? [ ] are plain enough to need no quoting
+    # so long as we're calling Bash not Zsh
+    # and the Dirs don't change out beneath us
+
+
+# deffed in many files  # missing from Python till Oct/2019 Python 3.8
+def shlex_quote(parm):
+    """Mark up a word with Quote Marks and Backslants, so Sh agrees it is one word"""
+
+    # Trust the library, if available
+
+    if hasattr(shlex, "quote"):
+        quoted = shlex.quote(parm)
+
+        return quoted
+
+    # Emulate the library roughly, because often good enough
+
+    unplain = set(parm) - set(SH_PLAIN)
+    if not unplain:
+
+        return parm
+
+    quoted = repr(parm)  # as if the Py rules agree with Sh rules
+
+    return quoted  # such as print(shlex_quote("<=>"))  # the 5 chars '<=>'
+
+    # test results with:  python3 -c 'import sys; print(sys.argv)' ...
+
+
+# deffed in many files  # missing from Python
 def splitgrafs(doc, keepends=False):
     """Pick each Paragraph out of a DocString"""
 
@@ -311,6 +403,26 @@ def splitgrafs(doc, keepends=False):
         grafs.append(strip)
 
     return grafs
+
+
+def str_removeprefix(chars, prefix):  # missing from Python till Oct/2020 Python 3.9
+    """Remove Prefix from Chars if present"""
+
+    result = chars
+    if chars.startswith(prefix):
+        result = chars[len(prefix) :]
+
+    return result
+
+
+def str_removesuffix(chars, suffix):  # missing from Python till Oct/2020 Python 3.9
+    """Remove Suffix from Chars if present"""
+
+    result = chars
+    if chars.endswith(suffix):
+        result = chars[: -len(suffix)]
+
+    return result
 
 
 class BrokenPipeSink:

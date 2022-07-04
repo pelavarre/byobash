@@ -36,7 +36,6 @@ import difflib
 import os
 import pathlib
 import shlex
-import string
 import subprocess
 import sys
 import textwrap
@@ -64,7 +63,7 @@ def main():
     # First compile
 
     if args.file:
-        shfile = shlex_quote(args.file)
+        shfile = byo.shlex_quote(args.file)
 
         pdb_shline = "python3 -m pdb {}".format(shfile)
 
@@ -95,12 +94,12 @@ def main():
     if args.i:
         python3_shline += " -i"
     if args.module:
-        shmodule = shlex_quote(args.module)
+        shmodule = byo.shlex_quote(args.module)
         python3_shline += " -m {}".format(shmodule)
     if args.file:
         python3_shline += " {}".format(shfile)
     for parm in args.file_parms:
-        python3_shline += " {}".format(shlex_quote(parm))
+        python3_shline += " {}".format(byo.shlex_quote(parm))
 
     subprocess_run(python3_shline, stdin=None, check=True)
 
@@ -348,39 +347,6 @@ def exit_unless_doc_eq(doc, verbs, parser):
         sys.exit(1)  # trust caller to log SystemExit exceptions well
 
 
-# deffed in many files  # missing from Python till Oct/2019 Python 3.8
-def shlex_quote(arg):
-    """Mark up with quote marks and backslashes , but only as needed"""
-
-    # Trust the library, if available
-
-    if hasattr(shlex, "quote"):
-        quoted = shlex.quote(arg)
-
-        return quoted
-
-    # Emulate the library roughly, because often good enough
-
-    mostly_harmless = set(
-        "%+,-./"  # not: !"#$&'()*
-        + string.digits
-        + ":=@"  # not ;<>?
-        + string.ascii_uppercase
-        + "_"  # not [\]^
-        + string.ascii_lowercase
-        + ""  # not {|}~
-    )
-
-    likely_harmful = set(arg) - set(mostly_harmless)
-    if likely_harmful:
-        quoted = repr(arg)  # as if the Py rules agree with Sh rules
-
-        return quoted
-
-    return arg
-
-
-# deffed in many files  # since Sep/2015 Python 3.5
 def subprocess_run(shline, stdin=subprocess.PIPE, stdout=None, check=None):
     """
     Launch another Process at the LocalHost

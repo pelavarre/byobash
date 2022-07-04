@@ -13,7 +13,7 @@ options:
   -E, --show-ends       print each \n lf as $ lf
   -e                    call for -E and -v
   -n, --number          number each line of output, up from 1, with \t tabs
-  -T, --show-tabs       show each \t tab as \ t backslash tee
+  -T, --show-tabs       show each \t tab as \ t Backslant-Tee
   -t                    call for -T and -v
   -v, --show-nonprinting
                         forward the input formatted as a Python String or Bytes Literal

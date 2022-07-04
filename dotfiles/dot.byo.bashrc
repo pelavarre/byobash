@@ -29,12 +29,16 @@ function 'echo.py' {
 function 'git.py' () {
   : : 'Show Git Status, else change the Sh Working Dir, else do other Git Work' : :
   if [ "$#" = 1 ] && [ "$1" = "--" ]; then
-    command git.py status "$@"
+    command git.py --for-shproc --
   elif [ "$#" = 1 ] && [ "$1" = "cd" ]; then
     'cd' "$(command git.py --for-chdir $@)" && (dirs -p |head -1)
   else
-    command git.py "$@"
+    command git.py --for-shproc "$@"
   fi
+}
+
+function qcd () {
+  'cd' "$(command git.py --for-chdir cd $@)" && (dirs -p |head -1)
 }
 
 
