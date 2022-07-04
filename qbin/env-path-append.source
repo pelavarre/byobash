@@ -1,0 +1,5 @@
+# usage: source bin/env-path-append.source
+# usage: source bin/env-path-append.source 2>/dev/null
+
+echo 'export PATH="${PATH:+$PATH:}'$(cd $(dirname $0) && pwd -P)'"' >&2
+export       PATH="${PATH:+$PATH:}$(cd $(dirname $0) && pwd -P)"

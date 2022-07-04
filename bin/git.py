@@ -165,6 +165,7 @@ def main():  # FIXME  # noqa C901 complex
                 sys.argv[1:] = parms[1:]
             elif parm_1 == "--":  # here emulate Sh Function:  git.py --
                 sys.argv[1:] = ["--for-shproc", "co"]
+                # FIXME: but show counts of 'gssi', to discourage forgetting:  git add
 
         parms = sys.argv[1:]
 
@@ -522,6 +523,7 @@ ALIASES = {
     "ls": "git log --stat {}",
     "lv": "git log --oneline --decorate -{}",
     "pfwl": "cat - && git push --force-with-lease",
+    #   "pfwl": "pwd && cat - && git push --force-with-lease",  # FIXME
     "rb": "git rebase",  # auth'ed!
     "rhu": "cat - && git reset --hard @{{upstream}}",
     "ri": "git rebase --interactive --autosquash HEAD~{}",

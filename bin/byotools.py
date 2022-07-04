@@ -4,11 +4,12 @@
 """
 usage: import byotools as byo
 
-define a pile of conveniences for writing Python
+bundle the Python you need to make Sh welcome you sincerely and competently
 
 examples:
-  byo.exit()  # take no Parms to print Examples, '--help' to print Help, else work
+  byo.exit()  # take no Parms to print Examples, '--help' to print Help, else just work
   byo.exit(__name__)  # like 'byo.exit()' but return without exit when imported
+  byo.exit(shparms="--")  # like 'byo.exit()' but return when the only Parm is '--'
 """
 
 
@@ -25,6 +26,11 @@ import textwrap
 
 
 _ = pdb
+
+
+#
+# Welcome Examples into 'p.py', Notes into 'p.py --h', & Preferences into 'p.py --'
+#
 
 
 def alt_main_doc():
@@ -180,8 +186,8 @@ def exit_via_testdoc():
     grafs = splitgrafs(doc)
     last_graf = grafs[-1]
 
-    tests = graf_dehang(last_graf)
-    tests = graf_strip(tests)
+    tests = graf_rip(last_graf)
+    tests = list_strip(tests)
     testdoc = "\n".join(tests)
 
     # Choose a local End-of-ShLine Comment Style, for Paste of Sh Command Lines
@@ -201,6 +207,14 @@ def exit_via_testdoc():
         print()
 
         sys.exit(0)
+
+
+#
+# Start dreaming of compacting ShLine's well
+#
+
+
+# todo: def shlex_compact(shline), shlex_compact(argv)
 
 
 def os_path_homepath(path):
@@ -241,14 +255,28 @@ def os_path_shortpath(path):
     return concise
 
 
+class ShPath:
+    """Wrap a Sh Path to print it more concisely"""
+
+    def __init__(self, pathname):
+        self.pathname = pathname
+
+    def __str__(self):
+        shortpath = os_path_shortpath(self.pathname)
+        shpath = shlex.quote(shortpath)
+
+        return shpath
+
+    # could depend on '@dataclasses.dataclass', since Jun/2018 Python 3.7
+
+
 #
-# Run on top of a layer of general-purpose Python idioms,
-#   while these are missing from:  https://docs.python.org
+# Work well with "Grafs" = Paragraphs of Lines separated by Empty Lines
 #
 
 
 # deffed in many files  # missing from Python
-def graf_dehang(graf):
+def graf_rip(graf):
     """Pick the lines below the head line of a paragraph, and dedent them"""
 
     grafdoc = "\n".join(graf[1:])
@@ -259,23 +287,100 @@ def graf_dehang(graf):
 
 
 # deffed in many files  # missing from Python
-def graf_strip(graf):
-    """Remove the leading Empty Lines and the trailing Empty Lines"""
+def list_strip(items):
+    """Drop the leading and trailing Falsey Items"""
 
-    join = "\n".join(graf)
-    strip = join.strip("\n")
-    splitlines = strip.splitlines()
+    # Find the leftmost Truthy Item, else 0
 
-    return splitlines
+    index = 0
+    while items[index:]:
+        if items[index]:
+
+            break
+
+        index += 1
+
+    # Find the rightmost Truthy Item, else -1
+
+    rindex = -1
+    while items[:rindex]:
+        if items[rindex]:
+
+            break
+
+        rindex -= 1
+
+    # Drop the leading and trailing Falsey Items,
+    # by way of picking all the Items from leftmost through rightmost Truthy Item
+
+    lstrip = items[index:]
+    strip = lstrip[: (rindex + 1)] if (rindex < -1) else lstrip
+
+    return strip
 
 
 # deffed in many files  # missing from Python
-def len_dent(line):
-    """Count the Spaces at the Left of a Line"""
+def splitgrafs(doc, keepends=False):
+    """Pick each Paragraph out of a DocString"""
 
-    length = len(line) - len(line.lstrip())
+    assert not keepends  # FIXME: develop keepends=True
 
-    return length
+    grafs = list()
+
+    lines = doc.splitlines()
+
+    graf = list()
+    for line in lines:
+
+        # Collect every Empty Line and every More Dented Line
+
+        if not line:
+
+            if graf:
+                graf.append(line)
+
+        elif graf and (len(str_ldent(line)) > len(str_ldent(graf[0]))):
+
+            graf.append(line)
+
+        else:
+
+            # Capture this Graf before the next Graf
+
+            strip = list_strip(graf)
+            if strip:
+                grafs.append(strip)
+
+            # Begin again
+
+            graf = list()
+            if line:
+                graf.append(line)
+
+    # Capture the last Graf before the End
+
+    strip = list_strip(graf)
+    if strip:
+        grafs.append(strip)
+
+    return grafs
+
+
+# deffed in many files  # missing from Python
+def str_ldent(chars):  # kin to 'str.lstrip'
+    """Pick out the Spaces etc, at left of some Chars"""
+
+    lstrip = chars.lstrip()
+    length = len(chars) - len(lstrip)
+    dent = chars[:length] if lstrip else ""
+
+    return dent
+
+
+#
+# Run on top of a layer of general-purpose Python idioms,
+#   while these are missing from:  https://docs.python.org
+#
 
 
 SH_PLAIN = (  # all printable Ascii except not " !#$&()*;<>?[]^`{|}~" and " and ' and \
@@ -358,53 +463,6 @@ def shlex_quote(parm):
     # test results with:  python3 -c 'import sys; print(sys.argv)' ...
 
 
-# deffed in many files  # missing from Python
-def splitgrafs(doc, keepends=False):
-    """Pick each Paragraph out of a DocString"""
-
-    assert not keepends  # FIXME: develop keepends=True
-
-    grafs = list()
-
-    lines = doc.splitlines()
-
-    graf = list()
-    for line in lines:
-
-        # Collect every Empty Line and every More Dented Line
-
-        if not line:
-
-            if graf:
-                graf.append(line)
-
-        elif graf and (len_dent(line) > len_dent(graf[0])):
-
-            graf.append(line)
-
-        else:
-
-            # Capture this Graf before the next Graf
-
-            strip = graf_strip(graf)
-            if strip:
-                grafs.append(strip)
-
-            # Begin again
-
-            graf = list()
-            if line:
-                graf.append(line)
-
-    # Capture the last Graf before the End
-
-    strip = graf_strip(graf)
-    if strip:
-        grafs.append(strip)
-
-    return grafs
-
-
 def str_removeprefix(chars, prefix):  # missing from Python till Oct/2020 Python 3.9
     """Remove Prefix from Chars if present"""
 
@@ -464,21 +522,6 @@ class BrokenPipeSink:
         #
         #   signal.signal(signal.SIGPIPE, handler=signal.SIG_DFL)
         #
-
-
-class ShPath:
-    """Wrap a Sh Path to print it more concisely"""
-
-    def __init__(self, pathname):
-        self.pathname = pathname
-
-    def __str__(self):
-        shortpath = os_path_shortpath(self.pathname)
-        shpath = shlex.quote(shortpath)
-
-        return shpath
-
-    # could depend on '@dataclasses.dataclass', since Jun/2018 Python 3.7
 
 
 QUOTED_ALT_MAIN_DOC = """

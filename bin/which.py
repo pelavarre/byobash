@@ -12,6 +12,9 @@ options:
 examples:
   which -a  # show all the Search hits, not us
 """
+
+# todo: list the ambiguities, like count definitions per verb
+
 # cross-ref whence
 
 # todo: focus on one-letter, two-letter, three-letter names
