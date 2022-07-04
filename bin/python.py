@@ -3,12 +3,12 @@
 # assert should, occasion
 
 """
-usage: python.py [--help] [-i] [-m MODULE] FILE ...
+usage: python.py [--help] [-i] [-m MODULE] [FILE] ...
 
 interpret Python 3 or Python 2 language
 
 positional arguments:
-  FILE       the Python file to run
+  FILE       the Python file to run (default: run without '__file__')
   ...        options or positional arguments to forward into the FILE
 
 options:
@@ -19,9 +19,14 @@ options:
 quirks:
   quits at SyntaxError, else calls Black to reform the code, and Flake8 to review it
   creates and updates the Dir '~/.venvs/byobash/' to host Black & Flake8
+  classic Python rudely opens a new Session, without '__file__', when given no Parms
 
 examples:
-  python.py  &&: show these examples
+
+  python.py  &&: show these examples and exit
+  python.py --h  &&: show this help message and exit
+  python.py --  &&: suggest:  python.py -i
+
   python.py bin/python.py  &&: test this tool on itself
   python.py p.py -xyz PARM1  &&: call 'p.py' after calling Black and Flake8 to polish it
 """
@@ -47,11 +52,6 @@ import byotools as byo
 def main():
     """Run from the Command Line"""
 
-    # Fall back to 'python3' after this 'python.py', not all the way back to 'python'
-
-    main_dir = os.path.dirname(__file__)
-    sys.argv[0] = os.path.join(main_dir, "python3.py")
-
     # Take Parms from the Command Line
 
     args = parse_python_args()
@@ -59,6 +59,15 @@ def main():
     # Create or update or accept unchanged the VEnv Dir of Black & Flake8
 
     activate_shline = venv_refresh("%Y-%m")
+
+    # Define 'python.py --'
+
+    parms = sys.argv[1:]
+    if parms == ["--"]:
+        shline = "{} -i".format(sys.argv[0])
+        print("did you mean:  {}".format(shline))
+
+        sys.exit(0)
 
     # First compile
 
@@ -128,11 +137,12 @@ def parse_python_args():
 
     # Require the FILE to exist
 
-    try:
-        _ = pathlib.Path(args.file).read_text()
-    except FileNotFoundError:
+    if args.file is not None:
+        try:
+            _ = pathlib.Path(args.file).read_text()
+        except FileNotFoundError:
 
-        byo.exit()
+            byo.exit()
 
     # Return the Parsed Parms
 
@@ -144,7 +154,12 @@ def compile_python_argdoc():
 
     parser = compile_argdoc(add_help=False, epi="quirks:")
 
-    parser.add_argument("file", metavar="FILE", help="the Python file to run")
+    parser.add_argument(
+        "file",
+        metavar="FILE",
+        nargs=argparse.OPTIONAL,
+        help="the Python file to run (default: run without '__file__')",
+    )
 
     parser.add_argument(
         "--help", action="store_true", help="show this help message and exit"
@@ -192,7 +207,7 @@ def venv_refresh(stamper):
         venv_create(venv)
         venv_update(venv)
 
-    elif venv_gone_stale(venv, stamper=stamper):
+    elif venv_gone_stale(venv, stamper=stamper):  # often stamper="%Y:%m"
 
         venv_update(venv)
 
@@ -231,7 +246,7 @@ def venv_gone_stale(venv, stamper):
 
     now = dt.datetime.now()
 
-    if then.strftime(stamper) != now.strftime(stamper):
+    if then.strftime(stamper) != now.strftime(stamper):  # often stamper="%Y:%m"
 
         return True
 

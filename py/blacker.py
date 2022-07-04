@@ -19,7 +19,6 @@ examples:
   python3 py/blacker.py  # show these examples and exit
   python3 py/blacker.py --h  # show this help message and exit
   python3 py/blacker.py --  # edit the Files of these nearby Dirs
-  make push  # implicitly call all Py Files near here, but without Parms, as a SelfTest
 """
 
 
@@ -102,7 +101,7 @@ def main():
 
             olines.append("")
 
-            # Update the File only if it needs change
+            # Update the File if it needs change
 
             ochars = "\n".join(olines)
 

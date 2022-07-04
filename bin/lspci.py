@@ -10,7 +10,15 @@ options:
   -t      sketch the tree as a tree
   -vvv    max verbosely
 
+quirks:
+  classic LsPci dumps all the Top Lines, with no Scroll limit, when given no Parms
+
 examples:
+
+  lspci.py  &&: show these examples and exit
+  lspci.py --h  &&: show this help message and exit
+  lspci.py --  &&: todo: run as you like it
+
   lspci -t -vvv |less -FIRX
 """
 

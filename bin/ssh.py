@@ -10,7 +10,16 @@ options:
   -t         forward control of the local terminal (-tt for more force)
   -F CONFIG  choose a file of options (default: ~/.ssh/config)
 
+quirks:
+  works well with:  ssh-add.py
+  classic Ssh rudely exits via a Code 255 Usage Error, when given no Parms
+
 examples:
+
+  ssh.py  &&: show these examples and exit
+  ssh.py --h  &&: show this help message and exit
+  ssh.py --  &&: todo: run as you like it
+
   ssh.py  &&: call Ssh Py with no args to show these examples
   ssh -F /dev/null localhost  &&: go there without a custom Config File
   ssh -t localhost  'cd /usr/bin/ && bash -i'  &&: Ssh out to your choice of Cd

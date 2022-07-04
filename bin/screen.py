@@ -14,12 +14,20 @@ options:
   -X hardcopy -h SNAP  export a LogFile of what Less Mode can see
 
 quirks:
+
+  works well with:  script.py
+  classic Screen rudely opens a new anonymous Session, when given no Parms
+
   '-r' fails when you give no CLUE, if there is more than one Screen
   says 'Copy mode' to mean it's working in the Less Mode
   says 'Copy mode aborted' to mean it's back to working in the default Mode
   takes a '-Logfile LOGFILE' option at Linux to separate LogFiles from a shared Dir
 
 examples:
+
+  screen.py  &&: show these examples and exit
+  screen.py --h  &&: show this help message and exit
+  screen.py --  &&: todo: run as you like it
 
   screen ls  &&: say '[screen is terminating]'
   screen -ls  &&: list the Screens you have made

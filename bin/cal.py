@@ -22,6 +22,11 @@ quirks:
   call Cal twice to get the month of weeks around today, from more Cal's
 
 examples:
+
+  cal.py  &&: show these examples and exit
+  cal.py --h  &&: show this help message and exit
+  cal.py --  &&: todo: run as you like it
+
   cal.py  &&: a month of the five weeks around today
   MM=$(date +%m) && cal -m $((MM - 1)) && cal -m $MM && cal -m $((MM + 1))  &&: ditto
   cal.py 314  &&: show the Pi day of this year, a la:  cal -m 3

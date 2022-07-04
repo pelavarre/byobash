@@ -8,7 +8,15 @@ edit a stream of Json
 options:
   --help       show this help message and exit
 
+quirks:
+  classic Jq rudely dumps Help & exits via a Code 1 Usage Error, when given no Parms
+
 examples:
+
+  jq.py  &&: show these examples and exit
+  jq.py --h  &&: show this help message and exit
+  jq.py --  &&: todo: run as you like it
+
   echo '[{"a": 1}, {"b": 2}]' |jq .
 """
 

@@ -9,7 +9,15 @@ options:
   --help  show this help message and exit
   -a      show all the Search-Hit's, not just the first
 
+quirks:
+  classic Which rudely exits via an empty Code 1 Usage Error, when given no Parms
+
 examples:
+
+  which.py  &&: show these examples and exit
+  which.py --h  &&: show this help message and exit
+  which.py --  &&: todo: run as you like it
+
   which -a  # show all the Search hits, not us
 """
 

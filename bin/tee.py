@@ -13,9 +13,15 @@ options:
   -a      append to the Files that already exist, don't create those
 
 quirks:
-  give Args or Stdin, or print a prompt, to stop more Tee's from hanging silently
+  works well with:  head.py, sed.py, tail.py
+  classic Tee rudely hangs with no prompt, when given no Parms with no Stdin
 
 examples:
+
+  tee.py  &&: show these examples and exit
+  tee.py --h  &&: show this help message and exit
+  tee.py --  &&: todo: run as you like it
+
   echo {A..Z} |tr ' ' '\n' | tee >(head -2) >(sleep 0; tail -3) > /dev/null
 """
 

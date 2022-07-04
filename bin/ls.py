@@ -13,9 +13,16 @@ options:
   -1      show as one column of one file or dir per line
   -C      show as multiple columns
 
+quirks:
+  works well with cp.py, mv.py, rm.py, rmdir.py, touch.py
+  classic Ls dumps all the Items, with no Scroll limit, when given no Parms
+
 examples:
-  ls.py  &&: call Ls Py with no args to show these examples
+
+  ls.py  &&: show these examples and exit
+  ls.py --h  &&: show this help message and exit
   ls.py --  &&: as if:  ls -rt |tail -3
+
   ls  &&: as if:  ls.py -C
 """
 # todo: default to:  ls -rt |tail -3

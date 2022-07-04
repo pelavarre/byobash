@@ -10,16 +10,22 @@ options:
 
 quirks:
 
-  Byo Reset Py works in Mac, Linux, & Chrome GShell
+  works in Mac & Linux
+  works well with: clear.py, echo.py, tput.py
 
-  Mac Reset scrolls top Screen Row into Scrollback and doesn't delete Scrollback
-  Mac refuses to trace Reset:  reset: standard error: Inappropriate ioctl for device
-  Chrome GShell Reset works
-  Safari GShell Reset breaks like Terminal Linux 'clear -x' & doesn't delete Scrollback
+  Mac 'reset' scrolls top Screen Row into Scrollback and doesn't delete Scrollback
+  Mac & Linux 'reset' waste 1000 ms of time to no purpose
+  GShell 'reset' goes wrong the same as Linux 'clear'
+
+  classic Reset rudely defaults to show no new output, when given no Parms
 
 examples:
 
+  reset.py  &&: show these examples and exit
+  reset.py --h  &&: show this help message and exit
   reset.py --  &&: clear Terminal history quickly, like ⌘K
+
+  qbin/cls  &&: clear Terminal history, like ⌘K
   clear.py -x  &&: scroll the Rows on Screen, like ⌃L
 
   echo -ne '\e[H\e[2J\e[3J'  &&: clear Terminal History, like ⌘K

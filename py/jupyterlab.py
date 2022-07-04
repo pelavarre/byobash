@@ -9,6 +9,11 @@ options:
   --help       show this help message and exit
 
 examples:
+
+  jupyter.py  &&: show these examples and exit
+  jupyter.py --h  &&: show this help message and exit
+  jupyter.py --  &&: todo: run as you like it
+
   pip freeze | wc -l  # lots, or a few
 
   mkdir -p ~/.venvs/
@@ -33,11 +38,24 @@ examples:
 """
 
 
-import byotools as byo
+import os
+import sys
+
+
+DIR = os.path.dirname(__file__)
+TOP_DIR = os.path.join(DIR, os.pardir)
+BIN_DIR = os.path.join(TOP_DIR, "bin")
+
+
+try:
+    import byotools as byo
+except ImportError:
+    sys.path.insert(0, BIN_DIR)
+    import byotools as byo
 
 
 byo.exit(__name__)
 
 
-# posted into:  https://github.com/pelavarre/byobash/blob/main/bin/jupyter.py
+# posted into:  https://github.com/pelavarre/byobash/blob/main/py/jupyter.py
 # copied from:  git clone https://github.com/pelavarre/byobash.git

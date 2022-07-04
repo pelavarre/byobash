@@ -7,26 +7,28 @@ wipe the Screen, delete the Scrollback, and leave the Cursor at Top Left
 
 options:
   --help  show this help message and exit
-  -x      instead, scroll the Rows on Screen, away into the Scrollback
+  -x      actually don't delete the Scrollback, just scroll the Rows on Screen into it
 
 quirks:
 
-  Byo Clear Py works in Mac, Linux, & Chrome GShell
+  works in Mac & Linux  # but FIXME: 'clear.py -x' at Linux/GShell
+  works well with: echo.py, reset.py, tput.py
 
-  Mac Clear scrolls the Rows on Screen, away into the Scrollback, same as 'clear.py -x'
   Linux 'clear -x' loses the Rows on Screen, doesn't scroll them into Scrollback
-  Linux Clear says 3J H 2J in place of H 2 J 3J, doesn't delete all Scrollback
-  Linux Clear called twice says 3J H 2J 3J H 2J, so wipes Scrollback, doesn't delete it
-  Chrome GShell Clear works, but its 'clear -x' breaks like Terminal Linux
-  Safari GShell Clear breaks like Terminal Linux 'clear -x' & doesn't delete Scrollback
+  Linux 'clear' says 3J H 2J in place of H 2 J 3J, so doesn't delete all Scrollback
+  Linux 'clear && clear' says 3J H 2J 3J H 2J, to wipe Scrollback without deleting it
+
+  GShell 'clear' goes wrong the same as Linux
+
+  classic Clear rudely defaults to show no new output, when given no Parms
 
 examples:
 
   clear.py  &&: show these examples and exit
-
-  cls  &&: clear Terminal history, like ⌘K
-
+  clear.py --h  &&: show this help message and exit
   clear.py --  &&: clear Terminal history, like ⌘K
+  qbin/cls  &&: clear Terminal history, like ⌘K
+
   clear.py -x  &&: scroll the Rows on Screen, like ⌃L
 
   echo -ne '\e[H\e[2J\e[3J'  &&: clear Terminal History, like ⌘K
@@ -38,6 +40,7 @@ examples:
   echo && seq 40 && echo && seq 50 && echo && seq 60 && echo  &&: fill Screens for test
   clear 2>&1 |tee >(hexdump -C)  &&: call and trace Clear
   tput clear 2>&1 |tee >(hexdump -C)  &&: call and trace TPut Clear
+
   diff -u <(clear |hexdump -C) <(tput clear |hexdump -C)  &&: show no diff
 """
 

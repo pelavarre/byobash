@@ -1,7 +1,7 @@
 # dotfiles/dot.byo.bashrc
 
 
-function 'cd.py' () {
+function cd.py () {
   : : 'Print some kind of Help, else change the Sh Working Dir' : :
   if [ "$#" = 0 ]; then
     command cd.py
@@ -15,7 +15,7 @@ function 'cd.py' () {
 }
 
 
-function 'echo.py' {
+function echo.py {
   local xc=$?
   : : 'Print and clear the Process Exit Status ReturnCode, else print the Parms' : :
   if [ "$#" = 1 ] && [ "$1" = "--" ]; then
@@ -26,7 +26,7 @@ function 'echo.py' {
 }
 
 
-function 'git.py' () {
+function git.py () {
   : : 'Show Git Status, else change the Sh Working Dir, else do other Git Work' : :
   if [ "$#" = 1 ] && [ "$1" = "--" ]; then
     command git.py --for-shproc --

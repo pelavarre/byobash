@@ -14,7 +14,15 @@ options:
   -W          write back unmodified files
   --no-diffs  just leave the diffs in Git, don't print them on screen
 
+quirks:
+  classic Futurize rudely exits via a Code 130 Usage Error, when given no Parms
+
 examples:
+
+  futurize.py  &&: show these examples and exit
+  futurize.py --h  &&: show this help message and exit
+  futurize.py --  &&: todo: run as you like it
+
   futurize -w -W --no-diffs p.py  # do
   git checkout HEAD p.py  # undo
 """

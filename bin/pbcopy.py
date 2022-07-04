@@ -3,23 +3,32 @@
 """
 usage: pbcopy.py [--h]
 
-copy Stdin into the main Os Pasteboard (aka Clipboard)
+copy Stdin into the main Os Copy/Paste Clipboard (aka Pasteboard)
 
 options:
   --help  show this help message and exit
 
 quirks:
-  switch to Apple macOS, out of Linux or GShell, to find PBCopy and PBPaste built-in
+  Mac builds in PBPaste and PBCopy, but Linux & GShell don't
+  classic PbCopy rudely hangs with no prompt, when given no Parms with no Stdin
 
 examples:
-  function c () { echo + pbcopy >&2; pbcopy "$@"; }
-  function v () { echo + pbpaste >&2; pbcopy "$@"; }
-  echo hello copy-paste world |c
-  v
+
+  pbcopy.py  &&: show these examples and exit
+  pbcopy.py --h  &&: show this help message and exit
+  echo hello copy-paste world |pbcopy.py --
+  pbpaste.py --
+
+  echo hello copy-paste world |qb/c
+  qb/v
+
+  echo -n hello endswidth open line |qb/c
+  qb/v |expand.py --| tee >(qb/c)
 """
-# todo: function cv () { ... pbcopy when stdin is not tty ... }
-# todo: function cv () { ... pbpaste when stdin is tty ... }
-# todo: function cv () { ... tee >(pbcopy) when stdin/stdout both not tty ... }
+# todo: qb/cv ... pbcopy when stdin is not tty ...
+# todo: qb/cv ... pbpaste when stdin is tty ...
+# todo: qb/cv ... tee >(pbcopy) when stdin/stdout both not tty
+# todo: then give c & e & v back to Cat & Emacs & Vim
 
 
 import byotools as byo

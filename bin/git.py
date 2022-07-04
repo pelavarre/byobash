@@ -8,21 +8,22 @@ usage: git.py [--help] --for-chdir CDVERB [ARG ...]
 work over clones of source dirs of dirs of files
 
 positional arguments:
-  VERB                 choice of Git SubCommand
-  ARG                  choice of Git Options and Arguments
+  VERB                 choice of SubCommand
+  ARG                  choice of Options and Arguments
 
 options:
   --help               show this help message and exit
-  --for-shproc SHVERB  unabbreviate this ShVerb and call on Git to do the work
+  --for-shproc SHVERB  unabbreviate the ShVerb and call on Git to do its work
   --for-chdir CDVERB   print the $(git rev-parse --show-toplevel) to tell Cd where to go
 
 quirks:
-  taller Screens come with larger default limits on lines
+  dumps larger numbers of Lines into taller Screens
+  classic Git rudely dumps Help & exits via a Code 1 Usage Error, when given no Parms
   Zsh and Bash take '(dirs -p |head -1)', but only Bash takes 'dirs +0'
 
 advanced bash install:
 
-  function 'git.py' () {
+  function git.py () {
     : : 'Show Git Status, else change the Sh Working Dir, else do other Git Work' : :
     if [ "$#" = 1 ] && [ "$1" = "--" ]; then
       command git.py --for-shproc --
@@ -38,6 +39,11 @@ advanced bash install:
   }
 
 examples:
+
+  git.py  &&: show these examples and exit
+  git.py --h  &&: show this help message and exit
+  git.py --  &&: 'git status' and then counts of:   git status --short --ignored
+  command git.py --  &&: show the Advanced Bash Install of Git Py and exit
 
   ls ~/.gitconfig
   ls .git/config
@@ -87,6 +93,7 @@ examples:
   git.py ca  &&: git commit --amend
   git.py caa  &&: git commit --all --amend
   git.py caf  &&: git commit --all --fixup
+  git.py cam  &&: git commit --all -m wip
   git.py cf  &&: git commit --fixup
   git.py cm  &&: git commit -m wip
   git.py cl  &&: take ⌃D to mean:  git clean -ffxdq  &&: destroy files outside Git Add
@@ -96,11 +103,6 @@ examples:
   git.py s1  &&: git show :1:...  &&: common base
   git.py s2  &&: git show :2:...  &&: just theirs
   git.py s3  &&: git show :3:...  &&: juts ours
-
-  git.py  &&: show these examples and exit
-  git.py --h  &&: show this help message and exit
-  git.py --  &&: 'git status' and then counts of:   git status --short --ignored
-  command git.py --  &&: show the Advanced Bash Install of Git Py and exit
 """
 
 
@@ -133,7 +135,7 @@ def main():  # FIXME  # noqa C901 complex
 
     patchdoc = """
 
-  function 'git.py' () {
+  function git.py () {
     : : 'Show Git Status, else change the Sh Working Dir, else do other Git Work' : :
     if [ "$#" = 1 ] && [ "$1" = "--" ]; then
       command git.py --for-shproc --
@@ -496,6 +498,7 @@ ALIASES = {
     "ca": "git commit --amend {}",
     "caa": "git commit --all --amend {}",
     "caf": "git commit --all --fixup {}",
+    "cam": "git commit --all -m wip",
     "cd": "cd $(git rev-parse --show-toplevel)",
     "cf": "git commit --fixup {}",
     "cl": "cat - && git clean -ffxdq",

@@ -13,13 +13,13 @@ options:
   --for-chdir  print to Stdout what the in-memory Sh Cd needs to hear
 
 quirks:
+  classic Cd rudely jumps back into the legacy '~/' Home Dir, when given no Parms
+  classic Cd rudely loses all Parms past the first
   Zsh and Bash take '(dirs -p |head -1)', but only Bash takes 'dirs +0'
-  most Cd default to '~' in place of '~/Desktop'
-  many Cd lose Args past the first Arg
 
 advanced bash install:
 
-  function 'cd.py' () {
+  function cd.py () {
     : : 'Print some kind of Help, else change the Sh Working Dir' : :
     if [ "$#" = 0 ]; then
       command cd.py
@@ -38,8 +38,8 @@ examples:
   cd.py --h  &&: show this help message and exit
   cd.py --  &&: go to Desktop Dir inside Home Dir, same as:  cd ~/Desktop
   command cd.py --  &&: show the Advanced Bash Install of Cd Py and exit
-  cd.py -  &&: toggle back to previous Sh Working Dir, same as:  cd -
 
+  cd.py -  &&: toggle back to previous Sh Working Dir, same as:  cd -
   cd.py ~  &&: go to Home Dir, same as:  cd ~
   cd.py .  &&: stay put, same as:  cd .
   cd.py ..  &&: go one Dir up, same as:  cd ..
@@ -60,7 +60,7 @@ def main():
 
     patchdoc = """
 
-  function 'cd.py' () {
+  function cd.py () {
     : : 'Print some kind of Help, else change the Sh Working Dir' : :
     if [ "$#" = 0 ]; then
       command cd.py

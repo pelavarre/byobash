@@ -19,18 +19,21 @@ options:
                         forward the input formatted as a Python String or Bytes Literal
 
 quirks:
-  classic Cat forces you to guess when to prompt for input
-  Mac 'cat -tv' does Not distinguish $'\xC2\xA0' NonBreakingSpace from $'\x20' Space
-  few Linux bother to define 'pbpaste' and 'pbcopy'
+  works well with:  find.py
+  classic Cat rudely hangs with no prompt, when given no Parms with no Stdin
+  classic Cat rudely dumps raw Bytes, like 'less -r', unlike 'less -R' and 'less'
+  Mac 'cat -tv' misprints the same ink for $'\xC2\xA0' NonBreakingSpace as $'\x20' Space
 
 temporary workaround:
   alias cat.py=~/Public/pybashish/bin/cat.py
 
 examples:
 
-  cat  &&: hangs till you provide input
   cat.py  &&: show these examples and exit
+  cat.py --h  &&: show this help message and exit
+  cat.py --  &&: todo: run as you like it
 
+  cat  &&: hangs till you provide input
   cat -  &&: hangs till you provide input
   cat.py -  &&: prompts for input
 

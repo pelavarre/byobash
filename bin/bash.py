@@ -10,7 +10,17 @@ options:
   --noprofile  launch without running shared startup files
   --norc       launch without running personal startup files
 
+quirks:
+  classic Bash rudely opens a new Session, with an empty "$@", when given no Parms
+  classic Bash rudely places no Scroll Limits on Sh Commands
+  todo: limit Control Sequences dumped into Tty, a la 'less', 'less -R', 'less -r'
+
 examples:
+
+  bash.py  &&: show these examples and exit
+  bash.py --h  &&: show this help message and exit
+  bash.py --  &&: todo: run as you like it
+
   bash --noprofile --norc  &&: run with less local quirks
   export |grep SHLVL  &&: show how deeply incepted
   set |grep -e ^PS1= -e ^PS4=  &&: show the outer and incepted shell prompts

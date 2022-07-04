@@ -11,7 +11,15 @@ positional args:
 options:
   --help  show this help message and exit
 
+quirks:
+  works well with:  screen.py
+  classic Script rudely opens a new anonymous Session, when given no Parms
+
 examples:
+
+  script.py  &&: show these examples and exit
+  script.py --h  &&: show this help message and exit
+  script.py --  &&: todo: run as you like it
 
   script t.typescript  &&: make a LogFile that doesn't much flush till Exit
 

@@ -11,7 +11,15 @@ options:
   --help         show this help message and exit
   -V, --version  print Python version (-VV for more force)
 
+quirks:
+  classic Python2 rudely opens a new Session, without '__file__', when given no Parms
+
 examples:
+
+  python2.py  &&: show these examples and exit
+  python2.py --h  &&: show this help message and exit
+  python2.py --  &&: todo: run as you like it
+
   : Jul/2010 Python 2.7  # minor release date
   : Jun/2016 Python 2.7.12  # micro release date
   : Mar/2019 Python 2.7.16  # micro release date

@@ -8,7 +8,16 @@ todo
 options:
   --help       show this help message and exit
 
+quirks:
+  works well with:  ssh.py
+  classic Ssh-Add rudely auth's forwarding your Creds, when given no Parms
+
 examples:
+
+  ssh-add.py  &&: show these examples and exit
+  ssh-add.py --h  &&: show this help message and exit
+  ssh-add.py --  &&: todo: run as you like it
+
   ssh-add -l
   ssh-add -L |grep ^ssh-rsa-cert |ssh-keygen -L -f - |grep Valid
   ssh.py --h

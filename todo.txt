@@ -3,17 +3,17 @@
 
 dreaming since Jul/2022 =>
 
-fill out the rest of Git Py
+solve qb/cv to give 'c e v' back to Cat, Emacs, and Vim
 
-    alias q='git.py'
-    alias qcd='git.py cd'
-    ...
+add expand.py
 
-implement the rest of the Helped Examples
+implement the rest of the most prominently Helped Examples
     cp.py
     mv.py
+    qb/cv
     ...
 
+byo.exit_via_shcommand:
 forward down the Path
     resolve the Path to give only first seen of each Real Path
         while dropping the absence of Real Path

@@ -7,10 +7,13 @@ options:
   --help  show this help message and exit
 
 examples:
+
   ls -1 byotools.py p.py  # show you have come to work here with us
+
   python3 p.py  # show these examples and exit
   python3 p.py --h  # show this help message and exit
   python3 p.py --  # do your choice of some other work for you
+
   cat p.py |cat -n |expand  # show how this works
 """
 

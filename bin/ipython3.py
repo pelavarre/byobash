@@ -12,7 +12,15 @@ options:
   --no-autoindent    take input as source code, not as unindented source code
   --no-confirm-exit  take Control+D to mean exit
 
+quirks:
+  classic IPython3 rudely opens a new Session, without '__file__', when given no Parms
+
 examples:
+
+  ipython3.py  &&: show these examples and exit
+  ipython3.py --h  &&: show this help message and exit
+  ipython3.py --  &&: todo: run as you like it
+
   ipython3 --classic --no-banner --no-autoindent --no-confirm-exit
 """
 

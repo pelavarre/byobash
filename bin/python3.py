@@ -16,7 +16,17 @@ options:
   --help         show this help message and exit
   -V, --version  print Python version (-VV for more force)
 
+quirks:
+  classic Python3 rudely opens a new Session, without '__file__', when given no Parms
+
 examples:
+
+examples:
+
+  python3.py  &&: show these examples and exit
+  python3.py --h  &&: show this help message and exit
+  python3.py --  &&: todo: run as you like it
+
   : Dec/2008 Python 3  # major release date
   : Feb/2011 Python 3.2  # minor release date
   : Sep/2012 Python 3.3  # minor release date

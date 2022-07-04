@@ -8,7 +8,15 @@ print macOS version
 options:
   --help  show this help message and exit
 
+quirks:
+  classic Sw_Vers dumps all Key-Value Pairs, with no Scroll limit, when given no Parms
+
 examples:
+
+  sw_vers.py  &&: show these examples and exit
+  sw_vers.py --h  &&: show this help message and exit
+  sw_vers.py --  &&: todo: run as you like it
+
   sw_vers  # such as:  macOS 12.2.1 21D62
   sw_vers |grep ^ProductVersion: |cut -f2 |cut -d'.' -f-2  # such as:  12.1
   :

@@ -8,7 +8,12 @@ todo
 options:
   --help       show this help message and exit
 
+quirks:
+  classic Sleep rudely exits via a Code 1 Usage Error, when given no Parms
+
 examples:
+  sleep.py  &&: show these examples and exit
+  sleep.py --h  &&: show this help message and exit
   sleep.py --  &&: sleep for 3 Seconds, but reply to ⌃T and quit at ⌃C
 """
 
