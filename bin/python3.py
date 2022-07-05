@@ -17,6 +17,7 @@ options:
   -V, --version  print Python version (-VV for more force)
 
 quirks:
+  falls back to run 'python.py' instead, except at 'python3.py' and 'python3.py --help'
   classic Python3 rudely opens a new Session, without '__file__', when given no Parms
 
 examples:
@@ -61,8 +62,16 @@ examples:
 
 import byotools as byo
 
+import python as python
 
-byo.exit(__name__)
+
+if __name__ == "__main__":
+
+    byo.exit_via_testdoc()  # python3.py
+
+    byo.exit_via_argdoc()  # python3.py --help
+
+    python.main()
 
 
 _ = """

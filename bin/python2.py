@@ -26,6 +26,7 @@ examples:
   : Oct/2019 Python 2.7.17  # micro release date
   : Apr/2020 Python 2.7.18  # micro release date
 """
+# todo: run 'python.py' instead, except at 'python2.py' and 'python2.py --help'
 
 
 import byotools as byo

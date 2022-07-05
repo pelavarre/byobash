@@ -3,6 +3,12 @@
 
 dreaming since Jul/2022 =>
 
+qrpfn  # should give just the current Branch
+qrpsfn --  # should give the last three
+qrpsfn -1  # should give just the current Branch
+qrpsfn -4  # should give the last 4
+
+
 solve qb/cv to give 'c e v' back to Cat, Emacs, and Vim
 
 add expand.py

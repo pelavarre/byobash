@@ -49,6 +49,9 @@ import textwrap
 import byotools as byo
 
 
+PYTHONX = "python3"  # todo: cope when PYTHONX != "python3"
+
+
 def main():
     """Run from the Command Line"""
 
@@ -74,7 +77,7 @@ def main():
     if args.file:
         shfile = byo.shlex_quote(args.file)
 
-        pdb_shline = "python3 -m pdb {}".format(shfile)
+        pdb_shline = "{pythonx} -m pdb {shfile}".format(pythonx=PYTHONX, shfile=shfile)
 
         black_shline = "black {}".format(shfile)
 
@@ -99,22 +102,27 @@ def main():
 
     # Run after compile
 
-    python3_shline = "python3"
+    pythonx_shline = PYTHONX
     if args.i:
-        python3_shline += " -i"
+        pythonx_shline += " -i"
     if args.module:
         shmodule = byo.shlex_quote(args.module)
-        python3_shline += " -m {}".format(shmodule)
+        pythonx_shline += " -m {}".format(shmodule)
     if args.file:
-        python3_shline += " {}".format(shfile)
+        pythonx_shline += " {}".format(shfile)
     for parm in args.file_parms:
-        python3_shline += " {}".format(byo.shlex_quote(parm))
+        pythonx_shline += " {}".format(byo.shlex_quote(parm))
 
-    subprocess_run(python3_shline, stdin=None, check=True)
+    subprocess_run(pythonx_shline, stdin=None, check=True)
 
 
 def parse_python_args():
     """Take Parms from the Command Line"""
+
+    # Call ArgParse in the presence of Parms
+
+    parser = compile_python_argdoc()
+    args = parser.parse_args()
 
     # Call ByoTools Exit in the absence of Parms, or when Parms led by '--help'
 
@@ -122,11 +130,6 @@ def parse_python_args():
     if (not parms) or (parms[0].startswith("--h") and "--help".startswith(parms[0])):
 
         byo.exit()
-
-    # Call ArgParse in the presence of Parms
-
-    parser = compile_python_argdoc()
-    args = parser.parse_args()
 
     # Print Help and Quit, on request
 
@@ -180,14 +183,17 @@ def compile_python_argdoc():
         help="options or positional arguments to forward into the FILE",
     )
 
-    doc = __main__.__doc__.strip()
-    verbs = os.path.split(__file__)[-1]
-    try:
-        exit_unless_doc_eq(doc, parser=parser, verbs=verbs)
-    except SystemExit:
-        print("python.py: error: main doc and argparse parser disagree")
+    basename = os.path.basename(__main__.__file__)
+    if basename == "python.py":  # todo: think more about when this is False
 
-        raise
+        doc = __main__.__doc__.strip()
+        verbs = os.path.split(__file__)[-1]
+        try:
+            exit_unless_doc_eq(doc, parser=parser, verbs=verbs)
+        except SystemExit:
+            print("python.py: error: main doc and argparse parser disagree")
+
+            raise
 
     return parser
 
@@ -226,7 +232,7 @@ def venv_create(venv):
         mkdir -p ~/.venvs/byobash
         cd ~/.venvs/ && python3 -m venv byobash
         source ~/.venvs/byobash/bin/activate && which pip
-    """
+    """  # todo: cope when PYTHONX != "python3"
 
     shchars = textwrap.dedent(quoted_shchars).strip()
 
