@@ -67,6 +67,7 @@ examples:
   git.py b  &&: git branch  &&: and see also:  git rev-parse --abbrev-ref
   git.py ba  &&: git branch --all
   git.py cofrb  &&: git checkout ... && git fetch && git rebase
+  git.py cp  &&: git cherry-pick
   git.py dad  &&: git describe --always --dirty
   git.py f  &&: git fetch
   git.py frb  &&: git fetch && git rebase
@@ -264,20 +265,29 @@ def exit_via_git_shproc(shverb, parms, authed, shlines):  # FIXME  # noqa: C901 
             alt_parms = ["HEAD"]
         elif alt_shlines == ["git commit --fixup {}"]:
             alt_parms = ["HEAD"]
-        elif alt_shlines == ["git rebase --interactive --autosquash HEAD~{}"]:
-            alt_shlines = ["git rebase --interactive --autosquash @{{upstream}}"]
-
-    parms_minus = alt_parms[1:]
-    shquoted_parms = " ".join(byo.shlex_min_quote(_) for _ in alt_parms)
-    shquoted_parms_minus = " ".join(byo.shlex_min_quote(_) for _ in parms_minus)
+        elif alt_shlines == ["git rev-parse --abbrev-ref {}"]:
+            alt_parms = ["HEAD"]
 
     # Distinguish a leading Int parm, without requiring it
 
     intparm = None
     if alt_parms:
+
         chars = alt_parms[0]
         if re.match(r"^[-+]?[0-9]+$", string=chars):
             intparm = int(chars)
+
+    if alt_shlines == ["git rebase --interactive --autosquash HEAD~{}"]:
+        if not alt_parms:
+            alt_shlines = ["git rebase --interactive --autosquash @{{upstream}}"]
+        elif intparm is None:
+            alt_shlines = ["git rebase --interactive --autosquash {}"]
+
+    #
+
+    parms_minus = alt_parms[1:]
+    shquoted_parms = " ".join(byo.shlex_min_quote(_) for _ in alt_parms)
+    shquoted_parms_minus = " ".join(byo.shlex_min_quote(_) for _ in parms_minus)
 
     # Form each ShLine, and split each ShLine apart into an ArgV
 
@@ -386,6 +396,16 @@ def exit_via_git_shproc(shverb, parms, authed, shlines):  # FIXME  # noqa: C901 
     # Demand authorization
 
     if not authed:
+        if auth_shline == "git push --force-with-lease":
+            rpar_shline = "git rev-parse --abbrev-ref HEAD"
+
+            sys.stderr.write("+ {}\n".format(rpar_shline))
+            rpar_argv = shlex.split(rpar_shline)
+            _ = subprocess.run(rpar_argv)
+            sys.stderr.write("+\n")
+
+    if not authed:
+
         sys.stderr.write("did you mean:  {}\n".format(auth_shline))
         sys.stderr.write("press ⌃D to execute, or ⌃C to quit\n")
         try:
@@ -506,6 +526,7 @@ ALIASES = {
     "cm": "git commit -m wip",
     "co": "git checkout {}",
     "cofrb": "git checkout {} && git fetch && git rebase",  # auth'ed!
+    "cp": "git cherry-pick {}",
     "d": "git diff {}",
     "dad": "git describe --always --dirty",
     "dh": "git diff HEAD~{}",
@@ -526,12 +547,11 @@ ALIASES = {
     "ls": "git log --stat {}",
     "lv": "git log --oneline --decorate -{}",
     "pfwl": "cat - && git push --force-with-lease",
-    #   "pfwl": "pwd && cat - && git push --force-with-lease",  # FIXME
-    "rb": "git rebase",  # auth'ed!
+    "rb": "git rebase {}",  # auth'ed!
     "rhu": "cat - && git reset --hard @{{upstream}}",
     "ri": "git rebase --interactive --autosquash HEAD~{}",
     "rl": "git reflog",
-    "rpar": "git rev-parse --abbrev-ref",
+    "rpar": "git rev-parse --abbrev-ref {}",
     "rpsfn": "git rev-parse --symbolic-full-name @{{-{}}}",
     "rv": "git remote -v",
     "s": "git show {}",

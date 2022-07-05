@@ -1,6 +1,7 @@
 # Bash, not Zsh
 # 'help echo'
 
+# classic Help rudely floods the Screen with Help, when given no Parms
 # classic Help intentionally gives help only for the Built-In Verbs of Bash
 
 
