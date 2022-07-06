@@ -16,6 +16,8 @@ quirks:
 
 examples:
 
+  ls -d -alF ~/.ssh/ && ls -alF ~/.ssh/config
+
   ssh.py  &&: show these examples and exit
   ssh.py --h  &&: show this help message and exit
   ssh.py --  &&: todo: run as you like it

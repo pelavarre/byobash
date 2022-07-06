@@ -1,2 +1,1 @@
-echo "+ pbpaste --" "$@" >&2
-pbpaste -- "$@"
+shpipe.py v "$@"

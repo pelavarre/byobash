@@ -17,11 +17,13 @@ options:
   --for-chdir CDVERB   print the $(git rev-parse --show-toplevel) to tell Cd where to go
 
 quirks:
-  dumps larger numbers of Lines into taller Screens
+  dumps larger numbers of Lines into taller Screens, as defaults of:  git log -...
   classic Git rudely dumps Help & exits via a Code 1 Usage Error, when given no Parms
   Zsh and Bash take '(dirs -p |head -1)', but only Bash takes 'dirs +0'
 
 advanced bash install:
+
+  source qbin/env-path-append.source  # define 'q', 'qd', 'qlf', 'qs', etc
 
   function git.py () {
     : : 'Show Git Status, else change the Sh Working Dir, else do other Git Work' : :
@@ -132,7 +134,7 @@ def main():  # FIXME  # noqa C901 complex
 
     rm_fr_import_byotools_pyc()  # Give the Illusion of a Sh Alias without PyC
 
-    aliases_by_verb = load_configuration()
+    aliases_by_verb = form_aliases_by_verb()
 
     patchdoc = """
 
@@ -256,7 +258,7 @@ def rm_fr_import_byotools_pyc():
 def exit_via_git_shproc(shverb, parms, authed, shlines):  # FIXME  # noqa: C901 complex
     """Forward Augmented Parms into a Git Subprocess and exit, else return"""
 
-    halfscreen = 19  # FIXME
+    thirdrows = 16  # FIXME
 
     alt_shlines = list(_ for _ in shlines if _ != "cat -")
     alt_parms = parms
@@ -286,8 +288,8 @@ def exit_via_git_shproc(shverb, parms, authed, shlines):  # FIXME  # noqa: C901 
     #
 
     parms_minus = alt_parms[1:]
-    shquoted_parms = " ".join(byo.shlex_min_quote(_) for _ in alt_parms)
-    shquoted_parms_minus = " ".join(byo.shlex_min_quote(_) for _ in parms_minus)
+    shparms = " ".join(byo.shlex_min_quote(_) for _ in alt_parms)
+    shparms_minus = " ".join(byo.shlex_min_quote(_) for _ in parms_minus)
 
     # Form each ShLine, and split each ShLine apart into an ArgV
 
@@ -304,62 +306,62 @@ def exit_via_git_shproc(shverb, parms, authed, shlines):  # FIXME  # noqa: C901 
 
         else:
 
-            assert shquoted_parms is not None
+            assert shparms is not None
 
             # Count off 0..N below HEAD, default 1, else take complex Parms
 
             if " HEAD~{}" in shline:
 
-                if not shquoted_parms:
+                if not shparms:
                     parmed_shline = shline.format(1)
                 elif intparm is None:
                     alt_shline = shline.replace(" HEAD~{}", " HEAD~{} {}")
-                    parmed_shline = alt_shline.format(1, shquoted_parms)
+                    parmed_shline = alt_shline.format(1, shparms)
                 else:
                     absparm = abs(intparm)
                     alt_shline = shline.replace(" HEAD~{}", " HEAD~{} {}")
-                    parmed_shline = alt_shline.format(absparm, shquoted_parms_minus)
+                    parmed_shline = alt_shline.format(absparm, shparms_minus)
 
             # Count off 1..N of "git checkout -", default 1, else take complex Parms
 
             elif " @{{-{}}}" in shline:
 
-                if not shquoted_parms:
+                if not shparms:
                     parmed_shline = shline.format(1)
                 elif intparm is None:
                     alt_shline = shline.replace(" @{{-{}}}", " @{{-{}}} {}")
-                    parmed_shline = alt_shline.format(1, shquoted_parms)
+                    parmed_shline = alt_shline.format(1, shparms)
                 else:
                     absparm = abs(intparm)
                     alt_shline = shline.replace(" @{{-{}}}", " @{{-{}}} {}")
-                    parmed_shline = alt_shline.format(absparm, shquoted_parms_minus)
+                    parmed_shline = alt_shline.format(absparm, shparms_minus)
 
-            # Count off Lines of Output, default half Screen, else take complex Parms
+            # Count off Lines of Output, default Third Screen, else take complex Parms
             # but take any of '-0', '0', '+0' to mean No Limit Parm
 
             elif " -{}" in shline:
 
-                if not shquoted_parms:
-                    parmed_shline = shline.format(halfscreen)
+                if not shparms:
+                    parmed_shline = shline.format(thirdrows)
                 elif intparm is None:
                     alt_shline = shline.replace(" -{}", " -{} {}")
-                    parmed_shline = alt_shline.format(halfscreen, shquoted_parms)
+                    parmed_shline = alt_shline.format(thirdrows, shparms)
                 elif intparm == 0:
                     alt_shline = shline.replace(" -{}", " {}")
-                    parmed_shline = alt_shline.format(shquoted_parms_minus)
+                    parmed_shline = alt_shline.format(shparms_minus)
                 else:
                     absparm = abs(intparm)
                     alt_shline = shline.replace(" -{}", " -{} {}")
-                    parmed_shline = alt_shline.format(absparm, shquoted_parms_minus)
+                    parmed_shline = alt_shline.format(absparm, shparms_minus)
 
             # Default to take complex Parms
 
             else:
-                parmed_shline = shline.format(shquoted_parms)
+                parmed_shline = shline.format(shparms)
 
             # Reject subsequent requests to forward Parms, if any
 
-            shquoted_parms = None
+            shparms = None
 
         # Fix it up some more and ship it out
 
@@ -376,7 +378,7 @@ def exit_via_git_shproc(shverb, parms, authed, shlines):  # FIXME  # noqa: C901 
 
     # Actually return, actually don't exit, if Parms present but not forwarded
 
-    if shquoted_parms:
+    if shparms:
 
         return
 
@@ -456,7 +458,7 @@ def exit_via_git_shproc(shverb, parms, authed, shlines):  # FIXME  # noqa: C901 
 #
 
 
-def load_configuration():
+def form_aliases_by_verb():
     """Declare the GitLikeAlias'es"""
 
     doc = __main__.__doc__

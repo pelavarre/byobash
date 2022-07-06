@@ -12,8 +12,8 @@ quirks:
 
   works well with:  sort.py
   classic Sponge rudely hangs with no prompt, when given no Parms with no Stdin
-
-  Linux Terminal Stdin echoes ⌃D EOF as "" without "\n", vs macOS as "^D" without "\n"
+  classic Sponge rudely writes a File named '-', when given '-' as a Parm
+  Linux Terminal Stdin echoes ⌃D TTY EOF as "" w/out "\n", vs macOS as "^D" without "\n"
   GShell comes with 'sponge' defined, as if by:  apt install moreutils
 
 examples:

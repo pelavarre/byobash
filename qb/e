@@ -1,3 +1,1 @@
-echo "emacs -nw --no-splash --eval '(menu-bar-mode -1)' ""@" >&2
-emacs -nw --no-splash --eval '(menu-bar-mode -1)' "$@"
-
+shpipe.py e "$@"

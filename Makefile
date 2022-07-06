@@ -34,10 +34,10 @@ flake8:
 
 selftest:
 	:
-	for F in $$(find . |grep '[.]py$$'); do python3 $$F >/dev/null; done
+	for F in $$(find . |grep '[.]py$$' |sort); do python3 $$F >/dev/null; done
 	rm -fr bin/__pycache__/
 	:
-# ..... # as if:  for F in $(find . |grep '[.]py$'); do python3 $F >/dev/null; done
+# as if:  for F in $(find . |grep '[.]py$' |sort); do python3 $F >/dev/null; done
 
 
 setup:

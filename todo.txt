@@ -3,10 +3,20 @@
 
 dreaming since Jul/2022 =>
 
+solve cat.py -etv, mainly for the sake of:  cv
+
+solve g, p, qem, qvi
+
+polish notation arithmetic, such as:  * 2 math.pi
+also: from decimal import Decimal as D
+also: dates and times
+
 qrpfn  # should give just the current Branch
 qrpsfn --  # should give the last three
 qrpsfn -1  # should give just the current Branch
 qrpsfn -4  # should give the last 4
+
+Tab completion in such places as:  mv -i *.
 
 
 solve qb/cv to give 'c e v' back to Cat, Emacs, and Vim

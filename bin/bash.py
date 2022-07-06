@@ -17,6 +17,8 @@ quirks:
 
 examples:
 
+  ls ~/.bashrc ~/.bash_profile ~/.profile
+
   bash.py  &&: show these examples and exit
   bash.py --h  &&: show this help message and exit
   bash.py --  &&: todo: run as you like it

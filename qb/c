@@ -1,2 +1,1 @@
-echo "+ pbcopy --" "$@" >&2
-pbcopy -- "$@"
+shpipe.py c "$@"

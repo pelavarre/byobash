@@ -19,16 +19,12 @@ examples:
   echo hello copy-paste world |pbcopy.py --
   pbpaste.py --
 
-  echo hello copy-paste world |qb/c
-  qb/v
+  echo hello copy-paste world |qb/cv
+  qb/cv
 
-  echo -n hello endswidth open line |qb/c
-  qb/v |expand.py --| tee >(qb/c)
+  echo -n hello endswidth open line |qb/cv
+  qb/cv |expand.py --| tee >(qb/cv)
 """
-# todo: qb/cv ... pbcopy when stdin is not tty ...
-# todo: qb/cv ... pbpaste when stdin is tty ...
-# todo: qb/cv ... tee >(pbcopy) when stdin/stdout both not tty
-# todo: then give c & e & v back to Cat & Emacs & Vim
 
 
 import byotools as byo

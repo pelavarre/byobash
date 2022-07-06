@@ -463,6 +463,30 @@ def shlex_quote(parm):
     # test results with:  python3 -c 'import sys; print(sys.argv)' ...
 
 
+def shlex_split_options(parms):
+    """Split Options from Positional Args, in the classic way of ArgParse and Sh"""
+
+    options = list()
+    args = list()
+    for (index, parm) in enumerate(parms):
+
+        if parm == "--":
+            args.extend(parms[(index + 1) :])
+
+            break
+
+        if parm.startswith("-"):
+            options.append(parm)
+        else:
+            args.append(parm)
+
+    seps = list()
+    if args and args[0].startswith("-"):
+        seps.append("--")
+
+    return (options, seps, args)
+
+
 def str_removeprefix(chars, prefix):  # missing from Python till Oct/2020 Python 3.9
     """Remove Prefix from Chars if present"""
 
