@@ -41,6 +41,7 @@ import difflib
 import os
 import pathlib
 import shlex
+import signal
 import subprocess
 import sys
 import textwrap
@@ -52,7 +53,7 @@ import byotools as byo
 PYTHONX = "python3"  # todo: cope when PYTHONX != "python3"
 
 
-def main():
+def main():  # noqa: C901 complex
     """Run from the Command Line"""
 
     # Take Parms from the Command Line
@@ -93,12 +94,18 @@ def main():
         flake8_shshline = "{} && {}".format(activate_shline, flake8_shline)
         flake8_shshline = "bash -c {!r}".format(flake8_shshline)
 
-        subprocess_run(pdb_shline, stdout=subprocess.PIPE, check=True)
-        sys.stderr.write("+\n")
-        subprocess_run(black_shshline, check=True)
-        sys.stderr.write("+\n")
-        subprocess_run(flake8_shshline, check=True)
-        sys.stderr.write("+\n")
+        try:
+            subprocess_run(pdb_shline, stdout=subprocess.PIPE, check=True)
+            sys.stderr.write("+\n")
+            subprocess_run(black_shshline, check=True)
+            sys.stderr.write("+\n")
+            subprocess_run(flake8_shshline, check=True)
+            sys.stderr.write("+\n")
+        except KeyboardInterrupt:
+            sys.stderr.write("\n")
+            sys.stderr.write("python3.py: KeyboardInterrupt\n")  # FIXME: python.py
+
+            sys.exit(0x80 | signal.SIGINT)
 
     # Run after compile
 
@@ -113,7 +120,13 @@ def main():
     for parm in args.file_parms:
         pythonx_shline += " {}".format(byo.shlex_quote(parm))
 
-    subprocess_run(pythonx_shline, stdin=None, check=True)
+    try:
+        subprocess_run(pythonx_shline, stdin=None, check=True)
+    except KeyboardInterrupt:
+        sys.stderr.write("\n")
+        sys.stderr.write("python3.py: KeyboardInterrupt\n")  # FIXME: python.py
+
+        sys.exit(0x80 | signal.SIGINT)
 
 
 def parse_python_args():

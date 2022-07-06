@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# FIXME: drop mention of Git
+# FIXME: convert ',' to '|'
+
 r"""
 usage: shpipe.py [--help] PIPE_VERB [ARG ...]
 
@@ -30,7 +33,9 @@ examples:
   command shpipe.py --  &&: todo: run as you like it
 
   shpipe.py c  &&: cat -
-  shpipe.py cv  &&: pbpaste from tty, pbcopy to tty, else tee to pbcopy
+  shpipe.py cv  &&: pbpaste, ...
+  shpipe.py cv  &&: ... ,pbcopy
+  shpipe.py cv  &&: ... ,tee >(pbcopy) ,...
   shpipe.py d  &&: diff -brpu A_FILE B_FILE  &&: default 'diff -brpu a b'
   shpipe.py e  &&: emacs -nw --no-splash --eval '(menu-bar-mode -1)'
   shpipe.py h  &&: head -16  &&: or whatever a third of a screen is
