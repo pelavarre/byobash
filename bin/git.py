@@ -102,7 +102,8 @@ examples:
   git.py cl  &&: take ⌃D to mean:  git clean -ffxdq  &&: destroy files outside Git Add
   git.py cls  &&: take ⌃D to mean:  sudo true && sudo git clean -ffxdq
   git.py pfwl  &&: take ⌃D to mean:  git push --force-with-lease
-  git.py rhu  &&: take ⌃D to mean:  git reset --hard @{upstream}  &&: hide Commits
+  git.py rh  &&: take ⌃D to mean:  git reset --hard ...  &&: hide local Commits
+  git.py rhu  &&: take ⌃D to mean:  git reset --hard @{upstream}  &&: hide to start over
   git.py s1  &&: git show :1:...  &&: common base
   git.py s2  &&: git show :2:...  &&: just theirs
   git.py s3  &&: git show :3:...  &&: juts ours
@@ -550,6 +551,7 @@ ALIASES = {
     "lv": "git log --oneline --decorate -{}",
     "pfwl": "cat - && git push --force-with-lease",
     "rb": "git rebase {}",  # auth'ed!
+    "rh": "cat - && git reset --hard",
     "rhu": "cat - && git reset --hard @{{upstream}}",
     "ri": "git rebase --interactive --autosquash HEAD~{}",
     "rl": "git reflog",
@@ -585,25 +587,36 @@ if __name__ == "__main__":
 
 #
 # FIXME
-# trace what they mean - with inverse globs for concision, like at:  -ga bin/*.py
 #
-
-#
-# FIXME
 # git.py em
 # git.py emacs
 # git.py vi
 #
 # add '-h' into 'git log grep' => grep -h def.shlex_quote $(-ggl def.shlex_quote)
+#
+# qbin/qlsq  =>  git.py ls --  =>  interleave of qlq and each qspno
+# for N in $(seq 3); do
+#     echo
+#     git log --oneline --no-decorate -$N |tail -1
+#     git show --pretty= --name-only HEAD~$N
+# done
+#
+# drop the doubled -19 -1 from such as:  qlq -1
+#
 
 #
 # todo
+#
+
+#
+# trace what they mean - with inverse globs for concision, like at:  -ga bin/*.py
+#
+
 #
 # --pretty=format:'%h %aE %s'  |cat - <(echo) |sed "s,@$DOMAIN,,"
 # git blame/log --abbrev=3
 #
 
-# todo
 #
 # git push origin HEAD:people/jqdoe/project/1234
 # git checkout -b people/jqdoe/project/1234 origin/people/jqdoe/project/1234
@@ -612,14 +625,11 @@ if __name__ == "__main__":
 #
 
 #
-# todo
-#
 # git log --oneline --decorate --decorate-refs-exclude '*/origin/guests/??/*' -15
 #
 # -gd origin  # that's not precisely it, but abbreviate Diff's vs the Pushed Code
 #
 
-# todo
 #
 # persist a focus larger than $(qdhno) for 'qg', maybe
 # persist a history of what qb, qlq, qlv did say
