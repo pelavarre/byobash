@@ -81,9 +81,11 @@ examples:
   git.py lgg  &&: git log --oneline --no-decorate -G ...  &&: search for touches
   git.py lgs  &&: git log --oneline --no-decorate -S ...  &&: search for adds/ deletes
   git.py lq  &&: git log --oneline --no-decorate -...  &&: default lots, -0 for no limit
+  git.py lq1  &&: git log --oneline --no-decorate -1
   git.py lqa  &&: git log --oneline --no-decorate --author=$USER -...
   git.py ls  &&: git log --numstat  &&: but see also:  git show --name-only
   git.py lv  &&: git log --oneline --decorate -...  &&: default lots, -0 for no limit
+  git.py lv1  &&: git log --oneline --decorate -1
   git.py rb  &&: git rebase
   git.py ri  &&: git rebase --interactive --autosquash HEAD~...  &&: default {@upstream}
   git.py rl  &&: git reflog  &&: show Commits
@@ -551,9 +553,11 @@ ALIASES = {
     "lgg": "git log --oneline --no-decorate -G {}",  # touches, aka Grep Source
     "lgs": "git log --oneline --no-decorate -S {}",  # adds/deletes, aka Pickaxe
     "lq": "git log --oneline --no-decorate -{}",
+    "lq1": "git log --oneline --no-decorate -1 {}",
     "lqa": "git log --oneline --no-decorate --author=$USER -{}",
     "ls": "git log --numstat {}",
     "lv": "git log --oneline --decorate -{}",
+    "lv1": "git log --oneline --decorate -1 {}",
     "pfwl": "cat - && git push --force-with-lease",
     "rb": "git rebase {}",  # auth'ed!
     "rh": "cat - && git reset --hard {}",
@@ -608,6 +612,11 @@ if __name__ == "__main__":
 
 #
 # todo
+#
+
+#
+# expand unambiguous abbreviations
+#   such as 'git log --no-mer --one --deco' for '--no-merges --oneline --decorate'
 #
 
 #
