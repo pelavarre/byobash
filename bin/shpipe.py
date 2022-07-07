@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-# FIXME: convert ',' to '|'
 # FIXME: more concise Traceback at:  shpipe.py --
+# FIXME: code '  # ' and ' |' for Bash, convert for Zsh, such as &&: '...'
 
 r"""
 usage: shpipe.py [--help] PIPE_VERB [ARG ...]
@@ -40,7 +40,8 @@ examples:
   shpipe.py --  &&: todo: run as you like it
 
   shpipe.py c  &&: cat -
-  shpipe.py cv  &&: pbpaste, ...
+  shpipe.py cv  &&: pbpaste ,cat -ntv ,expand
+  shpipe.py cv  &&: pbpaste ,...
   shpipe.py cv  &&: ... ,pbcopy
   shpipe.py cv  &&: ... ,tee >(pbcopy) ,...
   shpipe.py d  &&: diff -brpu A_FILE B_FILE |less -FIRX  &&: default 'diff -brpu a b'
@@ -50,7 +51,7 @@ examples:
   shpipe.py hi  &&: history  &&: but include the files at the '~/.bash_histories/' dir
   shpipe.py m  &&: make
   shpipe.py mo  &&: less -FIRX
-  shpipe.py n  &&: cat -tvn -, expand
+  shpipe.py n  &&: cat -ntv -, expand
   shpipe.py p  &&: popd
   shpipe.py s  &&: sort -
   shpipe.py sp  &&: sponge.py --
@@ -161,7 +162,7 @@ def do_cv():
     stdout_isatty = sys.stdout.isatty()
 
     if stdin_isatty and stdout_isatty:
-        do_cv_tty()
+        do_cv_tty()  # pbpaste |cat -ntv |expand
     elif stdin_isatty:
         exit_via_shpipe_shproc("pbpaste")  # pbpaste |...
     elif stdout_isatty:
@@ -171,14 +172,14 @@ def do_cv():
 
 
 def do_cv_tty():
-    """pbpaste |cat -n -etv |expand"""
+    """pbpaste |cat -ntv |expand"""
 
     parms = sys.argv[2:]
     (options, seps, args) = byo.shlex_split_options(parms)
 
     if not options:
         options.append("-n")
-        options.append("-etv")
+        options.append("-tv")
 
     argv = ["cat"] + options + seps + args
 
@@ -256,14 +257,13 @@ def do_mo():
 
 
 def do_n():
-    """cat -n -etv |expand"""
+    """cat -ntv |expand"""
 
     parms = sys.argv[2:]
     (options, seps, args) = byo.shlex_split_options(parms)
 
     if not options:
-        options.append("-n")
-        options.append("-etv")
+        options.append("-ntv")
 
     argv = ["cat"] + options + seps + args
 
