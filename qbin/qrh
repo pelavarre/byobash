@@ -1,1 +1,1 @@
-git.py --for-shproc rhu "$@"
+git.py --for-shproc rh "$@"

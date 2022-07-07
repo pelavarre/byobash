@@ -551,7 +551,7 @@ ALIASES = {
     "lv": "git log --oneline --decorate -{}",
     "pfwl": "cat - && git push --force-with-lease",
     "rb": "git rebase {}",  # auth'ed!
-    "rh": "cat - && git reset --hard",
+    "rh": "cat - && git reset --hard {}",
     "rhu": "cat - && git reset --hard @{{upstream}}",
     "ri": "git rebase --interactive --autosquash HEAD~{}",
     "rl": "git reflog",
