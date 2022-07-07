@@ -38,6 +38,7 @@ examples:
   shpipe.py cv  &&: ... ,tee >(pbcopy) ,...
   shpipe.py d  &&: diff -brpu A_FILE B_FILE  &&: default 'diff -brpu a b'
   shpipe.py e  &&: emacs -nw --no-splash --eval '(menu-bar-mode -1)'
+  shpipe.py em  &&: emacs -nw --no-splash --eval '(menu-bar-mode -1)'
   shpipe.py h  &&: head -16  &&: or whatever a third of a screen is
   shpipe.py hi  &&: history  &&: but include the files at the '~/.bash_histories/' dir
   shpipe.py m  &&: make
@@ -108,6 +109,7 @@ def form_func_by_verb():
         cv=do_cv,
         d=do_d,
         e=do_e,
+        em=do_em,
         h=do_h,
         hi=do_hi,
         m=do_m,
@@ -201,6 +203,12 @@ def do_d():
 
 
 def do_e():
+    """emacs -nw --no-splash --eval '(menu-bar-mode -1)'"""
+
+    exit_via_shpipe_shproc("emacs -nw --no-splash --eval '(menu-bar-mode -1)'")
+
+
+def do_em():
     """emacs -nw --no-splash --eval '(menu-bar-mode -1)'"""
 
     exit_via_shpipe_shproc("emacs -nw --no-splash --eval '(menu-bar-mode -1)'")

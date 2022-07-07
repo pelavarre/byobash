@@ -58,6 +58,7 @@ examples:
   git.py dh  &&: git diff HEAD~..., default HEAD~1
   git.py dhno  &&: git diff --name-only HEAD~..., default HEAD~1
   git.py dno  &&: git diff --name-only
+  git.py em  &&: bash -c 'em $(qdhno |tee /dev/stderr)'
   git.py lf  &&: git ls-files
   git.py s  &&: git show
   git.py sp  &&: git show --pretty=''
@@ -65,6 +66,7 @@ examples:
   git.py ssi  &&: git status --short --ignored  &&: calmer than 'git status'
   git.py st  &&: git status
   git.py sun  &&: git status --untracked-files=no
+  git.py vi  &&: bash -c 'vi $(qdhno |tee /dev/stderr)'
 
   git.py b  &&: git branch  &&: and see also:  git rev-parse --abbrev-ref
   git.py ba  &&: git branch --all
@@ -422,13 +424,15 @@ def exit_via_git_shproc(shverb, parms, authed, shlines):  # FIXME  # noqa: C901 
 
             sys.exit(returncode)
 
-    # Run the code, and exit
+    # Run each of the ArgV's and exit
+
+    exit_via_argvs(argvs)
+
+
+def exit_via_argvs(argvs):
+    """Run each of the ArgV's and exit"""
 
     for argv in argvs:
-
-        if False:
-            argv = list(argv)
-            argv.insert(0, "echo")
 
         shline = " ".join(byo.shlex_min_quote(_) for _ in argv)
 
@@ -535,6 +539,7 @@ ALIASES = {
     "dh": "git diff HEAD~{}",
     "dhno": "git diff --name-only HEAD~{}",
     "dno": "git diff --name-only {}",
+    "em": "bash -c 'em $(qdhno |tee /dev/stderr)'",
     "f": "git fetch",
     "frb": "git fetch && git rebase",
     "g": "git grep {}",  # todo: default Grep of $(-gdhno)
@@ -568,6 +573,7 @@ ALIASES = {
     "ssn": "git shortlog --summary --numbered",
     "st": "git status {}",
     "sun": "git status --untracked-files=no",
+    "vi": "bash -c 'vi $(qdhno |tee /dev/stderr)'",
 }
 
 # Mac HFS FileSystem's don't accept 'qlG' and 'qlg' existing inside one Dir
@@ -587,10 +593,6 @@ if __name__ == "__main__":
 
 #
 # FIXME
-#
-# git.py em
-# git.py emacs
-# git.py vi
 #
 # add '-h' into 'git log grep' => grep -h def.shlex_quote $(-ggl def.shlex_quote)
 #
