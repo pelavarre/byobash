@@ -52,6 +52,7 @@ examples:
   shpipe.py g  &&: grep  &&: default 'grep -i'
   shpipe.py h  &&: head -16  &&: or whatever a third of a screen is
   shpipe.py hi  &&: history  &&: but include the files at the '~/.bash_histories/' dir
+  shpipe.py ht  &&: sed -n -e '1p;2,2s/.*/&\n.../p;$p'  &&: Head and also Tail
   shpipe.py m  &&: make
   shpipe.py mo  &&: less -FIRX
   shpipe.py n  &&: cat -ntv -, expand
@@ -124,6 +125,7 @@ def form_func_by_verb():
         g=do_g,
         h=do_h,
         hi=do_hi,
+        ht=do_ht,
         m=do_m,
         mo=do_mo,
         n=do_n,
@@ -261,6 +263,16 @@ def do_h():
 
 def do_hi():
     """history  &&: but include the files at the '~/.bash_histories/' dir"""
+
+    raise NotImplementedError()
+
+
+def do_ht():
+    r"""sed -n -e '1p;2,2s/.*/&\n.../p;$p'"""
+
+    shline = r"sed -n -e '1p;2,2s/.*/&\n.../p;$p'"
+
+    exit_via_shline(shline)
 
 
 def do_m():
