@@ -82,7 +82,7 @@ examples:
   git.py lgs  &&: git log --oneline --no-decorate -S ...  &&: search for adds/ deletes
   git.py lq  &&: git log --oneline --no-decorate -...  &&: default lots, -0 for no limit
   git.py lqa  &&: git log --oneline --no-decorate --author=$USER -...
-  git.py ls  &&: git log --stat  &&: but see also:  git show --name-only
+  git.py ls  &&: git log --numstat  &&: but see also:  git show --name-only
   git.py lv  &&: git log --oneline --decorate -...  &&: default lots, -0 for no limit
   git.py rb  &&: git rebase
   git.py ri  &&: git rebase --interactive --autosquash HEAD~...  &&: default {@upstream}
@@ -552,7 +552,7 @@ ALIASES = {
     "lgs": "git log --oneline --no-decorate -S {}",  # adds/deletes, aka Pickaxe
     "lq": "git log --oneline --no-decorate -{}",
     "lqa": "git log --oneline --no-decorate --author=$USER -{}",
-    "ls": "git log --stat {}",
+    "ls": "git log --numstat {}",
     "lv": "git log --oneline --decorate -{}",
     "pfwl": "cat - && git push --force-with-lease",
     "rb": "git rebase {}",  # auth'ed!

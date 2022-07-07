@@ -39,6 +39,8 @@ examples:
   shpipe.py --h  &&: show this help message and exit
   shpipe.py --  &&: todo: run as you like it
 
+  shpipe.py g --  &&: run Grep without options, not even our default '-i'
+
   shpipe.py c  &&: cat -
   shpipe.py cv  &&: pbpaste ,cat -ntv ,expand
   shpipe.py cv  &&: pbpaste ,...
@@ -47,6 +49,7 @@ examples:
   shpipe.py d  &&: diff -brpu A_FILE B_FILE |less -FIRX  &&: default 'diff -brpu a b'
   shpipe.py e  &&: emacs -nw --no-splash --eval '(menu-bar-mode -1)'
   shpipe.py em  &&: emacs -nw --no-splash --eval '(menu-bar-mode -1)'
+  shpipe.py g  &&: grep  &&: default 'grep -i'
   shpipe.py h  &&: head -16  &&: or whatever a third of a screen is
   shpipe.py hi  &&: history  &&: but include the files at the '~/.bash_histories/' dir
   shpipe.py m  &&: make
@@ -118,6 +121,7 @@ def form_func_by_verb():
         d=do_d,
         e=do_e,
         em=do_em,
+        g=do_g,
         h=do_h,
         hi=do_hi,
         m=do_m,
@@ -177,7 +181,7 @@ def do_cv_tty():
     parms = sys.argv[2:]
     (options, seps, args) = byo.shlex_split_options(parms)
 
-    if not options:
+    if not (seps or options):
         options.append("-n")
         options.append("-tv")
 
@@ -197,7 +201,7 @@ def do_d():
     parms = sys.argv[2:]
     (options, seps, args) = byo.shlex_split_options(parms)
 
-    if not options:
+    if not (seps or options):
         options.append("-brpu")
     if len(args) < 2:
         args.insert(0, "a")
@@ -224,6 +228,21 @@ def do_em():
     exit_via_shpipe_shproc("emacs -nw --no-splash --eval '(menu-bar-mode -1)'")
 
 
+def do_g():
+    """grep -i"""
+
+    parms = sys.argv[2:]
+    (options, seps, args) = byo.shlex_split_options(parms)
+
+    if not (seps or options):
+        options.append("-i")
+
+    argv = ["grep"] + options + seps + args
+    shline = " ".join(byo.shlex_min_quote(_) for _ in argv)
+
+    exit_via_shline(shline)
+
+
 def do_h():
     """head -16"""
 
@@ -231,7 +250,7 @@ def do_h():
     (options, seps, args) = byo.shlex_split_options(parms)
 
     thirdrows = 16  # FIXME
-    if not options:
+    if not (seps or options):
         options.append("-{}".format(thirdrows))
 
     argv = ["head"] + options + seps + args
@@ -262,7 +281,7 @@ def do_n():
     parms = sys.argv[2:]
     (options, seps, args) = byo.shlex_split_options(parms)
 
-    if not options:
+    if not (seps or options):
         options.append("-ntv")
 
     argv = ["cat"] + options + seps + args
@@ -300,7 +319,7 @@ def do_t():
     (options, seps, args) = byo.shlex_split_options(parms)
 
     thirdrows = 16  # FIXME
-    if not options:
+    if not (seps or options):
         options.append("-{}".format(thirdrows))
 
     argv = ["tail"] + options + seps + args

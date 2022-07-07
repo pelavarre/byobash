@@ -467,24 +467,31 @@ def shlex_split_options(parms):
     """Split Options from Positional Args, in the classic way of ArgParse and Sh"""
 
     options = list()
-    args = list()
+    first_seps = list()
+    positional_args = list()
+
     for (index, parm) in enumerate(parms):
 
+        # Pick out the First Sep
+        # and take the remaining Parms as Positional Args, not as Options
+
         if parm == "--":
-            args.extend(parms[(index + 1) :])
+            first_seps.append(parm)
+            positional_args.extend(parms[(index + 1) :])
 
             break
 
-        if parm.startswith("-"):
+        # Pick out each Option, before the First Sep
+
+        if (parm != "-") and parm.startswith("-"):
             options.append(parm)
+
+        # Pick out each Arg, before the First Sep
+
         else:
-            args.append(parm)
+            positional_args.append(parm)
 
-    seps = list()
-    if args and args[0].startswith("-"):
-        seps.append("--")
-
-    return (options, seps, args)
+    return (options, first_seps, positional_args)
 
 
 def str_removeprefix(chars, prefix):  # missing from Python till Oct/2020 Python 3.9
