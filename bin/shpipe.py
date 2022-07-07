@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-# FIXME: drop mention of Git
 # FIXME: convert ',' to '|'
+# FIXME: more concise Traceback at:  shpipe.py --
 
 r"""
 usage: shpipe.py [--help] PIPE_VERB [ARG ...]
@@ -19,6 +19,14 @@ quirks:
   dumps larger numbers of Lines into taller Screens, as defaults of:  head/tail -...
   Linux Terminal Stdin echoes ⌃D TTY EOF as "" w/out "\n", vs macOS as "^D" without "\n"
 
+slang:
+  sends Cat '--show-tabs --show-nonprinting' as '-tv'
+  sends Diff '--ignore-space-change --recursive --show-c-function -unified' as '-brpu'
+  sends HexDump '-C', as such, to show "Canonical" Hex+Char, not just Hex
+  sends Emacs ' --no-window-system ' as ' -nw '
+  sends Uniq '--count' as '-c'
+  sends Wc '--lines' as '-l'
+
 advanced bash install:
 
   source qb/env-path-append.source  &&: define 'c', 'cv', 'd', 'g', 'gi', and so on
@@ -29,14 +37,13 @@ examples:
 
   shpipe.py  &&: show these examples and exit
   shpipe.py --h  &&: show this help message and exit
-  shpipe.py --  &&: 'git status' and then counts of:   git status --short --ignored
-  command shpipe.py --  &&: todo: run as you like it
+  shpipe.py --  &&: todo: run as you like it
 
   shpipe.py c  &&: cat -
   shpipe.py cv  &&: pbpaste, ...
   shpipe.py cv  &&: ... ,pbcopy
   shpipe.py cv  &&: ... ,tee >(pbcopy) ,...
-  shpipe.py d  &&: diff -brpu A_FILE B_FILE  &&: default 'diff -brpu a b'
+  shpipe.py d  &&: diff -brpu A_FILE B_FILE |less -FIRX  &&: default 'diff -brpu a b'
   shpipe.py e  &&: emacs -nw --no-splash --eval '(menu-bar-mode -1)'
   shpipe.py em  &&: emacs -nw --no-splash --eval '(menu-bar-mode -1)'
   shpipe.py h  &&: head -16  &&: or whatever a third of a screen is
@@ -199,7 +206,9 @@ def do_d():
     argv = ["diff"] + options + seps + args
     shline = " ".join(byo.shlex_min_quote(_) for _ in argv)
 
-    exit_via_shline(shline)
+    shshline = "bash -c '{} |less -FIRX'".format(shline)
+
+    exit_via_shline(shline=shshline)
 
 
 def do_e():
