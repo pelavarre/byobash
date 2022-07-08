@@ -25,6 +25,7 @@ examples:
 
   ls  &&: as if:  ls.py -C
 """
+# todo: often default to list just the Modified Today
 # todo: default to:  ls -rt |tail -3
 # todo: fallback from failed arg to looser, like add '*' to one arg
 # todo: ls -C tabular defaults to \t Tabs, hurrah

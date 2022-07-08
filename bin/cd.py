@@ -107,7 +107,7 @@ def main():
 
     sys.stderr.write("usage: cd.py [--h] [--for-chdir] [DIR]\n")
 
-    sys.exit(2)  # Exit 2, not Exit 1, for wrong usage
+    sys.exit(2)  # Exit 2 for wrong usage
 
 
 #

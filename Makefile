@@ -1,13 +1,42 @@
 # byobash/Makefile:  Run a self test
 
 
-default: black flake8 selftest
+default:
+	@echo ''
+	@echo 'ls'
+	@echo ''
+	@echo 'open https://github.com/pelavarre/byobash/blob/main/QuickStart.md'
+	@echo 'open https://github.com/pelavarre/byobash#readme'
+	@echo 'open https://github.com/pelavarre/byobash/blob/main/ReadMore.md'
+	@echo 'open https://twitter.com/intent/tweet?text=@PLaVarre'
+	@echo ''
+	@echo 'make help'
+	@echo 'make push'
+	@echo ''
+
+
+
+help:
 	:
-	: PASSED ByoBash SelfTest :
+	:
+	: # usage: make [black|flake8|help|push|selftest|setup]
+	:
+	: come work with me now to make me feel more agency and power
+	:
+	: examples:
+	:
+	:   ls
+	:
+	:   open https://github.com/pelavarre/byobash/blob/main/QuickStart.md
+	:   open https://github.com/pelavarre/byobash#readme
+	:   open https://github.com/pelavarre/byobash/blob/main/ReadMore.md
+	:
+	:   open https://twitter.com/intent/tweet?text=@PLaVarre
+	:
 	:
 
 
-push: default
+push: black flake8 selftest
 	git log --oneline --no-decorate -1
 	git status --short --ignored
 	git describe --always --dirty

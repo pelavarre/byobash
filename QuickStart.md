@@ -18,5 +18,6 @@ the 3 Lines are
 
 3 ) please do feel invited to download and fork this
 
-posted into:  https://github.com/pelavarre/byobash/blob/main/QuickStart.md<br>
+posted into:  https://github.com/pelavarre/byobash/blob/main/QuickStart.md
+<br>
 copied from:  git clone https://github.com/pelavarre/byobash.git

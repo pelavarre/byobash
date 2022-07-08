@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# todo:  q ..., could mean ... $(qdhno)  # so should it?
+
 r"""
 usage: git.py [--help] VERB [ARG ...]
 usage: git.py [--help] --for-shproc SHVERB [ARG ...]
@@ -55,7 +57,7 @@ examples:
   git.py g  &&: git grep  &&: FIXME: g to grep -i, gi to grep
   git.py co  &&: git checkout  &&: the calmest kind of 'git status'
   git.py gl  &&: git grep -l
-  git.py dh  &&: git diff HEAD~..., default HEAD~1
+  git.py dh  &&: git diff HEAD~...  &&: default HEAD~1, without '-b'
   git.py dhno  &&: git diff --name-only HEAD~..., default HEAD~1
   git.py dno  &&: git diff --name-only
   git.py em  &&: bash -c 'em $(qdhno |tee /dev/stderr)'
@@ -538,7 +540,7 @@ ALIASES = {
     "cp": "git cherry-pick {}",
     "d": "git diff {}",
     "dad": "git describe --always --dirty",
-    "dh": "git diff HEAD~{}",
+    "dh": "git diff HEAD~{}",  # default HEAD~1, without '-b'
     "dhno": "git diff --name-only HEAD~{}",
     "dno": "git diff --name-only {}",
     "em": "bash -c 'em $(qdhno |tee /dev/stderr)'",

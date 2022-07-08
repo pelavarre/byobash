@@ -1,7 +1,19 @@
 #!/usr/bin/env python3
 
-# FIXME: more concise Traceback at:  shpipe.py --
 # FIXME: code '  # ' and ' |' for Bash, convert for Zsh, such as &&: '...'
+
+# FIXME: more concise Traceback at:  shpipe.py --
+
+# FIXME: shpipe bash lstrip  # per line, translate Py Label to Sed
+# FIXME: shpipe bash rstrip  # per line, translate Py Label to Sed
+# FIXME: shpipe bash strip  # per line, translate Py Label to Sed
+
+# FIXME: shpipe py ...  &&: edit the Os Copy/Paste Clipboard, else Stdio, never Tty
+# FIXME: shpipe py lstrip  # per line
+# FIXME: shpipe py "\n".join  # sponges
+# FIXME: shpipe py textwrap.dedent  # joins and splits
+# FIXME: shpipe py enumerate  # numbers
+# FIXME: shpipe py splitlines "-".join  # joins chars of lines
 
 r"""
 usage: shpipe.py [--help] PIPE_VERB [ARG ...]
@@ -16,6 +28,7 @@ options:
   --help     show this help message and exit
 
 quirks:
+  limits Find and Git Diff like Sh should, by way of the 'less -FIRX' Paginator
   dumps larger numbers of Lines into taller Screens, as defaults of:  head/tail -...
   Linux Terminal Stdin echoes ⌃D TTY EOF as "" w/out "\n", vs macOS as "^D" without "\n"
 
@@ -42,17 +55,19 @@ examples:
   shpipe.py g --  &&: run Grep without options, not even our default '-i'
 
   shpipe.py c  &&: cat -
-  shpipe.py cv  &&: pbpaste ,cat -ntv ,expand
+  shpipe.py cv  &&: pbpaste
   shpipe.py cv  &&: pbpaste ,...
   shpipe.py cv  &&: ... ,pbcopy
   shpipe.py cv  &&: ... ,tee >(pbcopy) ,...
+  shpipe.py cv --  &&: pbpaste ,cat -ntv ,expand
   shpipe.py d  &&: diff -brpu A_FILE B_FILE |less -FIRX  &&: default 'diff -brpu a b'
   shpipe.py e  &&: emacs -nw --no-splash --eval '(menu-bar-mode -1)'
   shpipe.py em  &&: emacs -nw --no-splash --eval '(menu-bar-mode -1)'
+  shpipe.py f  &&: find . -not -type d -not -path './.git/*'  &&: Mac Find needs '.'
   shpipe.py g  &&: grep  &&: default 'grep -i'
   shpipe.py h  &&: head -16  &&: or whatever a third of a screen is
   shpipe.py hi  &&: history  &&: but include the files at the '~/.bash_histories/' dir
-  shpipe.py ht  &&: sed -n -e '1p;2,2s/.*/&\n.../p;$p'  &&: Head and also Tail
+  shpipe.py ht  &&: sed -n -e '1,2p;3,3s/.*/&\n.../p;$p'  &&: Head and also Tail
   shpipe.py m  &&: make
   shpipe.py mo  &&: less -FIRX
   shpipe.py n  &&: cat -ntv -, expand
@@ -92,8 +107,8 @@ def main():
     # Define many brutally cryptic abbreviations of ShVerb's
 
     parms = sys.argv[1:]
-    shverb = parms[0] if parms else None
 
+    shverb = parms[0] if parms else None
     main.prompter = None
     if shverb in func_by_verb.keys():
         func = func_by_verb[shverb]
@@ -122,6 +137,7 @@ def form_func_by_verb():
         d=do_d,
         e=do_e,
         em=do_em,
+        f=do_f,
         g=do_g,
         h=do_h,
         hi=do_hi,
@@ -168,7 +184,7 @@ def do_cv():
     stdout_isatty = sys.stdout.isatty()
 
     if stdin_isatty and stdout_isatty:
-        do_cv_tty()  # pbpaste |cat -ntv |expand
+        do_cv_tty()  # pbpaste, except 'cv --' => pbpaste |cat -ntv |expand
     elif stdin_isatty:
         exit_via_shpipe_shproc("pbpaste")  # pbpaste |...
     elif stdout_isatty:
@@ -178,32 +194,38 @@ def do_cv():
 
 
 def do_cv_tty():
-    """pbpaste |cat -ntv |expand"""
+    """pbpaste, except 'cv --' => pbpaste |cat -ntv |expand"""
 
     parms = sys.argv[2:]
-    (options, seps, args) = byo.shlex_split_options(parms)
 
-    if not (seps or options):
-        options.append("-n")
-        options.append("-tv")
+    (options, seps, args) = byo.shlex_split_options(parms)
+    if seps and not options:
+        options.append("-ntv")
 
     argv = ["cat"] + options + seps + args
+    if not (options or seps or args):
 
-    shline = " ".join(byo.shlex_min_quote(_) for _ in argv)
-    shline = "pbpaste |{} |expand".format(shline)
+        exit_via_shline(shline="pbpaste")
 
-    shshline = "bash -c '{}'".format(shline)
+    else:
 
-    exit_via_shline(shline=shshline)
+        shline = " ".join(byo.shlex_min_quote(_) for _ in argv)
+        shline = "pbpaste |{} |expand".format(shline)
+        shshline = "bash -c '{}'".format(shline)
+
+        exit_via_shline(shline=shshline)
+
+
+# FIXME: code as exit_via_shline.shell=True, for better traces
 
 
 def do_d():
-    """diff -brpu a b"""
+    """diff -brpu a b |less -FIRX"""
 
     parms = sys.argv[2:]
-    (options, seps, args) = byo.shlex_split_options(parms)
 
-    if not (seps or options):
+    (options, seps, args) = byo.shlex_split_options(parms)
+    if not (options or seps):
         options.append("-brpu")
     if len(args) < 2:
         args.insert(0, "a")
@@ -214,6 +236,8 @@ def do_d():
     shline = " ".join(byo.shlex_min_quote(_) for _ in argv)
 
     shshline = "bash -c '{} |less -FIRX'".format(shline)
+    if sys.stdout.isatty():
+        shshline = "bash -c '{} |less -FIRX'".format(shline)
 
     exit_via_shline(shline=shshline)
 
@@ -230,13 +254,34 @@ def do_em():
     exit_via_shpipe_shproc("emacs -nw --no-splash --eval '(menu-bar-mode -1)'")
 
 
+def do_f():
+    """find . -not -type d -not -path './.git/*' |less -FIRX"""  # Mac Find needs '.'
+
+    parms = sys.argv[2:]
+
+    (options, seps, args) = byo.shlex_split_options(parms)
+    if not args:
+        args.append(".")  # Mac Find needs an explicit '.'
+    if not (options or seps):
+        options = ["-not", "-type", "d", "-not", "-path", "./.git/*"]
+
+    argv = ["find"] + args + options + seps  # classic Find takes Args before Options
+    shline = " ".join(byo.shlex_min_quote(_) for _ in argv)
+    shshline = 'bash -c "{} |less -FIRX"'.format(shline)
+
+    if sys.stdout.isatty():
+        exit_via_shline(shline=shshline)
+    else:
+        exit_via_shline(shline)
+
+
 def do_g():
     """grep -i"""
 
     parms = sys.argv[2:]
-    (options, seps, args) = byo.shlex_split_options(parms)
 
-    if not (seps or options):
+    (options, seps, args) = byo.shlex_split_options(parms)
+    if not (options or seps):
         options.append("-i")
 
     argv = ["grep"] + options + seps + args
@@ -248,11 +293,12 @@ def do_g():
 def do_h():
     """head -16"""
 
-    parms = sys.argv[2:]
-    (options, seps, args) = byo.shlex_split_options(parms)
-
     thirdrows = 16  # FIXME
-    if not (seps or options):
+
+    parms = sys.argv[2:]
+
+    (options, seps, args) = byo.shlex_split_options(parms)
+    if not (options or seps):
         options.append("-{}".format(thirdrows))
 
     argv = ["head"] + options + seps + args
@@ -268,9 +314,9 @@ def do_hi():
 
 
 def do_ht():
-    r"""sed -n -e '1p;2,2s/.*/&\n.../p;$p'"""
+    r"""sed -n -e '1,2p;3,3s/.*/&\n.../p;$p'"""
 
-    shline = r"sed -n -e '1p;2,2s/.*/&\n.../p;$p'"
+    shline = r"sed -n -e '1,2p;3,3s/.*/&\n.../p;$p'"
 
     exit_via_shline(shline)
 
@@ -291,9 +337,9 @@ def do_n():
     """cat -ntv |expand"""
 
     parms = sys.argv[2:]
-    (options, seps, args) = byo.shlex_split_options(parms)
 
-    if not (seps or options):
+    (options, seps, args) = byo.shlex_split_options(parms)
+    if not (options or seps):
         options.append("-ntv")
 
     argv = ["cat"] + options + seps + args
@@ -327,11 +373,12 @@ def do_sp():
 def do_t():
     """tail -16"""
 
-    parms = sys.argv[2:]
-    (options, seps, args) = byo.shlex_split_options(parms)
-
     thirdrows = 16  # FIXME
-    if not (seps or options):
+
+    parms = sys.argv[2:]
+
+    (options, seps, args) = byo.shlex_split_options(parms)
+    if not (options or seps):
         options.append("-{}".format(thirdrows))
 
     argv = ["tail"] + options + seps + args
@@ -379,8 +426,8 @@ def exit_via_shpipe_shproc(shline):
     """Forward Augmented Parms into a Bash Subprocess and exit, else return"""
 
     parms = sys.argv[2:]
-    shparms = " ".join(byo.shlex_min_quote(_) for _ in parms)
 
+    shparms = " ".join(byo.shlex_min_quote(_) for _ in parms)
     # Pick a RIndex of the ShLine to forward Parms into
 
     marks = ["", " |", " >("]

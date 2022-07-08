@@ -28,7 +28,8 @@ examples:
   set |grep -e ^PS1= -e ^PS4=  &&: show the outer and incepted shell prompts
 """
 # talk out how best to clear Bash History for a Bash Screen
-# todo: tab completion of:  mv -i *.jp
+# todo: TabTab Completion of:  mv -i *.jp
+# todo: Bash already can do TabTab Completion of:  $D/
 # ⌃X⌃E to edit a line
 
 

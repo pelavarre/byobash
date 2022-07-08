@@ -1,4 +1,4 @@
-# find .  -name '*.py'  -not -type d  -not -path './.git/*'
+# find . -not -type d -not -path './.git/*'
 
 # works well with:  cat.py
 
