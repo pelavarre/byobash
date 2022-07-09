@@ -103,7 +103,7 @@ def main():  # noqa: C901 complex
             sys.stderr.write("+\n")
         except KeyboardInterrupt:
             sys.stderr.write("\n")
-            sys.stderr.write("python3.py: KeyboardInterrupt\n")  # FIXME: python.py
+            sys.stderr.write("python3.py: KeyboardInterrupt\n")  # todo: python.py
 
             sys.exit(0x80 | signal.SIGINT)
 
@@ -124,7 +124,7 @@ def main():  # noqa: C901 complex
         subprocess_run(pythonx_shline, stdin=None, check=True)
     except KeyboardInterrupt:
         sys.stderr.write("\n")
-        sys.stderr.write("python3.py: KeyboardInterrupt\n")  # FIXME: python.py
+        sys.stderr.write("python3.py: KeyboardInterrupt\n")  # todo: python.py
 
         sys.exit(0x80 | signal.SIGINT)
 

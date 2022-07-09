@@ -5,7 +5,7 @@ usage: git.py [--help] VERB [ARG ...]
 usage: git.py [--help] --for-shproc SHVERB [ARG ...]
 usage: git.py [--help] --for-chdir CDVERB [ARG ...]
 
-work over clones of source dirs of dirs of files
+work quickly and concisely, over clones of source dirs of dirs of files
 
 positional arguments:
   VERB                 choice of SubCommand
@@ -17,7 +17,9 @@ options:
   --for-chdir CDVERB   print the $(git rev-parse --show-toplevel) to tell Cd where to go
 
 quirks:
+  trace the expansion of each Alias as it runs, to help people learn by watching
   dumps larger numbers of Lines into taller Screens, as defaults of:  git log -...
+  interlocks the most destructive moves by hanging till ⌃D Tty Eof
   classic Git rudely dumps Help & exits via a Code 1 Usage Error, when given no Parms
   Zsh and Bash take '(dirs -p |head -1)', but only Bash takes 'dirs +0'
 
@@ -54,9 +56,11 @@ examples:
 
   git.py cd  # cd $(git rev-parse --show-toplevel)
   git.py d  # git diff
-  git.py g  # git grep  # FIXME: g to grep -i, gi to grep
+  git.py g  # git grep -i
+  git.py gi  # git grep
   git.py co  # git checkout  # the calmest kind of 'git status'
-  git.py gl  # git grep -l
+  git.py gl  # git grep -il
+  git.py gil  # git grep -l
   git.py dh  # git diff HEAD~...  # default HEAD~1, without '-b'
   git.py dhno  # git diff --name-only HEAD~..., default HEAD~1
   git.py dno  # git diff --name-only
@@ -74,11 +78,11 @@ examples:
 
   git.py b  # git branch  # and see also:  git rev-parse --abbrev-ref
   git.py ba  # git branch --all
-  git.py cofrb  # git checkout ... && git fetch && git rebase
+  git.py cofrb  # git checkout ... && git fetch && git rebase  # auth w/out ⌃D
   git.py cp  # git cherry-pick
   git.py dad  # git describe --always --dirty
   git.py f  # git fetch
-  git.py frb  # git fetch && git rebase
+  git.py frb  # git fetch && git rebase  # auth w/out ⌃D
   git.py l  # git log
   git.py l1  # git log --decorate -1
   git.py lg  # git log --oneline --no-decorate --grep ...
@@ -464,18 +468,6 @@ def exit_via_argvs(argvs):
 #
 
 
-#
-# FIXME put these Comments somewhere good
-#
-# Radically abbreviate common Sh Git Lines
-# thus emulate '~/.gitconfig' '[alias]'es,
-# except don't hide the work of unabbreviation,
-# away from our newer people trying to learn over your shoulder, by watching you work
-#
-# Block the more disruptive Sh Git Lines, unless authorized by ⌃D Tty Eof
-#
-
-
 def form_aliases_by_verb():
     """Declare the GitLikeAlias'es"""
 
@@ -545,7 +537,7 @@ ALIASES = {
     "cls": "cat - && sudo true && sudo git clean -ffxdq",
     "cm": "git commit -m wip",
     "co": "git checkout {}",
-    "cofrb": "git checkout {} && git fetch && git rebase",  # auth'ed!
+    "cofrb": "git checkout {} && git fetch && git rebase",  # auth w/out ⌃D
     "cp": "git cherry-pick {}",
     "d": "git diff {}",
     "dad": "git describe --always --dirty",
@@ -555,8 +547,10 @@ ALIASES = {
     "em": "bash -c 'em $(qdhno |tee /dev/stderr)'",
     "f": "git fetch",
     "frb": "git fetch && git rebase",
-    "g": "git grep {}",  # todo: default Grep of $(-gdhno)
-    "gl": "git grep -l {}",  # todo: default Grep of $(-gdhno)
+    "g": "git grep -i {}",  # todo: default Grep of $(-gdhno)
+    "gi": "git grep {}",  # todo: default Grep of $(-gdhno)
+    "gil": "git grep -l {}",  # todo: default Grep of $(-gdhno)
+    "gl": "git grep -il {}",  # todo: default Grep of $(-gdhno)
     "l": "git log {}",
     "l1": "git log --decorate -1 {}",
     "lf": "git ls-files {}",
@@ -570,7 +564,7 @@ ALIASES = {
     "lv": "git log --oneline --decorate -{}",
     "lv1": "git log --oneline --decorate -1 {}",
     "pfwl": "cat - && git push --force-with-lease",
-    "rb": "git rebase {}",  # auth'ed!
+    "rb": "git rebase {}",  # auth w/out ⌃D
     "rh": "cat - && git reset --hard {}",
     "rhu": "cat - && git reset --hard @{{upstream}}",
     "ri": "git rebase --interactive --autosquash HEAD~{}",
@@ -607,13 +601,11 @@ if __name__ == "__main__":
 # 'todo.txt' for 'git.py' =>
 
 #
-# FIXME
+# FIXME: add '-h' into 'git log grep' => grep -h def.shlex_quote $(-ggl def.shlex_quote)
 #
-# add '-h' into 'git log grep' => grep -h def.shlex_quote $(-ggl def.shlex_quote)
+# FIXME: drop the doubled -19 -1 from such as:  qlq -1
 #
-# drop the doubled -19 -1 from such as:  qlq -1
-#
-# qbin/qlsq  =>  git.py ls --  =>  interleave of qlq and each qspno
+# FIXME: qbin/qlsq  =>  git.py ls --  =>  interleave of qlq and each qspno
 # for N in $(seq 3); do
 #     echo
 #     git log --oneline --no-decorate -$N |tail -1

@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 
+# FIXME: shpipe a
+
 
 r"""
-usage: shpipe.py [--help] PIPE_VERB [ARG ...]
+usage: shpipe.py [--help] VERB [ARG ...]
 
 compose a graph of pipes of shverb's
 
 positional arguments:
-  PIPE_VERB  choice of ShVerb
-  ARG        choice of Options and Arguments
+  VERB    choice of Alias to expand
+  ARG     choice of Options and Positional Args to run in place of defaults
 
 options:
-  --help     show this help message and exit
+  --help  show this help message and exit
 
 quirks:
   dumps larger numbers of Lines into taller Screens, as defaults of:  head/tail -...
@@ -33,27 +35,36 @@ advanced bash install:
   bash qb/env-path-append.source  # show how it works
   export PATH="${PATH:+$PATH:}~/Public/byobash/qb"  # get it done yourself
 
+  shpipe.py cv  # pbpaste |...
+  shpipe.py cv  # ... |pbcopy
+  shpipe.py cv  # ... |tee >(pbcopy) |...
+
 examples:
 
   shpipe.py  # show these examples and exit
   shpipe.py --h  # show this help message and exit
   shpipe.py --  # todo: run as you like it
 
-  shpipe.py g --  # run Grep without options, not even our default '-i'
+  shpipe.py cv --  # pbpaste |cat -ntv |expand
+  shpipe.py cv -etv  # pbpaste |cat -etv |expand
+
+  shpipe.py c |  # cat - |
+  shpipe.py |c  # |cat -ntv |expand
+  shpipe.py |cv  # pbcopy
+  shpipe.py |cv |  # |tee >(pbcopy) |
 
   shpipe.py c  # cat - >/dev/null
   shpipe.py cv  # pbpaste
-  shpipe.py cv  # pbpaste |...
-  shpipe.py cv  # ... |pbcopy
-  shpipe.py cv  # ... |tee >(pbcopy) |...
-  shpipe.py cv --  # pbpaste |cat -ntv |expand
-  shpipe.py d  # diff -brpu A_FILE B_FILE |less -FIRX  # default 'diff -brpu a b'
+  shpipe.py d  # diff -brpu A_FILE B_FILE |less -FIRX  # default A_FILE='a', B_FILE='b'
   shpipe.py e  # emacs -nw --no-splash --eval '(menu-bar-mode -1)'
   shpipe.py em  # emacs -nw --no-splash --eval '(menu-bar-mode -1)'
   shpipe.py f  # find . -not -type d -not -path './.git/*' |less -FIRX  # Mac needs .
-  shpipe.py g  # grep  # default 'grep -i'
-  shpipe.py h  # head -16  # or whatever a third of a screen is
-  shpipe.py hi  # history  # but include the files at the '~/.bash_histories/' dir
+  shpipe.py g  # grep -i
+  shpipe.py gi  # shpipe.py g --  # grep  # without '-i'
+  shpipe.py gil  # shpipe.py gl --  # grep -lR  # without '-il'
+  shpipe.py gl  # grep -ilR
+  shpipe.py h  # head -16  # or whatever a third of the screen is
+  shpipe.py hi  # history  # but include the '~/.bash_histories/' dir
   shpipe.py ht  # sed -n -e '1,2p;3,3s/.*/&\n.../p;$p'  # Head and also Tail
   shpipe.py m  # make --
   shpipe.py mo  # less -FIRX
@@ -62,7 +73,7 @@ examples:
   shpipe.py q  # git checkout
   shpipe.py s  # sort -
   shpipe.py sp  # sponge.py --
-  shpipe.py t  # tail -16  # or whatever a third of a screen is
+  shpipe.py t  # tail -16  # or whatever a third of the screen is
   shpipe.py u  # uniq -c -| expand
   shpipe.py v  # vim -
   shpipe.py w  # wc -l
@@ -88,20 +99,30 @@ def main():
     parms = sys.argv[1:]
     func_by_verb = form_func_by_verb()
 
-    # Define some forms of 'shpipe.py'
+    # Take 'shpipe.py', 'shpipe.py --h', 'shpipe.py --he', ... 'shpipe.py --help'
 
     byo.exit_via_testdoc()  # shpipe.py
     byo.exit_via_argdoc()  # shpipe.py --help
 
-    # Define many brutally cryptic abbreviations of ShVerb's
+    assert parms
 
-    shverb = parms[0] if parms else None
-    main.prompter = None
+    # Take 'shpipe.py --'
+
+    if parms == ["--"]:
+        sys.stderr.write("NotImplementedError: 'cv --' to mean:  cv |wc\n")
+        sys.stderr.write("NotImplementedError: 'cv --' to mean:  cv |vi.py - |cv\n")
+
+        sys.exit(2)  # Exit 2 for wrong usage
+
+    # Take many brutally cryptic abbreviations of ShVerb's
+
+    shverb = parms[0]
     if shverb in func_by_verb.keys():
         func = func_by_verb[shverb]
 
-        if hasattr(func, "prompter"):
-            main.prompter = func.prompter
+        main.sponge_shverb = None
+        if hasattr(func, "tty_sponge"):
+            main.sponge_shverb = shverb
 
         func()  # these Func's mostly now exit here
 
@@ -126,6 +147,9 @@ def form_func_by_verb():
         em=do_em,
         f=do_f,
         g=do_g,
+        gi=do_gi,
+        gil=do_gil,
+        gl=do_gl,
         h=do_h,
         hi=do_hi,
         ht=do_ht,
@@ -144,17 +168,19 @@ def form_func_by_verb():
         xp=do_xp,
     )
 
-    do_c.prompter = True
-    do_h.prompter = True
-    do_mo.prompter = True
-    do_n.prompter = True
-    do_s.prompter = True
-    do_sp.prompter = True
-    do_t.prompter = True
-    do_u.prompter = True
-    do_w.prompter = True
-    do_x.prompter = True
-    do_xp.prompter = True
+    do_c.tty_sponge = True
+    do_g.tty_sponge = True
+    do_gi.tty_sponge = True
+    do_h.tty_sponge = True
+    do_mo.tty_sponge = True
+    do_n.tty_sponge = True
+    do_s.tty_sponge = True
+    do_sp.tty_sponge = True
+    do_t.tty_sponge = True
+    do_u.tty_sponge = True
+    do_w.tty_sponge = True
+    do_x.tty_sponge = True
+    do_xp.tty_sponge = True
 
     return func_by_verb
 
@@ -171,6 +197,10 @@ def do_c():
     else:
         if stdin_isatty and stdout_isatty:
             exit_via_shpipe_shproc("cat - >/dev/null")
+        elif not stdin_isatty:
+            shline = "cat -ntv |expand"
+            shshline = "bash -c '{}'".format(shline)
+            exit_via_shline(shline=shshline)
         else:
             exit_via_shpipe_shproc("cat -")
 
@@ -274,6 +304,7 @@ def do_f():
         exit_via_shline(shline)
 
 
+# FIXME: compact 'def do_g', 'def do_gi', 'def do_gl', 'def do_gil' into 1 Def, not 4
 def do_g():
     """grep -i"""
 
@@ -285,6 +316,60 @@ def do_g():
         options = "-i".split()
         if stdout_isatty:
             options.append("--color=yes")
+    if not args:
+        args = ["."]
+
+    argv = ["grep"] + options + seps + args
+    shline = " ".join(byo.shlex_dquote(_) for _ in argv)
+
+    exit_via_shline(shline)
+
+
+def do_gi():
+    """grep"""
+
+    parms = sys.argv[2:]
+    stdout_isatty = sys.stdout.isatty()
+
+    (options, seps, args) = byo.shlex_parms_partition(parms)
+    if not (options or seps):
+        # options = "-i".split()  # no
+        if stdout_isatty:
+            options.append("--color=yes")
+    if not args:
+        args = ["."]
+
+    argv = ["grep"] + options + seps + args
+    shline = " ".join(byo.shlex_dquote(_) for _ in argv)
+
+    exit_via_shline(shline)
+
+
+def do_gl():
+    """grep -ilR"""
+
+    parms = sys.argv[2:]
+
+    (options, seps, args) = byo.shlex_parms_partition(parms)
+    if not (options or seps):
+        options = "-ilR".split()
+    if not args:
+        args = ["."]
+
+    argv = ["grep"] + options + seps + args
+    shline = " ".join(byo.shlex_dquote(_) for _ in argv)
+
+    exit_via_shline(shline)
+
+
+def do_gil():
+    """grep -lR"""
+
+    parms = sys.argv[2:]
+
+    (options, seps, args) = byo.shlex_parms_partition(parms)
+    if not (options or seps):
+        options = "-lR".split()
     if not args:
         args = ["."]
 
@@ -484,9 +569,11 @@ def exit_via_shline(shline):
     sys.stderr.write("+ {}\n".format(shline))
 
     isatty = sys.stdin.isatty()
-    if main.prompter:
+    if main.sponge_shverb:
         if isatty:
-            sys.stderr.write("shpipe.py: Press ⌃D TTY EOF to quit\n")
+            sys.stderr.write(
+                "shpipe.py {!r}: Press ⌃D TTY EOF to quit\n".format(main.sponge_shverb)
+            )
 
     sys.stderr = open(os.devnull, "w")
     run = subprocess.run(argv)
@@ -531,8 +618,6 @@ Simple is better than complex
 
 """
 
-
-# FIXME: more concise Traceback at:  shpipe.py --
 
 # FIXME: shpipe bash lstrip  # per line, translate Py Label to Sed
 # FIXME: shpipe bash rstrip  # per line, translate Py Label to Sed

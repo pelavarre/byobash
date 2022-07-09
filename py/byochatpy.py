@@ -44,7 +44,7 @@ def main():
 
     byo.exit(shparms="--")  # do nothing without Parms
 
-    # FIXME
+    # FIXME: code up ByoChat Client & Server
 
 
 #

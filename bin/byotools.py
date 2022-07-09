@@ -358,7 +358,7 @@ def list_strip(items):
 def splitgrafs(doc, keepends=False):
     """Pick each Paragraph out of a DocString"""
 
-    assert not keepends  # FIXME: develop keepends=True
+    assert not keepends  # todo: develop keepends=True
 
     grafs = list()
 
