@@ -60,7 +60,7 @@ examples:
   git.py gi  # git grep
   git.py co  # git checkout  # the calmest kind of 'git status'
   git.py gl  # git grep -il
-  git.py gil  # git grep -l
+  git.py gli  # git grep -l
   git.py dh  # git diff HEAD~...  # default HEAD~1, without '-b'
   git.py dhno  # git diff --name-only HEAD~..., default HEAD~1
   git.py dno  # git diff --name-only
@@ -149,7 +149,7 @@ _ = pdb
 GitLikeAlias = collections.namedtuple("GitLikeAlias", "shlines authed".split())
 
 
-def main():  # FIXME  # noqa C901 complex
+def main():  # todo  # noqa C901 complex
     """Run from the Sh Command Line"""
 
     rm_fr_import_byotools_pyc()  # Give the Illusion of a Sh Alias without PyC
@@ -275,7 +275,7 @@ def rm_fr_import_byotools_pyc():
                 os.rmdir(pyc_dirname)
 
 
-def exit_via_git_shproc(shverb, parms, authed, shlines):  # FIXME  # noqa: C901 complex
+def exit_via_git_shproc(shverb, parms, authed, shlines):  # todo  # noqa: C901 complex
     """Forward Augmented Parms into a Git Subprocess and exit, else return"""
 
     thirdrows = 16  # FIXME
@@ -549,7 +549,7 @@ ALIASES = {
     "frb": "git fetch && git rebase",
     "g": "git grep -i {}",  # todo: default Grep of $(-gdhno)
     "gi": "git grep {}",  # todo: default Grep of $(-gdhno)
-    "gil": "git grep -l {}",  # todo: default Grep of $(-gdhno)
+    "gli": "git grep -l {}",  # todo: default Grep of $(-gdhno)
     "gl": "git grep -il {}",  # todo: default Grep of $(-gdhno)
     "l": "git log {}",
     "l1": "git log --decorate -1 {}",

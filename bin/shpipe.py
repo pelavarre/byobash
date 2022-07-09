@@ -57,10 +57,10 @@ examples:
   shpipe.py e  # emacs -nw --no-splash --eval '(menu-bar-mode -1)'
   shpipe.py em  # emacs -nw --no-splash --eval '(menu-bar-mode -1)'
   shpipe.py f  # find . -not -type d -not -path './.git/*' |less -FIRX  # Mac needs .
-  shpipe.py g  # grep -i
-  shpipe.py gi  # shpipe.py g --  # grep  # without '-i'
-  shpipe.py gil  # shpipe.py gl --  # grep -lR  # without '-il'
+  shpipe.py g  # grep -i .
+  shpipe.py gi  # shpipe.py g --  # grep .  # without '-i'
   shpipe.py gl  # grep -ilR
+  shpipe.py gli  # shpipe.py gl --  # grep -lR  # without '-il'
   shpipe.py h  # head -16  # or whatever a third of the screen is
   shpipe.py hi  # history  # but include the '~/.bash_histories/' dir
   shpipe.py ht  # sed -n -e '1,2p;3,3s/.*/&\n.../p;$p'  # Head and also Tail
@@ -148,7 +148,7 @@ def form_func_by_verb():
         f=do_f,
         g=do_g,
         gi=do_gi,
-        gil=do_gil,
+        gli=do_gli,
         gl=do_gl,
         h=do_h,
         hi=do_hi,
@@ -210,7 +210,7 @@ def do_a():
 
     else:
 
-        exit_via_shpipe_shproc("awk '{print $NF}'")
+        exit_via_shparms("awk '{print $NF}'")
 
     # Forward just an Index, else a Sep and an Index
 
@@ -229,16 +229,14 @@ def do_c():
     stdout_isatty = sys.stdout.isatty()
 
     if parms:
-        exit_via_shpipe_shproc("cat")
+        exit_via_shparms("cat")
     else:
         if stdin_isatty and stdout_isatty:
-            exit_via_shpipe_shproc("cat - >/dev/null")
+            exit_via_shparms("cat - >/dev/null")
         elif not stdin_isatty:
-            shline = "cat -ntv |expand"
-            shshline = "bash -c '{}'".format(shline)
-            exit_via_shline(shline=shshline)
+            exit_via_shpipe("cat -ntv |expand")
         else:
-            exit_via_shpipe_shproc("cat -")
+            exit_via_shparms("cat -")
 
 
 def do_cv():
@@ -250,11 +248,11 @@ def do_cv():
     if stdin_isatty and stdout_isatty:
         do_cv_tty()  # pbpaste, except 'cv --' => pbpaste |cat -ntv |expand
     elif stdin_isatty:
-        exit_via_shpipe_shproc("pbpaste")  # pbpaste |...
+        exit_via_shparms("pbpaste")  # pbpaste |...
     elif stdout_isatty:
-        exit_via_shpipe_shproc("pbcopy")  # ... |pbcopy
+        exit_via_shparms("pbcopy")  # ... |pbcopy
     else:
-        exit_via_shpipe_shproc("tee >(pbcopy)")  # ... |tee >(pbcopy) |...
+        exit_via_shparms("tee >(pbcopy)")  # ... |tee >(pbcopy) |...
 
 
 def do_cv_tty():
@@ -274,14 +272,9 @@ def do_cv_tty():
 
     else:
 
-        shline = " ".join(byo.shlex_dquote(_) for _ in argv)
-        shline = "pbpaste |{} |expand".format(shline)
-        shshline = "bash -c '{}'".format(shline)
-
-        exit_via_shline(shline=shshline)
-
-
-# FIXME: code as exit_via_shline.shell=True, for better traces
+        shpipe = " ".join(byo.shlex_dquote(_) for _ in argv)
+        shpipe = "pbpaste |{} |expand".format(shpipe)
+        exit_via_shpipe(shpipe)
 
 
 def do_d():
@@ -300,23 +293,23 @@ def do_d():
     argv = ["diff"] + options + seps + args
     shline = " ".join(byo.shlex_dquote(_) for _ in argv)
 
-    shshline = "bash -c '{} |less -FIRX'".format(shline)
-    if sys.stdout.isatty():
-        shshline = "bash -c '{} |less -FIRX'".format(shline)
-
-    exit_via_shline(shline=shshline)
+    exit_via_shline_shpipe_to_tty(shline)
 
 
 def do_e():
     """emacs -nw --no-splash --eval '(menu-bar-mode -1)'"""
 
-    exit_via_shpipe_shproc("emacs -nw --no-splash --eval '(menu-bar-mode -1)'")
+    sys.stderr.write("shpipe.py e: Press Esc X revert Tab Return, and ⌃X⌃C, to quit\n")
+
+    exit_via_shparms("emacs -nw --no-splash --eval '(menu-bar-mode -1)'")
 
 
 def do_em():
     """emacs -nw --no-splash --eval '(menu-bar-mode -1)'"""
 
-    exit_via_shpipe_shproc("emacs -nw --no-splash --eval '(menu-bar-mode -1)'")
+    sys.stderr.write("shpipe.py e: Press Esc X revert Tab Return, and ⌃X⌃C, to quit\n")
+
+    exit_via_shparms("emacs -nw --no-splash --eval '(menu-bar-mode -1)'")
 
 
 def do_f():
@@ -332,17 +325,13 @@ def do_f():
 
     argv = ["find"] + args + options + seps  # classic Find takes Args before Options
     shline = " ".join(byo.shlex_dquote(_) for _ in argv)
-    shshline = 'bash -c "{} |less -FIRX"'.format(shline)
 
-    if sys.stdout.isatty():
-        exit_via_shline(shline=shshline)
-    else:
-        exit_via_shline(shline)
+    exit_via_shline_shpipe_to_tty(shline)
 
 
-# FIXME: compact 'def do_g', 'def do_gi', 'def do_gl', 'def do_gil' into 1 Def, not 4
+# todo: compact 'def do_g', 'def do_gi', 'def do_gl', 'def do_gli' into 1 Def, not 4
 def do_g():
-    """grep -i"""
+    """grep -i ."""
 
     parms = sys.argv[2:]
     stdout_isatty = sys.stdout.isatty()
@@ -362,7 +351,7 @@ def do_g():
 
 
 def do_gi():
-    """grep"""
+    """grep ."""
 
     parms = sys.argv[2:]
     stdout_isatty = sys.stdout.isatty()
@@ -389,8 +378,6 @@ def do_gl():
     (options, seps, args) = byo.shlex_parms_partition(parms)
     if not (options or seps):
         options = "-ilR".split()
-    if not args:
-        args = ["."]
 
     argv = ["grep"] + options + seps + args
     shline = " ".join(byo.shlex_dquote(_) for _ in argv)
@@ -398,7 +385,7 @@ def do_gl():
     exit_via_shline(shline)
 
 
-def do_gil():
+def do_gli():
     """grep -lR"""
 
     parms = sys.argv[2:]
@@ -406,8 +393,6 @@ def do_gil():
     (options, seps, args) = byo.shlex_parms_partition(parms)
     if not (options or seps):
         options = "-lR".split()
-    if not args:
-        args = ["."]
 
     argv = ["grep"] + options + seps + args
     shline = " ".join(byo.shlex_dquote(_) for _ in argv)
@@ -451,15 +436,15 @@ def do_m():
 
     parms = sys.argv[2:]
     if not parms:
-        exit_via_shpipe_shproc("make --")
+        exit_via_shparms("make --")
     else:
-        exit_via_shpipe_shproc("make")
+        exit_via_shparms("make")
 
 
 def do_mo():
     """less -FIRX"""
 
-    exit_via_shpipe_shproc("less -FIRX")
+    exit_via_shparms("less -FIRX")
 
 
 def do_n():
@@ -476,33 +461,31 @@ def do_n():
     shline = " ".join(byo.shlex_dquote(_) for _ in argv)
     shline = "{} |expand".format(shline)
 
-    shshline = "bash -c '{}'".format(shline)
-
-    exit_via_shline(shline=shshline)
+    exit_via_shpipe(shpipe=shline)
 
 
 def do_p():
     """popd"""
 
-    exit_via_shpipe_shproc("popd")
+    exit_via_shparms("popd")
 
 
 def do_q():
     """git checkout"""
 
-    exit_via_shpipe_shproc("git checkout")
+    exit_via_shparms("git checkout")
 
 
 def do_s():
     """sort"""
 
-    exit_via_shpipe_shproc("sort")
+    exit_via_shparms("sort")
 
 
 def do_sp():
     """sponge.py --"""
 
-    exit_via_shpipe_shproc("sponge.py --")
+    exit_via_shparms("sponge.py --")
 
 
 def do_t():
@@ -525,47 +508,49 @@ def do_t():
 def do_u():
     """uniq -c - |expand"""
 
-    exit_via_shpipe_shproc("uniq -c - |expand")
+    exit_via_shparms("uniq -c - |expand")
 
 
 def do_v():
     """vim"""
 
-    exit_via_shpipe_shproc("vim")
+    sys.stderr.write("shpipe.py e: Press ⇧Z ⇧Q to quit\n")
+
+    exit_via_shparms("vim")
 
 
 def do_w():
     """wc -l"""
 
-    exit_via_shpipe_shproc("wc -l")
+    exit_via_shparms("wc -l")
 
 
 def do_x():
     """hexdump -C"""
 
-    exit_via_shpipe_shproc("hexdump -C")
+    exit_via_shparms("hexdump -C")
 
 
 def do_xp():
     """expand"""
 
-    exit_via_shpipe_shproc("expand")
+    exit_via_shparms("expand")
 
 
 #
-# In the same-same old way, wrap many many Shim's around Bash Pipe Filters
+# Forward Parms into a Bash Subprocess and exit
 #
 
 
-def exit_via_shpipe_shproc(shline):
-    """Forward Augmented Parms into a Bash Subprocess and exit, else return"""
+def exit_via_shparms(shline):
+    """Forward Parms into a Bash Subprocess and exit"""
 
     parms = sys.argv[2:]
     shparms = " ".join(byo.shlex_dquote(_) for _ in parms)
 
     # Pick a RIndex of the ShLine to forward Parms into
 
-    marks = ["", " |", " >", " >("]
+    marks = ["", " |", " <", " >"]
 
     rindices = list()
     for mark in marks:
@@ -576,31 +561,42 @@ def exit_via_shpipe_shproc(shline):
 
     rindex = min(rindices)  # Place the Parms inside the ShLine, else at its End
 
-    shell = rindex != len(shline)
-
     # Forward the Parms
 
-    parmed_shline = shline
+    parmed = shline
     if parms:
         if rindex < len(shline):
-            parmed_shline = shline[:rindex] + " " + shparms + shline[rindex:]
+            parmed = shline[:rindex] + " " + shparms + shline[rindex:]
         else:
-            parmed_shline = shline + " " + shparms
+            parmed = shline + " " + shparms
 
-    # Call another layer of Bash for an 'a |c' Pipe, or for 'a |tee >(b) |c' Pipe of Tee
-
-    shshline = "bash -c '{}'".format(parmed_shline)
-    alt_shline = shshline if shell else parmed_shline
-
-    # Run a line of Sh and then exit
-
-    exit_via_shline(shline=alt_shline)
+    if rindex != len(shline):
+        exit_via_shpipe(shpipe=parmed)
+    else:
+        exit_via_shline(shline=parmed)
 
 
-def exit_via_shline(shline):
-    """Run a line of Sh and then exit"""
+def exit_via_shline_shpipe_to_tty(shline):
+    """Exit after running inside a Paginator if Stdout Tty, else exit after running"""
 
-    argv = shlex.split(shline)
+    shpipe = "{} |less -FIRX".format(shline)
+    if sys.stdout.isatty():
+
+        exit_via_shpipe(shpipe)
+
+    else:
+
+        exit_via_shline(shline)
+
+
+def exit_via_shpipe(shpipe):
+    """Exit after running a line of Sh marked up with r"[|<>$!]" etc"""
+
+    exit_via_shline(shline=shpipe, shell=True)
+
+
+def exit_via_shline(shline, shell=False):
+    """Exit after running a line of Sh"""
 
     sys.stderr.write("+ {}\n".format(shline))
 
@@ -610,6 +606,12 @@ def exit_via_shline(shline):
             sys.stderr.write(
                 "shpipe.py {!r}: Press ⌃D TTY EOF to quit\n".format(main.sponge_shverb)
             )
+
+    if not shell:
+        argv = shlex.split(shline)
+    else:
+        shshline = "bash -c {}".format(shlex.quote(shline))
+        argv = shlex.split(shshline)
 
     sys.stderr = open(os.devnull, "w")
     run = subprocess.run(argv)

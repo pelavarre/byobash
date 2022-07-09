@@ -46,7 +46,7 @@ POSTED = "# posted into:  https://github.com/pelavarre/byobash/blob/main/"
 COPIED = "# copied from:  git clone https://github.com/pelavarre/byobash.git"
 
 
-def main():  # FIXME  # noqa C901 complex
+def main():  # todo  # noqa C901 complex
     """Run from the Sh Command Line"""
 
     byo.exit(shparms="--")  # do nothing without Parms
