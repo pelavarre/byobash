@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 
-# FIXME: shpipe a
-
-
 r"""
 usage: shpipe.py [--help] VERB [ARG ...]
 
@@ -53,6 +50,7 @@ examples:
   shpipe.py |cv  # pbcopy
   shpipe.py |cv |  # |tee >(pbcopy) |
 
+  shpipe.py a  # awk -F' ' '{print $NF}'  # a, a SEP, a INDEX, a SEP INDEX, etc
   shpipe.py c  # cat - >/dev/null
   shpipe.py cv  # pbpaste
   shpipe.py d  # diff -brpu A_FILE B_FILE |less -FIRX  # default A_FILE='a', B_FILE='b'
@@ -84,6 +82,7 @@ examples:
 
 import os
 import pdb
+import re
 import shlex
 import subprocess
 import sys
@@ -140,6 +139,7 @@ def form_func_by_verb():
     """Declare the Pipe Filter Abbreviations"""
 
     func_by_verb = dict(
+        a=do_a,
         c=do_c,
         cv=do_cv,
         d=do_d,
@@ -168,6 +168,7 @@ def form_func_by_verb():
         xp=do_xp,
     )
 
+    do_a.tty_sponge = True
     do_c.tty_sponge = True
     do_g.tty_sponge = True
     do_gi.tty_sponge = True
@@ -183,6 +184,41 @@ def form_func_by_verb():
     do_xp.tty_sponge = True
 
     return func_by_verb
+
+
+def do_a():
+    """awk -F' ' '{print $NF}'  # a, a SEP, a INDEX, a SEP INDEX, etc"""
+
+    parms = sys.argv[2:]
+
+    # Pick out a Sep, or an Index, both, or neither, from the Parms, if Parms
+
+    if not parms:
+
+        exit_via_shline("awk '{print $NF}'")
+
+    elif len(parms) == 1:
+
+        if re.match(r"^[-+]?[0-9]+$", string=parms[0]):
+            (sep, index) = (None, parms[0])
+        else:
+            (sep, index) = (parms[0], "NF")
+
+    elif len(parms) == 2:
+
+        (sep, index) = parms
+
+    else:
+
+        exit_via_shpipe_shproc("awk '{print $NF}'")
+
+    # Forward just an Index, else a Sep and an Index
+
+    if sep is None:
+        exit_via_shline("awk '{{print {}}}'".format(index))
+    else:
+        shsep = byo.shlex_dquote(sep)
+        exit_via_shline("awk -F{} '{{print ${}}}'".format(shsep, index))
 
 
 def do_c():
