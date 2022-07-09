@@ -1,0 +1,18 @@
+# usage: source env-path-append.source
+# usage: source env-path-append.source 2>/dev/null
+#
+# print how to grow your Sh Path to include the Dir that contains this Sh Script
+#
+# examples:
+#   bash bin/env-path-append.source  # just print how
+#   source bin/env-path-append.source  # aye, do append Dir of Sh Script into Sh Path
+#
+
+echo 'export PATH="${PATH:+$PATH:}'$(cd $(dirname $0) && pwd -P)'/bin"' >&2
+export       PATH="${PATH:+$PATH:}$(cd $(dirname $0) && pwd -P)/bin"
+echo 'export PATH="${PATH:+$PATH:}'$(cd $(dirname $0) && pwd -P)'/py"' >&2
+export       PATH="${PATH:+$PATH:}$(cd $(dirname $0) && pwd -P)/py"
+echo 'export PATH="${PATH:+$PATH:}'$(cd $(dirname $0) && pwd -P)'/qbin"' >&2
+export       PATH="${PATH:+$PATH:}$(cd $(dirname $0) && pwd -P)/qbin"
+echo 'export PATH="${PATH:+$PATH:}'$(cd $(dirname $0) && pwd -P)'/qb"' >&2
+export       PATH="${PATH:+$PATH:}$(cd $(dirname $0) && pwd -P)/qb"
