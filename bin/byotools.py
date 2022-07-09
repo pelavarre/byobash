@@ -19,6 +19,7 @@ import pathlib
 import pdb
 import re
 import shlex
+import shutil
 import signal
 import string
 import subprocess
@@ -579,6 +580,40 @@ def shlex_parms_partition(parms):
             positional_args.append(parm)
 
     return (options, first_seps, positional_args)
+
+
+#
+# Add some Def's that 'import shutil' forgot
+#
+
+
+def shutil_get_std_else_tty_height():  # from $LINES, else Stdout, else DevTty
+    "Count Rows in the Terminal Screen"
+
+    size = get_std_else_tty_size()
+
+    return size.lines
+
+
+def shutil_get_std_else_tty_width():  # from $COLUMNS, else Stdout, else DevTty
+    "Count Rows in the Terminal Screen"
+
+    size = get_std_else_tty_size()
+
+    return size.columns
+
+
+def get_std_else_tty_size():  # from $LINES and $COLUMNS, else Stdout, else DevTty
+    "Count Rows and Columns in the Terminal Screen"
+
+    _ = os.get_terminal_size(sys.stdout.fileno())  # fail fast, or not
+
+    with open("/dev/tty", "r") as tty:  # fallback to Dev Tty, before (80, 24)
+        fallback_size = os.get_terminal_size(tty.fileno())
+
+    size = shutil.get_terminal_size(fallback=fallback_size)
+
+    return size  # (.lines, .columns)
 
 
 #

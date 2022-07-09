@@ -278,7 +278,8 @@ def rm_fr_import_byotools_pyc():
 def exit_via_git_shproc(shverb, parms, authed, shlines):  # todo  # noqa: C901 complex
     """Forward Augmented Parms into a Git Subprocess and exit, else return"""
 
-    thirdrows = 16  # FIXME
+    rows = byo.shutil_get_std_else_tty_height()
+    thirdrows = max(3, rows // 3)
 
     alt_shlines = list(_ for _ in shlines if _ != "cat -")
     alt_parms = parms
@@ -602,8 +603,6 @@ if __name__ == "__main__":
 
 #
 # FIXME: add '-h' into 'git log grep' => grep -h def.shlex_quote $(-ggl def.shlex_quote)
-#
-# FIXME: drop the doubled -19 -1 from such as:  qlq -1
 #
 # FIXME: qbin/qlsq  =>  git.py ls --  =>  interleave of qlq and each qspno
 # for N in $(seq 3); do

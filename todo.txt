@@ -3,14 +3,7 @@
 
 dreaming since Jul/2022 =>
 
-def shutil_get_terminal_size
-    fail fast by calling 'os.get_terminal_size' on 'sys.__stdout__'
-    form a Fallback by calling 'os.get_terminal_size' on '/dev/tty'
-    trust 'shutil.get_terminal_size' to choose $LINES/$COLUMNS, else these
-
-thirdrows = max(3, rows // 3)
-
-scroll-preserving clear is write empty lines for the rows, then destructive clear
+FIXME scroll-preserving clear is write empty lines for the rows, then destructive clear
 
 solve p
 
