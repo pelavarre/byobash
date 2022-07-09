@@ -398,7 +398,7 @@ SH_QUOTABLE = SH_PLAIN + " " + "!#&()*;<>?[]^{|}~"
 
 
 # deffed in many files  # missing from Python
-def shlex_min_quote(parm):
+def shlex_dquote(parm):
     """Quote, but quote compactly despite '"' and '~', when that's still easy"""
 
     # Follow the Library, when they agree no quote marks required

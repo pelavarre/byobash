@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-# todo:  q ..., could mean ... $(qdhno)  # so should it?
-
 r"""
 usage: git.py [--help] VERB [ARG ...]
 usage: git.py [--help] --for-shproc SHVERB [ARG ...]
@@ -46,11 +44,13 @@ examples:
 
   git.py  &&: show these examples and exit
   git.py --h  &&: show this help message and exit
-  git.py --  &&: 'git status' and then counts of:   git status --short --ignored
+  git.py --  &&: git checkout
   command git.py --  &&: show the Advanced Bash Install of Git Py and exit
 
   ls ~/.gitconfig
   ls .git/config
+
+  &&: Navigation
 
   git.py cd  &&: cd $(git rev-parse --show-toplevel)
   git.py d  &&: git diff
@@ -69,6 +69,8 @@ examples:
   git.py st  &&: git status
   git.py sun  &&: git status --untracked-files=no
   git.py vi  &&: bash -c 'vi $(qdhno |tee /dev/stderr)'
+
+  &&: Branch and Log Work
 
   git.py b  &&: git branch  &&: and see also:  git rev-parse --abbrev-ref
   git.py ba  &&: git branch --all
@@ -96,6 +98,8 @@ examples:
   git.py rv  &&: git remote -v
   git.py ssn  &&: git shortlog --summary --numbered
 
+  &&: Commit and Conflict Work
+
   git.py a  &&: git add
   git.py ap  &&: git add --patch
   git.py c  &&: git commit
@@ -112,8 +116,13 @@ examples:
   git.py rhu  &&: take ⌃D to mean:  git reset --hard @{upstream}  &&: hide to start over
   git.py s1  &&: git show :1:...  &&: common base
   git.py s2  &&: git show :2:...  &&: just theirs
-  git.py s3  &&: git show :3:...  &&: juts ours
+  git.py s3  &&: git show :3:...  &&: just ours
+
+  &&: Reroll/Roll your own Repo
+
+  rm -fr g.git git && git init --bare g.git && git clone g.git && cd g
 """
+# todo:  Occasionally Needed Extras: making branches, deleting branches
 
 
 import __main__
@@ -295,8 +304,8 @@ def exit_via_git_shproc(shverb, parms, authed, shlines):  # FIXME  # noqa: C901 
     #
 
     parms_minus = alt_parms[1:]
-    shparms = " ".join(byo.shlex_min_quote(_) for _ in alt_parms)
-    shparms_minus = " ".join(byo.shlex_min_quote(_) for _ in parms_minus)
+    shparms = " ".join(byo.shlex_dquote(_) for _ in alt_parms)
+    shparms_minus = " ".join(byo.shlex_dquote(_) for _ in parms_minus)
 
     # Form each ShLine, and split each ShLine apart into an ArgV
 
@@ -374,7 +383,7 @@ def exit_via_git_shproc(shverb, parms, authed, shlines):  # FIXME  # noqa: C901 
 
         argv_shline = parmed_shline
 
-        shguest = byo.shlex_min_quote(getpass.getuser())
+        shguest = byo.shlex_dquote(getpass.getuser())
         guest_key = " --author=$USER"
         guest_repl = " --author={}".format(shguest)
 
@@ -393,7 +402,7 @@ def exit_via_git_shproc(shverb, parms, authed, shlines):  # FIXME  # noqa: C901 
 
     auth_shlines = list()
     for argv in argvs:
-        shline = " ".join(byo.shlex_min_quote(_) for _ in argv)
+        shline = " ".join(byo.shlex_dquote(_) for _ in argv)
 
         overquoted = "git reset --hard '@{upstream}'"  # because of the {} Braces
         shline = shline.replace(overquoted, "git reset --hard @{upstream}")
@@ -438,7 +447,7 @@ def exit_via_argvs(argvs):
 
     for argv in argvs:
 
-        shline = " ".join(byo.shlex_min_quote(_) for _ in argv)
+        shline = " ".join(byo.shlex_dquote(_) for _ in argv)
 
         sys.stderr.write("+ {}\n".format(shline))
         run = subprocess.run(argv)
@@ -602,6 +611,8 @@ if __name__ == "__main__":
 #
 # add '-h' into 'git log grep' => grep -h def.shlex_quote $(-ggl def.shlex_quote)
 #
+# drop the doubled -19 -1 from such as:  qlq -1
+#
 # qbin/qlsq  =>  git.py ls --  =>  interleave of qlq and each qspno
 # for N in $(seq 3); do
 #     echo
@@ -609,12 +620,14 @@ if __name__ == "__main__":
 #     git show --pretty= --name-only HEAD~$N
 # done
 #
-# drop the doubled -19 -1 from such as:  qlq -1
-#
 
 #
 # todo
 #
+
+# compaction for qssi = git status --short --ignored
+
+# q ..., could mean ... $(qdhno)  # so should it?
 
 #
 # expand unambiguous abbreviations

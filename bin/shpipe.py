@@ -1,19 +1,5 @@
 #!/usr/bin/env python3
 
-# FIXME: code '  # ' and ' |' for Bash, convert for Zsh, such as &&: '...'
-
-# FIXME: more concise Traceback at:  shpipe.py --
-
-# FIXME: shpipe bash lstrip  # per line, translate Py Label to Sed
-# FIXME: shpipe bash rstrip  # per line, translate Py Label to Sed
-# FIXME: shpipe bash strip  # per line, translate Py Label to Sed
-
-# FIXME: shpipe py ...  &&: edit the Os Copy/Paste Clipboard, else Stdio, never Tty
-# FIXME: shpipe py lstrip  # per line
-# FIXME: shpipe py "\n".join  # sponges
-# FIXME: shpipe py textwrap.dedent  # joins and splits
-# FIXME: shpipe py enumerate  # numbers
-# FIXME: shpipe py splitlines "-".join  # joins chars of lines
 
 r"""
 usage: shpipe.py [--help] PIPE_VERB [ARG ...]
@@ -28,9 +14,10 @@ options:
   --help     show this help message and exit
 
 quirks:
-  limits Find and Git Diff like Sh should, by way of the 'less -FIRX' Paginator
   dumps larger numbers of Lines into taller Screens, as defaults of:  head/tail -...
-  Linux Terminal Stdin echoes ⌃D TTY EOF as "" w/out "\n", vs macOS as "^D" without "\n"
+  limits Diff and Find like Sh should, by way of the 'less -FIRX' Paginator
+  calls 'make --' even for Make's that can't distinguish 'make --' from 'make'
+  lets Linux Terminal Stdin echo ⌃D TTY EOF as '', vs macOS as '^D', all without '\n'
 
 slang:
   sends Cat '--show-tabs --show-nonprinting' as '-tv'
@@ -54,7 +41,7 @@ examples:
 
   shpipe.py g --  &&: run Grep without options, not even our default '-i'
 
-  shpipe.py c  &&: cat -
+  shpipe.py c  &&: cat - >/dev/null
   shpipe.py cv  &&: pbpaste
   shpipe.py cv  &&: pbpaste ,...
   shpipe.py cv  &&: ... ,pbcopy
@@ -63,15 +50,16 @@ examples:
   shpipe.py d  &&: diff -brpu A_FILE B_FILE |less -FIRX  &&: default 'diff -brpu a b'
   shpipe.py e  &&: emacs -nw --no-splash --eval '(menu-bar-mode -1)'
   shpipe.py em  &&: emacs -nw --no-splash --eval '(menu-bar-mode -1)'
-  shpipe.py f  &&: find . -not -type d -not -path './.git/*'  &&: Mac Find needs '.'
+  shpipe.py f  &&: find . -not -type d -not -path './.git/*' |less -FIRX  &&: Mac needs .
   shpipe.py g  &&: grep  &&: default 'grep -i'
   shpipe.py h  &&: head -16  &&: or whatever a third of a screen is
   shpipe.py hi  &&: history  &&: but include the files at the '~/.bash_histories/' dir
   shpipe.py ht  &&: sed -n -e '1,2p;3,3s/.*/&\n.../p;$p'  &&: Head and also Tail
-  shpipe.py m  &&: make
+  shpipe.py m  &&: make --
   shpipe.py mo  &&: less -FIRX
   shpipe.py n  &&: cat -ntv -, expand
   shpipe.py p  &&: popd
+  shpipe.py q  &&: git checkout
   shpipe.py s  &&: sort -
   shpipe.py sp  &&: sponge.py --
   shpipe.py t  &&: tail -16  &&: or whatever a third of a screen is
@@ -97,6 +85,7 @@ _ = pdb
 def main():
     """Run from the Sh Command Line"""
 
+    parms = sys.argv[1:]
     func_by_verb = form_func_by_verb()
 
     # Define some forms of 'shpipe.py'
@@ -105,8 +94,6 @@ def main():
     byo.exit_via_argdoc()  # shpipe.py --help
 
     # Define many brutally cryptic abbreviations of ShVerb's
-
-    parms = sys.argv[1:]
 
     shverb = parms[0] if parms else None
     main.prompter = None
@@ -146,6 +133,7 @@ def form_func_by_verb():
         mo=do_mo,
         n=do_n,
         p=do_p,
+        q=do_q,
         s=do_s,
         sp=do_sp,
         t=do_t,
@@ -172,9 +160,19 @@ def form_func_by_verb():
 
 
 def do_c():
-    """cat -"""
+    """cat - >/dev/null"""
 
-    exit_via_shpipe_shproc("cat -")
+    parms = sys.argv[2:]
+    stdin_isatty = sys.stdin.isatty()
+    stdout_isatty = sys.stdout.isatty()
+
+    if parms:
+        exit_via_shpipe_shproc("cat")
+    else:
+        if stdin_isatty and stdout_isatty:
+            exit_via_shpipe_shproc("cat - >/dev/null")
+        else:
+            exit_via_shpipe_shproc("cat -")
 
 
 def do_cv():
@@ -200,7 +198,8 @@ def do_cv_tty():
 
     (options, seps, args) = byo.shlex_split_options(parms)
     if seps and not options:
-        options.append("-ntv")
+        options = ["-ntv"]
+        seps = []
 
     argv = ["cat"] + options + seps + args
     if not (options or seps or args):
@@ -209,7 +208,7 @@ def do_cv_tty():
 
     else:
 
-        shline = " ".join(byo.shlex_min_quote(_) for _ in argv)
+        shline = " ".join(byo.shlex_dquote(_) for _ in argv)
         shline = "pbpaste |{} |expand".format(shline)
         shshline = "bash -c '{}'".format(shline)
 
@@ -233,7 +232,7 @@ def do_d():
         args.append("b")
 
     argv = ["diff"] + options + seps + args
-    shline = " ".join(byo.shlex_min_quote(_) for _ in argv)
+    shline = " ".join(byo.shlex_dquote(_) for _ in argv)
 
     shshline = "bash -c '{} |less -FIRX'".format(shline)
     if sys.stdout.isatty():
@@ -266,7 +265,7 @@ def do_f():
         options = ["-not", "-type", "d", "-not", "-path", "./.git/*"]
 
     argv = ["find"] + args + options + seps  # classic Find takes Args before Options
-    shline = " ".join(byo.shlex_min_quote(_) for _ in argv)
+    shline = " ".join(byo.shlex_dquote(_) for _ in argv)
     shshline = 'bash -c "{} |less -FIRX"'.format(shline)
 
     if sys.stdout.isatty():
@@ -279,13 +278,18 @@ def do_g():
     """grep -i"""
 
     parms = sys.argv[2:]
+    stdout_isatty = sys.stdout.isatty()
 
     (options, seps, args) = byo.shlex_split_options(parms)
     if not (options or seps):
-        options.append("-i")
+        options = "-i".split()
+        if stdout_isatty:
+            options.append("--color=yes")
+    if not args:
+        args = ["."]
 
     argv = ["grep"] + options + seps + args
-    shline = " ".join(byo.shlex_min_quote(_) for _ in argv)
+    shline = " ".join(byo.shlex_dquote(_) for _ in argv)
 
     exit_via_shline(shline)
 
@@ -302,7 +306,7 @@ def do_h():
         options.append("-{}".format(thirdrows))
 
     argv = ["head"] + options + seps + args
-    shline = " ".join(byo.shlex_min_quote(_) for _ in argv)
+    shline = " ".join(byo.shlex_dquote(_) for _ in argv)
 
     exit_via_shline(shline)
 
@@ -322,9 +326,13 @@ def do_ht():
 
 
 def do_m():
-    """make"""
+    """make --"""
 
-    exit_via_shpipe_shproc("make")
+    parms = sys.argv[2:]
+    if not parms:
+        exit_via_shpipe_shproc("make --")
+    else:
+        exit_via_shpipe_shproc("make")
 
 
 def do_mo():
@@ -344,7 +352,7 @@ def do_n():
 
     argv = ["cat"] + options + seps + args
 
-    shline = " ".join(byo.shlex_min_quote(_) for _ in argv)
+    shline = " ".join(byo.shlex_dquote(_) for _ in argv)
     shline = "{} |expand".format(shline)
 
     shshline = "bash -c '{}'".format(shline)
@@ -356,6 +364,12 @@ def do_p():
     """popd"""
 
     exit_via_shpipe_shproc("popd")
+
+
+def do_q():
+    """git checkout"""
+
+    exit_via_shpipe_shproc("git checkout")
 
 
 def do_s():
@@ -382,7 +396,7 @@ def do_t():
         options.append("-{}".format(thirdrows))
 
     argv = ["tail"] + options + seps + args
-    shline = " ".join(byo.shlex_min_quote(_) for _ in argv)
+    shline = " ".join(byo.shlex_dquote(_) for _ in argv)
 
     exit_via_shline(shline)
 
@@ -426,11 +440,11 @@ def exit_via_shpipe_shproc(shline):
     """Forward Augmented Parms into a Bash Subprocess and exit, else return"""
 
     parms = sys.argv[2:]
+    shparms = " ".join(byo.shlex_dquote(_) for _ in parms)
 
-    shparms = " ".join(byo.shlex_min_quote(_) for _ in parms)
     # Pick a RIndex of the ShLine to forward Parms into
 
-    marks = ["", " |", " >("]
+    marks = ["", " |", " >", " >("]
 
     rindices = list()
     for mark in marks:
@@ -501,7 +515,7 @@ _ = """
 + pbpaste
 + pbcopy
 %
-% cv -ntv
+% cv --
 + bash -c 'pbpaste |cat -ntv |expand'
      1  Beautiful is better than ugly
      2  Explicit is better than implicit
@@ -516,6 +530,22 @@ Simple is better than complex
 %
 
 """
+
+
+# FIXME: code '  # ' and ' |' for Bash, convert for Zsh, such as &&: '...'
+
+# FIXME: more concise Traceback at:  shpipe.py --
+
+# FIXME: shpipe bash lstrip  # per line, translate Py Label to Sed
+# FIXME: shpipe bash rstrip  # per line, translate Py Label to Sed
+# FIXME: shpipe bash strip  # per line, translate Py Label to Sed
+
+# FIXME: shpipe py ...  &&: edit the Os Copy/Paste Clipboard, else Stdio, never Tty
+# FIXME: shpipe py lstrip  # per line
+# FIXME: shpipe py "\n".join  # sponges
+# FIXME: shpipe py textwrap.dedent  # joins and splits
+# FIXME: shpipe py enumerate  # numbers
+# FIXME: shpipe py splitlines "-".join  # joins chars of lines
 
 
 #
