@@ -18,12 +18,12 @@ quirks:
 
 examples:
 
-  sponge.py  &&: show these examples and exit
-  sponge.py --h  &&: show this help message and exit
-  sponge.py --  &&: same as:  sponge.py -
+  sponge.py  # show these examples and exit
+  sponge.py --h  # show this help message and exit
+  sponge.py --  # same as:  sponge.py -
 
-  cat - |sponge.py -  &&: let you finish typing, press ⌃D Tty Eof, before echoing it all
-  echo $'\xC0\x80' |sponge.py -- |hexdump -C  &&: no worries re UnicodeDecodeError bytes
+  cat - |sponge.py -  # let you finish typing, press ⌃D Tty Eof, before echoing it all
+  echo $'\xC0\x80' |sponge.py -- |hexdump -C  # no worries re UnicodeDecodeError bytes
 """
 
 

@@ -14,9 +14,9 @@ quirks:
 
 examples:
 
-  ssh-add.py  &&: show these examples and exit
-  ssh-add.py --h  &&: show this help message and exit
-  ssh-add.py --  &&: todo: run as you like it
+  ssh-add.py  # show these examples and exit
+  ssh-add.py --h  # show this help message and exit
+  ssh-add.py --  # todo: run as you like it
 
   ssh-add -l
   ssh-add -L |grep ^ssh-rsa-cert |ssh-keygen -L -f - |grep Valid

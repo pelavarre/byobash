@@ -34,15 +34,15 @@ advanced bash install:
 
 examples:
 
-  cd.py  &&: show these examples and exit
-  cd.py --h  &&: show this help message and exit
-  cd.py --  &&: go to Desktop Dir inside Home Dir, same as:  cd ~/Desktop
-  command cd.py --  &&: show the Advanced Bash Install of Cd Py and exit
+  cd.py  # show these examples and exit
+  cd.py --h  # show this help message and exit
+  cd.py --  # go to Desktop Dir inside Home Dir, same as:  cd ~/Desktop
+  command cd.py --  # show the Advanced Bash Install of Cd Py and exit
 
-  cd.py -  &&: toggle back to previous Sh Working Dir, same as:  cd -
-  cd.py ~  &&: go to Home Dir, same as:  cd ~
-  cd.py .  &&: stay put, same as:  cd .
-  cd.py ..  &&: go one Dir up, same as:  cd ..
+  cd.py -  # toggle back to previous Sh Working Dir, same as:  cd -
+  cd.py ~  # go to Home Dir, same as:  cd ~
+  cd.py .  # stay put, same as:  cd .
+  cd.py ..  # go one Dir up, same as:  cd ..
 """
 # todo: adopt 'cd.py -- OLD NEW' from Zsh, for editing $PWD
 

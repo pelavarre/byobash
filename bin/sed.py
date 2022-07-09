@@ -20,13 +20,13 @@ quirks:
 
 examples:
 
-  sed.py  &&: show these examples and exit
-  sed.py --h  &&: show this help message and exit
-  sed.py --  &&: todo: run as you like it
+  sed.py  # show these examples and exit
+  sed.py --h  # show this help message and exit
+  sed.py --  # todo: run as you like it
 
-  sed -i~ 's,STALE,FRESH,g' *.py  &&: global edit find search replace
-  echo a b c d e |tr ' ' '\n' |sed -n -e '1p' -e '$p'  &&: first, last
-  echo a b c d e |tr ' ' '\n' |sed -n -e '1,2p' -e $'3i\\\n...' -e '$p'  &&: head, tail
+  sed -i~ 's,STALE,FRESH,g' *.py  # global edit find search replace
+  echo a b c d e |tr ' ' '\n' |sed -n -e '1p' -e '$p'  # first, last
+  echo a b c d e |tr ' ' '\n' |sed -n -e '1,2p' -e $'3i\\\n...' -e '$p'  # head, tail
 """
 
 # todo: grow default w Screen Height

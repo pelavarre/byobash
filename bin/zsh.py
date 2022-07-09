@@ -16,12 +16,12 @@ quirks:
 
 examples:
 
-  zsh.py  &&: show these examples and exit
-  zsh.py --h  &&: show this help message and exit
-  zsh.py --  &&: todo: run as you like it
+  zsh.py  # show these examples and exit
+  zsh.py --h  # show this help message and exit
+  zsh.py --  # todo: run as you like it
 
   export |grep SHLVL
-  zsh -f  &&: run with less local quirks
+  zsh -f  # run with less local quirks
 """
 
 

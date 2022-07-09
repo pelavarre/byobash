@@ -21,11 +21,11 @@ quirks:
 
 examples:
 
-  cp.py  &&: show these examples and exit
-  cp.py --h  &&: show this help message and exit
-  cp.py --  &&: 'cp -ipR' the last of the 'ls -1rt' to stamp name with '~%m%d~jqd~%H%M~'
+  cp.py  # show these examples and exit
+  cp.py --h  # show this help message and exit
+  cp.py --  # 'cp -ipR' the last of the 'ls -1rt' to stamp name with '~%m%d~jqd~%H%M~'
 
-  ls.py --  &&: the 'ls -C' view of:  ls -1rt |tail -3
+  ls.py --  # the 'ls -C' view of:  ls -1rt |tail -3
 """
 
 # todo: learn to faithfully copy sym links too

@@ -17,15 +17,15 @@ quirks:
 
 examples:
 
-  script.py  &&: show these examples and exit
-  script.py --h  &&: show this help message and exit
-  script.py --  &&: todo: run as you like it
+  script.py  # show these examples and exit
+  script.py --h  # show this help message and exit
+  script.py --  # todo: run as you like it
 
-  script t.typescript  &&: make a LogFile that doesn't much flush till Exit
+  script t.typescript  # make a LogFile that doesn't much flush till Exit
 
-  cat t.typescript  &&: trust and run the Esc sequences
-  less -FIRX t.typescript  &&: trust and run the Esc sequences
-  less t.typescript  &&: show the Esc sequences without running them
+  cat t.typescript  # trust and run the Esc sequences
+  less -FIRX t.typescript  # trust and run the Esc sequences
+  less t.typescript  # show the Esc sequences without running them
 """
 
 

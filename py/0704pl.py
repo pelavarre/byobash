@@ -42,9 +42,9 @@ except ImportError:
 
 BRIEF = """
 
-  p.py  &&: show these examples and exit
-  p.py --h  &&: show this help message and exit
-  p.py --  &&: todo: run as you like it
+  p.py  # show these examples and exit
+  p.py --h  # show this help message and exit
+  p.py --  # todo: run as you like it
 
 """
 

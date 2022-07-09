@@ -19,9 +19,9 @@ options:
 
 examples:
 
-  2to3.py  &&: show these examples and exit
-  2to3.py --h  &&: show this help message and exit
-  2to3.py --  &&: todo: run as you like it
+  2to3.py  # show these examples and exit
+  2to3.py --h  # show this help message and exit
+  2to3.py --  # todo: run as you like it
 
   2to3 -w -W --no-diffs p.py  # do
   git checkout HEAD p.py  # undo

@@ -13,11 +13,11 @@ quirks:
 
 examples:
 
-  shall.py  &&: show these examples and exit
-  shall.py --h  &&: show this help message and exit
-  shall.py --  &&: todo: run as you like it
+  shall.py  # show these examples and exit
+  shall.py --h  # show this help message and exit
+  shall.py --  # todo: run as you like it
 
-  shpipe.py  &&: show examples of working with Bash Pipes
+  shpipe.py  # show examples of working with Bash Pipes
   # todo: add more than 1 chapter here
 """
 

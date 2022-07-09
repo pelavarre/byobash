@@ -15,8 +15,8 @@ quirks:
 
 examples:
 
-  pbpaste.py  &&: show these examples and exit
-  pbpaste.py --h  &&: show this help message and exit
+  pbpaste.py  # show these examples and exit
+  pbpaste.py --h  # show this help message and exit
   echo hello copy-paste world |pbcopy.py --
   pbpaste.py --
 

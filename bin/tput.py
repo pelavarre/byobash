@@ -24,15 +24,15 @@ quirks:
 
 examples:
 
-  tput.py  &&: show these examples and exit
-  tput.py --h  &&: show this help message and exit
-  tput.py --  &&: clear Terminal history quickly, like ⌘K
+  tput.py  # show these examples and exit
+  tput.py --h  # show this help message and exit
+  tput.py --  # clear Terminal history quickly, like ⌘K
 
-  qbin/cls  &&: clear Terminal history, like ⌘K
-  tput.py reset  &&: clear Terminal history, like ⌘K
-  tput.py clear  &&: scroll away the Rows on Screen, like ⌃L
+  qbin/cls  # clear Terminal history, like ⌘K
+  tput.py reset  # clear Terminal history, like ⌘K
+  tput.py clear  # scroll away the Rows on Screen, like ⌃L
 
-  echo && seq 40 && echo && seq 50 && echo && seq 60 && echo  &&: fill Screens for test
+  echo && seq 40 && echo && seq 50 && echo && seq 60 && echo  # fill Screens for test
 """
 
 

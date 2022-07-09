@@ -16,9 +16,9 @@ quirks:
 
 examples:
 
-  python2.py  &&: show these examples and exit
-  python2.py --h  &&: show this help message and exit
-  python2.py --  &&: todo: run as you like it
+  python2.py  # show these examples and exit
+  python2.py --h  # show this help message and exit
+  python2.py --  # todo: run as you like it
 
   : Jul/2010 Python 2.7  # minor release date
   : Jun/2016 Python 2.7.12  # micro release date

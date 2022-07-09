@@ -29,45 +29,45 @@ slang:
 
 advanced bash install:
 
-  source qb/env-path-append.source  &&: define 'c', 'cv', 'd', 'g', 'gi', and so on
-  bash qb/env-path-append.source  &&: show how it works
-  export PATH="${PATH:+$PATH:}~/Public/byobash/qb"  &&: get it done yourself
+  source qb/env-path-append.source  # define 'c', 'cv', 'd', 'g', 'gi', and so on
+  bash qb/env-path-append.source  # show how it works
+  export PATH="${PATH:+$PATH:}~/Public/byobash/qb"  # get it done yourself
 
 examples:
 
-  shpipe.py  &&: show these examples and exit
-  shpipe.py --h  &&: show this help message and exit
-  shpipe.py --  &&: todo: run as you like it
+  shpipe.py  # show these examples and exit
+  shpipe.py --h  # show this help message and exit
+  shpipe.py --  # todo: run as you like it
 
-  shpipe.py g --  &&: run Grep without options, not even our default '-i'
+  shpipe.py g --  # run Grep without options, not even our default '-i'
 
-  shpipe.py c  &&: cat - >/dev/null
-  shpipe.py cv  &&: pbpaste
-  shpipe.py cv  &&: pbpaste ,...
-  shpipe.py cv  &&: ... ,pbcopy
-  shpipe.py cv  &&: ... ,tee >(pbcopy) ,...
-  shpipe.py cv --  &&: pbpaste ,cat -ntv ,expand
-  shpipe.py d  &&: diff -brpu A_FILE B_FILE |less -FIRX  &&: default 'diff -brpu a b'
-  shpipe.py e  &&: emacs -nw --no-splash --eval '(menu-bar-mode -1)'
-  shpipe.py em  &&: emacs -nw --no-splash --eval '(menu-bar-mode -1)'
-  shpipe.py f  &&: find . -not -type d -not -path './.git/*' |less -FIRX  &&: Mac needs .
-  shpipe.py g  &&: grep  &&: default 'grep -i'
-  shpipe.py h  &&: head -16  &&: or whatever a third of a screen is
-  shpipe.py hi  &&: history  &&: but include the files at the '~/.bash_histories/' dir
-  shpipe.py ht  &&: sed -n -e '1,2p;3,3s/.*/&\n.../p;$p'  &&: Head and also Tail
-  shpipe.py m  &&: make --
-  shpipe.py mo  &&: less -FIRX
-  shpipe.py n  &&: cat -ntv -, expand
-  shpipe.py p  &&: popd
-  shpipe.py q  &&: git checkout
-  shpipe.py s  &&: sort -
-  shpipe.py sp  &&: sponge.py --
-  shpipe.py t  &&: tail -16  &&: or whatever a third of a screen is
-  shpipe.py u  &&: uniq -c -, expand
-  shpipe.py v  &&: vim -
-  shpipe.py w  &&: wc -l
-  shpipe.py x  &&: hexdump -C
-  shpipe.py xp  &&: expand
+  shpipe.py c  # cat - >/dev/null
+  shpipe.py cv  # pbpaste
+  shpipe.py cv  # pbpaste ,...
+  shpipe.py cv  # ... ,pbcopy
+  shpipe.py cv  # ... ,tee >(pbcopy) ,...
+  shpipe.py cv --  # pbpaste ,cat -ntv ,expand
+  shpipe.py d  # diff -brpu A_FILE B_FILE |less -FIRX  # default 'diff -brpu a b'
+  shpipe.py e  # emacs -nw --no-splash --eval '(menu-bar-mode -1)'
+  shpipe.py em  # emacs -nw --no-splash --eval '(menu-bar-mode -1)'
+  shpipe.py f  # find . -not -type d -not -path './.git/*' |less -FIRX  # Mac needs .
+  shpipe.py g  # grep  # default 'grep -i'
+  shpipe.py h  # head -16  # or whatever a third of a screen is
+  shpipe.py hi  # history  # but include the files at the '~/.bash_histories/' dir
+  shpipe.py ht  # sed -n -e '1,2p;3,3s/.*/&\n.../p;$p'  # Head and also Tail
+  shpipe.py m  # make --
+  shpipe.py mo  # less -FIRX
+  shpipe.py n  # cat -ntv -, expand
+  shpipe.py p  # popd
+  shpipe.py q  # git checkout
+  shpipe.py s  # sort -
+  shpipe.py sp  # sponge.py --
+  shpipe.py t  # tail -16  # or whatever a third of a screen is
+  shpipe.py u  # uniq -c -, expand
+  shpipe.py v  # vim -
+  shpipe.py w  # wc -l
+  shpipe.py x  # hexdump -C
+  shpipe.py xp  # expand
 """
 
 
@@ -312,7 +312,7 @@ def do_h():
 
 
 def do_hi():
-    """history  &&: but include the files at the '~/.bash_histories/' dir"""
+    """history  # but include the files at the '~/.bash_histories/' dir"""
 
     raise NotImplementedError()
 
@@ -540,7 +540,7 @@ Simple is better than complex
 # FIXME: shpipe bash rstrip  # per line, translate Py Label to Sed
 # FIXME: shpipe bash strip  # per line, translate Py Label to Sed
 
-# FIXME: shpipe py ...  &&: edit the Os Copy/Paste Clipboard, else Stdio, never Tty
+# FIXME: shpipe py ...  # edit the Os Copy/Paste Clipboard, else Stdio, never Tty
 # FIXME: shpipe py lstrip  # per line
 # FIXME: shpipe py "\n".join  # sponges
 # FIXME: shpipe py textwrap.dedent  # joins and splits

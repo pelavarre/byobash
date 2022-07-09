@@ -19,9 +19,9 @@ quirks:
 
 examples:
 
-  futurize.py  &&: show these examples and exit
-  futurize.py --h  &&: show this help message and exit
-  futurize.py --  &&: todo: run as you like it
+  futurize.py  # show these examples and exit
+  futurize.py --h  # show this help message and exit
+  futurize.py --  # todo: run as you like it
 
   futurize -w -W --no-diffs p.py  # do
   git checkout HEAD p.py  # undo

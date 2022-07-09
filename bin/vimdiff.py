@@ -13,9 +13,9 @@ quirk:
 
 examples:
 
-  vimdiff.py  &&: show these examples and exit
-  vimdiff.py --h  &&: show this help message and exit
-  vimdiff.py --  &&: todo: run as you like it
+  vimdiff.py  # show these examples and exit
+  vimdiff.py --h  # show this help message and exit
+  vimdiff.py --  # todo: run as you like it
 
   :
 """

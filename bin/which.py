@@ -14,9 +14,9 @@ quirks:
 
 examples:
 
-  which.py  &&: show these examples and exit
-  which.py --h  &&: show this help message and exit
-  which.py --  &&: todo: run as you like it
+  which.py  # show these examples and exit
+  which.py --h  # show this help message and exit
+  which.py --  # todo: run as you like it
 
   which -a  # show all the Search hits, not us
 """

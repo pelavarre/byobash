@@ -19,11 +19,11 @@ quirks:
 
 examples:
 
-  ls.py  &&: show these examples and exit
-  ls.py --h  &&: show this help message and exit
-  ls.py --  &&: as if:  ls -rt |tail -3
+  ls.py  # show these examples and exit
+  ls.py --h  # show this help message and exit
+  ls.py --  # as if:  ls -rt |tail -3
 
-  ls  &&: as if:  ls.py -C
+  ls  # as if:  ls.py -C
 """
 # todo: often default to list just the Modified Today
 # todo: default to:  ls -rt |tail -3

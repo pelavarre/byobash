@@ -25,11 +25,11 @@ quirks:
 
 examples:
 
-  less.py  &&: show these examples and exit
-  less.py --h  &&: show this help message and exit
-  less.py --  &&: todo: run as you like it
+  less.py  # show these examples and exit
+  less.py --h  # show this help message and exit
+  less.py --  # todo: run as you like it
 
-  ls ~ |vi -  &&: much the same idea
+  ls ~ |vi -  # much the same idea
 """
 
 

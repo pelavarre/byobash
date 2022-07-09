@@ -13,9 +13,9 @@ quirks:
 
 examples:
 
-  watch.py  &&: show these examples and exit
-  watch.py --h  &&: show this help message and exit
-  watch.py --  &&: todo: run as you like it
+  watch.py  # show these examples and exit
+  watch.py --h  # show this help message and exit
+  watch.py --  # todo: run as you like it
 
   :
 """

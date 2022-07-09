@@ -19,11 +19,11 @@ quirks:
 
 examples:
 
-  mv.py  &&: show these examples and exit
-  mv.py --h  &&: show this help message and exit
-  mv.py --  &&: 'mv -i' the last of the 'ls -1rt' to stamp name with '~%m%d~jqd~%H%M~'
+  mv.py  # show these examples and exit
+  mv.py --h  # show this help message and exit
+  mv.py --  # 'mv -i' the last of the 'ls -1rt' to stamp name with '~%m%d~jqd~%H%M~'
 
-  ls.py --  &&: the 'ls -C' view of:  ls -1rt |tail -3
+  ls.py --  # the 'ls -C' view of:  ls -1rt |tail -3
 """
 
 

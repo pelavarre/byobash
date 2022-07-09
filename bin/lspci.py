@@ -15,9 +15,9 @@ quirks:
 
 examples:
 
-  lspci.py  &&: show these examples and exit
-  lspci.py --h  &&: show this help message and exit
-  lspci.py --  &&: todo: run as you like it
+  lspci.py  # show these examples and exit
+  lspci.py --h  # show this help message and exit
+  lspci.py --  # todo: run as you like it
 
   lspci -t -vvv |less -FIRX
 """

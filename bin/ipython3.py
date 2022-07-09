@@ -17,9 +17,9 @@ quirks:
 
 examples:
 
-  ipython3.py  &&: show these examples and exit
-  ipython3.py --h  &&: show this help message and exit
-  ipython3.py --  &&: todo: run as you like it
+  ipython3.py  # show these examples and exit
+  ipython3.py --h  # show this help message and exit
+  ipython3.py --  # todo: run as you like it
 
   ipython3 --classic --no-banner --no-autoindent --no-confirm-exit
 """

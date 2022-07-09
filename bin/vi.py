@@ -15,9 +15,9 @@ quirks:
 
 examples:
 
-  vi.py  &&: show these examples and exit
-  vi.py --h  &&: show this help message and exit
-  vi.py --  &&: todo: run as you like it
+  vi.py  # show these examples and exit
+  vi.py --h  # show this help message and exit
+  vi.py --  # todo: run as you like it
 
   vim -u /dev/null ~/.vimrc
 """

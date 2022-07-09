@@ -31,20 +31,20 @@ advanced bash install:
 
 examples:
 
-  echo.py  &&: show these examples and exit
-  echo.py --h  &&: show this help message and exit
-  echo.py --  &&: echo "+ exit $?"  &&: mention the last Exit Status ReturnCode once
-  command echo.py --  &&: show the Advanced Bash Install of Echo Py and exit
+  echo.py  # show these examples and exit
+  echo.py --h  # show this help message and exit
+  echo.py --  # echo "+ exit $?"  # mention the last Exit Status ReturnCode once
+  command echo.py --  # show the Advanced Bash Install of Echo Py and exit
 
-  echo.py hello; echo.py --  &&: test Exit Code 0
-  rm /dev/null/part; echo.py --  &&: test Exit Code 1
-  bash -c 'exit 3'; echo.py --  &&: test Exit Code 3
+  echo.py hello; echo.py --  # test Exit Code 0
+  rm /dev/null/part; echo.py --  # test Exit Code 1
+  bash -c 'exit 3'; echo.py --  # test Exit Code 3
 
-  echo -ne '\e[H\e[2J\e[3J'  &&: clear Terminal history like Mac Terminal ⌘K
+  echo -ne '\e[H\e[2J\e[3J'  # clear Terminal history like Mac Terminal ⌘K
 
-  echo -ne '\e[8;50;89t'  &&: change to 50 Rows x 89 Columns
-  echo -ne '\e[8;'$(stty size |cut -d' ' -f1)';89t'  &&: change to 89 Columns
-  echo -ne '\e[8;'$(stty size |cut -d' ' -f1)';101t'  &&: change to 101 Columns
+  echo -ne '\e[8;50;89t'  # change to 50 Rows x 89 Columns
+  echo -ne '\e[8;'$(stty size |cut -d' ' -f1)';89t'  # change to 89 Columns
+  echo -ne '\e[8;'$(stty size |cut -d' ' -f1)';101t'  # change to 101 Columns
 """
 # todo:  do these work better when spelled differently, as:  echo -n $'...'
 

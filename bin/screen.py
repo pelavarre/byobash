@@ -25,30 +25,30 @@ quirks:
 
 examples:
 
-  screen.py  &&: show these examples and exit
-  screen.py --h  &&: show this help message and exit
-  screen.py --  &&: todo: run as you like it
+  screen.py  # show these examples and exit
+  screen.py --h  # show this help message and exit
+  screen.py --  # todo: run as you like it
 
-  screen ls  &&: say '[screen is terminating]'
-  screen -ls  &&: list the Screens you have made
-  screen  &&: make another Screen
-  echo $STY  &&: show the one you're inside, or show nothing when you're outside
-  screen -d  &&: detach the one you're in (or you can press ⌃A D)
+  screen ls  # say '[screen is terminating]'
+  screen -ls  # list the Screens you have made
+  screen  # make another Screen
+  echo $STY  # show the one you're inside, or show nothing when you're outside
+  screen -d  # detach the one you're in (or you can press ⌃A D)
   exit &&: delete this Screen that you've made (or you can press ⌃D)
 
-  screen -S Screen1 -L  &&: name the Screen, often flush its Output to './screenlog.0'
-  screen -r Screen1  &&: find a Screen by name, and re-attach that Screen
-  # ⌃A ?  &&: show Keyboard Shortcuts
-  # ⌃A A  &&: send an ordinary Control+A keystroke
-  # ⌃A Esc  &&: enter the Less Mode, so ⌃B means page back, ⌃F means page ahead
-  # Esc  &&: exit the Less Mode
+  screen -S Screen1 -L  # name the Screen, often flush its Output to './screenlog.0'
+  screen -r Screen1  # find a Screen by name, and re-attach that Screen
+  # ⌃A ?  # show Keyboard Shortcuts
+  # ⌃A A  # send an ordinary Control+A keystroke
+  # ⌃A Esc  # enter the Less Mode, so ⌃B means page back, ⌃F means page ahead
+  # Esc  # exit the Less Mode
 
-  screen python  &&: show why 'screen ls' feels pointless
-  screen -X hardcopy -h s.screenlog  &&: export a LogFile of what Less Mode can see
+  screen python  # show why 'screen ls' feels pointless
+  screen -X hardcopy -h s.screenlog  # export a LogFile of what Less Mode can see
 
-  cat screenlog.0  &&: trust and run the Esc sequences
-  less -FIRX screenlog.0  &&: trust and run the Esc sequences
-  less screenlog.0  &&: show the Esc sequences without running them
+  cat screenlog.0  # trust and run the Esc sequences
+  less -FIRX screenlog.0  # trust and run the Esc sequences
+  less screenlog.0  # show the Esc sequences without running them
 """
 # talk out how best to clear Bash History for a Bash Screen
 # Linux only -Logfile LOG         choose a name for the LogFile (default: 'screenlog.0')

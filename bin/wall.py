@@ -13,9 +13,9 @@ quirks:
 
 examples:
 
-  wall.py  &&: show these examples and exit
-  wall.py --h  &&: show this help message and exit
-  wall.py --  &&: todo: run as you like it
+  wall.py  # show these examples and exit
+  wall.py --h  # show this help message and exit
+  wall.py --  # todo: run as you like it
 
   :
 """

@@ -24,9 +24,9 @@ examples:
 
 examples:
 
-  python3.py  &&: show these examples and exit
-  python3.py --h  &&: show this help message and exit
-  python3.py --  &&: todo: run as you like it
+  python3.py  # show these examples and exit
+  python3.py --h  # show this help message and exit
+  python3.py --  # todo: run as you like it
 
   : Dec/2008 Python 3  # major release date
   : Feb/2011 Python 3.2  # minor release date

@@ -42,83 +42,83 @@ advanced bash install:
 
 examples:
 
-  git.py  &&: show these examples and exit
-  git.py --h  &&: show this help message and exit
-  git.py --  &&: git checkout
-  command git.py --  &&: show the Advanced Bash Install of Git Py and exit
+  git.py  # show these examples and exit
+  git.py --h  # show this help message and exit
+  git.py --  # git checkout
+  command git.py --  # show the Advanced Bash Install of Git Py and exit
 
   ls ~/.gitconfig
   ls .git/config
 
-  &&: Navigation
+  # Navigation
 
-  git.py cd  &&: cd $(git rev-parse --show-toplevel)
-  git.py d  &&: git diff
-  git.py g  &&: git grep  &&: FIXME: g to grep -i, gi to grep
-  git.py co  &&: git checkout  &&: the calmest kind of 'git status'
-  git.py gl  &&: git grep -l
-  git.py dh  &&: git diff HEAD~...  &&: default HEAD~1, without '-b'
-  git.py dhno  &&: git diff --name-only HEAD~..., default HEAD~1
-  git.py dno  &&: git diff --name-only
-  git.py em  &&: bash -c 'em $(qdhno |tee /dev/stderr)'
-  git.py lf  &&: git ls-files
-  git.py s  &&: git show
-  git.py sp  &&: git show --pretty=''
-  git.py spno  &&: git show --pretty='' --name-only
-  git.py ssi  &&: git status --short --ignored  &&: calmer than 'git status'
-  git.py st  &&: git status
-  git.py sun  &&: git status --untracked-files=no
-  git.py vi  &&: bash -c 'vi $(qdhno |tee /dev/stderr)'
+  git.py cd  # cd $(git rev-parse --show-toplevel)
+  git.py d  # git diff
+  git.py g  # git grep  # FIXME: g to grep -i, gi to grep
+  git.py co  # git checkout  # the calmest kind of 'git status'
+  git.py gl  # git grep -l
+  git.py dh  # git diff HEAD~...  # default HEAD~1, without '-b'
+  git.py dhno  # git diff --name-only HEAD~..., default HEAD~1
+  git.py dno  # git diff --name-only
+  git.py em  # bash -c 'em $(qdhno |tee /dev/stderr)'
+  git.py lf  # git ls-files
+  git.py s  # git show
+  git.py sp  # git show --pretty=''
+  git.py spno  # git show --pretty='' --name-only
+  git.py ssi  # git status --short --ignored  # calmer than 'git status'
+  git.py st  # git status
+  git.py sun  # git status --untracked-files=no
+  git.py vi  # bash -c 'vi $(qdhno |tee /dev/stderr)'
 
-  &&: Branch and Log Work
+  # Branch and Log Work
 
-  git.py b  &&: git branch  &&: and see also:  git rev-parse --abbrev-ref
-  git.py ba  &&: git branch --all
-  git.py cofrb  &&: git checkout ... && git fetch && git rebase
-  git.py cp  &&: git cherry-pick
-  git.py dad  &&: git describe --always --dirty
-  git.py f  &&: git fetch
-  git.py frb  &&: git fetch && git rebase
-  git.py l  &&: git log
-  git.py l1  &&: git log --decorate -1
-  git.py lg  &&: git log --oneline --no-decorate --grep ...
-  git.py lgg  &&: git log --oneline --no-decorate -G ...  &&: search for touches
-  git.py lgs  &&: git log --oneline --no-decorate -S ...  &&: search for adds/ deletes
-  git.py lq  &&: git log --oneline --no-decorate -...  &&: default lots, -0 for no limit
-  git.py lq1  &&: git log --oneline --no-decorate -1
-  git.py lqa  &&: git log --oneline --no-decorate --author=$USER -...
-  git.py ls  &&: git log --numstat  &&: but see also:  git show --name-only
-  git.py lv  &&: git log --oneline --decorate -...  &&: default lots, -0 for no limit
-  git.py lv1  &&: git log --oneline --decorate -1
-  git.py rb  &&: git rebase
-  git.py ri  &&: git rebase --interactive --autosquash HEAD~...  &&: default {@upstream}
-  git.py rl  &&: git reflog  &&: show Commits
-  git.py rpar  &&: git rev-parse --abbrev-ref  &&: show the key line of:  git.py b
-  git.py rpsfn  &&: git rev-parse --symbolic-full-name @{-...}  &&: show:  git.py co -
-  git.py rv  &&: git remote -v
-  git.py ssn  &&: git shortlog --summary --numbered
+  git.py b  # git branch  # and see also:  git rev-parse --abbrev-ref
+  git.py ba  # git branch --all
+  git.py cofrb  # git checkout ... && git fetch && git rebase
+  git.py cp  # git cherry-pick
+  git.py dad  # git describe --always --dirty
+  git.py f  # git fetch
+  git.py frb  # git fetch && git rebase
+  git.py l  # git log
+  git.py l1  # git log --decorate -1
+  git.py lg  # git log --oneline --no-decorate --grep ...
+  git.py lgg  # git log --oneline --no-decorate -G ...  # search for touches
+  git.py lgs  # git log --oneline --no-decorate -S ...  # search for adds/ deletes
+  git.py lq  # git log --oneline --no-decorate -...  # default lots, -0 for no limit
+  git.py lq1  # git log --oneline --no-decorate -1
+  git.py lqa  # git log --oneline --no-decorate --author=$USER -...
+  git.py ls  # git log --numstat  # but see also:  git show --name-only
+  git.py lv  # git log --oneline --decorate -...  # default lots, -0 for no limit
+  git.py lv1  # git log --oneline --decorate -1
+  git.py rb  # git rebase
+  git.py ri  # git rebase --interactive --autosquash HEAD~...  # default {@upstream}
+  git.py rl  # git reflog  # show Commits
+  git.py rpar  # git rev-parse --abbrev-ref  # show the key line of:  git.py b
+  git.py rpsfn  # git rev-parse --symbolic-full-name @{-...}  # show:  git.py co -
+  git.py rv  # git remote -v
+  git.py ssn  # git shortlog --summary --numbered
 
-  &&: Commit and Conflict Work
+  # Commit and Conflict Work
 
-  git.py a  &&: git add
-  git.py ap  &&: git add --patch
-  git.py c  &&: git commit
-  git.py ca  &&: git commit --amend
-  git.py caa  &&: git commit --all --amend
-  git.py caf  &&: git commit --all --fixup
-  git.py cam  &&: git commit --all -m wip
-  git.py cf  &&: git commit --fixup
-  git.py cm  &&: git commit -m wip
-  git.py cl  &&: take ⌃D to mean:  git clean -ffxdq  &&: destroy files outside Git Add
-  git.py cls  &&: take ⌃D to mean:  sudo true && sudo git clean -ffxdq
-  git.py pfwl  &&: take ⌃D to mean:  git push --force-with-lease
-  git.py rh  &&: take ⌃D to mean:  git reset --hard ...  &&: hide local Commits
-  git.py rhu  &&: take ⌃D to mean:  git reset --hard @{upstream}  &&: hide to start over
-  git.py s1  &&: git show :1:...  &&: common base
-  git.py s2  &&: git show :2:...  &&: just theirs
-  git.py s3  &&: git show :3:...  &&: just ours
+  git.py a  # git add
+  git.py ap  # git add --patch
+  git.py c  # git commit
+  git.py ca  # git commit --amend
+  git.py caa  # git commit --all --amend
+  git.py caf  # git commit --all --fixup
+  git.py cam  # git commit --all -m wip
+  git.py cf  # git commit --fixup
+  git.py cm  # git commit -m wip
+  git.py cl  # take ⌃D to mean:  git clean -ffxdq  # destroy files outside Git Add
+  git.py cls  # take ⌃D to mean:  sudo true && sudo git clean -ffxdq
+  git.py pfwl  # take ⌃D to mean:  git push --force-with-lease
+  git.py rh  # take ⌃D to mean:  git reset --hard ...  # hide local Commits
+  git.py rhu  # take ⌃D to mean:  git reset --hard @{upstream}  # hide to start over
+  git.py s1  # git show :1:...  # common base
+  git.py s2  # git show :2:...  # just theirs
+  git.py s3  # git show :3:...  # just ours
 
-  &&: Reroll/Roll your own Repo
+  # Reroll/Roll your own Repo
 
   rm -fr g.git git && git init --bare g.git && git clone g.git && cd g
 """
@@ -487,7 +487,7 @@ def form_aliases_by_verb():
     for (k, v) in ALIASES.items():
         verb = k
 
-        shline = "git.py {k}  &&: {v}".format(k=k, v=v)
+        shline = "git.py {k}  # {v}".format(k=k, v=v)
         shlines = v.split(" && ")
 
         # Compile-time option for a breakpoint on a ShVerb or CdVerb
@@ -501,12 +501,12 @@ def form_aliases_by_verb():
 
         docline_0 = shline
         docline_0 = byo.str_removesuffix(docline_0, " {}")
-        docline_1 = docline_0.replace("  &&: cat - && ", "  &&: take ⌃D to mean:  ")
+        docline_1 = docline_0.replace("  # cat - && ", "  # take ⌃D to mean:  ")
         docline_2 = docline_0.format("...")
         docline_3 = docline_1.format("...")
 
         alias = GitLikeAlias(shlines, authed=True)
-        if "  &&: cat - && " in shline:
+        if "  # cat - && " in shline:
             alias = GitLikeAlias(shlines, authed=None)
 
         if docline_3 in doc:  # add interlock before, and place Parms explicitly

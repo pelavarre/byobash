@@ -13,11 +13,11 @@ quirks:
 
 examples:
 
-  df.py  &&: show these examples and exit
-  df.py --h  &&: show this help message and exit
-  df.py --  &&: todo: run as you like it
+  df.py  # show these examples and exit
+  df.py --h  # show this help message and exit
+  df.py --  # todo: run as you like it
 
-  echo ... && df |awk '{print $5"\t"$0}' |sort -n |tail -3  &&: show the three most full
+  echo ... && df |awk '{print $5"\t"$0}' |sort -n |tail -3  # show the three most full
 """
 
 

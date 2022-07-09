@@ -21,21 +21,21 @@ quirks:
 
 examples:
 
-  reset.py  &&: show these examples and exit
-  reset.py --h  &&: show this help message and exit
-  reset.py --  &&: clear Terminal history quickly, like ⌘K
+  reset.py  # show these examples and exit
+  reset.py --h  # show this help message and exit
+  reset.py --  # clear Terminal history quickly, like ⌘K
 
-  qbin/cls  &&: clear Terminal history, like ⌘K
-  clear.py -x  &&: scroll the Rows on Screen, like ⌃L
+  qbin/cls  # clear Terminal history, like ⌘K
+  clear.py -x  # scroll the Rows on Screen, like ⌃L
 
-  echo -ne '\e[H\e[2J\e[3J'  &&: clear Terminal History, like ⌘K
-  echo -ne '\e[8;50;89t'  &&: change to 50 Rows x 89 Columns
-  tput reset  &&: alt Clear
-  reset  &&: alt Clear, commonly includes a 1s sleep
+  echo -ne '\e[H\e[2J\e[3J'  # clear Terminal History, like ⌘K
+  echo -ne '\e[8;50;89t'  # change to 50 Rows x 89 Columns
+  tput reset  # alt Clear
+  reset  # alt Clear, commonly includes a 1s sleep
 
-  echo && seq 40 && echo && seq 50 && echo && seq 60 && echo  &&: fill Screens for test
-  reset 2>&1 |tee >(hexdump -C)  &&: call and trace Reset
-  tput reset 2>&1 |tee >(hexdump -C)  &&: call and trace TPut Reset
+  echo && seq 40 && echo && seq 50 && echo && seq 60 && echo  # fill Screens for test
+  reset 2>&1 |tee >(hexdump -C)  # call and trace Reset
+  tput reset 2>&1 |tee >(hexdump -C)  # call and trace TPut Reset
 """
 # todo: decipher the Esc Sequences written by Reset
 

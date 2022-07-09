@@ -18,25 +18,25 @@ examples:
 
   ls -d -alF ~/.ssh/ && ls -alF ~/.ssh/config
 
-  ssh.py  &&: show these examples and exit
-  ssh.py --h  &&: show this help message and exit
-  ssh.py --  &&: todo: run as you like it
+  ssh.py  # show these examples and exit
+  ssh.py --h  # show this help message and exit
+  ssh.py --  # todo: run as you like it
 
-  ssh.py  &&: call Ssh Py with no args to show these examples
-  ssh -F /dev/null localhost  &&: go there without a custom Config File
-  ssh -t localhost  'cd /usr/bin/ && bash -i'  &&: Ssh out to your choice of Cd
-  ssh -t localhost  "cd $PWD && bash -i"  &&: Ssh out to remote Cd same as local
-  ssh -t localhost  bash -l  &&: start up Bash more like Login, don't just Interact
-  ssh-add -l  &&: list the loaded Ssh Keys
-  echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK"  &&: show an Env Var Linux needs for Ssh Keys
-  echo "SSH_AGENT_PID=$SSH_AGENT_PID"  &&: show another Env Var Linux needs for Ssh Keys
-  ssh-add -L |grep ^ssh-rsa-cert |ssh-keygen -L -f - |grep Valid  &&: show expiry
+  ssh.py  # call Ssh Py with no args to show these examples
+  ssh -F /dev/null localhost  # go there without a custom Config File
+  ssh -t localhost  'cd /usr/bin/ && bash -i'  # Ssh out to your choice of Cd
+  ssh -t localhost  "cd $PWD && bash -i"  # Ssh out to remote Cd same as local
+  ssh -t localhost  bash -l  # start up Bash more like Login, don't just Interact
+  ssh-add -l  # list the loaded Ssh Keys
+  echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK"  # show an Env Var Linux needs for Ssh Keys
+  echo "SSH_AGENT_PID=$SSH_AGENT_PID"  # show another Env Var Linux needs for Ssh Keys
+  ssh-add -L |grep ^ssh-rsa-cert |ssh-keygen -L -f - |grep Valid  # show expiry
 """
 # ssh-keygen -R localhost  # to cut it out of '~/.ssh/known_hosts'
 # todo: smashing SSH_AUTH_SOCK/ SSH_AGENT_PID empties 'ssh-add -l' at Linux
 # todo: does 'ssh -ttt' carry more force than 'ssh -tt'?
-# todo:  ssh.py --  &&: list recent hostnames
-# todo:  ssh.py localhost  &&: retry when connection drops
+# todo:  ssh.py --  # list recent hostnames
+# todo:  ssh.py localhost  # retry when connection drops
 # todo:  bin/gcloud auth login
 # todo:  bin/gcloud cloud-shell ssh
 

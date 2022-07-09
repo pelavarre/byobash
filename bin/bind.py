@@ -13,9 +13,9 @@ quirks:
 
 examples:
 
-  bind.py  &&: show these examples and exit
-  bind.py --h  &&: show this help message and exit
-  bind.py --  &&: todo: run as you like it
+  bind.py  # show these examples and exit
+  bind.py --h  # show this help message and exit
+  bind.py --  # todo: run as you like it
 
   : bash chrome emacs macos screen slack ssh stty tmux vim
 """

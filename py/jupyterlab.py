@@ -10,9 +10,9 @@ options:
 
 examples:
 
-  jupyter.py  &&: show these examples and exit
-  jupyter.py --h  &&: show this help message and exit
-  jupyter.py --  &&: todo: run as you like it
+  jupyter.py  # show these examples and exit
+  jupyter.py --h  # show this help message and exit
+  jupyter.py --  # todo: run as you like it
 
   pip freeze | wc -l  # lots, or a few
 

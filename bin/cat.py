@@ -29,29 +29,29 @@ temporary workaround:
 
 examples:
 
-  cat.py  &&: show these examples and exit
-  cat.py --h  &&: show this help message and exit
-  cat.py --  &&: todo: run as you like it
+  cat.py  # show these examples and exit
+  cat.py --h  # show this help message and exit
+  cat.py --  # todo: run as you like it
 
-  cat  &&: hangs till you provide input
-  cat -  &&: hangs till you provide input
-  cat.py -  &&: prompts for input
+  cat  # hangs till you provide input
+  cat -  # hangs till you provide input
+  cat.py -  # prompts for input
 
-  echo $'some Spaces "\x20\xC2\xA0" more equal than others' |cat -tv  &&: fails at Mac
+  echo $'some Spaces "\x20\xC2\xA0" more equal than others' |cat -tv  # fails at Mac
 
   echo $'some Spaces "\x20\xC2\xA0" more equal than others' |pbcopy
-  pbpaste |cat -tv  &&: fails for macOS Paste, wrongly showing Nbsp as Sp
+  pbpaste |cat -tv  # fails for macOS Paste, wrongly showing Nbsp as Sp
 
-  echo $'some Spaces "\x20\xC2\xA0" more equal than others' |cat.py -tv  &&: works
-  echo $'\xC0\x80' |cat.py -tv  &&: still works, despite UnicodeDecodeError
+  echo $'some Spaces "\x20\xC2\xA0" more equal than others' |cat.py -tv  # works
+  echo $'\xC0\x80' |cat.py -tv  # still works, despite UnicodeDecodeError
 
-  seq 100 105|cat -n |expand  &&: demo Cat N numbering things
-  seq 100 105|cat -n |cat.py -tv  &&: show Tabs as \t, but don't show Line-Break's
-  paste <(seq 4 9) <(seq 100 105) |cat -tv  &&: show counting up from 4, not from 1
+  seq 100 105|cat -n |expand  # demo Cat N numbering things
+  seq 100 105|cat -n |cat.py -tv  # show Tabs as \t, but don't show Line-Break's
+  paste <(seq 4 9) <(seq 100 105) |cat -tv  # show counting up from 4, not from 1
 
-  echo "   " |cat -etv  &&: show the Spaces before each Line-Break
+  echo "   " |cat -etv  # show the Spaces before each Line-Break
 
-  cat /proc/cpuinfo |grep processor |wc -l  &&: count Cpu Cores at Linux
+  cat /proc/cpuinfo |grep processor |wc -l  # count Cpu Cores at Linux
 """
 # todo: stop needing the Temporary Workaround
 

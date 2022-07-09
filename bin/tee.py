@@ -18,9 +18,9 @@ quirks:
 
 examples:
 
-  tee.py  &&: show these examples and exit
-  tee.py --h  &&: show this help message and exit
-  tee.py --  &&: todo: run as you like it
+  tee.py  # show these examples and exit
+  tee.py --h  # show this help message and exit
+  tee.py --  # todo: run as you like it
 
   echo {A..Z} |tr ' ' '\n' | tee >(head -2) >(sleep 0; tail -3) > /dev/null
 """

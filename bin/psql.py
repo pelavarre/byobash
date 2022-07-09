@@ -12,9 +12,9 @@ quirks:
   classic PSql rudely exits via a Code 2 Usage Error, when given no Parms
 
 examples:
-  psql.py  &&: show these examples and exit
-  psql.py --h  &&: show this help message and exit
-  psql.py --  &&: todo: run as you like it
+  psql.py  # show these examples and exit
+  psql.py --h  # show this help message and exit
+  psql.py --  # todo: run as you like it
 """
 
 

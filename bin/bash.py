@@ -19,13 +19,13 @@ examples:
 
   ls ~/.bashrc ~/.bash_profile ~/.profile
 
-  bash.py  &&: show these examples and exit
-  bash.py --h  &&: show this help message and exit
-  bash.py --  &&: todo: run as you like it
+  bash.py  # show these examples and exit
+  bash.py --h  # show this help message and exit
+  bash.py --  # todo: run as you like it
 
-  bash --noprofile --norc  &&: run with less local quirks
-  export |grep SHLVL  &&: show how deeply incepted
-  set |grep -e ^PS1= -e ^PS4=  &&: show the outer and incepted shell prompts
+  bash --noprofile --norc  # run with less local quirks
+  export |grep SHLVL  # show how deeply incepted
+  set |grep -e ^PS1= -e ^PS4=  # show the outer and incepted shell prompts
 """
 # talk out how best to clear Bash History for a Bash Screen
 # todo: TabTab Completion of:  mv -i *.jp

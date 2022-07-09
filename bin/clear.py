@@ -24,24 +24,24 @@ quirks:
 
 examples:
 
-  clear.py  &&: show these examples and exit
-  clear.py --h  &&: show this help message and exit
-  clear.py --  &&: clear Terminal history, like ⌘K
-  qbin/cls  &&: clear Terminal history, like ⌘K
+  clear.py  # show these examples and exit
+  clear.py --h  # show this help message and exit
+  clear.py --  # clear Terminal history, like ⌘K
+  qbin/cls  # clear Terminal history, like ⌘K
 
-  clear.py -x  &&: scroll the Rows on Screen, like ⌃L
+  clear.py -x  # scroll the Rows on Screen, like ⌃L
 
-  echo -ne '\e[H\e[2J\e[3J'  &&: clear Terminal History, like ⌘K
-  echo -ne '\e[H\e[2J'  &&: scroll the Rows on Screen, like ⌃L
-  echo -ne '\e[8;50;89t'  &&: change to 50 Rows x 89 Columns
-  tput clear  &&: alt Clear
-  reset  &&: alt Clear, commonly includes a 1s sleep
+  echo -ne '\e[H\e[2J\e[3J'  # clear Terminal History, like ⌘K
+  echo -ne '\e[H\e[2J'  # scroll the Rows on Screen, like ⌃L
+  echo -ne '\e[8;50;89t'  # change to 50 Rows x 89 Columns
+  tput clear  # alt Clear
+  reset  # alt Clear, commonly includes a 1s sleep
 
-  echo && seq 40 && echo && seq 50 && echo && seq 60 && echo  &&: fill Screens for test
-  clear 2>&1 |tee >(hexdump -C)  &&: call and trace Clear
-  tput clear 2>&1 |tee >(hexdump -C)  &&: call and trace TPut Clear
+  echo && seq 40 && echo && seq 50 && echo && seq 60 && echo  # fill Screens for test
+  clear 2>&1 |tee >(hexdump -C)  # call and trace Clear
+  tput clear 2>&1 |tee >(hexdump -C)  # call and trace TPut Clear
 
-  diff -u <(clear |hexdump -C) <(tput clear |hexdump -C)  &&: show no diff
+  diff -u <(clear |hexdump -C) <(tput clear |hexdump -C)  # show no diff
 """
 
 

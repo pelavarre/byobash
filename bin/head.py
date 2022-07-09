@@ -26,9 +26,9 @@ quirks:
 
 examples:
 
-  head.py  &&: show these examples and exit
-  head.py --h  &&: show this help message and exit
-  head.py --  &&: todo: run as you like it
+  head.py  # show these examples and exit
+  head.py --h  # show this help message and exit
+  head.py --  # todo: run as you like it
 
   python -c 'import this' |tail -n +3 |cat -n |expand
   python -c 'import this' |awk 'NR==3{f=1} f{print}' |cat -n |expand

@@ -1,4 +1,4 @@
-# rmdir.py -i --inverse  &&: remove all but the named dirs, but ask first
+# rmdir.py -i --inverse  # remove all but the named dirs, but ask first
 
 # works well with cp.py, ls.py, mv.py, rmdir.py, touch.py
 # classic RmDir rudely declines to choose a FILE to destroy

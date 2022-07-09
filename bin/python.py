@@ -23,12 +23,12 @@ quirks:
 
 examples:
 
-  python.py  &&: show these examples and exit
-  python.py --h  &&: show this help message and exit
-  python.py --  &&: suggest:  python.py -i
+  python.py  # show these examples and exit
+  python.py --h  # show this help message and exit
+  python.py --  # suggest:  python.py -i
 
-  python.py bin/python.py  &&: test this tool on itself
-  python.py p.py -xyz PARM1  &&: call 'p.py' after calling Black and Flake8 to polish it
+  python.py bin/python.py  # test this tool on itself
+  python.py p.py -xyz PARM1  # call 'p.py' after calling Black and Flake8 to polish it
 """
 # todo: help trace where blank 'print()' and 'sys.stderr.write("\n")' come from
 # todo: help notice 'print("python.py:' appearing outside of 'python.py'

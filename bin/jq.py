@@ -13,9 +13,9 @@ quirks:
 
 examples:
 
-  jq.py  &&: show these examples and exit
-  jq.py --h  &&: show this help message and exit
-  jq.py --  &&: todo: run as you like it
+  jq.py  # show these examples and exit
+  jq.py --h  # show this help message and exit
+  jq.py --  # todo: run as you like it
 
   echo '[{"a": 1}, {"b": 2}]' |jq .
 """

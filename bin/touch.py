@@ -17,13 +17,13 @@ quirks:
 
 examples:
 
-  touch.py  &&: show these examples and exit
-  touch.py --h  &&: show this help message and exit
-  touch.py --  &&: todo: run as you like it
+  touch.py  # show these examples and exit
+  touch.py --h  # show this help message and exit
+  touch.py --  # todo: run as you like it
 
-  touch.py  &&: call Rm Touch with no args to show these examples
-  touch.py --  &&: stamp the second-to-last of 'ls -1rt' to make it last
-  ls.py  &&: the 'ls -C' view of:  ls -1rt |tail -3
+  touch.py  # call Rm Touch with no args to show these examples
+  touch.py --  # stamp the second-to-last of 'ls -1rt' to make it last
+  ls.py  # the 'ls -C' view of:  ls -1rt |tail -3
 """
 
 
