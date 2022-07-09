@@ -614,6 +614,14 @@ if __name__ == "__main__":
 #
 
 #
+# FIXME: Parms for Q Rpsfn
+# qrpsfn  # should give just the current Branch
+# qrpsfn --  # should give the last three
+# qrpsfn -1  # should give just the current Branch
+# qrpsfn -4  # should give the last 4
+#
+
+#
 # todo
 #
 

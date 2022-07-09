@@ -34,10 +34,10 @@ _ = pdb
 #
 
 
-def alt_main_doc():
+def alt_main_doc(xxfilexx):
     """Form an Alt Main Doc to fall back on, when no '__main__.__doc__' found"""
 
-    filename = os.path.basename(__main__.__file__)
+    filename = os.path.basename(xxfilexx)  # such as when 'xxfilexx=__main__.__file__'
     alt_main_doc = ALT_MAIN_DOC.replace("p.py", filename)
 
     return alt_main_doc
@@ -75,8 +75,7 @@ def exit_via_argdoc():
     """Exit after printing ArgDoc, if '--help' or '--hel' or ... '--h' before '--'"""
 
     doc = __main__.__doc__
-    doc = alt_main_doc() if (doc is None) else doc
-    doc = alt_main_doc() if (doc is None) else doc
+    doc = alt_main_doc(__main__.__file__) if (doc is None) else doc
 
     parms = sys.argv[1:]  # these 'parms' are the 'shlex.split' of the 'shparms'
 
@@ -138,7 +137,7 @@ def exit_via_patchdoc(patchdoc):  # todo: pick the PatchDoc out of the ArgDoc
     # Collect many Args
 
     doc = __main__.__doc__
-    doc = alt_main_doc() if (doc is None) else doc
+    doc = alt_main_doc(__main__.__file__) if (doc is None) else doc
 
     parms = sys.argv[1:]  # these 'parms' are the 'shlex.split' of the 'shparms'
 
@@ -184,10 +183,10 @@ def exit_via_testdoc():
     doc = __main__.__doc__
     doc = alt_main_doc() if (doc is None) else doc
 
-    grafs = splitgrafs(doc)
+    grafs = str_splitgrafs(doc)
     last_graf = grafs[-1]
 
-    tests = graf_rip(last_graf)
+    tests = str_ripgraf(last_graf)
     tests = list_strip(tests)
     testdoc = "\n".join(tests)
 
@@ -306,22 +305,10 @@ class ShPath:
 
 
 #
-# Work well with "Grafs" = Paragraphs of Lines separated by Empty Lines
+# Add some Def's to List's
 #
 
 
-# deffed in many files  # missing from Python
-def graf_rip(graf):
-    """Pick the lines below the head line of a paragraph, and dedent them"""
-
-    grafdoc = "\n".join(graf[1:])
-    grafdoc = textwrap.dedent(grafdoc)
-    graf = grafdoc.splitlines()
-
-    return graf
-
-
-# deffed in many files  # missing from Python
 def list_strip(items):
     """Drop the leading and trailing Falsey Items"""
 
@@ -354,54 +341,11 @@ def list_strip(items):
     return strip
 
 
-# deffed in many files  # missing from Python
-def splitgrafs(doc, keepends=False):
-    """Pick each Paragraph out of a DocString"""
-
-    assert not keepends  # todo: develop keepends=True
-
-    grafs = list()
-
-    lines = doc.splitlines()
-
-    graf = list()
-    for line in lines:
-
-        # Collect every Empty Line and every More Dented Line
-
-        if not line:
-
-            if graf:
-                graf.append(line)
-
-        elif graf and (len(str_ldent(line)) > len(str_ldent(graf[0]))):
-
-            graf.append(line)
-
-        else:
-
-            # Capture this Graf before the next Graf
-
-            strip = list_strip(graf)
-            if strip:
-                grafs.append(strip)
-
-            # Begin again
-
-            graf = list()
-            if line:
-                graf.append(line)
-
-    # Capture the last Graf before the End
-
-    strip = list_strip(graf)
-    if strip:
-        grafs.append(strip)
-
-    return grafs
+#
+# Add some Def's to Str's, while not found in 'import textwrap'
+#
 
 
-# deffed in many files  # missing from Python
 def str_ldent(chars):  # kin to 'str.lstrip'
     """Pick out the Spaces etc, at left of some Chars"""
 
@@ -412,9 +356,88 @@ def str_ldent(chars):  # kin to 'str.lstrip'
     return dent
 
 
+def str_ripgraf(graf):
+    """Pick the lines below the head line of a paragraph, and dedent them"""
+
+    grafdoc = "\n".join(graf[1:])
+    grafdoc = textwrap.dedent(grafdoc)
+    graf = grafdoc.splitlines()
+
+    return graf
+
+
+def str_removeprefix(chars, prefix):  # missing from Python till Oct/2020 Python 3.9
+    """Remove Prefix from Chars if present"""
+
+    result = chars
+    if chars.startswith(prefix):
+        result = chars[len(prefix) :]
+
+    return result
+
+
+def str_removesuffix(chars, suffix):  # missing from Python till Oct/2020 Python 3.9
+    """Remove Suffix from Chars if present"""
+
+    result = chars
+    if chars.endswith(suffix):
+        result = chars[: -len(suffix)]
+
+    return result
+
+
+def str_splitgrafs(doc, keepends=False):  # todo:
+    """Form a List of every Paragraph of Lines, out of a DocString"""
+
+    assert not keepends  # todo: develop keepends=True
+
+    grafs = list()
+
+    lines = doc.splitlines()
+
+    graf = list()
+    for line in lines:
+
+        # Add an Empty Line
+
+        if not line:
+            if graf:
+
+                graf.append(line)
+
+        # Add a More Dented Line
+
+        elif graf and (len(str_ldent(line)) > len(str_ldent(graf[0]))):
+
+            graf.append(line)
+
+        # Strip and close this Graf, and pick it up if it's not Empty
+
+        else:
+            strip = list_strip(graf)
+            if strip:
+
+                grafs.append(strip)
+
+            # Open the next Graf, with a No More Dented Line, else as Empty
+
+            graf = list()
+            if line:
+
+                graf.append(line)
+
+    # Strip and close the last Graf too, and pick it up too if it's not Empty
+
+    strip = list_strip(graf)
+    if strip:
+
+        grafs.append(strip)
+
+    return grafs
+
+
 #
-# Run on top of a layer of general-purpose Python idioms,
-#   while these are missing from:  https://docs.python.org
+# Add some Def's that 'import shlex' and 'import string' forgot
 #
 
 
@@ -432,7 +455,6 @@ SH_QUOTABLE = SH_PLAIN + " " + "!#&()*;<>?[]^{|}~"
 # all printable Ascii except not $ Dollar and ` Backtick, and not " and ' and \
 
 
-# deffed in many files  # missing from Python
 def shlex_dquote(parm):  # see also 'shlex.join' since Oct/2019 Python 3.8
     """Quote, but quote compactly despite '"' and '~', when that's still easy"""
 
@@ -480,7 +502,6 @@ def shlex_dquote(parm):  # see also 'shlex.join' since Oct/2019 Python 3.8
     # and the Dirs don't change out beneath us
 
 
-# deffed in many files  # missing from Python till Oct/2019 Python 3.8
 def shlex_quote(parm):  # see also 'shlex.join' since Oct/2019 Python 3.8
     """Mark up a word with Quote Marks and Backslants, so Sh agrees it is one word"""
 
@@ -536,27 +557,12 @@ def shlex_parms_partition(parms):
     return (options, first_seps, positional_args)
 
 
-def str_removeprefix(chars, prefix):  # missing from Python till Oct/2020 Python 3.9
-    """Remove Prefix from Chars if present"""
-
-    result = chars
-    if chars.startswith(prefix):
-        result = chars[len(prefix) :]
-
-    return result
+#
+# Add some Def's that 'import sys' forgot
+#
 
 
-def str_removesuffix(chars, suffix):  # missing from Python till Oct/2020 Python 3.9
-    """Remove Suffix from Chars if present"""
-
-    result = chars
-    if chars.endswith(suffix):
-        result = chars[: -len(suffix)]
-
-    return result
-
-
-class BrokenPipeSink:
+class BrokenPipeSink:  # todo: add calls of it, don't just define it
     """
     Exit nonzero, but leave Stderr empty, at unhandled BrokenPipeError's
 
@@ -597,6 +603,11 @@ class BrokenPipeSink:
         #
 
 
+#
+# Define the Arg Doc to fall back on, when no Arg Doc found at:  __main.__doc__
+#
+
+
 QUOTED_ALT_MAIN_DOC = """
 
     usage: cd bin/ && python3 p.py [--h]
@@ -607,11 +618,14 @@ QUOTED_ALT_MAIN_DOC = """
       --help  show this help message and exit
 
     examples:
+
       ls -1 byotools.py p.py  # show you have come to work here with us
+
       python3 p.py  # show these examples and exit
       python3 p.py --h  # show this help message and exit
       python3 p.py --  # do your choice of some other work for you
-      cat p.py |cat -n |expand  # show how this works
+
+      less -N -FIRX p.py  # show how this works
 
 """
 
