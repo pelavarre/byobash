@@ -34,7 +34,7 @@ examples:
   screen  # make another Screen
   echo $STY  # show the one you're inside, or show nothing when you're outside
   screen -d  # detach the one you're in (or you can press ⌃A D)
-  exit &&: delete this Screen that you've made (or you can press ⌃D)
+  exit  # delete this Screen that you've made (or you can press ⌃D)
 
   screen -S Screen1 -L  # name the Screen, often flush its Output to './screenlog.0'
   screen -r Screen1  # find a Screen by name, and re-attach that Screen

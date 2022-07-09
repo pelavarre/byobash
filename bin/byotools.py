@@ -17,6 +17,7 @@ import __main__
 import os
 import pathlib
 import pdb
+import re
 import shlex
 import signal
 import string
@@ -192,9 +193,12 @@ def exit_via_testdoc():
 
     # Choose a local End-of-ShLine Comment Style, for Paste of Sh Command Lines
 
-    env_ps1 = os.getenv("PS1")
+    env_ps1 = os.environ.get("PS1")
     env_zsh = env_ps1.strip().endswith("%#") if env_ps1 else False
-    sh_testdoc = testdoc if env_zsh else testdoc.replace("&&:", "#")
+
+    sh_testdoc = testdoc
+    if env_zsh:
+        sh_testdoc = sh_testdoc_to_zsh_testdoc(testdoc)
 
     # Actually quit early, don't exit, when Parms supplied
 
@@ -207,6 +211,37 @@ def exit_via_testdoc():
         print()
 
         sys.exit(0)
+
+
+def sh_testdoc_to_zsh_testdoc(testdoc):
+    """Reformat a classic Sh TestDoc to work inside Zsh UnSetOpt InteractiveComments"""
+
+    zsh_lines = list()
+    for line in testdoc.splitlines():
+        (before, mark, after) = line.partition("  # ")
+
+        zsh_line = line
+        if mark:
+            enough = after
+            enough = enough.replace("#", ".")
+            enough = re.sub(r"'[^'\\]*'", repl=".", string=enough)
+            enough = re.sub(r"{[^,]*}", repl=".", string=enough)
+
+            rep_after = " # {!r}".format(after)
+            try:
+                enough_argv = shlex.split(enough)
+                if enough_argv != list(shlex_dquote(_) for _ in enough_argv):
+                    rep_after = after
+            except ValueError:
+                pass
+
+            zsh_line = "{}  &&: {}".format(before, rep_after)
+
+        zsh_lines.append(zsh_line)
+
+    zsh_testdoc = "\n".join(zsh_lines)
+
+    return zsh_testdoc
 
 
 #
@@ -398,7 +433,7 @@ SH_QUOTABLE = SH_PLAIN + " " + "!#&()*;<>?[]^{|}~"
 
 
 # deffed in many files  # missing from Python
-def shlex_dquote(parm):
+def shlex_dquote(parm):  # see also 'shlex.join' since Oct/2019 Python 3.8
     """Quote, but quote compactly despite '"' and '~', when that's still easy"""
 
     # Follow the Library, when they agree no quote marks required
@@ -408,18 +443,25 @@ def shlex_dquote(parm):
 
         return quoted
 
-    # Try accepting the ~ Tilde when the Parm does Not start with the ~ Tilde
+    # Accept the ^ Caret when the Parm does start with the ^ Caret
+    # Accept the ~ Tilde when the Parm does Not start with the ~ Tilde
 
-    unplain = set(parm) - set(SH_PLAIN)
+    unplain_set = set(parm) - set(SH_PLAIN)
+    if parm.startswith("^"):
+        unplain_set = set(parm[1:]) - set(SH_PLAIN)  # restart
     if not parm.startswith("~"):
-        if unplain == set("~"):
+        unplain_set = unplain_set - set("~")  # mutate
 
-            return parm
+    unplain_ascii_set = "".join(_ for _ in unplain_set if ord(_) < 0x80)
+    if not unplain_ascii_set:
+
+        return parm
 
     # Try the " DoubleQuote to shrink it
 
-    unquotable = set(parm) - set(SH_QUOTABLE) - set("'")
-    if not unquotable:
+    unquotable_set = set(parm) - set(SH_QUOTABLE) - set("'")
+    unquotable_ascii_set = "".join(_ for _ in unquotable_set if ord(_) < 0x80)
+    if not unquotable_ascii_set:
         doublequoted = '"' + parm + '"'
         if len(doublequoted) < len(quoted):
 
@@ -439,7 +481,7 @@ def shlex_dquote(parm):
 
 
 # deffed in many files  # missing from Python till Oct/2019 Python 3.8
-def shlex_quote(parm):
+def shlex_quote(parm):  # see also 'shlex.join' since Oct/2019 Python 3.8
     """Mark up a word with Quote Marks and Backslants, so Sh agrees it is one word"""
 
     # Trust the library, if available
@@ -451,8 +493,8 @@ def shlex_quote(parm):
 
     # Emulate the library roughly, because often good enough
 
-    unplain = set(parm) - set(SH_PLAIN)
-    if not unplain:
+    unplain_set = set(parm) - set(SH_PLAIN)
+    if not unplain_set:
 
         return parm
 
@@ -463,7 +505,7 @@ def shlex_quote(parm):
     # test results with:  python3 -c 'import sys; print(sys.argv)' ...
 
 
-def shlex_split_options(parms):
+def shlex_parms_partition(parms):
     """Split Options from Positional Args, in the classic way of ArgParse and Sh"""
 
     options = list()

@@ -91,7 +91,7 @@ examples:
   git.py lv  # git log --oneline --decorate -...  # default lots, -0 for no limit
   git.py lv1  # git log --oneline --decorate -1
   git.py rb  # git rebase
-  git.py ri  # git rebase --interactive --autosquash HEAD~...  # default {@upstream}
+  git.py ri  # git rebase --interactive --autosquash HEAD~...  # else {@upstream}
   git.py rl  # git reflog  # show Commits
   git.py rpar  # git rev-parse --abbrev-ref  # show the key line of:  git.py b
   git.py rpsfn  # git rev-parse --symbolic-full-name @{-...}  # show:  git.py co -
@@ -113,7 +113,7 @@ examples:
   git.py cls  # take ⌃D to mean:  sudo true && sudo git clean -ffxdq
   git.py pfwl  # take ⌃D to mean:  git push --force-with-lease
   git.py rh  # take ⌃D to mean:  git reset --hard ...  # hide local Commits
-  git.py rhu  # take ⌃D to mean:  git reset --hard @{upstream}  # hide to start over
+  git.py rhu  # take ⌃D to mean:  git reset --hard @{upstream}  # hide to restart
   git.py s1  # git show :1:...  # common base
   git.py s2  # git show :2:...  # just theirs
   git.py s3  # git show :3:...  # just ours

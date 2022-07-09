@@ -43,10 +43,10 @@ examples:
 
   shpipe.py c  # cat - >/dev/null
   shpipe.py cv  # pbpaste
-  shpipe.py cv  # pbpaste ,...
-  shpipe.py cv  # ... ,pbcopy
-  shpipe.py cv  # ... ,tee >(pbcopy) ,...
-  shpipe.py cv --  # pbpaste ,cat -ntv ,expand
+  shpipe.py cv  # pbpaste |...
+  shpipe.py cv  # ... |pbcopy
+  shpipe.py cv  # ... |tee >(pbcopy) |...
+  shpipe.py cv --  # pbpaste |cat -ntv |expand
   shpipe.py d  # diff -brpu A_FILE B_FILE |less -FIRX  # default 'diff -brpu a b'
   shpipe.py e  # emacs -nw --no-splash --eval '(menu-bar-mode -1)'
   shpipe.py em  # emacs -nw --no-splash --eval '(menu-bar-mode -1)'
@@ -57,13 +57,13 @@ examples:
   shpipe.py ht  # sed -n -e '1,2p;3,3s/.*/&\n.../p;$p'  # Head and also Tail
   shpipe.py m  # make --
   shpipe.py mo  # less -FIRX
-  shpipe.py n  # cat -ntv -, expand
+  shpipe.py n  # cat -ntv -| expand
   shpipe.py p  # popd
   shpipe.py q  # git checkout
   shpipe.py s  # sort -
   shpipe.py sp  # sponge.py --
   shpipe.py t  # tail -16  # or whatever a third of a screen is
-  shpipe.py u  # uniq -c -, expand
+  shpipe.py u  # uniq -c -| expand
   shpipe.py v  # vim -
   shpipe.py w  # wc -l
   shpipe.py x  # hexdump -C
@@ -176,7 +176,7 @@ def do_c():
 
 
 def do_cv():
-    """pbpaste from tty, pbcopy to tty, else tee to pbcopy"""
+    """pbpaste inside tty, pbpaste from tty, pbcopy to tty, else tee to pbcopy"""
 
     stdin_isatty = sys.stdin.isatty()
     stdout_isatty = sys.stdout.isatty()
@@ -196,7 +196,7 @@ def do_cv_tty():
 
     parms = sys.argv[2:]
 
-    (options, seps, args) = byo.shlex_split_options(parms)
+    (options, seps, args) = byo.shlex_parms_partition(parms)
     if seps and not options:
         options = ["-ntv"]
         seps = []
@@ -223,7 +223,7 @@ def do_d():
 
     parms = sys.argv[2:]
 
-    (options, seps, args) = byo.shlex_split_options(parms)
+    (options, seps, args) = byo.shlex_parms_partition(parms)
     if not (options or seps):
         options.append("-brpu")
     if len(args) < 2:
@@ -258,7 +258,7 @@ def do_f():
 
     parms = sys.argv[2:]
 
-    (options, seps, args) = byo.shlex_split_options(parms)
+    (options, seps, args) = byo.shlex_parms_partition(parms)
     if not args:
         args.append(".")  # Mac Find needs an explicit '.'
     if not (options or seps):
@@ -280,7 +280,7 @@ def do_g():
     parms = sys.argv[2:]
     stdout_isatty = sys.stdout.isatty()
 
-    (options, seps, args) = byo.shlex_split_options(parms)
+    (options, seps, args) = byo.shlex_parms_partition(parms)
     if not (options or seps):
         options = "-i".split()
         if stdout_isatty:
@@ -301,7 +301,7 @@ def do_h():
 
     parms = sys.argv[2:]
 
-    (options, seps, args) = byo.shlex_split_options(parms)
+    (options, seps, args) = byo.shlex_parms_partition(parms)
     if not (options or seps):
         options.append("-{}".format(thirdrows))
 
@@ -346,7 +346,7 @@ def do_n():
 
     parms = sys.argv[2:]
 
-    (options, seps, args) = byo.shlex_split_options(parms)
+    (options, seps, args) = byo.shlex_parms_partition(parms)
     if not (options or seps):
         options.append("-ntv")
 
@@ -391,7 +391,7 @@ def do_t():
 
     parms = sys.argv[2:]
 
-    (options, seps, args) = byo.shlex_split_options(parms)
+    (options, seps, args) = byo.shlex_parms_partition(parms)
     if not (options or seps):
         options.append("-{}".format(thirdrows))
 
@@ -531,8 +531,6 @@ Simple is better than complex
 
 """
 
-
-# FIXME: code '  # ' and ' |' for Bash, convert for Zsh, such as &&: '...'
 
 # FIXME: more concise Traceback at:  shpipe.py --
 
