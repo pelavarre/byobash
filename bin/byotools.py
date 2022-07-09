@@ -437,6 +437,30 @@ def str_splitgrafs(doc, keepends=False):  # todo:
 
 
 #
+# Add some Def's that 'import pdb' forgot
+#
+
+
+def pdb_iobreakif(flag):
+    """Breakpoint after reconnecting Py Stdio to Dev Tty, if Flag is Truthy"""
+
+    if flag:
+        pdb_iobreak()
+
+
+def pdb_iobreak():
+    """Breakpoint after reconnecting Py Stdio to Dev Tty"""
+
+    reading = open("/dev/tty", "r")
+    writing = open("/dev/tty", "w")
+
+    sys.stdin = reading
+    sys.stdout = writing
+
+    pdb.set_trace()
+
+
+#
 # Add some Def's that 'import shlex' and 'import string' forgot
 #
 
