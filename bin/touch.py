@@ -12,7 +12,7 @@ options:
   --help  show this help message and exit
 
 quirks:
-  works well with cp.py, ls.py, mv.py, rm.py, rmdir.py
+  goes well with:  cp.py, ls.py, mv.py, rm.py, rmdir.py
   classic Touch rudely declines to create a new file, when given no FILE name for it
 
 examples:

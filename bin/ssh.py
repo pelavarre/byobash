@@ -11,7 +11,7 @@ options:
   -F CONFIG  choose a file of options (default: ~/.ssh/config)
 
 quirks:
-  works well with:  ssh-add.py
+  goes well with:  ssh-add.py
   classic Ssh rudely exits via a Code 255 Usage Error, when given no Parms
 
 examples:

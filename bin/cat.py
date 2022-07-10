@@ -19,7 +19,7 @@ options:
                         forward the input formatted as a Python String or Bytes Literal
 
 quirks:
-  works well with:  find.py
+  goes well with:  find.py
   classic Cat rudely hangs with no prompt, when given no Parms with no Stdin
   classic Cat rudely dumps raw Bytes, like 'less -r', unlike 'less -R' and 'less'
   Mac 'cat -tv' misprints the same ink for $'\xC2\xA0' NonBreakingSpace as $'\x20' Space

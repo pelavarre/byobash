@@ -12,7 +12,7 @@ options:
   --help  show this help message and exit
 
 quirks:
-  works well with:  screen.py
+  goes well with:  screen.py
   classic Script rudely opens a new anonymous Session, when given no Parms
 
 examples:

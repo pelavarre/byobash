@@ -15,7 +15,7 @@ options:
 
 quirks:
 
-  works well with:  script.py
+  goes well with:  script.py
   classic Screen rudely opens a new anonymous Session, when given no Parms
 
   '-r' fails when you give no CLUE, if there is more than one Screen

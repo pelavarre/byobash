@@ -14,7 +14,7 @@ options:
   -i         stop and ask before replacing file or dir
 
 quirks:
-  works well with cp.py, ls.py, rm.py, rmdir.py, touch.py
+  goes well with:  cp.py, ls.py, rm.py, rmdir.py, touch.py
   classic Mv rudely declines to choose the FROM_FILE and TO_FILE itself
 
 examples:

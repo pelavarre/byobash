@@ -16,7 +16,7 @@ options:
 
 quirks:
 
-  works well with:  head.py, sed.py, tee.py
+  goes well with:  head.py, sed.py, tee.py
   classic Tail rudely hangs with no prompt, when given no Parms with no Stdin
 
   give '-' in place of '-n ' to get the same result more easily

@@ -12,7 +12,7 @@ options:
   --help  show this help message and exit
 
 quirks:
-  works well with cp.py, ls.py, mv.py, rmdir.py, touch.py
+  goes well with:  cp.py, ls.py, mv.py, rmdir.py, touch.py
   classic Rm rudely declines to choose a FILE to destroy
 
 examples:

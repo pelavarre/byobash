@@ -9,7 +9,7 @@ options:
   --help       show this help message and exit
 
 quirks:
-  works well with:  ssh.py
+  goes well with:  ssh.py
   classic Ssh-Add rudely auth's forwarding your Creds, when given no Parms
 
 examples:

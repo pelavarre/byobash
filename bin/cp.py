@@ -16,7 +16,7 @@ options:
   -R         agree to copy a dir that contains files or dirs or both
 
 quirks:
-  works well with ls.py, mv.py, rm.py, rmdir.py, touch.py
+  goes well with:  ls.py, mv.py, rm.py, rmdir.py, touch.py
   classic Cp rudely declines to choose the FROM_FILE and TO_FILE itself
 
 examples:

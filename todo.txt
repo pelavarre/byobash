@@ -3,6 +3,8 @@
 
 dreaming since Jul/2022 =>
 
+FIXME the "  &&: # '", in place of "  &&: ", at such as:  ssh.py  &&:  # 'show these...
+
 FIXME factor out a non-executable bin/pythonx.py, call it from python{3,2,}.py
 
 FIXME scroll-preserving clear is write empty lines for the rows, then destructive clear

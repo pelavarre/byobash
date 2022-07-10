@@ -1,6 +1,6 @@
 # find . -not -type d -not -path './.git/*'
 
-# works well with:  cat.py
+# goes well with:  cat.py
 
 #   Find Py chooses the empty TOP '', not the explicit './' TOP, when given no Parms
 #   classic Find rudely declines to choose TOP itself, Linux Find chooses './' not ''

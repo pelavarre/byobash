@@ -80,6 +80,7 @@ examples:
 """
 
 
+import __main__
 import os
 import pdb
 import re
@@ -119,9 +120,9 @@ def main():
     if shverb in func_by_verb.keys():
         func = func_by_verb[shverb]
 
-        main.sponge_shverb = None
+        __main__.main.sponge_shverb = None
         if hasattr(func, "tty_sponge"):
-            main.sponge_shverb = shverb
+            __main__.main.sponge_shverb = shverb
 
         func()  # these Func's mostly now exit here
 
@@ -131,7 +132,7 @@ def main():
 
 
 #
-# Wrap many many Shim's around Bash Pipe Filters
+# Wrap many many Shim's around Sh Pipe's
 #
 
 
@@ -603,7 +604,7 @@ def exit_via_shline(shline, shell=False):
     sys.stderr.write("+ {}\n".format(shline))
 
     isatty = sys.stdin.isatty()
-    if main.sponge_shverb:
+    if __main__.main.sponge_shverb:
         if isatty:
             sys.stderr.write(
                 "shpipe.py {!r}: Press ⌃D TTY EOF to quit\n".format(main.sponge_shverb)

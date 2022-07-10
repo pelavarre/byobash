@@ -15,7 +15,7 @@ options:
 quirks:
 
   works in Mac & Linux  # but FIXME: 'tput.py clear' at Linux/ GShel0
-  works well with: clear.py, echo.py, reset.py
+  goes well with: clear.py, echo.py, reset.py
 
   Clear Py explains how 'tput clear' goes wrong in Mac, Linux, & GShell
   Reset Py explains how 'tput reset' goes wrong in Mac, Linux, & GShell

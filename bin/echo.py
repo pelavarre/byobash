@@ -12,7 +12,7 @@ options:
   -e      do escape the \ backslant with any of \ abfnrtv 0 x, and also with \e and \c
 
 quirks:
-  works well with:  clear.py, reset.py, tput.py
+  goes well with:  clear.py, reset.py, tput.py
   classic Echo just prints an Empty Line, as if asked to print '', when given no Parms
   \e is \x1B Esc
   \c cancels the rest: it stops the print and implies -n
