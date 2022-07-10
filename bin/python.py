@@ -58,7 +58,7 @@ def main():  # noqa: C901 complex
 
     # Take Parms from the Command Line
 
-    args = parse_python_args()
+    args = parse_pythonx_args()
 
     # Create or update or accept unchanged the VEnv Dir of Black & Flake8
 
@@ -103,13 +103,14 @@ def main():  # noqa: C901 complex
             sys.stderr.write("+\n")
         except KeyboardInterrupt:
             sys.stderr.write("\n")
-            sys.stderr.write("python3.py: KeyboardInterrupt\n")  # todo: python.py
+            sys.stderr.write("pythonx.py: KeyboardInterrupt\n")  # todo: python.py
 
             sys.exit(0x80 | signal.SIGINT)
 
-    # Run after compile
+    # Form the ShLine
 
     pythonx_shline = PYTHONX
+
     if args.i:
         pythonx_shline += " -i"
     if args.module:
@@ -117,39 +118,35 @@ def main():  # noqa: C901 complex
         pythonx_shline += " -m {}".format(shmodule)
     if args.file:
         pythonx_shline += " {}".format(shfile)
-    for parm in args.file_parms:
+
+    for parm in args.cooked_subparms:
         pythonx_shline += " {}".format(byo.shlex_quote(parm))
+
+    # Run it
 
     try:
         subprocess_run(pythonx_shline, stdin=None, check=True)
     except KeyboardInterrupt:
         sys.stderr.write("\n")
-        sys.stderr.write("python3.py: KeyboardInterrupt\n")  # todo: python.py
+        sys.stderr.write("pythonx.py: KeyboardInterrupt\n")  # todo: python.py
 
         sys.exit(0x80 | signal.SIGINT)
 
 
-def parse_python_args():
+def parse_pythonx_args():  # noqa C901 complex 11
     """Take Parms from the Command Line"""
 
     # Call ArgParse in the presence of Parms
 
-    parser = compile_python_argdoc()
+    parser = compile_pythonx_argdoc()
     args = parser.parse_args()
 
     # Call ByoTools Exit in the absence of Parms, or when Parms led by '--help'
 
-    parms = sys.argv[1:]
-    if (not parms) or (parms[0].startswith("--h") and "--help".startswith(parms[0])):
+    byo.exit_via_testdoc()  # python.py
+    byo.exit_via_argdoc()  # python.py --help
 
-        byo.exit()
-
-    # Print Help and Quit, on request
-
-    if args.help:
-        parser.print_help()
-
-        sys.exit(0)
+    assert not args.help
 
     # Require the FILE to exist
 
@@ -160,12 +157,37 @@ def parse_python_args():
 
             byo.exit()
 
+    # Setup to autocorrect the SubParms
+
+    taken_parms = list()
+    if args.i:
+        taken_parms.append("-i")
+    if args.module:
+        taken_parms.append("-m")
+        taken_parms.append(args.module)
+    if args.file:
+        taken_parms.append(args.file)
+
+    # AutoCorrect when ArgParse wrongly pulls a leading "--" out the ShParms of the File
+
+    parms = sys.argv[1:]
+
+    index_minus = max(parms.index(_) for _ in taken_parms)
+    index = index_minus + 1
+    if "--" in parms[:index]:
+        taken_parms.append("--")
+
+    assert index == len(taken_parms)
+
+    cooked_subparms = list(parms[index:])
+    args.cooked_subparms = cooked_subparms
+
     # Return the Parsed Parms
 
     return args
 
 
-def compile_python_argdoc():
+def compile_pythonx_argdoc():
     """Construct the ArgumentParser"""
 
     parser = compile_argdoc(add_help=False, epi="quirks:")
@@ -190,7 +212,7 @@ def compile_python_argdoc():
         help="import the module and call it with positional arguments and options",
     )
     parser.add_argument(
-        "file_parms",
+        "subparms",
         metavar="...",
         nargs=argparse.REMAINDER,
         help="options or positional arguments to forward into the FILE",
