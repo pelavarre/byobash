@@ -403,7 +403,7 @@ def do_gli():
 def do_h():
     """head -16  # or whatever a third of the screen is"""
 
-    rows = byo.shutil_get_std_else_tty_height()
+    rows = byo.shutil_get_tty_height()
     thirdrows = max(3, rows // 3)
 
     parms = sys.argv[2:]
@@ -492,7 +492,7 @@ def do_sp():
 def do_t():
     """tail -16  # or whatever a third of the screen is"""
 
-    rows = byo.shutil_get_std_else_tty_height()
+    rows = byo.shutil_get_tty_height()
     thirdrows = max(3, rows // 3)
 
     parms = sys.argv[2:]

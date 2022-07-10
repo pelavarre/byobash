@@ -1,6 +1,11 @@
 # byobash/Makefile:  Run a self test
 
 
+#
+# Final Review
+#
+
+
 default:
 	@echo ''
 	@echo 'ls'
@@ -47,6 +52,11 @@ push: black flake8 selftest
 	git push
 
 
+#
+# Codewriters' Bots
+#
+
+
 black:
 	. ~/bin/pips.source && black $$PWD/../byobash/
 
@@ -61,12 +71,26 @@ flake8:
 	. ~/bin/pips.source && flake8 ${FLAKE8_OPTS} $$PWD/../byobash/
 
 
-selftest:
+#
+# Tests
+#
+
+
+selftest: selftest-no-shparms
 	:
-	for F in $$(find . |grep '[.]py$$' |sort); do python3 $$F >/dev/null; done
+
+
+selftest-no-shparms:
+	:
+	set -e && for F in $$(find . |grep '[.]py$$' |sort); do python3 $$F >/dev/null; done
 	rm -fr bin/__pycache__/
 	:
-# as if:  for F in $(find . |grep '[.]py$' |sort); do python3 $F >/dev/null; done
+# as if:  set -e && for F in $(find . |grep '[.]py$' |sort); do python3 $F >/dev/null; done
+
+
+#
+#  Setup
+#
 
 
 setup:

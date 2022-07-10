@@ -88,6 +88,7 @@ examples:
   git.py lg  # git log --oneline --no-decorate --grep ...
   git.py lgg  # git log --oneline --no-decorate -G ...  # search for touches
   git.py lgs  # git log --oneline --no-decorate -S ...  # search for adds/ deletes
+  git.py lols  # git log --oneline --numstat  # list Files per Commit
   git.py lq  # git log --oneline --no-decorate -...  # default lots, -0 for no limit
   git.py lq1  # git log --oneline --no-decorate -1
   git.py lqa  # git log --oneline --no-decorate --author=$USER -...
@@ -278,7 +279,7 @@ def rm_fr_import_byotools_pyc():
 def exit_via_git_shproc(shverb, parms, authed, shlines):  # todo  # noqa: C901 complex
     """Forward Augmented Parms into a Git Subprocess and exit, else return"""
 
-    rows = byo.shutil_get_std_else_tty_height()
+    rows = byo.shutil_get_tty_height()
     thirdrows = max(3, rows // 3)
 
     alt_shlines = list(_ for _ in shlines if _ != "cat -")
@@ -558,6 +559,7 @@ ALIASES = {
     "lg": "git log --oneline --no-decorate --grep {}",
     "lgg": "git log --oneline --no-decorate -G {}",  # touches, aka Grep Source
     "lgs": "git log --oneline --no-decorate -S {}",  # adds/deletes, aka Pickaxe
+    "lols": "git log --oneline --numstat {}",
     "lq": "git log --oneline --no-decorate -{}",
     "lq1": "git log --oneline --no-decorate -1 {}",
     "lqa": "git log --oneline --no-decorate --author=$USER -{}",
@@ -603,13 +605,6 @@ if __name__ == "__main__":
 
 #
 # FIXME: add '-h' into 'git log grep' => grep -h def.shlex_quote $(-ggl def.shlex_quote)
-#
-# FIXME: qbin/qlsq  =>  git.py ls --  =>  interleave of qlq and each qspno
-# for N in $(seq 3); do
-#     echo
-#     git log --oneline --no-decorate -$N |tail -1
-#     git show --pretty= --name-only HEAD~$N
-# done
 #
 
 #

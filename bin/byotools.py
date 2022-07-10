@@ -2,7 +2,8 @@
 
 # deffed in many packages  # missing from:  https://pypi.org
 """
-usage: import byotools as byo
+usage: import byotools as byo  # define Func's
+usage: python3 bin/byotools.py  # run Self-Test's
 
 bundle the Python you need to make Sh welcome you sincerely and competently
 
@@ -587,31 +588,33 @@ def shlex_parms_partition(parms):
 #
 
 
-def shutil_get_std_else_tty_height():  # from $LINES, else Stdout, else DevTty
-    "Count Rows in the Terminal Screen"
+def shutil_get_tty_height():  # from $LINES, else Stdout, else DevTty
+    """Count Screen Rows from exported $LINES, else Stdout, else Dev Tty"""
 
-    size = get_std_else_tty_size()
+    size = shutil_get_tty_size()
 
     return size.lines
 
 
-def shutil_get_std_else_tty_width():  # from $COLUMNS, else Stdout, else DevTty
-    "Count Rows in the Terminal Screen"
+def shutil_get_tty_width():  # from $COLUMNS, else Stdout, else DevTty
+    """Count Screen Columns from exported $COLUMNS, else Stdout, else Dev Tty"""
 
-    size = get_std_else_tty_size()
+    size = shutil_get_tty_size()
 
     return size.columns
 
 
-def get_std_else_tty_size():  # from $LINES and $COLUMNS, else Stdout, else DevTty
-    "Count Rows and Columns in the Terminal Screen"
+def shutil_get_tty_size():
+    """Count Screen Rows & Columns from $LINES & $COLUMNS, else Stdout, else Dev Tty"""
 
-    _ = os.get_terminal_size(sys.stdout.fileno())  # fail fast, or not
+    if sys.__stdout__.isatty():  # show how to call simpler 'os.' in place of 'shutil.'
+        _ = os.get_terminal_size(sys.__stdout__.fileno())
 
-    with open("/dev/tty", "r") as tty:  # fallback to Dev Tty, before (80, 24)
+    with open("/dev/tty", "r") as tty:  # replace the cheap Fallback of (80, 24)
         fallback_size = os.get_terminal_size(tty.fileno())
 
     size = shutil.get_terminal_size(fallback=fallback_size)
+    # from 'sys.__stdout__', else 'os.environ["LINES"], ["COLUMNS"]', else Fallback
 
     return size  # (.lines, .columns)
 
@@ -690,6 +693,18 @@ QUOTED_ALT_MAIN_DOC = """
 
 ALT_MAIN_DOC = textwrap.dedent(QUOTED_ALT_MAIN_DOC)
 ALT_MAIN_DOC = ALT_MAIN_DOC.strip()
+
+
+#
+# Run from the Command Line, when not imported into some other Main module
+#
+
+
+if __name__ == "__main__":
+
+    # Run some Self-Test's
+
+    _ = shutil_get_tty_size()
 
 
 # posted into:  https://github.com/pelavarre/byobash/blob/main/bin/byotools.py
