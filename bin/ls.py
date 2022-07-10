@@ -12,9 +12,11 @@ options:
   --help  show this help message and exit
   -1      show as one column of one file or dir per line
   -C      show as multiple columns
+  -l      show as many columns of one file or dir per line
+  -m      show as comma separated names
 
 quirks:
-  works well with cp.py, mv.py, rm.py, rmdir.py, touch.py
+  goes well with:  cp.py, mv.py, rm.py, rmdir.py, touch.py
   classic Ls dumps all the Items, with no Scroll limit, when given no Parms
 
 examples:

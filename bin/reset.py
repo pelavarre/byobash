@@ -11,7 +11,7 @@ options:
 quirks:
 
   works in Mac & Linux
-  works well with: clear.py, echo.py, tput.py
+  goes well with: clear.py, echo.py, tput.py
 
   Mac 'reset' scrolls top Screen Row into Scrollback and doesn't delete Scrollback
   Mac & Linux 'reset' waste 1000 ms of time to no purpose

@@ -10,7 +10,7 @@ options:
 
 quirks:
 
-  works well with:  sort.py
+  goes well with:  sort.py
   classic Sponge rudely hangs with no prompt, when given no Parms with no Stdin
   classic Sponge rudely writes a File named '-', when given '-' as a Parm
   Linux Terminal Stdin echoes ⌃D TTY EOF as "" w/out "\n", vs macOS as "^D" without "\n"

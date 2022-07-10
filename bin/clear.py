@@ -12,7 +12,7 @@ options:
 quirks:
 
   works in Mac & Linux  # but FIXME: 'clear.py -x' at Linux/GShell
-  works well with: echo.py, reset.py, tput.py
+  goes well with: echo.py, reset.py, tput.py
 
   Linux 'clear -x' loses the Rows on Screen, doesn't scroll them into Scrollback
   Linux 'clear' says 3J H 2J in place of H 2 J 3J, so doesn't delete all Scrollback

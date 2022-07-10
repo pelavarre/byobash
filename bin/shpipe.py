@@ -131,7 +131,7 @@ def main():
 
 
 #
-# Wrap many many Shim's around Bash Pipe Filters
+# Wrap many many Shim's around Sh Pipe's
 #
 
 

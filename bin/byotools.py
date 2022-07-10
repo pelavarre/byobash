@@ -160,7 +160,7 @@ def exit_via_patchdoc(patchdoc):  # todo: pick the PatchDoc out of the ArgDoc
     path = pathlib.Path(pathname)
     dotfiles_doc = path.read_text()
 
-    assert patchdoc_body in dotfiles_doc
+    assert patchdoc_body in dotfiles_doc  # else you need:  vi dotfiles/dot.byo.bashrc
 
     # Actually quit early, don't exit, when no '--' Parm supplied
 
