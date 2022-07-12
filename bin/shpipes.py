@@ -625,7 +625,7 @@ def exit_via_shline(shline, shell=False):
 
 
 #
-# Track an example Terminal Qb ShPipe Transcript
+# Track an example Terminal Qb ShPipes Transcript
 #
 
 
@@ -658,9 +658,9 @@ Simple is better than complex
 """
 
 
-# FIXME: shpipe bash lstrip  # per line, translate Py Label to Sed
-# FIXME: shpipe bash rstrip  # per line, translate Py Label to Sed
-# FIXME: shpipe bash strip  # per line, translate Py Label to Sed
+# FIXME: shpipes.py bash lstrip  # per line, translate Py Label to Sed
+# FIXME: shpipes.py bash rstrip  # per line, translate Py Label to Sed
+# FIXME: shpipes.py bash strip  # per line, translate Py Label to Sed
 
 # FIXME: shpipes.py ...  # edit the Os Copy/Paste Clipboard, else Stdio, never Tty
 # FIXME: shpipes.py lstrip  # per line

@@ -1,4 +1,4 @@
-# dotfiles/dot.shpipe.bashrc
+# dotfiles/dot.shpipes.bashrc
 
 
 alias a='bin/bash.py --shpipe awk'
