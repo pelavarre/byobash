@@ -83,7 +83,7 @@ def main():  # noqa: C901 complex
         black_shline = "black {}".format(shfile)
 
         black_shshline = "{} && {}".format(activate_shline, black_shline)
-        black_shshline = "bash -c {!r}".format(black_shshline)
+        black_shshline = "bash -c ''{!r}''".format(black_shshline)
 
         flake8_shline = "flake8"
         flake8_shline += " --max-line-length=999 --max-complexity 10 --ignore="
@@ -92,7 +92,7 @@ def main():  # noqa: C901 complex
         flake8_shline += " {}".format(shfile)
 
         flake8_shshline = "{} && {}".format(activate_shline, flake8_shline)
-        flake8_shshline = "bash -c {!r}".format(flake8_shshline)
+        flake8_shshline = "bash -c ''{!r}''".format(flake8_shshline)
 
         try:
             subprocess_run(pdb_shline, stdout=subprocess.PIPE, check=True)

@@ -236,15 +236,19 @@ def main():  # todo  # noqa C901 complex
                 shverb = parms[1]
                 if shverb in aliases_by_verb.keys():
 
-                    if not unevalled_parms:
-                        if shverb == "rpsfn":
+                    # Convert "rpsfn" up into a variable number of ShLine's
+
+                    if shverb == "rpsfn":
+                        if not unevalled_parms:
 
                             exit_via_git_rpsfn(parms=unevalled_parms)
 
-                    chars = unevalled_parms[0] if unevalled_parms else None
-                    if unevalled_parms and re.match(r"^[-+]?[0-9]+$", string=chars):
+                        chars = unevalled_parms[0] if unevalled_parms else None
+                        if unevalled_parms and re.match(r"^[-+]?[0-9]+$", string=chars):
 
-                        exit_via_git_rpsfn(parms=unevalled_parms)
+                            exit_via_git_rpsfn(parms=unevalled_parms)
+
+                    # Else just copy/edit Parms into Git and exit, else return
 
                     alias = aliases_by_verb[shverb]
                     authed = alias.authed
@@ -287,7 +291,7 @@ def rm_fr_import_byotools_pyc():
 
 
 def exit_via_git_shproc(shverb, parms, authed, shlines):  # todo  # noqa: C901 complex
-    """Forward Augmented Parms into a Git Subprocess and exit, else return"""
+    """Copy/edit Parms into Git and exit, else return"""
 
     rows = byo.shutil_get_tty_height()
     thirdrows = max(3, rows // 3)
