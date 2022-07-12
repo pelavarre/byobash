@@ -651,6 +651,8 @@ if __name__ == "__main__":
 #
 # FIXME: add '-h' into 'git log grep' => grep -h def.shlex_quote $(-ggl def.shlex_quote)
 #
+# FIXME: dial back the over-aggressive quoting at qrpsfn => git rev-parse ... '@{-1}'
+#
 # FIXME: solve:  qrpsfn --
 #
 

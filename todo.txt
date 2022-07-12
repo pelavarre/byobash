@@ -3,6 +3,10 @@
 
 dreaming since Jul/2022 =>
 
+import shpipe as shpipes  # FIXME: git mv shpipe.py shpipes.py
+
+FIXME Bash of Zsh: echo -ne '\e[8;50;89t'
+
 FIXME the "  &&: # '", in place of "  &&: ", at such as:  ssh.py  &&:  # 'show these...
 
 FIXME factor out a non-executable bin/pythonx.py, call it from python{3,2,}.py

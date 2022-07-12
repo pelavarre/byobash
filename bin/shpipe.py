@@ -81,7 +81,6 @@ examples:
 
 
 import __main__
-import os
 import pdb
 import re
 import shlex
@@ -616,7 +615,6 @@ def exit_via_shline(shline, shell=False):
         shshline = "bash -c {}".format(shlex.quote(shline))
         argv = shlex.split(shshline)
 
-    sys.stderr = open(os.devnull, "w")
     run = subprocess.run(argv)
     if run.returncode:  # Exit early, at the first NonZero Exit Status ReturnCode
         sys.stderr.write("+ exit {}\n".format(run.returncode))
