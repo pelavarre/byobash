@@ -1,1 +1,1 @@
-shpipe.py hi "$@"
+shpipes.py hi "$@"

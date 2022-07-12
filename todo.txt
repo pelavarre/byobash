@@ -5,7 +5,7 @@ dreaming since Jul/2022 =>
 
 byopyvm:  Work with Files and Dirs, not just Maths
 
-import shpipe as shpipes  # FIXME: git mv shpipe.py shpipes.py
+import shpipe as shpipes  # FIXME: git mv shpipes.py shpipes.py
 
 FIXME Bash of Zsh: echo -ne '\e[8;50;89t'
 

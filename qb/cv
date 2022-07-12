@@ -1,1 +1,1 @@
-shpipe.py cv "$@"
+shpipes.py cv "$@"

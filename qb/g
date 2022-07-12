@@ -1,1 +1,1 @@
-shpipe.py g "$@"
+shpipes.py g "$@"

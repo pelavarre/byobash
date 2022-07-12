@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 r"""
-usage: shpipe.py [--help] VERB [ARG ...]
+usage: shpipes.py [--help] VERB [ARG ...]
 
 compose a graph of pipes of shverb's
 
@@ -32,51 +32,51 @@ advanced bash install:
   bash qb/env-path-append.source  # show how it works
   export PATH="${PATH:+$PATH:}~/Public/byobash/qb"  # get it done yourself
 
-  shpipe.py cv  # pbpaste |...
-  shpipe.py cv  # ... |pbcopy
-  shpipe.py cv  # ... |tee >(pbcopy) |...
+  shpipes.py cv  # pbpaste |...
+  shpipes.py cv  # ... |pbcopy
+  shpipes.py cv  # ... |tee >(pbcopy) |...
 
 examples:
 
-  shpipe.py  # show these examples and exit
-  shpipe.py --h  # show this help message and exit
-  shpipe.py --  # todo: run as you like it
+  shpipes.py  # show these examples and exit
+  shpipes.py --h  # show this help message and exit
+  shpipes.py --  # todo: run as you like it
 
-  shpipe.py cv --  # pbpaste |cat -ntv |expand
-  shpipe.py cv -etv  # pbpaste |cat -etv |expand
+  shpipes.py cv --  # pbpaste |cat -ntv |expand
+  shpipes.py cv -etv  # pbpaste |cat -etv |expand
 
-  shpipe.py c |  # cat - |
-  shpipe.py |c  # |cat -ntv |expand
-  shpipe.py |cv  # pbcopy
-  shpipe.py |cv |  # |tee >(pbcopy) |
+  shpipes.py c |  # cat - |
+  shpipes.py |c  # |cat -ntv |expand
+  shpipes.py |cv  # pbcopy
+  shpipes.py |cv |  # |tee >(pbcopy) |
 
-  shpipe.py a  # awk -F' ' '{print $NF}'  # a, a SEP, a INDEX, a SEP INDEX, etc
-  shpipe.py c  # cat - >/dev/null
-  shpipe.py cv  # pbpaste
-  shpipe.py d  # diff -brpu A_FILE B_FILE |less -FIRX  # default A_FILE='a', B_FILE='b'
-  shpipe.py e  # emacs -nw --no-splash --eval '(menu-bar-mode -1)'
-  shpipe.py em  # emacs -nw --no-splash --eval '(menu-bar-mode -1)'
-  shpipe.py f  # find . -not -type d -not -path './.git/*' |less -FIRX  # Mac needs .
-  shpipe.py g  # grep -i .
-  shpipe.py gi  # shpipe.py g --  # grep .  # without '-i'
-  shpipe.py gl  # grep -ilR
-  shpipe.py gli  # shpipe.py gl --  # grep -lR  # without '-il'
-  shpipe.py h  # head -16  # or whatever a third of the screen is
-  shpipe.py hi  # history  # but include the '~/.bash_histories/' dir
-  shpipe.py ht  # sed -n -e '1,2p;3,3s/.*/&\n.../p;$p'  # Head and also Tail
-  shpipe.py m  # make --
-  shpipe.py mo  # less -FIRX
-  shpipe.py n  # cat -ntv -| expand
-  shpipe.py p  # popd
-  shpipe.py q  # git checkout
-  shpipe.py s  # sort -
-  shpipe.py sp  # sponge.py --
-  shpipe.py t  # tail -16  # or whatever a third of the screen is
-  shpipe.py u  # uniq -c -| expand
-  shpipe.py v  # vim -
-  shpipe.py w  # wc -l
-  shpipe.py x  # hexdump -C
-  shpipe.py xp  # expand
+  shpipes.py a  # awk -F' ' '{print $NF}'  # a, a SEP, a INDEX, a SEP INDEX, etc
+  shpipes.py c  # cat - >/dev/null
+  shpipes.py cv  # pbpaste
+  shpipes.py d  # diff -brpu A_FILE B_FILE |less -FIRX  # default A_FILE='a', B_FILE='b'
+  shpipes.py e  # emacs -nw --no-splash --eval '(menu-bar-mode -1)'
+  shpipes.py em  # emacs -nw --no-splash --eval '(menu-bar-mode -1)'
+  shpipes.py f  # find . -not -type d -not -path './.git/*' |less -FIRX  # Mac needs .
+  shpipes.py g  # grep -i .
+  shpipes.py gi  # shpipes.py g --  # grep .  # without '-i'
+  shpipes.py gl  # grep -ilR
+  shpipes.py gli  # shpipes.py gl --  # grep -lR  # without '-il'
+  shpipes.py h  # head -16  # or whatever a third of the screen is
+  shpipes.py hi  # history  # but include the '~/.bash_histories/' dir
+  shpipes.py ht  # sed -n -e '1,2p;3,3s/.*/&\n.../p;$p'  # Head and also Tail
+  shpipes.py m  # make --
+  shpipes.py mo  # less -FIRX
+  shpipes.py n  # cat -ntv -| expand
+  shpipes.py p  # popd
+  shpipes.py q  # git checkout
+  shpipes.py s  # sort -
+  shpipes.py sp  # sponge.py --
+  shpipes.py t  # tail -16  # or whatever a third of the screen is
+  shpipes.py u  # uniq -c -| expand
+  shpipes.py v  # vim -
+  shpipes.py w  # wc -l
+  shpipes.py x  # hexdump -C
+  shpipes.py xp  # expand
 """
 
 
@@ -98,14 +98,14 @@ def main():
     parms = sys.argv[1:]
     func_by_verb = form_func_by_verb()
 
-    # Take 'shpipe.py', 'shpipe.py --h', 'shpipe.py --he', ... 'shpipe.py --help'
+    # Take 'shpipes.py', 'shpipes.py --h', 'shpipes.py --he', ... 'shpipes.py --help'
 
-    byo.exit_via_testdoc()  # shpipe.py
-    byo.exit_via_argdoc()  # shpipe.py --help
+    byo.exit_via_testdoc()  # shpipes.py
+    byo.exit_via_argdoc()  # shpipes.py --help
 
     assert parms
 
-    # Take 'shpipe.py --'
+    # Take 'shpipes.py --'
 
     if parms == ["--"]:
         sys.stderr.write("NotImplementedError: 'cv --' to mean:  cv |wc\n")
@@ -299,7 +299,7 @@ def do_d():
 def do_e():
     """emacs -nw --no-splash --eval '(menu-bar-mode -1)'"""
 
-    sys.stderr.write("shpipe.py e: Press Esc X revert Tab Return, and ⌃X⌃C, to quit\n")
+    sys.stderr.write("shpipes.py e: Press Esc X revert Tab Return, and ⌃X⌃C, to quit\n")
 
     exit_via_shparms("emacs -nw --no-splash --eval '(menu-bar-mode -1)'")
 
@@ -307,7 +307,7 @@ def do_e():
 def do_em():
     """emacs -nw --no-splash --eval '(menu-bar-mode -1)'"""
 
-    sys.stderr.write("shpipe.py e: Press Esc X revert Tab Return, and ⌃X⌃C, to quit\n")
+    sys.stderr.write("shpipes.py e: Press Esc X revert Tab Return, and ⌃X⌃C, to quit\n")
 
     exit_via_shparms("emacs -nw --no-splash --eval '(menu-bar-mode -1)'")
 
@@ -516,7 +516,7 @@ def do_u():
 def do_v():
     """vim"""
 
-    sys.stderr.write("shpipe.py e: Press ⇧Z ⇧Q to quit\n")
+    sys.stderr.write("shpipes.py e: Press ⇧Z ⇧Q to quit\n")
 
     exit_via_shparms("vim")
 
@@ -606,7 +606,7 @@ def exit_via_shline(shline, shell=False):
     if __main__.main.sponge_shverb:
         if isatty:
             sys.stderr.write(
-                "shpipe.py {!r}: Press ⌃D TTY EOF to quit\n".format(main.sponge_shverb)
+                "shpipes.py {!r}: Press ⌃D TTY EOF to quit\n".format(main.sponge_shverb)
             )
 
     if not shell:
@@ -662,12 +662,12 @@ Simple is better than complex
 # FIXME: shpipe bash rstrip  # per line, translate Py Label to Sed
 # FIXME: shpipe bash strip  # per line, translate Py Label to Sed
 
-# FIXME: shpipe py ...  # edit the Os Copy/Paste Clipboard, else Stdio, never Tty
-# FIXME: shpipe py lstrip  # per line
-# FIXME: shpipe py "\n".join  # sponges
-# FIXME: shpipe py textwrap.dedent  # joins and splits
-# FIXME: shpipe py enumerate  # numbers
-# FIXME: shpipe py splitlines "-".join  # joins chars of lines
+# FIXME: shpipes.py ...  # edit the Os Copy/Paste Clipboard, else Stdio, never Tty
+# FIXME: shpipes.py lstrip  # per line
+# FIXME: shpipes.py "\n".join  # sponges
+# FIXME: shpipes.py textwrap.dedent  # joins and splits
+# FIXME: shpipes.py enumerate  # numbers
+# FIXME: shpipes.py splitlines "-".join  # joins chars of lines
 
 
 #
@@ -679,5 +679,5 @@ if __name__ == "__main__":
     main()
 
 
-# posted into:  https://.com/pelavarre/byobash/blob/main/bin/shpipe.py
+# posted into:  https://.com/pelavarre/byobash/blob/main/bin/shpipes.py
 # copied from:  git clone https://github.com/pelavarre/byobash.git
