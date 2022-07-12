@@ -37,7 +37,7 @@ examples:
   cd.py  # show these examples and exit
   cd.py --h  # show this help message and exit
   cd.py --  # go to Desktop Dir inside Home Dir, same as:  cd ~/Desktop
-  command cd.py --  # show the Advanced Bash Install of Cd Py and exit
+  command bin/cd.py --  # show the Advanced Bash Install of Cd Py and exit
 
   cd.py -  # toggle back to previous Sh Working Dir, same as:  cd -
   cd.py ~  # go to Home Dir, same as:  cd ~

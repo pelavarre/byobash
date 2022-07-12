@@ -47,7 +47,7 @@ examples:
   git.py  # show these examples and exit
   git.py --h  # show this help message and exit
   git.py --  # git checkout
-  command git.py --  # show the Advanced Bash Install of Git Py and exit
+  command bin/git.py --  # show the Advanced Bash Install of Git Py and exit
 
   ls ~/.gitconfig
   ls .git/config

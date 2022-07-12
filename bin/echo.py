@@ -34,7 +34,7 @@ examples:
   echo.py  # show these examples and exit
   echo.py --h  # show this help message and exit
   echo.py --  # echo "+ exit $?"  # mention the last Exit Status ReturnCode once
-  command echo.py --  # show the Advanced Bash Install of Echo Py and exit
+  command bin/echo.py --  # show the Advanced Bash Install of Echo Py and exit
 
   echo.py hello; echo.py --  # test Exit Code 0
   rm /dev/null/part; echo.py --  # test Exit Code 1

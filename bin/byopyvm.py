@@ -22,13 +22,23 @@ advanced bash install
     fi
   }
 
+quick start:
+
+  git clone https://github.com/pelavarre/byobash.git
+  cd byobash/
+
+  source dotfiles/dot.byo.bashrc
+  alias byopyvm.py=bin/byopyvm.py
+
+  byopyvm.py
+
 examples:
 
   byopyvm.py  # show these examples and exit
   byopyvm.py --h  # show this help message and exit
-  command byopyvm.py --  # show the Advanced Bash Install of ByoPyVM Py and exit
+  command bin/byopyvm.py --  # show the Advanced Bash Install of ByoPyVM Py and exit
 
-  # Stack Work
+  # Files and Dirs
 
   = ls  # ls -1Frt |tail -4
   = cp  # cp -ip ... ...~$(date +%m%dpl%H%M%S)~  # FIXME
