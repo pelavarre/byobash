@@ -236,6 +236,16 @@ def main():  # todo  # noqa C901 complex
                 shverb = parms[1]
                 if shverb in aliases_by_verb.keys():
 
+                    if not unevalled_parms:
+                        if shverb == "rpsfn":
+
+                            exit_via_git_rpsfn(parms=unevalled_parms)
+
+                    chars = unevalled_parms[0] if unevalled_parms else None
+                    if unevalled_parms and re.match(r"^[-+]?[0-9]+$", string=chars):
+
+                        exit_via_git_rpsfn(parms=unevalled_parms)
+
                     alias = aliases_by_verb[shverb]
                     authed = alias.authed
                     shlines = alias.shlines
@@ -470,6 +480,41 @@ def exit_via_argvs(argvs):
 #
 
 
+def exit_via_git_rpsfn(parms):
+    """Show the Stack of Git Checkout Choices"""
+
+    shverb = "rpsfn"
+
+    aliases_by_verb = form_aliases_by_verb()
+
+    alias = aliases_by_verb[shverb]
+    authed = alias.authed
+    shlines = alias.shlines
+
+    assert authed
+    assert shlines == ["git rev-parse --symbolic-full-name @{{-{}}}"], shlines
+
+    # Default to show Current and then Previous Git Branch
+    # Else show the Current and then older and older previous Git Branches
+
+    alt_shlines = list()
+    alt_shlines.append("git rev-parse --abbrev-ref HEAD")
+    alt_shlines.append("git rev-parse --symbolic-full-name @{{-1}}")
+
+    if parms:
+
+        absintparm = abs(int(parms[0]))
+        if not absintparm:
+            alt_shlines[::] = alt_shlines[:1]
+        else:
+            for index in range(2, absintparm + 1):
+                alt_shlines.append(
+                    "git rev-parse --symbolic-full-name @{{{{-{}}}}}".format(index)
+                )
+
+    exit_via_git_shproc(shverb="rpsfn", parms=list(), authed=True, shlines=alt_shlines)
+
+
 def form_aliases_by_verb():
     """Declare the GitLikeAlias'es"""
 
@@ -606,13 +651,7 @@ if __name__ == "__main__":
 #
 # FIXME: add '-h' into 'git log grep' => grep -h def.shlex_quote $(-ggl def.shlex_quote)
 #
-
-#
-# FIXME: Parms for Q Rpsfn
-# qrpsfn  # should give just the current Branch
-# qrpsfn --  # should give the last three
-# qrpsfn -1  # should give just the current Branch
-# qrpsfn -4  # should give the last 4
+# FIXME: solve:  qrpsfn --
 #
 
 #

@@ -30,6 +30,7 @@ examples:
 """
 
 # todo: grow default w Screen Height
+# todo: demo how to code Sed to replace with color, a la:  grep --color=yes
 
 
 import byotools as byo

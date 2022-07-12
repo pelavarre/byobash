@@ -31,9 +31,9 @@ examples:
   # Stack Work
 
   byopyvm.py ls  # ls -1rtc |tail -4
-  byopyvm.py cp  # cp -ip ... ...~$(date +%m%dpl%H%M%S)
-  byopyvm.py cp  # cp -ipR .../ ...~$(date +%m%dpl%H%M%S)
-  byopyvm.py mv  # mv -i ... ...~$(date +%m%dpl%H%M%S)
+  byopyvm.py cp  # cp -ip ... ...~$(date +%m%dpl%H%M%S)~
+  byopyvm.py cp  # cp -ipR .../ ...~$(date +%m%dpl%H%M%S)~
+  byopyvm.py mv  # mv -i ... ...~$(date +%m%dpl%H%M%S)~
 
   # Maths
 
