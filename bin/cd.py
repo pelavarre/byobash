@@ -19,6 +19,11 @@ quirks:
 
 advanced bash install:
 
+  function - () { echo + cd - && cd - >/dev/null && (dirs -p |head -1); }
+  # Bash will say 'bash: cd: OLDPWD not set' and fail, till after Cd
+
+  function .. () { echo + cd .. && cd .. && (dirs -p |head -1); }
+
   function cd.py () {
     : : 'Print some kind of Help, else change the Sh Working Dir' : :
     if [ "$#" = 0 ]; then
@@ -59,6 +64,11 @@ def main():
     parms = sys.argv[1:]
 
     patchdoc = """
+
+  function - () { echo + cd - && cd - >/dev/null && (dirs -p |head -1); }
+  # Bash will say 'bash: cd: OLDPWD not set' and fail, till after Cd
+
+  function .. () { echo + cd .. && cd .. && (dirs -p |head -1); }
 
   function cd.py () {
     : : 'Print some kind of Help, else change the Sh Working Dir' : :

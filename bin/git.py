@@ -673,6 +673,21 @@ if __name__ == "__main__":
 #   such as 'git log --no-mer --one --deco' for '--no-merges --oneline --decorate'
 #
 
+_ = """
+% git checkout -b guests/jqdoe/sandbox1
+Switched to a new branch 'guests/jqdoe/sandbox1'
+% qrpar
++ git rev-parse --abbrev-ref HEAD
+guests/jqdoe/sandbox1
+% git push
+fatal: The current branch guests/jqdoe/sandbox1 has no upstream branch.
+To push the current branch and set the remote as upstream, use
+
+    git push --set-upstream origin guests/jqdoe/sandbox1
+
+zsh: exit 128   git push
+"""
+
 #
 # trace what they mean - with inverse globs for concision, like at:  -ga bin/*.py
 #

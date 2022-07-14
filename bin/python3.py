@@ -1,12 +1,5 @@
 #!/usr/bin/env python3
 
-# python3 -m venv --prompt=PY3 py3  # standard since Sep/2015 Python 3.5
-
-# python3 -i
-# echo |python3 -m pdb
-# pdb pm post-mortem
-# pdb bt back-trace
-
 """
 usage: python3.py [--h]  ...
 
@@ -73,6 +66,28 @@ if __name__ == "__main__":
     byo.exit_via_argdoc()  # python3.py --help
 
     python.main()
+
+
+# python3 -m venv --prompt=PY3 py3  # standard since Sep/2015 Python 3.5
+
+
+# python3 -i
+# import pdb; pdb.pm()  # post-mortem
+# l
+# bt  # back-trace
+
+
+_ = """
+def def1():
+    def2()
+
+
+def def2():
+    assert False  # get back here via:  python3 -i, pdb.pm()
+
+
+def1()
+"""
 
 
 _ = """
