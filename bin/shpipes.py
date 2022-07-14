@@ -366,7 +366,7 @@ def do_g():
 
         exit_via_shparms(shline)
 
-    options = options.insert(0, "-i")
+    options.insert(0, "-i")
     if stdout_isatty:
         options.append("--color=yes")
     if not args:
@@ -413,7 +413,7 @@ def do_gl():
 
         exit_via_shparms(shline)
 
-    options = options.insert(0, "-ilR")
+    options.insert(0, "-ilR")
     if stdout_isatty:
         options.append("--color=yes")
     if not args:
@@ -437,7 +437,7 @@ def do_gli():
 
         exit_via_shparms(shline)
 
-    options = options.insert(0, "-lR")
+    options.insert(0, "-lR")
     if stdout_isatty:
         options.append("--color=yes")
     if not args:
@@ -461,8 +461,8 @@ def do_gv():
 
         exit_via_shparms(shline)
 
-    options = options.insert(0, "-i")
-    options = options.insert(0, "-v")
+    options.insert(0, "-i")
+    options.insert(0, "-v")
     if stdout_isatty:
         options.append("--color=yes")
     if not args:
@@ -486,7 +486,7 @@ def do_gvi():
 
         exit_via_shparms(shline)
 
-    options = options.insert(0, "-v")
+    options.insert(0, "-v")
     if stdout_isatty:
         options.append("--color=yes")
     if not args:
