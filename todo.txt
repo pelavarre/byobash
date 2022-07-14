@@ -3,9 +3,6 @@
 
 dreaming since Jul/2022 =>
 
-FIXME: cv |u -- |cv  # should be 'uniq' without '-c'
-FIXME: g -e 1 -e 2  # should be 'grep -i -e 1 -e 2', not 'grep -e -e 1 2'
-
 FIXME factor out a non-executable bin/pythonx.py, call it from python{3,2,}.py
 
 byopyvm:  Work with Files and Dirs, not just Maths

@@ -208,16 +208,19 @@ def do_a():
 
         (sep, index) = parms
 
+    # Forward the Parms, else just an Index, else a Sep and an Index
+
     else:
 
-        exit_via_shparms("awk '{print $NF}'")
-
-    # Forward just an Index, else a Sep and an Index
+        exit_via_shparms("awk '{print $NF}'")  # todo: does this forward Parms well
 
     if sep is None:
+
         exit_via_shline("awk '{{print {}}}'".format(index))
+
     else:
         shsep = byo.shlex_dquote(sep)
+
         exit_via_shline("awk -F{} '{{print ${}}}'".format(shsep, index))
 
 
@@ -225,10 +228,13 @@ def do_c():
     """cat - >/dev/null"""
 
     parms = sys.argv[2:]
+
     stdin_isatty = sys.stdin.isatty()
     stdout_isatty = sys.stdout.isatty()
 
     if parms:
+        if parms != ["/dev/stdout"]:
+            __main__.main.sponge_shverb = None  # todo: often wrong? composes poorly?
         exit_via_shparms("cat")
     else:
         if stdin_isatty and stdout_isatty:
@@ -301,15 +307,33 @@ def do_e():
 
     sys.stderr.write("shpipes.py e: Press Esc X revert Tab Return, and ⌃X⌃C, to quit\n")
 
-    exit_via_shparms("emacs -nw --no-splash --eval '(menu-bar-mode -1)'")
+    parms = sys.argv[2:]
+
+    (options, seps, args) = byo.shlex_parms_partition(parms)
+    if not (options or seps):
+
+        exit_via_shparms("emacs -nw --no-splash --eval '(menu-bar-mode -1)'")
+
+    exit_via_shparms("emacs")
+
+    # todo:  less copy-edit repetition across this 'shpipes.py' file
 
 
 def do_em():
     """emacs -nw --no-splash --eval '(menu-bar-mode -1)'"""
 
-    sys.stderr.write("shpipes.py e: Press Esc X revert Tab Return, and ⌃X⌃C, to quit\n")
+    sys.stderr.write(
+        "shpipes.py em: Press Esc X revert Tab Return, and ⌃X⌃C, to quit\n"
+    )
 
-    exit_via_shparms("emacs -nw --no-splash --eval '(menu-bar-mode -1)'")
+    parms = sys.argv[2:]
+
+    (options, seps, args) = byo.shlex_parms_partition(parms)
+    if not (options or seps):
+
+        exit_via_shparms("emacs -nw --no-splash --eval '(menu-bar-mode -1)'")
+
+    exit_via_shparms("emacs")
 
 
 def do_f():
@@ -337,10 +361,14 @@ def do_g():
     stdout_isatty = sys.stdout.isatty()
 
     (options, seps, args) = byo.shlex_parms_partition(parms)
-    if not (options or seps):
-        options = "-i".split()
-        if stdout_isatty:
-            options.append("--color=yes")
+    if options or seps:
+        shline = "grep -i"
+
+        exit_via_shparms(shline)
+
+    options = options.insert(0, "-i")
+    if stdout_isatty:
+        options.append("--color=yes")
     if not args:
         args = ["."]
 
@@ -357,10 +385,13 @@ def do_gi():
     stdout_isatty = sys.stdout.isatty()
 
     (options, seps, args) = byo.shlex_parms_partition(parms)
-    if not (options or seps):
-        # options = "-i".split()  # no
-        if stdout_isatty:
-            options.append("--color=yes")
+    if options or seps:
+        shline = "grep"
+
+        exit_via_shparms(shline)
+
+    if stdout_isatty:
+        options.append("--color=yes")
     if not args:
         args = ["."]
 
@@ -374,10 +405,19 @@ def do_gl():
     """grep -ilR"""
 
     parms = sys.argv[2:]
+    stdout_isatty = sys.stdout.isatty()
 
     (options, seps, args) = byo.shlex_parms_partition(parms)
-    if not (options or seps):
-        options = "-ilR".split()
+    if options or seps:
+        shline = "grep -ilR"
+
+        exit_via_shparms(shline)
+
+    options = options.insert(0, "-ilR")
+    if stdout_isatty:
+        options.append("--color=yes")
+    if not args:
+        args = ["."]
 
     argv = ["grep"] + options + seps + args
     shline = " ".join(byo.shlex_dquote(_) for _ in argv)
@@ -389,10 +429,68 @@ def do_gli():
     """grep -lR"""
 
     parms = sys.argv[2:]
+    stdout_isatty = sys.stdout.isatty()
 
     (options, seps, args) = byo.shlex_parms_partition(parms)
-    if not (options or seps):
-        options = "-lR".split()
+    if options or seps:
+        shline = "grep -lR"
+
+        exit_via_shparms(shline)
+
+    options = options.insert(0, "-lR")
+    if stdout_isatty:
+        options.append("--color=yes")
+    if not args:
+        args = ["."]
+
+    argv = ["grep"] + options + seps + args
+    shline = " ".join(byo.shlex_dquote(_) for _ in argv)
+
+    exit_via_shline(shline)
+
+
+def do_gv():
+    """grep -v -i"""
+
+    parms = sys.argv[2:]
+    stdout_isatty = sys.stdout.isatty()
+
+    (options, seps, args) = byo.shlex_parms_partition(parms)
+    if options or seps:
+        shline = "grep -v -i"
+
+        exit_via_shparms(shline)
+
+    options = options.insert(0, "-i")
+    options = options.insert(0, "-v")
+    if stdout_isatty:
+        options.append("--color=yes")
+    if not args:
+        args = ["."]
+
+    argv = ["grep"] + options + seps + args
+    shline = " ".join(byo.shlex_dquote(_) for _ in argv)
+
+    exit_via_shline(shline)
+
+
+def do_gvi():
+    """grep -v"""
+
+    parms = sys.argv[2:]
+    stdout_isatty = sys.stdout.isatty()
+
+    (options, seps, args) = byo.shlex_parms_partition(parms)
+    if options or seps:
+        shline = "grep -v"
+
+        exit_via_shparms(shline)
+
+    options = options.insert(0, "-v")
+    if stdout_isatty:
+        options.append("--color=yes")
+    if not args:
+        args = ["."]
 
     argv = ["grep"] + options + seps + args
     shline = " ".join(byo.shlex_dquote(_) for _ in argv)
@@ -445,7 +543,14 @@ def do_m():
 def do_mo():
     """less -FIRX"""
 
-    exit_via_shparms("less -FIRX")
+    parms = sys.argv[2:]
+
+    (options, seps, args) = byo.shlex_parms_partition(parms)
+    if not (options or seps):
+
+        exit_via_shparms("less -FIRX")
+
+    exit_via_shparms("less")
 
 
 def do_n():
@@ -510,7 +615,14 @@ def do_t():
 def do_u():
     """uniq -c - |expand"""
 
-    exit_via_shparms("uniq -c - |expand")
+    parms = sys.argv[2:]
+
+    (options, seps, args) = byo.shlex_parms_partition(parms)
+    if not (options or seps):
+
+        exit_via_shparms("uniq -c - |expand")
+
+    exit_via_shparms("uniq |expand")
 
 
 def do_v():
@@ -524,13 +636,27 @@ def do_v():
 def do_w():
     """wc -l"""
 
-    exit_via_shparms("wc -l")
+    parms = sys.argv[2:]
+
+    (options, seps, args) = byo.shlex_parms_partition(parms)
+    if not (options or seps):
+
+        exit_via_shparms("wc -l")
+
+    exit_via_shparms("wc")
 
 
 def do_x():
     """hexdump -C"""
 
-    exit_via_shparms("hexdump -C")
+    parms = sys.argv[2:]
+
+    (options, seps, args) = byo.shlex_parms_partition(parms)
+    if not (options or seps):
+
+        exit_via_shparms("hexdump -C")
+
+    exit_via_shparms("hexdump")
 
 
 def do_xp():

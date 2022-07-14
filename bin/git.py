@@ -61,11 +61,14 @@ examples:
   git.py co  # git checkout  # the calmest kind of 'git status'
   git.py gl  # git grep -il
   git.py gli  # git grep -l
+  git.py gv  # git grep -v -i
+  git.py gvi  # git grep -v
   git.py dh  # git diff HEAD~...  # default HEAD~1, without '-b'
   git.py dhno  # git diff --name-only HEAD~..., default HEAD~1
   git.py dno  # git diff --name-only
   git.py em  # bash -c 'em $(qdhno |tee /dev/stderr)'
   git.py lf  # git ls-files
+  git.py no  # git diff --name-only HEAD~..., default HEAD~1  # same as:  git.py dhno
   git.py s  # git show
   git.py sp  # git show --pretty=''
   git.py spno  # git show --pretty='' --name-only
@@ -600,8 +603,10 @@ ALIASES = {
     "frb": "git fetch && git rebase",
     "g": "git grep -i {}",  # todo: default Grep of $(-gdhno)
     "gi": "git grep {}",  # todo: default Grep of $(-gdhno)
-    "gli": "git grep -l {}",  # todo: default Grep of $(-gdhno)
     "gl": "git grep -il {}",  # todo: default Grep of $(-gdhno)
+    "gli": "git grep -l {}",  # todo: default Grep of $(-gdhno)
+    "gv": "git grep -v -i {}",  # todo: default Grep of $(-gdhno)
+    "gvi": "git grep -v {}",  # todo: default Grep of $(-gdhno)
     "l": "git log {}",
     "l1": "git log --decorate -1 {}",
     "lf": "git ls-files {}",
@@ -615,6 +620,7 @@ ALIASES = {
     "ls": "git log --numstat {}",
     "lv": "git log --oneline --decorate -{}",
     "lv1": "git log --oneline --decorate -1 {}",
+    "no": "git diff --name-only HEAD~{}",  # same as:  git.py dhno
     "pfwl": "cat - && git push --force-with-lease",
     "rb": "git rebase {}",  # auth w/out ⌃D
     "rh": "cat - && git reset --hard {}",
