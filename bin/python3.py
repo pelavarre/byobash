@@ -61,9 +61,9 @@ import python as python
 
 if __name__ == "__main__":
 
-    byo.exit_via_testdoc()  # python3.py
+    byo.exit_if_testdoc()  # python3.py
 
-    byo.exit_via_argdoc()  # python3.py --help
+    byo.exit_if_argdoc()  # python3.py --help
 
     python.main()
 

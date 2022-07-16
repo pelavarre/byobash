@@ -97,9 +97,9 @@ def main():
 
     # Quit conventionally
 
-    byo.exit_via_patchdoc(patchdoc)  # command byopyvm.py --
-    byo.exit_via_testdoc()  # byopyvm.py
-    byo.exit_via_argdoc()  # byopyvm.py --help
+    byo.exit_if_patchdoc(patchdoc)  # command byopyvm.py --
+    byo.exit_if_testdoc()  # byopyvm.py
+    byo.exit_if_argdoc()  # byopyvm.py --help
 
     # Take each word, one at a time
 

@@ -6,13 +6,14 @@ usage: cd.py [--h] [--pwd] [DIR]
 change the Working Dir in Sh Memory
 
 positional arguments:
-  DIR          the directory to work in next (default: '~/Desktop')
+  DIR          the directory to work in next (default '~/Desktop')
 
 options:
   --help       show this help message and exit
   --for-chdir  print to Stdout what the in-memory Sh Cd needs to hear
 
 quirks:
+  goes well with:  hostname.py, pwd.py
   classic Cd rudely jumps back into the legacy '~/' Home Dir, when given no Parms
   classic Cd rudely loses all Parms past the first
   Zsh and Bash take '(dirs -p |head -1)', but only Bash takes 'dirs +0'
@@ -87,9 +88,9 @@ def main():
 
     # Define some forms of 'cd.py'
 
-    byo.exit_via_patchdoc(patchdoc)  # command cd.py --
-    byo.exit_via_testdoc()  # cd.py
-    byo.exit_via_argdoc()  # cd.py --help
+    byo.exit_if_patchdoc(patchdoc)  # command cd.py --
+    byo.exit_if_testdoc()  # cd.py
+    byo.exit_if_argdoc()  # cd.py --help
 
     # Pick out the '--for-chdir' option in full, or abbreviated
 
@@ -104,20 +105,20 @@ def main():
     if for_chdir and (parms[1:] == ["--"]):
         print(os.path.expanduser("~/Desktop"))
 
-        sys.exit(0)
+        sys.exit(0)  # Exit 0 to call for Sh Os ChDir to expanded '~/Desktop'
 
     # Define 'command cd.py --for-chdir DIR'
 
     if for_chdir and not parms[2:]:
         print(parms[1])
 
-        sys.exit(0)
+        sys.exit(0)  # Exit 0 to call for Sh Os ChDir to 1th Parm
 
     # Reject other usage
 
     sys.stderr.write("usage: cd.py [--h] [--for-chdir] [DIR]\n")
 
-    sys.exit(2)  # Exit 2 for wrong usage
+    sys.exit(2)  # Exit 2 for rare usage
 
 
 #

@@ -6,7 +6,7 @@ usage: tee.py [--h] [-a] [FILE ...]
 read from Stdin and write the bytes read into each File in order
 
 positional arguments:
-  FILE    the file to drop trailing lines from (default: stdin)
+  FILE    the file to drop trailing lines from (default stdin)
 
 options:
   --help  show this help message and exit

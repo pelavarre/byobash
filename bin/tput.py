@@ -6,7 +6,7 @@ usage: tput.py [--h] VERB [ARG ...]
 send Command Lines into the Terminal
 
 positional arguments:
-  VERB     choice of SubCommand, such as 'clear' or 'reset' (default: 'reset')
+  VERB     choice of SubCommand, such as 'clear' or 'reset' (default 'reset')
   ARG      choice of Options and Arguments
 
 options:

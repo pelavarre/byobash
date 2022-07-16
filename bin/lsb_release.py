@@ -37,17 +37,12 @@ import byotools as byo
 import shpipes
 
 
-byo.exit(__name__, shparms="--")
+if __name__ == "__main__":
 
+    byo.exit(shparms="--")
 
-def main():
-    pass
-
-
-main.sponge_shverb = None  # FIXME
-
-shpipe = "lsb_release -a 2>&1 |grep ^Desc"
-shpipes.exit_via_shpipe(shpipe)
+    shpipe = "lsb_release -a 2>&1 |grep ^Desc"
+    shpipes.exit_via_shpipe(shpipe)
 
 
 # posted into:  https://github.com/pelavarre/byobash/blob/main/bin/lsb_release.py

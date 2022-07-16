@@ -9,6 +9,7 @@ options:
   --help  show this help message and exit
 
 quirks:
+  goes well with pbedit.py, pbpaste.py
   Mac builds in PBPaste and PBCopy, but Linux & GShell don't
   classic PbCopy rudely hangs with no prompt, when given no Parms with no Stdin
 

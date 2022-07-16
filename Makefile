@@ -13,32 +13,33 @@ default:
 	@echo 'open https://github.com/pelavarre/byobash/blob/main/QuickStart.md'
 	@echo 'open https://github.com/pelavarre/byobash#readme'
 	@echo 'open https://github.com/pelavarre/byobash/blob/main/ReadMore.md'
-	@echo 'open https://twitter.com/intent/tweet?text=@PLaVarre'
 	@echo ''
 	@echo 'make help'
 	@echo 'make push'
 	@echo ''
-
+	@echo 'open https://twitter.com/intent/tweet?text=@PELaVarre'
+	@echo ''
 
 
 help:
-	:
-	:
 	: # usage: make [black|flake8|help|push|selftest|setup]
-	:
-	: come work with me now to make me feel more agency and power
-	:
-	: examples:
-	:
-	:   ls
-	:
-	:   open https://github.com/pelavarre/byobash/blob/main/QuickStart.md
-	:   open https://github.com/pelavarre/byobash#readme
-	:   open https://github.com/pelavarre/byobash/blob/main/ReadMore.md
-	:
-	:   open https://twitter.com/intent/tweet?text=@PLaVarre
-	:
-	:
+	: #
+	: # work to add Code into GitHub ByoBash
+	: #
+	: # examples:
+	: #
+	: #   ls
+	: #
+	: #   open https://github.com/pelavarre/byobash/blob/main/QuickStart.md
+	: #   open https://github.com/pelavarre/byobash#readme
+	: #   open https://github.com/pelavarre/byobash/blob/main/ReadMore.md
+	: #
+	: #   make  # show these examples and exit
+	: #   make help  # show this help message and exit
+	: #   make push  # restyle the Source, review it, and ask to push it
+	: #
+	: #   open https://twitter.com/intent/tweet?text=@PELaVarre
+	: #
 
 
 push: black flake8 selftest
@@ -81,6 +82,9 @@ selftest: selftest-no-shparms
 
 
 selftest-no-shparms:
+	:
+	: press ⌃D to execute, or ⌃C to quit
+	cat -
 	:
 	set -e && for F in $$(find . |grep '[.]py$$' |sort); do python3 $$F >/dev/null; done
 	rm -fr bin/__pycache__/

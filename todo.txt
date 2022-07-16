@@ -3,6 +3,8 @@
 
 dreaming since Jul/2022 =>
 
+FIXME qno without arg should be qdhno, with arg should be qspno
+
 FIXME factor out a non-executable bin/pythonx.py, call it from python{3,2,}.py
 
 byopyvm:  Work with Files and Dirs, not just Maths
@@ -28,7 +30,7 @@ implement the rest of the most prominently Helped Examples
     mv.py
     ...
 
-byo.exit_via_shcommand:
+byo.exit_via_shpath_shverb:
 forward down the Path
     resolve the Path to give only first seen of each Real Path
         while dropping the absence of Real Path

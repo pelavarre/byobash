@@ -8,7 +8,7 @@ shell out to a host
 options:
   --help     show this help message and exit
   -t         forward control of the local terminal (-tt for more force)
-  -F CONFIG  choose a file of options (default: ~/.ssh/config)
+  -F CONFIG  choose a file of options (default '~/.ssh/config')
 
 quirks:
   goes well with:  ssh-add.py
@@ -32,6 +32,8 @@ examples:
   echo "SSH_AGENT_PID=$SSH_AGENT_PID"  # show another Env Var Linux needs for Ssh Keys
   ssh-add -L |grep ^ssh-rsa-cert |ssh-keygen -L -f - |grep Valid  # show expiry
 """
+# loop to retry, only while exit codes nonzero
+
 # ssh-keygen -R localhost  # to cut it out of '~/.ssh/known_hosts'
 # todo: smashing SSH_AUTH_SOCK/ SSH_AGENT_PID empties 'ssh-add -l' at Linux
 # todo: does 'ssh -ttt' carry more force than 'ssh -tt'?

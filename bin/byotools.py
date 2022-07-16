@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 # deffed in many packages  # missing from:  https://pypi.org
+
 """
 usage: import byotools as byo  # define Func's
 usage: python3 bin/byotools.py  # run Self-Test's
@@ -48,16 +49,16 @@ def alt_main_doc(xxfilexx):
 def exit(name=None, shparms=None):
     """Exit after printing TestDoc, or ArgDoc, or running a Subprocess, else return"""
 
-    # Actually quit early, don't exit, when just imported
+    parms = sys.argv[1:]
+
+    # Return if imported, not called to run as the Main Module
 
     if name is not None:
         if name != "__main__":
 
             return
 
-    # Actually quit early, don't exit, when the Caller wants to take the Parms
-
-    parms = sys.argv[1:]  # these 'parms' are the 'shlex.split' of the 'shparms'
+    # Return if given ShParms that the Caller wants to take
 
     if shparms is not None:
         wants = shlex.split(shparms)
@@ -65,21 +66,94 @@ def exit(name=None, shparms=None):
 
             return
 
-    # Exit in one way or another, but always run the tests inside 'exit_via_testdoc'
+    # Exit after printing the Test Doc of the Arg Doc, for no Parms
 
-    exit_via_testdoc()
+    exit_if_testdoc()
 
-    exit_via_argdoc()
-    exit_via_shcommand()
+    # Exit after printing the Arg Doc, for '--help' or '--hel' or ... '--h' before '--'
+
+    exit_if_argdoc()
+
+    # Exit after calling Subprocess of Sh Path, else exit nonzero for rare usage
+
+    exit_after_shverb()
 
 
-def exit_via_argdoc():
+def exit_if_testdoc():
+    """Exit after printing last Graf, if no Parms"""
+
+    parms = sys.argv[1:]
+
+    # Collect many Args
+
+    doc = __main__.__doc__
+    doc = alt_main_doc() if (doc is None) else doc
+
+    grafs = str_splitgrafs(doc)
+    last_graf = grafs[-1]
+
+    tests = str_ripgraf(last_graf)
+    tests = list_strip(tests)
+    testdoc = "\n".join(tests)
+
+    # Choose a local End-of-ShLine Comment Style, for Paste of Sh Command Lines
+
+    env_ps1 = os.environ.get("PS1")
+    env_zsh = env_ps1.strip().endswith("%#") if env_ps1 else False
+
+    sh_testdoc = testdoc
+    if env_zsh:
+        sh_testdoc = _sh_testdoc_to_zsh_testdoc(testdoc)
+
+    # Actually quit early, don't exit, when Parms supplied
+
+    if not parms:
+
+        print()
+        print(sh_testdoc)
+        print()
+
+        sys.exit(0)  # Exit 0 after printing Help Lines
+
+
+def _sh_testdoc_to_zsh_testdoc(testdoc):
+    """Reformat a classic Sh TestDoc to work inside Zsh UnSetOpt InteractiveComments"""
+
+    zsh_lines = list()
+    for line in testdoc.splitlines():
+        (before, mark, after) = line.partition("  # ")
+
+        zsh_line = line
+        if mark:
+            enough = after
+            enough = enough.replace("#", ".")
+            enough = re.sub(r"'[^'\\]*'", repl=".", string=enough)
+            enough = re.sub(r"{[^,]*}", repl=".", string=enough)
+
+            rep_after = " # {!r}".format(after)
+            try:
+                enough_argv = shlex.split(enough)
+                if enough_argv != list(shlex_dquote(_) for _ in enough_argv):
+                    rep_after = after
+            except ValueError:
+                pass
+
+            zsh_line = "{}  &&: {}".format(before, rep_after)
+
+        zsh_lines.append(zsh_line)
+
+    zsh_testdoc = "\n".join(zsh_lines)
+
+    return zsh_testdoc
+
+
+def exit_if_argdoc():
     """Exit after printing ArgDoc, if '--help' or '--hel' or ... '--h' before '--'"""
+
+    parms = sys.argv[1:]
 
     doc = __main__.__doc__
     doc = alt_main_doc(__main__.__file__) if (doc is None) else doc
-
-    parms = sys.argv[1:]  # these 'parms' are the 'shlex.split' of the 'shparms'
 
     # Actually quit early, don't exit, when no '--help' Parm supplied
 
@@ -98,42 +172,10 @@ def exit_via_argdoc():
             print()
             print()
 
-            sys.exit(0)
+            sys.exit(0)  # Exit 0 after printing Help Lines
 
 
-def exit_via_shcommand():
-    """Forward the Command as the Argv of a Subprocess, and exit"""
-
-    # Collect many Args
-
-    basename = os.path.basename(sys.argv[0])
-
-    (root, ext) = os.path.splitext(basename)
-    assert ext == ".py", dict(basename=basename)
-
-    argv = list(sys.argv[:-1]) if (sys.argv[-1] in ("-", "--")) else sys.argv
-    argv[0] = root
-
-    # Form a ShLine
-
-    shline = ""
-    for arg in argv:
-        if shline:
-            shline += " "
-        shline += shlex.quote(arg)
-
-    # Trace and run the ShLine, but trace NonZero Exit Status ReturnCode, if any
-
-    sys.stderr.write("+ {}\n".format(shline))
-
-    run = subprocess.run(argv)
-    if run.returncode:
-        sys.stderr.write("{}: + exit {}\n".format(basename, run.returncode))
-
-    sys.exit()  # Exit None, not Exit 0, after resorting to calling an Executable File
-
-
-def exit_via_patchdoc(patchdoc):  # todo: pick the PatchDoc out of the ArgDoc
+def exit_if_patchdoc(patchdoc):  # todo: pick the PatchDoc out of the ArgDoc
     """Exit after printing PatchDoc, if "--" is the only Parm"""
 
     # Collect many Args
@@ -141,7 +183,7 @@ def exit_via_patchdoc(patchdoc):  # todo: pick the PatchDoc out of the ArgDoc
     doc = __main__.__doc__
     doc = alt_main_doc(__main__.__file__) if (doc is None) else doc
 
-    parms = sys.argv[1:]  # these 'parms' are the 'shlex.split' of the 'shparms'
+    parms = sys.argv[1:]
 
     patchdoc_body = textwrap.dedent(patchdoc)
     patchdoc_body = patchdoc_body.strip()
@@ -174,75 +216,106 @@ def exit_via_patchdoc(patchdoc):  # todo: pick the PatchDoc out of the ArgDoc
     print(patchdoc_body)
     print()
 
-    sys.exit(0)
+    sys.exit(0)  # Exit 0 after printing Help Lines
 
 
-def exit_via_testdoc():
-    """Exit after printing last Graf, if no Parms"""
-
-    # Collect many Args
-
-    doc = __main__.__doc__
-    doc = alt_main_doc() if (doc is None) else doc
-
-    grafs = str_splitgrafs(doc)
-    last_graf = grafs[-1]
-
-    tests = str_ripgraf(last_graf)
-    tests = list_strip(tests)
-    testdoc = "\n".join(tests)
-
-    # Choose a local End-of-ShLine Comment Style, for Paste of Sh Command Lines
-
-    env_ps1 = os.environ.get("PS1")
-    env_zsh = env_ps1.strip().endswith("%#") if env_ps1 else False
-
-    sh_testdoc = testdoc
-    if env_zsh:
-        sh_testdoc = sh_testdoc_to_zsh_testdoc(testdoc)
-
-    # Actually quit early, don't exit, when Parms supplied
-
-    parms = sys.argv[1:]  # these 'parms' are the 'shlex.split' of the 'shparms'
+def exit_if_rare_parms(shline, parms):
+    """Exit 2 for rare usage if Parms truthy, else return"""
 
     if not parms:
 
-        print()
-        print(sh_testdoc)
-        print()
+        return
 
-        sys.exit(0)
+    shparms = shlex_djoin(parms)
+    sys.stderr.write("{}: ERROR: unrecognized arguments: {}\n".format(shline, shparms))
+
+    sys.exit(2)  # Exit 2 for rare usage
 
 
-def sh_testdoc_to_zsh_testdoc(testdoc):
-    """Reformat a classic Sh TestDoc to work inside Zsh UnSetOpt InteractiveComments"""
+def exit_after_shverb():
+    """Exit after calling Subprocess of Sh Path, else exit nonzero for rare usage"""
 
-    zsh_lines = list()
-    for line in testdoc.splitlines():
-        (before, mark, after) = line.partition("  # ")
+    # Exit after calling Subprocess, if dropping the Py Ext Mark finds a Sh Verb
 
-        zsh_line = line
-        if mark:
-            enough = after
-            enough = enough.replace("#", ".")
-            enough = re.sub(r"'[^'\\]*'", repl=".", string=enough)
-            enough = re.sub(r"{[^,]*}", repl=".", string=enough)
+    exit_if_shverb(argv=sys.argv)
 
-            rep_after = " # {!r}".format(after)
-            try:
-                enough_argv = shlex.split(enough)
-                if enough_argv != list(shlex_dquote(_) for _ in enough_argv):
-                    rep_after = after
-            except ValueError:
-                pass
+    # Else complain and exit 2 for rare usage
 
-            zsh_line = "{}  &&: {}".format(before, rep_after)
+    main_py_basename = os.path.basename(sys.argv[0])
+    shverb = str_removesuffix(main_py_basename, suffix=".py")
 
-        zsh_lines.append(zsh_line)
+    sys.stderr.write(
+        "{}: ERROR: called while no {!r} found in Sh Path\n".format(
+            main_py_basename, shverb
+        )
+    )
 
-    zsh_testdoc = "\n".join(zsh_lines)
+    sys.exit(2)  # Exit 2 for rare usage
 
-    return zsh_testdoc
+
+def exit_if_shverb(argv):
+    """Exit after calling Subprocess, if dropping the Py Ext Mark finds a Sh Verb"""
+
+    alt_argv = sys.argv if (argv is None) else argv
+
+    # Drop the Py Ext Mark
+
+    main_py_basename = os.path.basename(alt_argv[0])
+
+    (root, ext) = os.path.splitext(main_py_basename)  # Ext may be empty
+
+    shverb = root
+    shverb_argv = [shverb] + list(alt_argv[1:])
+
+    # Actually quit early, don't exit, when Sh Verb not found in Sh Path
+
+    which = shutil.which(shverb)
+    if which is None:
+
+        return
+
+    if os.path.realpath(which) == os.path.realpath(sys.argv[0]):
+        sys.stderr.write(
+            "byotools.py: declining to recurse through:  which -a {!r}\n".format(shverb)
+        )
+
+        return
+
+    # Else exit after calling Subprocess
+
+    exit_after_one_argv(argv=shverb_argv)
+
+
+def exit_after_some_argv(argvs):
+    """Run the ArgV's in order, till exit nonzero, else exit zero after the last one"""
+
+    for argv in argvs:
+        subprocess_run_else_exit(argv)
+
+    sys.exit()  # Exit None after every ArgV exits Falsey
+
+
+def exit_after_one_argv(argv):
+    """Call a Subprocess to run the ArgV, and then exit"""
+
+    subprocess_run_else_exit(argv)
+
+    sys.exit()  # Exit None after an ArgV exits Falsey
+
+
+def subprocess_run_else_exit(argv):
+    """Call a Subprocess to run the ArgV and return, except exit if exit nonzero"""
+
+    main_py_basename = os.path.basename(sys.argv[0])
+
+    shline = shlex_djoin(argv)
+    sys.stderr.write("+ {}\n".format(shline))
+
+    run = subprocess.run(argv)  # close kin to 'subprocess.run(argv, check=True)'
+    if run.returncode:
+        sys.stderr.write("{}: + exit {}\n".format(main_py_basename, run.returncode))
+
+        sys.exit(run.returncode)  # Pass back a NonZero Exit Status ReturnCode
 
 
 #
@@ -481,8 +554,16 @@ SH_QUOTABLE = SH_PLAIN + " " + "!#&()*;<>?[]^{|}~"
 # all printable Ascii except not $ Dollar and ` Backtick, and not " and ' and \
 
 
-def shlex_dquote(parm):  # see also 'shlex.join' since Oct/2019 Python 3.8
+def shlex_djoin(parms):  # see also 'shlex.join' since Oct/2019 Python 3.8
     """Quote, but quote compactly despite '"' and '~', when that's still easy"""
+
+    shline = " ".join(shlex_dquote(_) for _ in parms)
+
+    return shline  # such as:  echo "let's" speak freely, even casually
+
+
+def shlex_dquote(parm):
+    """Quote 1 Parm, but quote compactly despite '"' and '~', when that's still easy"""
 
     # Follow the Library, when they agree no quote marks required
 
@@ -528,8 +609,8 @@ def shlex_dquote(parm):  # see also 'shlex.join' since Oct/2019 Python 3.8
     # and the Dirs don't change out beneath us
 
 
-def shlex_quote(parm):  # see also 'shlex.join' since Oct/2019 Python 3.8
-    """Mark up a word with Quote Marks and Backslants, so Sh agrees it is one word"""
+def shlex_quote(parm):  # missing from Python till Oct/2019 Python 3.8
+    """Mark up 1 Parm with Quote Marks and Backslants, so Sh agrees it is 1 Word"""
 
     # Trust the library, if available
 
@@ -550,6 +631,81 @@ def shlex_quote(parm):  # see also 'shlex.join' since Oct/2019 Python 3.8
     return quoted  # such as print(shlex_quote("<=>"))  # the 5 chars '<=>'
 
     # test results with:  python3 -c 'import sys; print(sys.argv)' ...
+
+
+def shlex_parms_pop_opt_count(parms, opt):  # todo: add tests of this
+    """Pop the usage '[-opt]' out of the Parms"""
+
+    count = 0
+
+    # Visit each Parm, except quit before first "--" Dash-Dash
+
+    for (index, parm) in enumerate(parms):  # commonly taken from:  parms = sys.argv[1:]
+        if parm == "--":
+
+            break
+
+        # Find and count and pop the wanted Option
+
+        if parm == opt:
+
+            stop = index + 1
+            parms[::] = parms[:index] + parms[stop:]
+
+            count += 1
+
+    # Succeed
+
+    return count
+
+
+def shlex_parms_pop_option_value(parms, option, enough, const):
+    """Pop the usage '[--option [VALUE]]' out of the Parms"""
+
+    main_py_basename = os.path.basename(__main__.__file__)
+
+    # Visit each Parm, except quit before first "--" Dash-Dash
+
+    for (index, parm) in enumerate(parms):  # commonly taken from:  parms = sys.argv[1:]
+        if parm == "--":
+
+            break
+
+        # Find the wanted Option, or enough of its Leftmost Chars
+
+        comparable = parm.split("=")[0]
+        if comparable.startswith(enough) and option.startswith(comparable):
+
+            # Pick out the Value of this Option
+
+            option_index = index
+            option_value = "=".join(parm.split("=")[1:])
+            if not option_value:
+                if const is not None:
+                    option_value = const
+                else:
+                    option_index = index + 1
+                    if option_index < len(parms):
+                        option_value = parms[option_index]
+
+                    else:
+
+                        sys.stderr.write(
+                            "{}: ERROR: argument {}: expected one argument\n".format(
+                                main_py_basename, option
+                            )
+                        )
+
+                        sys.exit(2)  # Exit 2 for rare usage
+
+            # Pop the Option and its Value too
+
+            stop = option_index + 1
+            parms[::] = parms[:index] + parms[stop:]
+
+            # Succeed
+
+            return option_value
 
 
 def shlex_parms_partition(parms):
@@ -657,7 +813,7 @@ class BrokenPipeSink:  # todo: add calls of it, don't just define it
             null_fileno = os.open(os.devnull, flags=os.O_WRONLY)
             os.dup2(null_fileno, sys.stdout.fileno())  # duck the rest of them
 
-            sys.exit(self.returncode)
+            sys.exit(self.returncode)  # Exit 141, or as chosen, after BrokenPipeError
 
         # intervenes more narrowly than:
         #

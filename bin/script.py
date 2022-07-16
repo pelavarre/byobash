@@ -6,7 +6,7 @@ usage: script.py [--h] [TYPESCRIPT]
 limit a Terminal window to a few rows and columns shared between hosts
 
 positional args:
-  TYPESCRIPT  the name of the LogFile (default: 'typescript')
+  TYPESCRIPT  the name of the LogFile (default 'typescript')
 
 options:
   --help  show this help message and exit

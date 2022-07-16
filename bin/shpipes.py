@@ -1,292 +1,539 @@
 #!/usr/bin/env python3
 
 r"""
-usage: shpipes.py [--help] VERB [ARG ...]
+usage: shpipes.py [--help] [--ext=[EXT]] VERB [ARG ...]
 
-compose a graph of pipes of shverb's
+compose and run a Pipe on the Os Copy/Paste Buffer, or inside a Pipe
 
 positional arguments:
-  VERB    choice of Alias to expand
-  ARG     choice of Options and Positional Args to run in place of defaults
+  VERB         choice of Alias to expand
+  ARG          choice of Options and Positional Args to run in place of defaults
 
 options:
-  --help  show this help message and exit
+  --help       show this help message and exit
+  --ext=[EXT]  autocomplete & print, don't run the Code (default None, else '--ext=""')
 
-quirks:
-  dumps larger numbers of Lines into taller Screens, as defaults of:  head/tail -...
+Quirks:
+
+  frames dumps of 'pbpaste' to Stdout with one empty Stderr Line before, and one after,
+    especially for the case of an Os Copy/Paste Buffer leaving its last Line unclosed
+  calls on 'pbpaste' and 'pbcopy' to dump/ load the Os Copy/Paste Buffer
+    even though many Linuxes & Windows' ship without defining 'pbpaste' and 'pbcopy'
+
+  defaults to Diff from a file named 'a'
   limits Diff and Find like Sh should, by way of the 'less -FIRX' Paginator
+  dumps larger numbers of Lines into taller Screens, as defaults of:  head/tail -...
   calls 'make --' even for Make's that can't distinguish 'make --' from 'make'
   lets Linux Terminal Stdin echo ⌃D TTY EOF as '', vs macOS as '^D', all without '\n'
 
-slang:
-  sends Cat '--show-tabs --show-nonprinting' as '-tv'
+Slang:
+
+  sends Cat '--show-tabs --show-nonprinting' as '-tv', not so much '--show-ends' as '-e'
   sends Diff '--ignore-space-change --recursive --show-c-function -unified' as '-brpu'
+  sends Emacs '--no-window-system' as '-nw'
   sends HexDump '-C', as such, to show "Canonical" Hex+Char, not just Hex
-  sends Emacs ' --no-window-system ' as ' -nw '
+  sends Less '--quit-if-one-screen' as '-F', & '--ignore-case' as '-I' till you type -I
+  sends Less '--RAW-CONTROL-CHARS' as '-R', & '--no-init' as '-X'
   sends Uniq '--count' as '-c'
   sends Wc '--lines' as '-l'
 
-advanced bash install:
+Advanced Bash Install:
 
   source qb/env-path-append.source  # define 'c', 'cv', 'd', 'g', 'gi', and so on
   bash qb/env-path-append.source  # show how it works
-  export PATH="${PATH:+$PATH:}~/Public/byobash/qb"  # get it done yourself
+  export PATH="${PATH:+$PATH:}~/Public/byobash/qb"  # add it into '~/.bashrc' etc
 
-  shpipes.py cv  # pbpaste |...
-  shpipes.py cv  # ... |pbcopy
-  shpipes.py cv  # ... |tee >(pbcopy) |...
+Call Python to filter Lines of the Os Copy/Paste Buffer
 
-examples:
+  python3 -c 'import this' |tail -n +3 |shpipes.py cv
+
+  shpipes.py upper
+  shpipes.py split
+
+  shpipes.py join |cat -
+  echo '  abc  ' |shpipes.py lstrip |cat -etv
+  find . |shpipes.py 're.sub(r"/.*$", "/..."'
+
+  shpipes.py --ext=.py lstrip  # print how it works, don't do it
+
+Call Python to filter whole Copies of the Os Copy/Paste Buffer
+
+  shpipes.py join
+  shpipes.py enumerate  # kin to:  |shpipes.py c, |cat -n -tv |expand
+  shpipes.py readlines  # aka:  |shpipes.py sh sponge
+  shpipes.py textwrap.dedent
+
+Call Sh to filter Lines of the Os Copy/Paste Buffer
+
+  shpipes.py sh a '?' 1  # pbpaste |awk -F'?' '{print $1}' |pbcopy  # drop tracking tags
+  shpipes.py sh awk -F'?' '{print $1}'  # same work, but not so abbreviated
+  shpipes.py sh sponge  # works even while "bash -c 'sponge'" is missing
+
+  shpipes.py --ext=.sh lstrip  # print how it works, don't do it
+
+Examples:
 
   shpipes.py  # show these examples and exit
   shpipes.py --h  # show this help message and exit
-  shpipes.py --  # todo: run as you like it
+  shpipes.py --  # call on Vi to edit the Os Copy/Paste Buffer
 
-  shpipes.py cv --  # pbpaste |cat -ntv |expand
-  shpipes.py cv -etv  # pbpaste |cat -etv |expand
+  shpipes.py pbedit vi +$  # call on 'vi +$' to edit the Os Copy/Paste Buffer
+  shpipes.py pbedit emacs -nw  # call on 'emacs -nw' to edit the Os Copy/Paste Buffer
 
-  shpipes.py c |  # cat - |
-  shpipes.py |c  # |cat -ntv |expand
-  shpipes.py |cv  # pbcopy
-  shpipes.py |cv |  # |tee >(pbcopy) |
+  shpipes.py a  # awk '{print $NF}'  # usage: a, a SEP, a INDEX, a SEP INDEX, etc
+  shpipes.py a 0  # awk '{print $0}'  # close every Line
+  shpipes.py a /  # awk -F/ '{print $NF}'  # pick Basename out of Path
+  shpipes.py a / 1 # awk '{print $1}'  # print Top DirName out of Path
+  shpipes.py a / -1 # awk '{print $(NF - 1)}'  # pick Dir of Basename out of Path
 
-  shpipes.py a  # awk -F' ' '{print $NF}'  # a, a SEP, a INDEX, a SEP INDEX, etc
   shpipes.py c  # cat - >/dev/null
-  shpipes.py cv  # pbpaste
+  shpipes.py c --  # ... |cat -n -tv |expand  # shows PbPaste endswith unclosed Line
+  shpipes.py c |sort  # cat - |sort
+  shpipes.py echo abc |c  # cat -n -tv |expand
+
+  shpipes.py cv  # pbpaste  # but framed by 1 Blank Stderr Line above, & 1 below
+  shpipes.py cv --  # pbpaste |cat -n -tv |expand  # but framed
+  shpipes.py cv -etv  # pbpaste |cat -etv |expand  # but framed
+  echo -n abcde |shpipes.py cv  # ... |pbcopy
+  echo abcdef |shpipes.py cv |cat -  # ... |tee >(pbcopy) |...
+
   shpipes.py d  # diff -brpu A_FILE B_FILE |less -FIRX  # default A_FILE='a', B_FILE='b'
   shpipes.py e  # emacs -nw --no-splash --eval '(menu-bar-mode -1)'
   shpipes.py em  # emacs -nw --no-splash --eval '(menu-bar-mode -1)'
   shpipes.py f  # find . -not -type d -not -path './.git/*' |less -FIRX  # Mac needs .
   shpipes.py g  # grep -i .
-  shpipes.py gi  # shpipes.py g --  # grep .  # without '-i'
+  shpipes.py gi  # grep .  # without '-i'
   shpipes.py gl  # grep -ilR
-  shpipes.py gli  # shpipes.py gl --  # grep -lR  # without '-il'
+  shpipes.py gli  # grep -lR  # without '-il'
+  shpipes.py gv  # grep -v -i
+  shpipes.py gvi  # grep -v  # without '-i'
   shpipes.py h  # head -16  # or whatever a third of the screen is
   shpipes.py hi  # history  # but include the '~/.bash_histories/' dir
   shpipes.py ht  # sed -n -e '1,2p;3,3s/.*/&\n.../p;$p'  # Head and also Tail
+  # l often means 'ls -CF' or 'less -FIRX'
   shpipes.py m  # make --
   shpipes.py mo  # less -FIRX
-  shpipes.py n  # cat -ntv -| expand
-  shpipes.py p  # popd
+  shpipes.py n  # cat -n -tv - |expand  # mostly redundant with 'shpipes.c'
   shpipes.py q  # git checkout
   shpipes.py s  # sort -
   shpipes.py sp  # sponge.py --
   shpipes.py t  # tail -16  # or whatever a third of the screen is
-  shpipes.py u  # uniq -c -| expand
+  shpipes.py u  # uniq -c - |expand
   shpipes.py v  # vim -
-  shpipes.py w  # wc -l
+  # w often means '/usr/bin/w'
+  shpipes.py wcl  # wc -l
   shpipes.py x  # hexdump -C
   shpipes.py xp  # expand
 """
+# FIXME shpipes.py p  # popd
 
 
-import __main__
+import argparse
+import io
+import os
 import pdb
 import re
 import shlex
+import shutil
+import signal
 import subprocess
 import sys
+import tempfile
+import textwrap
 
 import byotools as byo
 
 _ = pdb
 
 
+# Calc the process exit status returncode for Keyboard Interrupt
+
+SIGINT_RETURNCODE = 0x80 | signal.SIGINT
+assert SIGINT_RETURNCODE == 130, (SIGINT_RETURNCODE, 0x80, signal.SIGINT)
+
+
+# Mark the ShVerb's that wrongly fall back to hang for input at Tty Stdin,
+# when given only Options and Seps, but not Args, in the absence of PbPaste Stdin
+
+STR_PBPASTE_SHVERBS = """
+    awk cat expand grep hexdump less sort sponge tail uniq wc
+"""
+PBPASTE_SHVERBS = set(STR_PBPASTE_SHVERBS.split())
+
+
 def main():
     """Run from the Sh Command Line"""
 
-    parms = sys.argv[1:]
-    func_by_verb = form_func_by_verb()
+    # Parse the Sh Command Line of a call of ShPipes Py
+
+    args = parse_shpipes_args()
+    parms = args.parms
+
+    main.ext = args.alt_ext
 
     # Take 'shpipes.py', 'shpipes.py --h', 'shpipes.py --he', ... 'shpipes.py --help'
 
-    byo.exit_via_testdoc()  # shpipes.py
-    byo.exit_via_argdoc()  # shpipes.py --help
+    byo.exit_if_testdoc()  # shpipes.py
+    byo.exit_if_argdoc()  # shpipes.py --help
+
+    # Else pick apart how to take the Verb and its Args
+
+    exit_via_main_parms(parms)
+
+
+def exit_via_main_parms(parms):
+    """Run the Usage VERB [ARG ...]"""
+
+    shfunc_by_verb = form_shfunc_by_verb()
+
+    # Take 'shpipes.py --' or 'shpipes.py --'
+    # or 'shpipes.py --ext' or 'shpipes.py --ext=...'
+
+    alt_parms = parms if parms else ["--"]
+    if alt_parms[:1] == ["--"]:
+
+        main.shverb = "--"
+        exit_after_shfunc(shfunc=pbedit, parms=parms)
+        # F=$(mktemp) && pbpaste >$F && vi $F && cat $F |pbcopy && rm $F
+
+    # Take stunningly cryptic abbreviations of ShPipe's
 
     assert parms
 
-    # Take 'shpipes.py --'
+    shverb = parms.pop(0)
+    if shverb in shfunc_by_verb.keys():
+        shfunc = shfunc_by_verb[shverb]
 
-    if parms == ["--"]:
-        sys.stderr.write("NotImplementedError: 'cv --' to mean:  cv |wc\n")
-        sys.stderr.write("NotImplementedError: 'cv --' to mean:  cv |vi.py - |cv\n")
+        main.shverb = shverb
+        exit_after_shfunc(shfunc, parms=parms)
 
-        sys.exit(2)  # Exit 2 for wrong usage
+    # Take any verb of the Sh Path
 
-    # Take many brutally cryptic abbreviations of ShVerb's
+    exit_if_shverb([shverb] + parms)
 
-    shverb = parms[0]
-    if shverb in func_by_verb.keys():
-        func = func_by_verb[shverb]
+    # Autocomplete & run (or just print) the Code
 
-        __main__.main.sponge_shverb = None
-        if hasattr(func, "tty_sponge"):
-            __main__.main.sponge_shverb = shverb
-
-        func()  # these Func's mostly now exit here
-
-    # Default to forward the Parms into a Git Subprocess
-
-    byo.exit_via_shcommand()
+    exit_after_autocomplete(parms)
 
 
-#
-# Wrap many many Shim's around Sh Pipe's
-#
+def parse_shpipes_args():
+    """Parse the Usage [--ext [EXT]]"""
 
+    parms = sys.argv[1:]
 
-def form_func_by_verb():
-    """Declare the Pipe Filter Abbreviations"""
+    # Pop the usage '[--ext [EXT]]' out of the Parms
 
-    func_by_verb = dict(
-        a=do_a,
-        c=do_c,
-        cv=do_cv,
-        d=do_d,
-        e=do_e,
-        em=do_em,
-        f=do_f,
-        g=do_g,
-        gi=do_gi,
-        gli=do_gli,
-        gl=do_gl,
-        h=do_h,
-        hi=do_hi,
-        ht=do_ht,
-        m=do_m,
-        mo=do_mo,
-        n=do_n,
-        p=do_p,
-        q=do_q,
-        s=do_s,
-        sp=do_sp,
-        t=do_t,
-        u=do_u,
-        v=do_v,
-        w=do_w,
-        x=do_x,
-        xp=do_xp,
+    ext = byo.shlex_parms_pop_option_value(
+        parms, option="--ext", enough="--e", const=""
     )
 
-    do_a.tty_sponge = True
-    do_c.tty_sponge = True
-    do_g.tty_sponge = True
-    do_gi.tty_sponge = True
-    do_h.tty_sponge = True
-    do_mo.tty_sponge = True
-    do_n.tty_sponge = True
-    do_s.tty_sponge = True
-    do_sp.tty_sponge = True
-    do_t.tty_sponge = True
-    do_u.tty_sponge = True
-    do_w.tty_sponge = True
-    do_x.tty_sponge = True
-    do_xp.tty_sponge = True
+    alt_ext = ext
+    if ext and not ext.startswith("."):
+        alt_ext = "." + ext
 
-    return func_by_verb
+    # Publish results
+
+    args = argparse.Namespace()
+
+    args.alt_ext = alt_ext
+    args.parms = parms
+
+    # Succeed
+
+    return args
 
 
-def do_a():
-    """awk -F' ' '{print $NF}'  # a, a SEP, a INDEX, a SEP INDEX, etc"""
+#
+# Map stunningly cryptic abbreviations to our ShFunc's who run them as ShPipe's
+#
 
-    parms = sys.argv[2:]
 
-    # Pick out a Sep, or an Index, both, or neither, from the Parms, if Parms
+def exit_after_shfunc(shfunc, parms):
+    """Forward Parms into a Cryptically Abbreviated ShFunc and exit"""
 
-    if not parms:
+    # Agree to run if Sh Source required, but refuse to run if other Source required
 
-        exit_via_shline("awk '{print $NF}'")
+    if main.ext is not None:
+        if main.ext not in ("", ".bash", ".sh", ".zsh"):
+            sys.stderr.write(
+                "shpipes.py: ERROR: --ext={!r} not implemented for sh:  {}\n".format(
+                    main.ext, byo.shlex_djoin(parms) if parms else "--"
+                )
+            )
 
-    elif len(parms) == 1:
+            sys.exit(2)  # Exit 2 for rare usage
 
-        if re.match(r"^[-+]?[0-9]+$", string=parms[0]):
-            (sep, index) = (None, parms[0])
-        else:
-            (sep, index) = (parms[0], "NF")
+    # Trace and call and exit
 
-    elif len(parms) == 2:
+    shfunc(parms)  # call this cryptically abbreviated ShFunc
 
-        (sep, index) = parms
+    sys.exit()  # Exit None after this cryptically abbreviated ShFunc
 
-    # Forward the Parms, else just an Index, else a Sep and an Index
 
-    else:
+def form_shfunc_by_verb():
+    """Declare the Pipe Filter Abbreviations"""
 
-        exit_via_shparms("awk '{print $NF}'")  # todo: does this forward Parms well
+    shfunc_by_verb = dict(
+        a=do_a,  # awk -F' ' '{print $NF}'  # a, a SEP, a INDEX, a SEP INDEX, etc
+        c=do_c,  # cat - >/dev/null
+        cv=do_cv,  # pbpaste |...  # ... |pbcopy
+        d=do_d,  # diff -brpu A_FILE B_FILE |less -FIRX  # default '-brpu a b'
+        e=do_e,  # (same as 'do_em')
+        em=do_em,  # emacs -nw --no-splash --eval '(menu-bar-mode -1)'
+        f=do_f,  # find . -not -type d -not -path './.git/*' |less -FIRX  # Mac needs .
+        g=do_g,  # grep -i .
+        gi=do_gi,  # grep .  # without '-i'
+        gli=do_gli,  # grep -lR  # without '-il'
+        gl=do_gl,  # grep -ilR
+        gv=do_gv,  # grep -v -i
+        gvi=do_gvi,  # grep -v  # without '-i'
+        h=do_h,  # head -16  # or whatever a third of the screen is
+        hi=do_hi,  # history  # but include the '~/.bash_histories/' dir
+        ht=do_ht,  # sed -n -e '1,2p;3,3s/.*/&\n.../p;$p'  # Head and also Tail
+        m=do_m,  # make --
+        mo=do_mo,  # less -FIRX
+        n=do_n,  # cat -n -tv - |expand
+        pbedit=pbedit,  # Call on Vi to edit a Pipe Byte Stream, or on a chosen Editor
+        q=do_q,  # git checkout
+        s=do_s,  # sort -
+        sp=do_sp,  # sponge.py --
+        t=do_t,  # tail -16  # or whatever a third of the screen is
+        u=do_u,  # uniq -c - |expand
+        v=do_v,  # vim -
+        wcl=do_wcl,  # wc -l
+        x=do_x,  # hexdump -C
+        xp=do_xp,  # expand
+    )
 
-    if sep is None:
+    return shfunc_by_verb
 
-        exit_via_shline("awk '{{print {}}}'".format(index))
 
+def do_a(parms):
+    """awk -F' ' '{print $NF}'  # usage: a, a SEP, a AWK_INDEX, a SEP AWK_INDEX, etc"""
+
+    # Forward Parms transparently, when not taken as meaningful here:
+
+    (sep, repr_index) = awk_parms_to_sep_repr_index(parms)
+    if (sep is None) and (repr_index is None):
+
+        exit_after_shparms("awk", parms=parms)
+
+    # Autocomplete an Awk Code Fragment that is Sep or Awk Index or both or neither
+
+    if sep in (None, " "):
+        shline = "awk '{{print {}}}'".format(repr_index)
     else:
         shsep = byo.shlex_dquote(sep)
+        shline = "awk -F{} '{{print {}}}'".format(shsep, repr_index)
 
-        exit_via_shline("awk -F{} '{{print ${}}}'".format(shsep, index))
+    # Run the autocompleted Awk Code
+
+    exit_after_shline(shline)
 
 
-def do_c():
+def awk_parms_to_sep_repr_index(parms):
+    """Take usage 'AWK_SEP (.|AWK_INDEX)' or usage '.|AWK_INDEX|AWK_SEP', else None's"""
+
+    sep = None
+    repr_index = None
+
+    if parms[2:]:  # Forward Parms transparently, when there are many
+
+        pass
+
+    elif parms[1:]:  # Take usage: AWK_SEP (.|AWK_INDEX)
+
+        if len(parms[0]) == 1:
+            if re.match(r"^[-+]?[0-9]+$", string=parms[1]) or (parms[1] == "."):
+                sep = parms[0]
+                int_index = None if (parms[1] == ".") else int(parms[1])
+                repr_index = awk_repr_index(int_index)
+
+    elif parms:  # Take usage: .|AWK_INDEX|AWK_SEP
+
+        if re.match(r"^[-+]?[0-9]+$", string=parms[0]) or (parms[0] == "."):
+            int_index = None if (parms[0] == ".") else int(parms[0])
+            repr_index = awk_repr_index(int_index)
+        elif len(parms[0]) == 1:
+            sep = parms[0]
+            repr_index = awk_repr_index(int_index=None)
+
+    elif not parms:
+
+        sep = " "
+        repr_index = awk_repr_index(int_index=None)
+
+    return (sep, repr_index)
+
+
+def awk_repr_index(int_index):
+    """ "Convert to Awk Repr Index from Awk Int Index"""
+
+    repr_index = "$NF"
+    if int_index is not None:
+        if int_index < 0:  # '$NF' for Last Word, else Rightmost Words '$(NF - 1)' etc.
+            repr_index = "$(NF - {})".format(abs(int_index))
+        else:  # '$0' for Whole Line, else Leftmost Words '$1', '$2', etc
+            repr_index = "${}".format(int_index)
+
+    return repr_index
+
+
+def do_c(parms):
     """cat - >/dev/null"""
-
-    parms = sys.argv[2:]
 
     stdin_isatty = sys.stdin.isatty()
     stdout_isatty = sys.stdout.isatty()
 
-    if parms:
-        if parms != ["/dev/stdout"]:
-            __main__.main.sponge_shverb = None  # todo: often wrong? composes poorly?
-        exit_via_shparms("cat")
-    else:
-        if stdin_isatty and stdout_isatty:
-            exit_via_shparms("cat - >/dev/null")
-        elif not stdin_isatty:
-            exit_via_shpipe("cat -ntv |expand")
-        else:
-            exit_via_shparms("cat -")
+    if parms == ["--"]:
+
+        exit_after_shpipe("cat -n -tv |expand")
+
+    if not parms:
+
+        if not stdin_isatty:
+
+            exit_after_shpipe("cat -n -tv |expand")
+
+        if stdout_isatty:
+
+            exit_after_shpipe("cat - >/dev/null")
+
+        exit_after_shline("cat -")
+
+    exit_after_shparms("cat", parms=parms)
 
 
-def do_cv():
+def do_cv(parms):
     """pbpaste inside tty, pbpaste from tty, pbcopy to tty, else tee to pbcopy"""
 
     stdin_isatty = sys.stdin.isatty()
     stdout_isatty = sys.stdout.isatty()
 
-    if stdin_isatty and stdout_isatty:
-        do_cv_tty()  # pbpaste, except 'cv --' => pbpaste |cat -ntv |expand
-    elif stdin_isatty:
-        exit_via_shparms("pbpaste")  # pbpaste |...
-    elif stdout_isatty:
-        exit_via_shparms("pbcopy")  # ... |pbcopy
-    else:
-        exit_via_shparms("tee >(pbcopy)")  # ... |tee >(pbcopy) |...
+    # Work differently to drain Pb, else fill Pb, else stream through Pb
+    # Forward or reject Parms, don't drop them
+
+    if stdin_isatty:  # cv |...
+        # byo.exit_if_rare_parms("shpipes.py cv ...", parms)  # no, not here
+
+        exit_after_framed_cv_paste(parms)  # drain Pb, even when last line unclosed
+
+    elif stdout_isatty:  # ... |cv
+        byo.exit_if_rare_parms("shpipes.py ... cv", parms=parms)
+
+        exit_after_shline("pbcopy")  # fill Pb
+
+    else:  # ... |cv |...
+        byo.exit_if_rare_parms("shpipes.py ... cv ...", parms=parms)
+
+        exit_after_shpipe("tee >(pbcopy)")  # stream through Pb
 
 
-def do_cv_tty():
-    """pbpaste, except 'cv --' => pbpaste |cat -ntv |expand"""
+def exit_after_framed_cv_paste(parms):
+    """Exit after Stderr Frame of Stdout 'pbpaste |cat -n -tv |expand' for Sep"""
 
-    parms = sys.argv[2:]
+    (_, _, args) = byo.shlex_parms_partition(parms)
+    if args:
+        exit_after_cv_cv_pipe(parms)
+
+    sys.stdout.flush()  # todo: should we flush Stdout before every Stderr Write?
+    try:
+        exit_after_cv_pbpaste(parms)
+    finally:
+        sys.stdout.flush()
+        sys.stderr.write("\n")
+
+
+def exit_after_cv_pbpaste(parms):
+    """Exit after PbPaste '|cat -n -tv |expand' for Sep"""
+
+    if not parms:
+
+        exit_after_shpipe("pbpaste\n")
 
     (options, seps, args) = byo.shlex_parms_partition(parms)
-    if seps and not options:
-        options = ["-ntv"]
-        seps = []
+    if seps and not (options or args):
+        shpipe = "pbpaste |cat -n -tv |expand\n"
 
-    argv = ["cat"] + options + seps + args
-    if not (options or seps or args):
+        exit_after_shpipe(shpipe)
 
-        exit_via_shline(shline="pbpaste")
+    shparms = byo.shlex_djoin(parms)
+    shpipe = "pbpaste |cat {} |expand\n".format(shparms)
 
-    else:
-
-        shpipe = " ".join(byo.shlex_dquote(_) for _ in argv)
-        shpipe = "pbpaste |{} |expand".format(shpipe)
-        exit_via_shpipe(shpipe)
+    exit_after_shpipe(shpipe)
 
 
-def do_d():
+def exit_after_cv_cv_pipe(parms):
+    """Exit after running the Parms to edit the Os Copy/Paste Buffer"""
+
+    # Sponge up the Paste Buffer to serve as Stdin
+
+    ibytes = stdin_load()
+
+    stdin = io.BytesIO(ibytes)
+    with_stdin = sys.stdin
+    sys.stdin = stdin
+
+    # Add a 2nd Sponge to serve as Stdout
+
+    stdout = io.BytesIO()
+    with_stdout = sys.stdout
+    sys.stdout = stdout
+
+    # Run the Parms
+
+    try:
+        # exit_via_main_parms(parms)  # dies by 'io.UnsupportedOperation: fileno'
+        subprocess_run_self(parms)
+    finally:
+        sys.stdin = with_stdin
+        sys.stdout = with_stdout
+
+    # Replace the Paste Buffer, if the Run of the Parms succeeded
+
+    stdout.seek(0)
+    obytes = stdout.read()
+
+    stdout_dump(obytes)
+
+    sys.exit()  # Exit None after running Code
+
+
+def subprocess_run_self(parms):
+    """Call Self as a Pipe Filter between two Files"""
+
+    with tempfile.TemporaryFile() as left_sponge:
+        with tempfile.TemporaryFile() as right_sponge:
+
+            ibytes = sys.stdin.read()
+            left_sponge.write(ibytes)
+            left_sponge.flush()  # unneeded?
+            left_sponge.seek(0)
+
+            #
+
+            argv_0 = os.path.abspath(sys.argv[0])
+            argv = [argv_0] + parms
+
+            run = subprocess.run(argv, stdin=left_sponge, stdout=right_sponge)
+
+            if run.returncode:
+                sys.stderr.write("+ exit {}\n".format(run.returncode))
+
+                sys.exit(run.returncode)  # Pass back a NonZero Exit Status ReturnCode
+
+            #
+
+            right_sponge.flush()  # unneeded?
+            right_sponge.seek(0)
+
+            obytes = right_sponge.read()
+            sys.stdout.write(obytes)
+            sys.stdout.flush()  # unneeded?
+
+
+def do_d(parms):
     """diff -brpu a b |less -FIRX"""
-
-    parms = sys.argv[2:]
 
     (options, seps, args) = byo.shlex_parms_partition(parms)
     if not (options or seps):
@@ -297,384 +544,367 @@ def do_d():
         args.append("b")
 
     argv = ["diff"] + options + seps + args
-    shline = " ".join(byo.shlex_dquote(_) for _ in argv)
+    shline = byo.shlex_djoin(argv)
 
-    exit_via_shline_shpipe_to_tty(shline)
+    exit_after_shline_to_tty(shline)
 
 
-def do_e():
+def do_e(parms):
     """emacs -nw --no-splash --eval '(menu-bar-mode -1)'"""
 
-    sys.stderr.write("shpipes.py e: Press Esc X revert Tab Return, and ⌃X⌃C, to quit\n")
-
-    parms = sys.argv[2:]
-
-    (options, seps, args) = byo.shlex_parms_partition(parms)
-    if not (options or seps):
-
-        exit_via_shparms("emacs -nw --no-splash --eval '(menu-bar-mode -1)'")
-
-    exit_via_shparms("emacs")
-
-    # todo:  less copy-edit repetition across this 'shpipes.py' file
+    do_em(parms)
 
 
-def do_em():
+def do_em(parms):
     """emacs -nw --no-splash --eval '(menu-bar-mode -1)'"""
 
     sys.stderr.write(
-        "shpipes.py em: Press Esc X revert Tab Return, and ⌃X⌃C, to quit\n"
+        "shpipes.py {}: Press Esc X revert Tab Return, and ⌃X⌃C, to quit\n".format(
+            main.shverb
+        )
     )
 
-    parms = sys.argv[2:]
-
-    (options, seps, args) = byo.shlex_parms_partition(parms)
-    if not (options or seps):
-
-        exit_via_shparms("emacs -nw --no-splash --eval '(menu-bar-mode -1)'")
-
-    exit_via_shparms("emacs")
+    exit_after_shverb_shparms(
+        "emacs -nw --no-splash --eval '(menu-bar-mode -1)'", parms=parms
+    )
 
 
-def do_f():
+def do_f(parms):
     """find . -not -type d -not -path './.git/*' |less -FIRX"""  # Mac Find needs '.'
 
-    parms = sys.argv[2:]
-
     (options, seps, args) = byo.shlex_parms_partition(parms)
-    if not args:
-        args.append(".")  # Mac Find needs an explicit '.'
     if not (options or seps):
         options = ["-not", "-type", "d", "-not", "-path", "./.git/*"]
+    if not args:
+        args.append(".")  # Mac Find needs an explicit '.'
 
     argv = ["find"] + args + options + seps  # classic Find takes Args before Options
-    shline = " ".join(byo.shlex_dquote(_) for _ in argv)
+    shline = byo.shlex_djoin(argv)
 
-    exit_via_shline_shpipe_to_tty(shline)
+    exit_after_shline_to_tty(shline)
 
 
-# todo: compact 'def do_g', 'def do_gi', 'def do_gl', 'def do_gli' into 1 Def, not 4
-def do_g():
+def do_g(parms):
     """grep -i ."""
 
-    parms = sys.argv[2:]
+    do_g_parms_shoptions_shargs(parms, shoptions="-i", shargs=".")
+
+
+def do_g_parms_shoptions_shargs(parms, shoptions, shargs=None):
+
+    """Forward ShLine of Options or Seps, else default to Options and to Args"""
+
     stdout_isatty = sys.stdout.isatty()
+
+    # Forward ShLine w Parms of Options or Seps
 
     (options, seps, args) = byo.shlex_parms_partition(parms)
     if options or seps:
-        shline = "grep -i"
+        shline = "grep {}".format(shoptions).rstrip()
 
-        exit_via_shparms(shline)
+        exit_after_shparms(shline, parms=parms)
 
-    options.insert(0, "-i")
+    # Else default to Options and to Args
+
+    options = shlex.split(shoptions)
     if stdout_isatty:
-        options.append("--color=yes")
+        if shargs:
+            options.append("--color=yes")  # Also add '--color=yes' into Options
+
     if not args:
-        args = ["."]
+        if shargs:
+            args = shlex.split(shargs)
+
+    # Trace and call and exit
 
     argv = ["grep"] + options + seps + args
-    shline = " ".join(byo.shlex_dquote(_) for _ in argv)
+    shline = byo.shlex_djoin(argv)
 
-    exit_via_shline(shline)
+    exit_after_shline(shline)
 
 
-def do_gi():
+def do_gi(parms):
     """grep ."""
 
-    parms = sys.argv[2:]
-    stdout_isatty = sys.stdout.isatty()
-
-    (options, seps, args) = byo.shlex_parms_partition(parms)
-    if options or seps:
-        shline = "grep"
-
-        exit_via_shparms(shline)
-
-    if stdout_isatty:
-        options.append("--color=yes")
-    if not args:
-        args = ["."]
-
-    argv = ["grep"] + options + seps + args
-    shline = " ".join(byo.shlex_dquote(_) for _ in argv)
-
-    exit_via_shline(shline)
+    do_g_parms_shoptions_shargs(parms, shoptions="", shargs=".")
 
 
-def do_gl():
-    """grep -ilR"""
+def do_gl(parms):
+    """grep -ilR"""  # better No ShArgs, than r"." to match too many Lines
 
-    parms = sys.argv[2:]
-    stdout_isatty = sys.stdout.isatty()
-
-    (options, seps, args) = byo.shlex_parms_partition(parms)
-    if options or seps:
-        shline = "grep -ilR"
-
-        exit_via_shparms(shline)
-
-    options.insert(0, "-ilR")
-    if stdout_isatty:
-        options.append("--color=yes")
-    if not args:
-        args = ["."]
-
-    argv = ["grep"] + options + seps + args
-    shline = " ".join(byo.shlex_dquote(_) for _ in argv)
-
-    exit_via_shline(shline)
+    do_g_parms_shoptions_shargs(parms, shoptions="-ilR", shargs="")
 
 
-def do_gli():
-    """grep -lR"""
+def do_gli(parms):
+    """grep -lR"""  # better No ShArgs, than r"." to match too many Lines
 
-    parms = sys.argv[2:]
-    stdout_isatty = sys.stdout.isatty()
-
-    (options, seps, args) = byo.shlex_parms_partition(parms)
-    if options or seps:
-        shline = "grep -lR"
-
-        exit_via_shparms(shline)
-
-    options.insert(0, "-lR")
-    if stdout_isatty:
-        options.append("--color=yes")
-    if not args:
-        args = ["."]
-
-    argv = ["grep"] + options + seps + args
-    shline = " ".join(byo.shlex_dquote(_) for _ in argv)
-
-    exit_via_shline(shline)
+    do_g_parms_shoptions_shargs(parms, shoptions="-lR", shargs="")
 
 
-def do_gv():
-    """grep -v -i"""
+def do_gv(parms):
+    """grep -v -i ."""
 
-    parms = sys.argv[2:]
-    stdout_isatty = sys.stdout.isatty()
-
-    (options, seps, args) = byo.shlex_parms_partition(parms)
-    if options or seps:
-        shline = "grep -v -i"
-
-        exit_via_shparms(shline)
-
-    options.insert(0, "-i")
-    options.insert(0, "-v")
-    if stdout_isatty:
-        options.append("--color=yes")
-    if not args:
-        args = ["."]
-
-    argv = ["grep"] + options + seps + args
-    shline = " ".join(byo.shlex_dquote(_) for _ in argv)
-
-    exit_via_shline(shline)
+    do_g_parms_shoptions_shargs(parms, shoptions="-v -i", shargs="")
 
 
-def do_gvi():
+def do_gvi(parms):
     """grep -v"""
 
-    parms = sys.argv[2:]
-    stdout_isatty = sys.stdout.isatty()
-
-    (options, seps, args) = byo.shlex_parms_partition(parms)
-    if options or seps:
-        shline = "grep -v"
-
-        exit_via_shparms(shline)
-
-    options.insert(0, "-v")
-    if stdout_isatty:
-        options.append("--color=yes")
-    if not args:
-        args = ["."]
-
-    argv = ["grep"] + options + seps + args
-    shline = " ".join(byo.shlex_dquote(_) for _ in argv)
-
-    exit_via_shline(shline)
+    do_g_parms_shoptions_shargs(parms, shoptions="-v", shargs="")
 
 
-def do_h():
+def do_h(parms):
     """head -16  # or whatever a third of the screen is"""
 
     rows = byo.shutil_get_tty_height()
     thirdrows = max(3, rows // 3)
-
-    parms = sys.argv[2:]
 
     (options, seps, args) = byo.shlex_parms_partition(parms)
     if not (options or seps):
         options.append("-{}".format(thirdrows))
 
     argv = ["head"] + options + seps + args
-    shline = " ".join(byo.shlex_dquote(_) for _ in argv)
+    shline = byo.shlex_djoin(argv)
 
-    exit_via_shline(shline)
+    exit_after_shline(shline)
 
 
-def do_hi():
+def do_hi(parms):
     """history  # but include the files at the '~/.bash_histories/' dir"""
 
     raise NotImplementedError()
 
 
-def do_ht():
+def do_ht(parms):  # FIXME: show 2/9th of screen at head, 1/9th at tail
     r"""sed -n -e '1,2p;3,3s/.*/&\n.../p;$p'"""
-
-    shline = r"sed -n -e '1,2p;3,3s/.*/&\n.../p;$p'"
-
-    exit_via_shline(shline)
-
-
-def do_m():
-    """make --"""
-
-    parms = sys.argv[2:]
-    if not parms:
-        exit_via_shparms("make --")
-    else:
-        exit_via_shparms("make")
-
-
-def do_mo():
-    """less -FIRX"""
-
-    parms = sys.argv[2:]
-
-    (options, seps, args) = byo.shlex_parms_partition(parms)
-    if not (options or seps):
-
-        exit_via_shparms("less -FIRX")
-
-    exit_via_shparms("less")
-
-
-def do_n():
-    """cat -ntv |expand"""
-
-    parms = sys.argv[2:]
-
-    (options, seps, args) = byo.shlex_parms_partition(parms)
-    if not (options or seps):
-        options.append("-ntv")
-
-    argv = ["cat"] + options + seps + args
-
-    shline = " ".join(byo.shlex_dquote(_) for _ in argv)
-    shline = "{} |expand".format(shline)
-
-    exit_via_shpipe(shpipe=shline)
-
-
-def do_p():
-    """popd"""
-
-    exit_via_shparms("popd")
-
-
-def do_q():
-    """git checkout"""
-
-    exit_via_shparms("git checkout")
-
-
-def do_s():
-    """sort"""
-
-    exit_via_shparms("sort")
-
-
-def do_sp():
-    """sponge.py --"""
-
-    exit_via_shparms("sponge.py --")
-
-
-def do_t():
-    """tail -16  # or whatever a third of the screen is"""
 
     rows = byo.shutil_get_tty_height()
     thirdrows = max(3, rows // 3)
 
-    parms = sys.argv[2:]
+    shline = r"sed -n -e '1,{}p;{},{}s/.*/&\n.../p;$p'".format(
+        thirdrows - 1, thirdrows, thirdrows
+    )
+
+    byo.exit_if_rare_parms("ht", parms=parms)
+
+    exit_after_shline(shline)
+
+
+def do_m(parms):
+    """make --"""
+
+    exit_after_shverb_shparms("make --", parms=parms)
+
+
+def do_mo(parms):
+    """less -FIRX"""
+
+    exit_after_shverb_shparms("less -FIRX", parms=parms)
+
+
+def do_n(parms):
+    """cat -n -tv |expand"""
+
+    (options, seps, args) = byo.shlex_parms_partition(parms)
+    if not (options or seps):
+        options.append("-n")
+        options.append("-tv")
+
+    argv = ["cat"] + options + seps + args
+
+    shline = byo.shlex_djoin(argv)
+    shpipe = "{} |expand".format(shline)
+
+    exit_after_shpipe(shpipe)
+
+
+def do_q(parms):
+    """git checkout"""
+
+    exit_after_shparms("git checkout", parms=parms)
+
+
+def do_s(parms):
+    """sort -"""
+
+    exit_after_shparms("sort -", parms=parms)
+
+
+def do_sp(parms):  # FIXME: pull source for 'sponge.py' into here
+    """sponge.py --"""
+
+    exit_after_shparms("sponge.py --", parms=parms)
+
+
+def do_t(parms):
+    """tail -16  # or whatever a third of the screen is"""
+
+    rows = byo.shutil_get_tty_height()
+    thirdrows = max(3, rows // 3)
 
     (options, seps, args) = byo.shlex_parms_partition(parms)
     if not (options or seps):
         options.append("-{}".format(thirdrows))
 
     argv = ["tail"] + options + seps + args
-    shline = " ".join(byo.shlex_dquote(_) for _ in argv)
+    shline = byo.shlex_djoin(argv)
 
-    exit_via_shline(shline)
+    exit_after_shline(shline)
 
 
-def do_u():
+def do_u(parms):
     """uniq -c - |expand"""
 
-    parms = sys.argv[2:]
-
-    (options, seps, args) = byo.shlex_parms_partition(parms)
-    if not (options or seps):
-
-        exit_via_shparms("uniq -c - |expand")
-
-    exit_via_shparms("uniq |expand")
+    exit_after_shverb_shparms("uniq -c - |expand", parms=parms)
 
 
-def do_v():
+def do_v(parms):
     """vim"""
 
-    sys.stderr.write("shpipes.py e: Press ⇧Z ⇧Q to quit\n")
+    sys.stderr.write("shpipes.py v: Press ⇧Z ⇧Q to quit\n")
 
-    exit_via_shparms("vim")
+    exit_after_shparms("vim", parms=parms)
 
 
-def do_w():
+def do_wcl(parms):
     """wc -l"""
 
-    parms = sys.argv[2:]
-
-    (options, seps, args) = byo.shlex_parms_partition(parms)
-    if not (options or seps):
-
-        exit_via_shparms("wc -l")
-
-    exit_via_shparms("wc")
+    exit_after_shverb_shparms("wc -l", parms=parms)
 
 
-def do_x():
+def do_x(parms):
     """hexdump -C"""
 
-    parms = sys.argv[2:]
+    exit_after_shverb_shparms("hexdump -C", parms=parms)
+
+
+def do_xp(parms):
+    """expand"""
+
+    exit_after_shparms("expand", parms=parms)
+
+
+#
+# Edit the Os Copy/Paste Buffer
+#
+
+
+def pbedit(parms):
+    """Call on Vi to edit a Pipe Byte Stream, or on a chosen Editor"""
+
+    # Take 'usage: shpipes.py -- VERB [ARG ...]' as the Editor, else fallback to 'vi'
+
+    vi_argv_minus = parms
+    if parms in ([], ["--"]):
+        vi_argv_minus = shlex.split("vi")
+
+    # Authorize the leak of one Temporary File (commonly left in "/tmp" till Os Restart)
+
+    sys.stderr.write("+ F=$(mktemp)\n")
+
+    run = subprocess.run(
+        shlex.split("mktemp"), stdin=subprocess.PIPE, stdout=subprocess.PIPE, check=True
+    )
+
+    stdout = run.stdout.decode()
+    lines = stdout.splitlines()
+    assert len(lines) == 1, lines
+
+    mktemp_path = lines[-1]
+
+    # Sponge up Stdin for a Pipe, else sponge up the Os Copy/Paste Buffer
+
+    ibytes = stdin_load("pbpaste >$F")
+    with open(mktemp_path, "ab") as writing:
+        writing.write(ibytes)
+
+    # Edit the File
+
+    vi_argv = vi_argv_minus + [mktemp_path]
+
+    vi_shline_minus = byo.shlex_djoin(vi_argv_minus)
+    sys.stderr.write("+ {} $F\n".format(vi_shline_minus))
+
+    subprocess.run(vi_argv, check=True)
+
+    # Dump into Stdout for a Pipe, else into the Os Copy/Paste Buffer
+
+    with open(mktemp_path, "rb") as reading:
+        obytes = reading.read()
+
+    obytelines = obytes.splitlines()
+    sys.stderr.write(
+        "... {} bytes of {} lines ...\n".format(len(obytes), len(obytelines))
+    )
+
+    stdout_dump(obytes, shline="cat $F |pbcopy")
+
+    # Race to destroy the Edited File, rather than leaking it
+
+    sys.stderr.write("+ rm $F\n")
+
+    os.remove(mktemp_path)
+
+
+def stdin_load(shline="pbpaste"):
+    """Sponge up Stdin for a Pipe, else sponge up the Os Copy/Paste Buffer"""
+
+    if not sys.stdin.isatty():
+        with open("/dev/stdin", "rb") as reading:
+            ibytes = reading.read()
+    else:
+        sys.stderr.write("+ {}\n".format(shline))
+        run = subprocess.run(
+            "pbpaste", stdin=subprocess.PIPE, stdout=subprocess.PIPE, check=True
+        )
+        ibytes = run.stdout
+
+    return ibytes
+
+
+def stdout_dump(obytes, shline="pbcopy"):
+    """Dump into Stdout for a Pipe, else into the Os Copy/Paste Buffer"""
+
+    if not sys.stdout.isatty():
+        with open("/dev/stdout", "wb") as writing:
+            writing.write(obytes)
+    else:
+        sys.stderr.write("+ {}\n".format(shline))
+        subprocess.run("pbcopy", input=obytes, check=True)
+
+
+#
+# Forward Parms into a Sh Subprocess and exit
+#
+
+
+def exit_after_shverb_shparms(shline, parms):
+    """Drop default Parms when given Options or Seps"""
+
+    shverb = shline.split()[0]
+
+    # Forward the Parms unless Options or Seps given
 
     (options, seps, args) = byo.shlex_parms_partition(parms)
     if not (options or seps):
 
-        exit_via_shparms("hexdump -C")
+        exit_after_shparms(shline, parms=parms)
 
-    exit_via_shparms("hexdump")
+    # Forward no Parms, in particular not the Seps, when no Options and no Args given
 
+    if (not options) and (not args):
 
-def do_xp():
-    """expand"""
+        exit_after_shline(shline=shverb)
 
-    exit_via_shparms("expand")
+    # Else forward all the Parms but onto the ShVerb, without the rest of the ShLine
 
-
-#
-# Forward Parms into a Bash Subprocess and exit
-#
+    exit_after_shparms(shline=shverb, parms=parms)
 
 
-def exit_via_shparms(shline):
-    """Forward Parms into a Bash Subprocess and exit"""
+def exit_after_shparms(shline, parms):
+    """Forward Parms into a Sh Subprocess and exit"""
 
-    parms = sys.argv[2:]
-    shparms = " ".join(byo.shlex_dquote(_) for _ in parms)
+    shparms = byo.shlex_djoin(parms)
 
     # Pick a RIndex of the ShLine to forward Parms into
 
@@ -687,7 +917,7 @@ def exit_via_shparms(shline):
             rindex = shline.rindex(mark)
             rindices.append(rindex)
 
-    rindex = min(rindices)  # Place the Parms inside the ShLine, else at its End
+    rindex = min(rindices)  # Place the Parms inside the ShLine, else past its End
 
     # Forward the Parms
 
@@ -699,101 +929,300 @@ def exit_via_shparms(shline):
             parmed = shline + " " + shparms
 
     if rindex != len(shline):
-        exit_via_shpipe(shpipe=parmed)
+        exit_after_shpipe(shpipe=parmed)
     else:
-        exit_via_shline(shline=parmed)
+        exit_after_shline(shline=parmed)
 
 
-def exit_via_shline_shpipe_to_tty(shline):
-    """Exit after running inside a Paginator if Stdout Tty, else exit after running"""
+def exit_after_shline_to_tty(shline):
+    """Paginate the output, when it's dumping to Tty"""
 
     shpipe = "{} |less -FIRX".format(shline)
     if sys.stdout.isatty():
 
-        exit_via_shpipe(shpipe)
+        exit_after_shpipe(shpipe)
 
     else:
 
-        exit_via_shline(shline)
+        exit_after_shline(shline)
 
 
-def exit_via_shpipe(shpipe):
-    """Exit after running a line of Sh marked up with r"[|<>$!]" etc"""
+def exit_after_shpipe(shpipe):
+    """Trace and run one ShPipe, then exit"""
 
-    exit_via_shline(shline=shpipe, shell=True)
+    shline = shpipe.rstrip()
+    shshline = "bash -c {}".format(shlex.quote(shline))
+    argv = shlex.split(shshline)
+
+    exit_after_one_argv(shline=shpipe, argv=argv)  # not '(shshline,'
 
 
-def exit_via_shline(shline, shell=False):
-    """Exit after running a line of Sh"""
+def exit_after_shline(shline):
+    """Trace and run one ShLine, then exit"""
 
-    sys.stderr.write("+ {}\n".format(shline))
+    argv = shlex.split(shline)
 
-    isatty = sys.stdin.isatty()
-    if __main__.main.sponge_shverb:
-        if isatty:
-            sys.stderr.write(
-                "shpipes.py {!r}: Press ⌃D TTY EOF to quit\n".format(main.sponge_shverb)
-            )
+    exit_after_one_argv(shline, argv=argv)
 
-    if not shell:
-        argv = shlex.split(shline)
+
+def exit_after_one_argv(shline, argv):
+    """Trace as ShLine but run as ArgV, then exit"""
+
+    shverb = shline.split()[0]
+
+    # Figure out what to call
+
+    tty_prompted = False
+    if shverb not in PBPASTE_SHVERBS:
+        sys.stderr.write("+ {}\n".format(shline))
+    elif shline in ("cat -", "cat - >/dev/null"):
+        sys.stderr.write("+ {}\n".format(shline))
+        sys.stderr.write("shpipes.py {}: Press ⌃D TTY EOF to quit\n".format(shverb))
+        tty_prompted = True
     else:
-        shshline = "bash -c {}".format(shlex.quote(shline))
-        argv = shlex.split(shshline)
+        sys.stderr.write("+ pbpaste |{}\n".format(shline))
 
-    run = subprocess.run(argv)
+    # Print the Code and exit zero, when Not authorized to run it
+
+    if main.ext is not None:
+
+        sys.exit(0)  # Exit 0 after printing Help Lines
+
+    # Run the code
+
+    stdin = None
+    if shverb in PBPASTE_SHVERBS:
+        if not tty_prompted:
+            stdin = stdin_demand()
+
+    try:
+        run = subprocess.run(argv, stdin=stdin)
+    except KeyboardInterrupt:
+        sys.stderr.write("\n")
+        sys.stderr.write("KeyboardInterrupt\n")
+
+        assert SIGINT_RETURNCODE == 130, SIGINT_RETURNCODE
+
+        sys.exit(SIGINT_RETURNCODE)  # Exit 130 to say KeyboardInterrupt SIGINT
+
     if run.returncode:  # Exit early, at the first NonZero Exit Status ReturnCode
         sys.stderr.write("+ exit {}\n".format(run.returncode))
 
-        sys.exit(run.returncode)
+        sys.exit(run.returncode)  # Pass back a NonZero Exit Status ReturnCode
 
-    sys.exit()
+    sys.exit()  # Exit None after this Subprocess
+
+
+def stdin_demand():
+    """Take fast large PbPaste as Stdin, when given slow small Tty people at Stdin"""
+
+    stdin = sys.stdin
+    if sys.stdin.isatty():
+        pbpaste_argv = shlex.split("pbpaste")
+        sub = subprocess.Popen(pbpaste_argv, stdout=subprocess.PIPE)
+
+        stdin = sub.stdout
+
+    return stdin
 
 
 #
-# Track an example Terminal Qb ShPipes Transcript
+# Exit after calling Subprocess, if dropping the Py Ext Mark finds a Sh Verb
+#
+
+
+def exit_if_shverb(parms):
+    """Exit after calling Subprocess, if dropping the Py Ext Mark finds a Sh Verb"""
+
+    argv = parms
+
+    # Find the Executable without Source, else return
+
+    main_py_basename = os.path.basename(argv[0])
+    shverb = byo.str_removesuffix(main_py_basename, suffix=".py")
+    which = shutil.which(shverb)
+
+    if not which:
+
+        return
+
+    # Refuse to run when found, if Source also required
+
+    if main.ext is not None:
+        sys.stderr.write(
+            "shpipes.py: ERROR: --ext={!r} not implemented for shverb:  {}\n".format(
+                main.ext, shverb
+            )
+        )
+
+        sys.exit(2)  # Exit 2 for rare usage
+
+    # Else trace and call and exit
+
+    byo.exit_if_shverb(argv)
+
+
+#
+# Autocomplete & run fragments of Python
+#
+
+
+def exit_after_autocomplete(parms):
+    """Autocomplete & run (or just print) the Code"""
+
+    assert False  # FIXME exit_after_autocomplete
+
+    # Agree to run if Py Source required, but refuse to run if other Source required
+
+    if main.ext is not None:
+        if main.ext not in ("", ".py", ".py3"):
+            sys.stderr.write(
+                "shpipes.py: ERROR: --ext={!r} not implemented for py: {}\n".format(
+                    main.ext, byo.shlex_djoin(parms) if parms else "--"
+                )
+            )
+
+        sys.exit(2)  # Exit 2 for rare usage
+
+    # Compose Py Source
+
+    pysource = '''
+        #!/usr/bin/env python3
+
+        r"""{doc}"""
+
+        import sys
+
+        for iline in sys.stdin.readlines():
+            oline = iline
+            sys.stdout.write(oline)
+    '''
+
+    pysource = textwrap.dedent(pysource)
+
+    doc = "Run Py Code autocompleted by:  {}".format(byo.shlex_djoin(sys.argv))
+    pysource = pysource.format(doc=doc)
+
+    # Patch up Py Source, so as to autocomplete the Parms
+
+    if False:
+        if len(parms) == 1:
+            parm = parms[-1]
+            if (parm in dir(str)) and not parm.startswith("_"):
+                pysource = pysource.replace(
+                    """oline = iline""", """oline = str.{}(line)""".format(parm)
+                )
+
+    # Print Help Lines and exit, if not authorized to run
+
+    if main.ext is not None:
+        print(pysource)
+
+        sys.exit(0)  # Exit 0 after printing Help Lines
+
+    # Else run and exit
+
+    if False:
+        exec(pysource)
+    else:
+        for iline in sys.stdin.readlines():
+            ilines = iline.splitlines()
+            (ibytes, iclose) = ilines  # FIXME: boom when last line unclosed
+            ichars = ibytes.decode()
+            ochars = str.upper(ichars)
+            obytes = ochars.encode()
+            sys.stdout.write(obytes + iclose)
+
+    sys.exit()  # Exit None after running Code
+
+
+#
+# Track some example Terminal Sh input lines
 #
 
 
 _ = """
 
-%
-%
-% python3 -c 'import this' |h -5 |cv
-+ pbcopy
-+ head -5
-%
-% cv |sed -n -e '3,$p' |sed 's,[.]$,,' |cv
-+ pbpaste
-+ pbcopy
-%
-% cv --
-+ bash -c 'pbpaste |cat -ntv |expand'
-     1  Beautiful is better than ugly
-     2  Explicit is better than implicit
-     3  Simple is better than complex
-%
-%
-% cv |t -2
-+ pbpaste
-+ tail -2
-Explicit is better than implicit
-Simple is better than complex
-%
+python3 -c 'import this' |tail -n +3 |cv
+cv |wcl
+
+cv |t -1
+cv h -3
+cv
+cv --
+cv upper
 
 """
 
 
-# FIXME: shpipes.py bash lstrip  # per line, translate Py Label to Sed
-# FIXME: shpipes.py bash rstrip  # per line, translate Py Label to Sed
-# FIXME: shpipes.py bash strip  # per line, translate Py Label to Sed
+#
+# Track a resulting Sh Terminal Sh transcript
+#
 
-# FIXME: shpipes.py ...  # edit the Os Copy/Paste Clipboard, else Stdio, never Tty
-# FIXME: shpipes.py lstrip  # per line
-# FIXME: shpipes.py "\n".join  # sponges
-# FIXME: shpipes.py textwrap.dedent  # joins and splits
-# FIXME: shpipes.py enumerate  # numbers
-# FIXME: shpipes.py splitlines "-".join  # joins chars of lines
+
+_ = """
+
+% python3 -c 'import this' |tail -n +3 |cv
++ pbcopy
+% cv |wcl
+      19
+%
+
+% cv |t -1
++ pbpaste
++ tail -1
+
+Namespaces are one honking great idea -- let's do more of those!
+
+%
+
+% cv h -3
++ pbpaste
++ head -3
++ pbcopy
+% cv
+
+Beautiful is better than ugly.
+Explicit is better than implicit.
+Simple is better than complex.
+
+%
+
+% cv --
++ pbpaste |cat -n tv |expand
+
+     1  Beautiful is better than ugly.
+     2  Explicit is better than implicit.
+     3  Simple is better than complex.
+
+%
+
+% cv h -1
++ pbpaste
++ head -1
++ pbcopy
+%
+
+% cv tr -d '.'
++ pbpaste
++ tr -d '.'
++ pbcopy
+%
+
+% cv upper
++ pbpaste
++ python3 -c '... _ = upper(_) ...'
++ pbcopy
+%
+
+% cv
++ pbpaste
+
+BEAUTIFUL IS BETTER THAN UGLY
+
+%
+
+"""
 
 
 #

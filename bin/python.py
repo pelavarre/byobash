@@ -52,6 +52,9 @@ import byotools as byo
 
 PYTHONX = "python3"  # todo: cope when PYTHONX != "python3"
 
+SIGINT_RETURNCODE = 0x80 | signal.SIGINT
+assert SIGINT_RETURNCODE == 130, (SIGINT_RETURNCODE, 0x80, signal.SIGINT)
+
 
 def main():  # noqa: C901 complex
     """Run from the Command Line"""
@@ -71,7 +74,7 @@ def main():  # noqa: C901 complex
         shline = "{} -i".format(sys.argv[0])
         print("did you mean:  {}".format(shline))
 
-        sys.exit(0)
+        sys.exit(0)  # Exit 0 after printing Help Lines
 
     # First compile
 
@@ -105,7 +108,9 @@ def main():  # noqa: C901 complex
             sys.stderr.write("\n")
             sys.stderr.write("pythonx.py: KeyboardInterrupt\n")  # todo: python.py
 
-            sys.exit(0x80 | signal.SIGINT)
+            assert SIGINT_RETURNCODE == 130, SIGINT_RETURNCODE
+
+            sys.exit(SIGINT_RETURNCODE)  # Exit 130 to say KeyboardInterrupt SIGINT
 
     # Form the ShLine
 
@@ -130,7 +135,9 @@ def main():  # noqa: C901 complex
         sys.stderr.write("\n")
         sys.stderr.write("pythonx.py: KeyboardInterrupt\n")  # todo: python.py
 
-        sys.exit(0x80 | signal.SIGINT)
+        assert SIGINT_RETURNCODE == 130, SIGINT_RETURNCODE
+
+        sys.exit(SIGINT_RETURNCODE)  # Exit 130 to say KeyboardInterrupt SIGINT
 
 
 def parse_pythonx_args():  # noqa C901 complex 11
@@ -143,8 +150,8 @@ def parse_pythonx_args():  # noqa C901 complex 11
 
     # Call ByoTools Exit in the absence of Parms, or when Parms led by '--help'
 
-    byo.exit_via_testdoc()  # python.py
-    byo.exit_via_argdoc()  # python.py --help
+    byo.exit_if_testdoc()  # python.py
+    byo.exit_if_argdoc()  # python.py --help
 
     assert not args.help
 

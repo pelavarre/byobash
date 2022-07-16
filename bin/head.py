@@ -6,13 +6,13 @@ usage: head.py [--h] [-v] [-n COUNT] [FILE ...]
 show just the leading lines of a file
 
 positional arguments:
-  FILE                  the file to drop trailing lines from (default: stdin)
+  FILE                  the file to drop trailing lines from (default stdin)
 
 options:
   --help                show this help message and exit
   -v                    drop the leading lines instead, show the others
   -n COUNT, --lines COUNT
-                        how many leading lines to show (default: 25)
+                        how many leading lines to show (default 25)
 
 quirks:
 

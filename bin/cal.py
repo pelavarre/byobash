@@ -13,8 +13,8 @@ options:
   -h      don't color the chosen day (default: do color at stdout isatty)
   -H YMD  show a chosen day, in place of today
   -m M    show a chosen month, in place of today
-  -M      start the weeks on UK Monday's, not US Sunday's (default: true)
-  -S      start the weeks on US Sunday's, not UK Monday's (default: false)
+  -M      start the weeks on UK Monday's, not US Sunday's (default True)
+  -S      start the weeks on US Sunday's, not UK Monday's (default False)
 
 quirks:
   the DD|MMDD|YYMMDD|YYYYMMDD syntaxes sometimes worked as Parms, such as:  cal.py 314
@@ -56,8 +56,8 @@ if __name__ == "__main__":
 
         # Take 'cal.py', 'cal.py --h', 'cal.py --he', ... 'cal.py --help'
 
-        byo.exit_via_testdoc()  # cal.py
-        byo.exit_via_argdoc()  # cal.py --help
+        byo.exit_if_testdoc()  # cal.py
+        byo.exit_if_argdoc()  # cal.py --help
 
         argv = list(sys.argv)
         argv[0] = path

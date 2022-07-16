@@ -55,18 +55,16 @@ examples:
   # Navigation
 
   git.py cd  # cd $(git rev-parse --show-toplevel)
-  git.py d  # git diff
-  git.py g  # git grep -i
-  git.py gi  # git grep
   git.py co  # git checkout  # the calmest kind of 'git status'
-  git.py gl  # git grep -il
-  git.py gli  # git grep -l
-  git.py gv  # git grep -v -i
-  git.py gvi  # git grep -v
+  git.py d  # git diff
   git.py dh  # git diff HEAD~...  # default HEAD~1, without '-b'
   git.py dhno  # git diff --name-only HEAD~..., default HEAD~1
   git.py dno  # git diff --name-only
   git.py em  # bash -c 'em $(qdhno |tee /dev/stderr)'
+  git.py g  # git grep -i
+  git.py gi  # git grep
+  git.py gl  # git grep -ilR
+  git.py gli  # git grep -lR
   git.py lf  # git ls-files
   git.py no  # git diff --name-only HEAD~..., default HEAD~1  # same as:  git.py dhno
   git.py s  # git show
@@ -116,9 +114,9 @@ examples:
   git.py caf  # git commit --all --fixup
   git.py cam  # git commit --all -m wip
   git.py cf  # git commit --fixup
-  git.py cm  # git commit -m wip
   git.py cl  # take ⌃D to mean:  git clean -ffxdq  # destroy files outside Git Add
   git.py cls  # take ⌃D to mean:  sudo true && sudo git clean -ffxdq
+  git.py cm  # git commit -m wip
   git.py pfwl  # take ⌃D to mean:  git push --force-with-lease
   git.py rh  # take ⌃D to mean:  git reset --hard ...  # hide local Commits
   git.py rhu  # take ⌃D to mean:  git reset --hard @{upstream}  # hide to restart
@@ -129,6 +127,7 @@ examples:
   # Reroll/Roll your own Repo
 
   rm -fr g.git git && git init --bare g.git && git clone g.git && cd g
+  git rev-list $HASH..$HASH  # exit 0 only if $HASH found in in this Clone
 """
 # todo:  Occasionally Needed Extras: making branches, deleting branches
 
@@ -149,6 +148,9 @@ import byotools as byo
 
 _ = pdb
 
+
+SIGINT_RETURNCODE = 0x80 | signal.SIGINT
+assert SIGINT_RETURNCODE == 130, (SIGINT_RETURNCODE, 0x80, signal.SIGINT)
 
 GitLikeAlias = collections.namedtuple("GitLikeAlias", "shlines authed".split())
 
@@ -200,9 +202,9 @@ def main():  # todo  # noqa C901 complex
 
     # Define some forms of 'git.py'
 
-    byo.exit_via_patchdoc(patchdoc)  # command git.py --
-    byo.exit_via_testdoc()  # git.py
-    byo.exit_via_argdoc()  # git.py --help
+    byo.exit_if_patchdoc(patchdoc)  # command git.py --
+    byo.exit_if_testdoc()  # git.py
+    byo.exit_if_argdoc()  # git.py --help
 
     # Define many GitLikeAlias'es
 
@@ -226,7 +228,7 @@ def main():  # todo  # noqa C901 complex
                     git_cd_shlines = ["cd $(git rev-parse --show-toplevel)"]
                     assert alias.shlines == git_cd_shlines, alias.shlines
 
-                    exit_via_git_shproc(
+                    exit_if_shproc(
                         shverb=cdverb,
                         parms=unevalled_parms,
                         authed=authed,
@@ -244,12 +246,12 @@ def main():  # todo  # noqa C901 complex
                     if shverb == "rpsfn":
                         if not unevalled_parms:
 
-                            exit_via_git_rpsfn(parms=unevalled_parms)
+                            exit_if_rpsfn(parms=unevalled_parms)
 
                         chars = unevalled_parms[0] if unevalled_parms else None
                         if unevalled_parms and re.match(r"^[-+]?[0-9]+$", string=chars):
 
-                            exit_via_git_rpsfn(parms=unevalled_parms)
+                            exit_if_rpsfn(parms=unevalled_parms)
 
                     # Else just copy/edit Parms into Git and exit, else return
 
@@ -257,13 +259,13 @@ def main():  # todo  # noqa C901 complex
                     authed = alias.authed
                     shlines = alias.shlines
 
-                    exit_via_git_shproc(
+                    exit_if_shproc(
                         shverb, parms=unevalled_parms, authed=authed, shlines=shlines
                     )
 
     # Default to forward the Parms into a Git Subprocess
 
-    byo.exit_via_shcommand()
+    byo.exit_after_shverb()
 
 
 def rm_fr_import_byotools_pyc():
@@ -293,7 +295,7 @@ def rm_fr_import_byotools_pyc():
                 os.rmdir(pyc_dirname)
 
 
-def exit_via_git_shproc(shverb, parms, authed, shlines):  # todo  # noqa: C901 complex
+def exit_if_shproc(shverb, parms, authed, shlines):  # todo  # noqa: C901 complex
     """Copy/edit Parms into Git and exit, else return"""
 
     rows = byo.shutil_get_tty_height()
@@ -302,10 +304,15 @@ def exit_via_git_shproc(shverb, parms, authed, shlines):  # todo  # noqa: C901 c
     alt_shlines = list(_ for _ in shlines if _ != "cat -")
     alt_parms = parms
     if not parms:
+
         if alt_shlines == ["git commit --all --fixup {}"]:
             alt_parms = ["HEAD"]
         elif alt_shlines == ["git commit --fixup {}"]:
             alt_parms = ["HEAD"]
+        # elif alt_shlines == ["git grep {}"]:  # no, because Git Grep defaults to -R
+        #     alt_parms = ["."]
+        # elif alt_shlines == ["git grep -i {}"]:
+        #     alt_parms = ["."]
         elif alt_shlines == ["git rev-parse --abbrev-ref {}"]:
             alt_parms = ["HEAD"]
 
@@ -327,8 +334,8 @@ def exit_via_git_shproc(shverb, parms, authed, shlines):  # todo  # noqa: C901 c
     #
 
     parms_minus = alt_parms[1:]
-    shparms = " ".join(byo.shlex_dquote(_) for _ in alt_parms)
-    shparms_minus = " ".join(byo.shlex_dquote(_) for _ in parms_minus)
+    shparms = byo.shlex_djoin(alt_parms)
+    shparms_minus = byo.shlex_djoin(parms_minus)
 
     # Form each ShLine, and split each ShLine apart into an ArgV
 
@@ -345,7 +352,7 @@ def exit_via_git_shproc(shverb, parms, authed, shlines):  # todo  # noqa: C901 c
 
         else:
 
-            assert shparms is not None
+            parmed_shline = shline.format(shparms)
 
             # Count off 0..N below HEAD, default 1, else take complex Parms
 
@@ -393,11 +400,6 @@ def exit_via_git_shproc(shverb, parms, authed, shlines):  # todo  # noqa: C901 c
                     alt_shline = shline.replace(" -{}", " -{} {}")
                     parmed_shline = alt_shline.format(absparm, shparms_minus)
 
-            # Default to take complex Parms
-
-            else:
-                parmed_shline = shline.format(shparms)
-
             # Reject subsequent requests to forward Parms, if any
 
             shparms = None
@@ -425,7 +427,7 @@ def exit_via_git_shproc(shverb, parms, authed, shlines):  # todo  # noqa: C901 c
 
     auth_shlines = list()
     for argv in argvs:
-        shline = " ".join(byo.shlex_dquote(_) for _ in argv)
+        shline = byo.shlex_djoin(argv)
 
         overquoted = "git reset --hard '@{upstream}'"  # because of the {} Braces
         shline = shline.replace(overquoted, "git reset --hard @{upstream}")
@@ -455,31 +457,13 @@ def exit_via_git_shproc(shverb, parms, authed, shlines):  # todo  # noqa: C901 c
             sys.stderr.write("\n")
             sys.stderr.write("KeyboardInterrupt\n")
 
-            returncode = 0x80 | signal.SIGINT
-            assert returncode == 130, (returncode, signal.SIGINT)
+            assert SIGINT_RETURNCODE == 130, SIGINT_RETURNCODE
 
-            sys.exit(returncode)
+            sys.exit(SIGINT_RETURNCODE)  # Exit 130 to say KeyboardInterrupt SIGINT
 
     # Run each of the ArgV's and exit
 
-    exit_via_argvs(argvs)
-
-
-def exit_via_argvs(argvs):
-    """Run each of the ArgV's and exit"""
-
-    for argv in argvs:
-
-        shline = " ".join(byo.shlex_dquote(_) for _ in argv)
-
-        sys.stderr.write("+ {}\n".format(shline))
-        run = subprocess.run(argv)
-        if run.returncode:  # Exit early, at the first NonZero Exit Status ReturnCode
-            sys.stderr.write("+ exit {}\n".format(run.returncode))
-
-            sys.exit(run.returncode)
-
-    sys.exit()
+    byo.exit_after_some_argv(argvs)
 
 
 #
@@ -487,8 +471,8 @@ def exit_via_argvs(argvs):
 #
 
 
-def exit_via_git_rpsfn(parms):
-    """Show the Stack of Git Checkout Choices"""
+def exit_if_rpsfn(parms):
+    """Show the Stack of Git Checkout Choices, else return"""
 
     shverb = "rpsfn"
 
@@ -519,7 +503,7 @@ def exit_via_git_rpsfn(parms):
                     "git rev-parse --symbolic-full-name @{{{{-{}}}}}".format(index)
                 )
 
-    exit_via_git_shproc(shverb="rpsfn", parms=list(), authed=True, shlines=alt_shlines)
+    exit_if_shproc(shverb="rpsfn", parms=list(), authed=True, shlines=alt_shlines)
 
 
 def form_aliases_by_verb():
@@ -605,8 +589,6 @@ ALIASES = {
     "gi": "git grep {}",  # todo: default Grep of $(-gdhno)
     "gl": "git grep -il {}",  # todo: default Grep of $(-gdhno)
     "gli": "git grep -l {}",  # todo: default Grep of $(-gdhno)
-    "gv": "git grep -v -i {}",  # todo: default Grep of $(-gdhno)
-    "gvi": "git grep -v {}",  # todo: default Grep of $(-gdhno)
     "l": "git log {}",
     "l1": "git log --decorate -1 {}",
     "lf": "git ls-files {}",
@@ -643,8 +625,11 @@ ALIASES = {
     "vi": "bash -c 'vi $(qdhno |tee /dev/stderr)'",
 }
 
-# Mac HFS FileSystem's don't accept 'qlG' and 'qlg' existing inside one Dir
-# Mac HFS FileSystem's don't accept 'qlS' and 'qls' existing inside one Dir
+#
+# Git Grep defaults to --color=yes and '-R', and often matches too many lines at '-v'
+# 'qlgg' can't be 'qlG' in a Mac HFS FileSystem that has a 'qlg' already
+# 'qlgs' can't be 'qlS' in a Mac HFS FileSystem that has a 'qls' already
+#
 
 
 #

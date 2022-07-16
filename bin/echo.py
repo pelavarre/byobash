@@ -69,7 +69,7 @@ def main():
 
     """
 
-    byo.exit_via_patchdoc(patchdoc)
+    byo.exit_if_patchdoc(patchdoc)
     byo.exit()
 
 

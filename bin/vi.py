@@ -7,7 +7,7 @@ todo
 
 options:
   --help    show this help message and exit
-  -u VIMRC  edit after running a file (default: '~/.vimrc')
+  -u VIMRC  edit after running a file (default '~/.vimrc')
 
 quirks:
   classic Vi rudely runs ahead and creates a new Scratchpad, when given no Parms
