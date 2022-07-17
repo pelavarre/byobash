@@ -1,4 +1,5 @@
 # find . -not -type d -not -path './.git/*'
+# find . -not -type d -not -path './.git/*' |grep -v '/[.]'
 
 # goes well with:  cat.py
 

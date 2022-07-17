@@ -14,8 +14,10 @@ default:
 	@echo 'open https://github.com/pelavarre/byobash#readme'
 	@echo 'open https://github.com/pelavarre/byobash/blob/main/ReadMore.md'
 	@echo ''
-	@echo 'make help'
-	@echo 'make push'
+	@echo 'make  # show these examples and exit'
+	@echo 'make help  # show this help message and exit'
+	@echo 'make style  # show this help message and exit'
+	@echo 'make push  # restyle the Source, review it, and ask to push it'
 	@echo ''
 	@echo 'open https://twitter.com/intent/tweet?text=@PELaVarre'
 	@echo ''
@@ -36,6 +38,7 @@ help:
 	: #
 	: #   make  # show these examples and exit
 	: #   make help  # show this help message and exit
+	: #   make style  # show this help message and exit
 	: #   make push  # restyle the Source, review it, and ask to push it
 	: #
 	: #   open https://twitter.com/intent/tweet?text=@PELaVarre
@@ -58,8 +61,12 @@ push: black flake8 selftest
 #
 
 
+style: black flake8
+	:
+
+
 black:
-	. ~/bin/pips.source && black $$PWD/../byobash/
+	. ~/bin/pips.source && black $$PWD/../byobash/ macos/*.command
 
 
 FLAKE8_OPTS=--max-line-length=999 --max-complexity 10 --ignore=E203,W503
@@ -69,7 +76,7 @@ FLAKE8_OPTS=--max-line-length=999 --max-complexity 10 --ignore=E203,W503
 
 
 flake8:
-	. ~/bin/pips.source && flake8 ${FLAKE8_OPTS} $$PWD/../byobash/
+	. ~/bin/pips.source && flake8 ${FLAKE8_OPTS} $$PWD/../byobash/ macos/*.command
 
 
 #
@@ -90,6 +97,7 @@ selftest-no-shparms:
 	rm -fr bin/__pycache__/
 	:
 # as if:  set -e && for F in $(find . |grep '[.]py$' |sort); do python3 $F >/dev/null; done
+# the1G
 
 
 #

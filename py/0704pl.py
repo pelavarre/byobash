@@ -27,7 +27,7 @@ import textwrap
 
 
 DIR = os.path.dirname(__file__)
-TOP_DIR = os.path.join(DIR, os.pardir)
+TOP_DIR = os.path.join(DIR, os.pardir)  # one up from "py/"
 BIN_DIR = os.path.join(TOP_DIR, "bin")
 
 

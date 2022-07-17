@@ -48,6 +48,9 @@ examples:
 """
 # todo:  do these work better when spelled differently, as:  echo -n $'...'
 
+# print("\N{Greek Small Letter Pi}".encode())  # b'\xcf\x80'
+# print("\N{No-Break Space}".encode())  # b'\xc2\xa0'
+
 
 import byotools as byo
 

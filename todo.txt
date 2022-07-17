@@ -3,6 +3,11 @@
 
 dreaming since Jul/2022 =>
 
+add the E +/- Buttons into ByoPyVM
+add an Undo Button into ByoPyVm
+
+:
+
 FIXME qno without arg should be qdhno, with arg should be qspno
 
 FIXME factor out a non-executable bin/pythonx.py, call it from python{3,2,}.py

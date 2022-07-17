@@ -22,7 +22,8 @@ quirks:
   goes well with:  find.py
   classic Cat rudely hangs with no prompt, when given no Parms with no Stdin
   classic Cat rudely dumps raw Bytes, like 'less -r', unlike 'less -R' and 'less'
-  Mac 'cat -tv' misprints the same ink for $'\xC2\xA0' NonBreakingSpace as $'\x20' Space
+  Mac 'cat -tv' misprints same blank for $'\xC2\xA0' NoBreakSpace as $'\x20' Space
+  Mac 'cat -tv' misprints $'\xCF\x80' U+03C0 GreekSmallLetterPi as b"\xCF\x4D\x2D"
 
 temporary workaround:
   alias cat.py=~/Public/pybashish/bin/cat.py
@@ -54,6 +55,9 @@ examples:
   cat /proc/cpuinfo |grep processor |wc -l  # count Cpu Cores at Linux
 """
 # todo: stop needing the Temporary Workaround
+
+# print("\N{Greek Small Letter Pi}".encode())  # b'\xcf\x80'
+# print("\N{No-Break Space}".encode())  # b'\xc2\xa0'
 
 
 import byotools as byo
