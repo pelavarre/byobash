@@ -213,6 +213,7 @@ def exit_via_main_parms(parms):
 
     # Autocomplete & run (or just print) the Code
 
+    main.shverb = shverb
     exit_after_autocomplete(parms)
 
 
@@ -434,7 +435,10 @@ def exit_after_framed_cv_paste(parms):
 
     (_, _, args) = byo.shlex_parms_partition(parms)
     if args:
-        exit_after_cv_cv_pipe(parms)
+        if main.ext is None:
+            exit_after_cv_cv_pipe(parms)
+        else:
+            exit_after_cv_cv_pipe(["--ext={}".format(main.ext)] + parms)
 
     sys.stdout.flush()  # todo: should we flush Stdout before every Stderr Write?
     try:
@@ -1070,7 +1074,7 @@ def exit_if_shverb(parms):
 def exit_after_autocomplete(parms):
     """Autocomplete & run (or just print) the Code"""
 
-    assert False  # FIXME exit_after_autocomplete
+    argv = [main.shverb] + parms
 
     # Agree to run if Py Source required, but refuse to run if other Source required
 
@@ -1078,11 +1082,11 @@ def exit_after_autocomplete(parms):
         if main.ext not in ("", ".py", ".py3"):
             sys.stderr.write(
                 "shpipes.py: ERROR: --ext={!r} not implemented for py: {}\n".format(
-                    main.ext, byo.shlex_djoin(parms) if parms else "--"
+                    main.ext, byo.shlex_djoin(argv) if argv else "--"
                 )
             )
 
-        sys.exit(2)  # Exit 2 for rare usage
+            sys.exit(2)  # Exit 2 for rare usage
 
     # Compose Py Source
 
@@ -1091,11 +1095,18 @@ def exit_after_autocomplete(parms):
 
         r"""{doc}"""
 
-        import sys
+        with open("/dev/stdin", "rb") as reading:
+            with open("/dev/stdout", "wb") as writing:
 
-        for iline in sys.stdin.readlines():
-            oline = iline
-            sys.stdout.write(oline)
+                for iline in reading.readlines():
+                    ibytes = iline.splitlines()[0]
+                    iclose = byo.bytes_removeprefix(iline, ibytes)
+                    ichars = ibytes.decode()
+
+                    ochars = ichars
+
+                    obytes = ochars.encode()
+                    writing.write(obytes + iclose)
     '''
 
     pysource = textwrap.dedent(pysource)
@@ -1103,35 +1114,45 @@ def exit_after_autocomplete(parms):
     doc = "Run Py Code autocompleted by:  {}".format(byo.shlex_djoin(sys.argv))
     pysource = pysource.format(doc=doc)
 
-    # Patch up Py Source, so as to autocomplete the Parms
+    # Patch up Py Source, so as to autocomplete the argv
 
-    if False:
-        if len(parms) == 1:
-            parm = parms[-1]
+    sys.stderr.write("+ ... {} ...\n".format(byo.shlex_djoin(argv)))
+
+    if True:
+        if len(argv) == 1:
+            parm = argv[-1]
             if (parm in dir(str)) and not parm.startswith("_"):
                 pysource = pysource.replace(
-                    """oline = iline""", """oline = str.{}(line)""".format(parm)
+                    """ochars = ichars""", """ochars = str.{}(ichars)""".format(parm)
                 )
 
     # Print Help Lines and exit, if not authorized to run
 
     if main.ext is not None:
-        print(pysource)
+        sys.stderr.write("{}\n".format(pysource))
 
         sys.exit(0)  # Exit 0 after printing Help Lines
 
     # Else run and exit
 
-    if False:
+    if True:
+
         exec(pysource)
+
     else:
-        for iline in sys.stdin.readlines():
-            ilines = iline.splitlines()
-            (ibytes, iclose) = ilines  # FIXME: boom when last line unclosed
-            ichars = ibytes.decode()
-            ochars = str.upper(ichars)
-            obytes = ochars.encode()
-            sys.stdout.write(obytes + iclose)
+
+        with open("/dev/stdin", "rb") as reading:
+            with open("/dev/stdout", "wb") as writing:
+
+                for iline in reading.readlines():
+                    ibytes = iline.splitlines()[0]
+                    iclose = byo.bytes_removeprefix(iline, ibytes)
+                    ichars = ibytes.decode()
+
+                    ochars = str.upper(ichars)
+
+                    obytes = ochars.encode()
+                    writing.write(obytes + iclose)
 
     sys.exit()  # Exit None after running Code
 
@@ -1153,6 +1174,9 @@ cv --
 cv upper
 
 """
+
+
+# FIXME: stop 'cv split' from meaning empty-the-paste-buffer
 
 
 #

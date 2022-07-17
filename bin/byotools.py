@@ -451,6 +451,9 @@ def str_removeprefix(chars, prefix):  # missing from Python till Oct/2020 Python
     return result
 
 
+bytes_removeprefix = str_removeprefix
+
+
 def str_removesuffix(chars, suffix):  # missing from Python till Oct/2020 Python 3.9
     """Remove Suffix from Chars if present"""
 
@@ -459,6 +462,9 @@ def str_removesuffix(chars, suffix):  # missing from Python till Oct/2020 Python
         result = chars[: -len(suffix)]
 
     return result
+
+
+bytes_removesuffix = str_removesuffix
 
 
 def str_splitgrafs(doc, keepends=False):  # todo:
