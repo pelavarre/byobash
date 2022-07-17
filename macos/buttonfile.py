@@ -61,9 +61,11 @@ a popular corner of macOS configuration makes these Button Files work well
 
 1.3.1 like Finder > View > As List (⌘2) will show you the Fibonacci numbers
 
-1~ 2~ 3~ 5
+    1 2 3 5
 
+after you double-click through the ten Button Files
 
+    clear
     1 , 2
     over over +
     over over +

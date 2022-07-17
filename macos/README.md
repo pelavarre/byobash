@@ -2,7 +2,8 @@
 
 1
 
-you can start now by reading the BUTTON\_FILE\_DOC in the "buttonfile.py"
+you can start now by reading the BUTTON\_FILE\_DOC
+in the "[buttonfile.py](https://github.com/pelavarre/byobash/blob/main/macos/buttonfile.py#L51:~:text=(pycache_path)-,BUTTON_FILE_DOC,-%3D%20%22%22%22)
 
 that doc walks you through the macOS configuration tricks needed to make this work
 
@@ -13,13 +14,13 @@ this should work without reconfiguration,
 
 2
 
-in my first test, i double-click through ten Buttons
+in my first test, i double-click through ten Button Files
 
     Clear  1 , 2  Over Over +  Over Over +  ...
 
-i push those ten Buttons inside the Finder > View > As Icons (⌘1) of this 'macos' Folder
-
-then Finder > View > As List (⌘2) shows me the Fibonacci Numbers stacking up
+i push those ten Buttons
+as shown inside the Finder > View > As Icons (⌘1) of this 'macos' Folder,
+and then Finder > View > As List (⌘2) shows me the Fibonacci Numbers stacking up
 
 3
 

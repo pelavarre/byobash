@@ -348,7 +348,7 @@ def do_name(parms):
 def do_push_y(parms):
     """Push Y"""
 
-    (_y, _x) = stack_peek(2)
+    (_y, _x) = stack_peek(2, default=None)
     stack_push(_y)
 
 
@@ -387,14 +387,15 @@ def stack_peek(depth, default):
     """Peek and eval some of the Values most recently pushed"""
 
     assert depth >= 1
+    default_json = json.dumps(default)
 
-    pairs = stack_pairs_peek(depth, default=default)  # peek, not pop
+    pairs = stack_pairs_peek(depth, default_json=default_json)  # peek, not pop
     values = list(_[-1] for _ in pairs)
 
     peeks = list()
     for value in values:
 
-        peek = default
+        peek = default_json
         if value is not None:
             try:
                 peek = json.loads(value)
@@ -411,12 +412,12 @@ def stack_peek(depth, default):
     return peeks
 
 
-def stack_pairs_pop(depth, default=None, promise=""):
-    """Peek and remove some of the Key-Value Pairs most recently pushed"""
+def stack_pairs_pop(depth, default_json=None, promise=""):
+    """Peek and remove some of the Basename-Chars Pairs most recently pushed"""
 
     assert depth >= 1
 
-    pairs = stack_pairs_peek(depth, default=default)
+    pairs = stack_pairs_peek(depth, default_json=default_json)
 
     paths = list(_[0] for _ in pairs)
     shpaths = " ".join(byo.shlex_dquote(_) for _ in paths if _ is not None)
@@ -433,8 +434,8 @@ def stack_pairs_pop(depth, default=None, promise=""):
     return pairs
 
 
-def stack_pairs_peek(depth=1, default=None):
-    """Peek at some of the Key-Value Pairs most recently pushed"""
+def stack_pairs_peek(depth=1, default_json=None):
+    """Peek at some of the Basename-Chars Pairs most recently pushed"""
 
     assert depth >= 1
 
@@ -475,9 +476,9 @@ def stack_pairs_peek(depth=1, default=None):
 
     #
 
-    none_key_pair = (None, default)
+    none_basename_pair = (None, default_json)
     while len(pairs) < depth:
-        pairs.append(none_key_pair)
+        pairs.append(none_basename_pair)
 
     #
 
@@ -488,40 +489,39 @@ def stack_push(value):
     """Push the Json Chars of a Value, into a new Autonamed File"""
 
     if isinstance(value, float):
-        key = "{}".format(round(value, 3))
+        basename = "{}".format(round(value, 3))
     else:
-        key = str(value)
+        basename = str(value)
 
-    stack_push_key_value(key, value=value)
+    stack_push_basename_value(basename, value=value)
 
 
-def stack_push_key_value(key, value):
+def stack_push_basename_value(basename, value):
     """Push the Json Chars of a Value, into a fresh File"""
 
-    path = pathlib.Path(key)
-    shpath = byo.shlex_dquote(str(path))
+    path = pathlib.Path(basename)
+    chars = json.dumps(value)
+    shvalue = byo.shlex_dquote(chars)
 
-    shvalue = byo.shlex_dquote(str(value))
+    # Choose the given Basename, else the next that doesn't already exist
 
-    alt_path = find_alt_path(path)
+    alt_path = path
+    if path.exists():
+        alt_path = find_alt_path(path)
+
     alt_shpath = byo.shlex_dquote(str(alt_path))
 
-    mv_shline = "mv -i {} {}".format(shpath, alt_shpath)
-    echo_shline = "echo {} >{}".format(shvalue, shpath)
+    # Trace and run
 
-    if not path.exists():
-        sys.stderr.write("+ {}\n".format(echo_shline))
-    else:
-        sys.stderr.write("+ {} && {}\n".format(mv_shline, echo_shline))
+    echo_shline = "echo {} >{}".format(shvalue, alt_shpath)
+    sys.stderr.write("+ {}\n".format(echo_shline))
 
-        os.rename(path, dst=alt_path)
-
-    chars = json.dumps(value)
-    with open(key, "w") as writing:
+    with open(alt_path, "w") as writing:
         writing.write(chars)
 
 
 def find_alt_path(path):
+    """Find the next Basename that doesn't already exist in the Dir"""
 
     alt_path = pathlib.Path("{}~".format(path))  # the 0th Alt
 
@@ -669,12 +669,12 @@ def peek_entry(default):
     entry = default
 
     pair = stack_pairs_peek(1)[-1]
-    if pair is not None:
-        (key, value) = pair
+    (basename, value) = pair
 
-        if key.endswith("_"):
-            key_json = json.dumps(key)
-            if key_json == value:
+    if basename is not None:
+        if basename.endswith("_"):
+            basename_json = json.dumps(basename)
+            if basename_json == value:
                 evalled = json.loads(value)
                 if re.match("^[-+.0-9][-+.0-9Ee]*_$", string=evalled):
 
