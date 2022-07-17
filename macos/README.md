@@ -3,7 +3,7 @@
 1
 
 you can start now by reading the BUTTON\_FILE\_DOC
-in the "[buttonfile.py](https://github.com/pelavarre/byobash/blob/main/macos/buttonfile.py#L51:~:text=(pycache_path)-,BUTTON_FILE_DOC,-%3D%20%22%22%22)
+in the "[buttonfile.py](https://github.com/pelavarre/byobash/blob/main/macos/buttonfile.py#L51:~:text=(pycache_path)-,BUTTON_FILE_DOC,-%3D%20%22%22%22)"
 
 that doc walks you through the macOS configuration tricks needed to make this work
 

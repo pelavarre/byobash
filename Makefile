@@ -90,9 +90,6 @@ selftest: selftest-no-shparms
 
 selftest-no-shparms:
 	:
-	: press ⌃D to execute, or ⌃C to quit
-	cat -
-	:
 	set -e && for F in $$(find . |grep '[.]py$$' |sort); do python3 $$F >/dev/null; done
 	rm -fr bin/__pycache__/
 	:
