@@ -1,5 +1,21 @@
 #!/usr/bin/env python3
 
+
+_ = """
+
+import datetime as dt
+
+now = dt.datetime.now()
+print(now.strftime("%Y-%m-%d %H:%M:%S").replace(" ", "T"))
+
+chars = "2022-07-18 08:18"  # take r"[ Tt]" a la RFC 3339, not only ISO 8601 "T"
+format = "%Y-%m-%dT%H:%M"  # <= workaround 'TypeError: ... takes no keyword arguments'
+print(dt.datetime.strptime(chars.replace(" ", "T"), format))
+# 2022-07-18 08:18:00
+
+"""
+
+
 # todo:
 #
 #   def dt_timedelta():

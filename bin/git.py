@@ -51,6 +51,7 @@ examples:
 
   ls ~/.gitconfig
   ls .git/config
+  git log -3 --pretty=$'%h "%an" %ae "%ad" "%cn" %ce "%cd" "%s"\n'
 
   # Navigation
 
@@ -240,6 +241,13 @@ def main():  # todo  # noqa C901 complex
             if "--for-shproc".startswith(option):
                 shverb = parms[1]
                 if shverb in aliases_by_verb.keys():
+
+                    # Convert "no" up into a variable number of ShLine's
+
+                    if shverb == "no":
+                        assert aliases_by_verb[shverb].shlines == ["dhno", "spno"]
+
+                        shverb = "spno" if unevalled_parms else "dhno"
 
                     # Convert "rpsfn" up into a variable number of ShLine's
 
@@ -517,8 +525,11 @@ def form_aliases_by_verb():
     for (k, v) in ALIASES.items():
         verb = k
 
-        shline = "git.py {k}  # {v}".format(k=k, v=v)
-        shlines = v.split(" && ")
+        shline = None
+        shlines = v
+        if not isinstance(v, list):
+            shline = "git.py {k}  # {v}".format(k=k, v=v)
+            shlines = v.split(" && ")
 
         # Compile-time option for a breakpoint on a ShVerb or CdVerb
 
@@ -529,26 +540,32 @@ def form_aliases_by_verb():
         # Separate kinds of Alias'es
         # todo: Require the DocLine found in full, with only zero or more Comments added
 
-        docline_0 = shline
-        docline_0 = byo.str_removesuffix(docline_0, " {}")
-        docline_1 = docline_0.replace("  # cat - && ", "  # take ⌃D to mean:  ")
-        docline_2 = docline_0.format("...")
-        docline_3 = docline_1.format("...")
+        if shline is None:
 
-        alias = GitLikeAlias(shlines, authed=True)
-        if "  # cat - && " in shline:
-            alias = GitLikeAlias(shlines, authed=None)
+            alias = GitLikeAlias(shlines, authed=True)
 
-        if docline_3 in doc:  # add interlock before, and place Parms explicitly
-            pass
-        elif docline_2 in doc:  # place Parms explicitly, in the middle or at the end
-            pass
-        elif docline_1 in doc:  # add interlock before, but no Parms
-            pass
-        elif docline_0 in doc:  # add optional Parms past the end
-            pass
         else:
-            assert False, (shlines, docline_0, docline_1)
+
+            docline_0 = shline
+            docline_0 = byo.str_removesuffix(docline_0, " {}")
+            docline_1 = docline_0.replace("  # cat - && ", "  # take ⌃D to mean:  ")
+            docline_2 = docline_0.format("...")
+            docline_3 = docline_1.format("...")
+
+            alias = GitLikeAlias(shlines, authed=True)
+            if "  # cat - && " in shline:
+                alias = GitLikeAlias(shlines, authed=None)
+
+            if docline_3 in doc:  # add interlock before, and place Parms explicitly
+                pass
+            elif docline_2 in doc:  # place Parms explicitly, in the middle or at the end
+                pass
+            elif docline_1 in doc:  # add interlock before, but no Parms
+                pass
+            elif docline_0 in doc:  # add optional Parms past the end
+                pass
+            else:
+                assert False, (shlines, docline_0, docline_1)
 
         # Declare this GitLike Alias
 
@@ -602,7 +619,7 @@ ALIASES = {
     "ls": "git log --numstat {}",
     "lv": "git log --oneline --decorate -{}",
     "lv1": "git log --oneline --decorate -1 {}",
-    "no": "git diff --name-only HEAD~{}",  # same as:  git.py dhno
+    "no": ["dhno", "spno"],  # 'no' without Parms is 'dhno', with Parms is 'spno'
     "pfwl": "cat - && git push --force-with-lease",
     "rb": "git rebase {}",  # auth w/out ⌃D
     "rh": "cat - && git reset --hard {}",

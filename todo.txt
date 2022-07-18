@@ -3,37 +3,41 @@
 
 dreaming since Jul/2022 =>
 
-add the E +/- Buttons into ByoPyVM
-add an Undo Button into ByoPyVm
 
-:
+: ByoPyVm :
 
-FIXME qno without arg should be qdhno, with arg should be qspno
+AssertionError: ('SyntaxError', ['4 copy'])
+repros only in Gui of File and Dupes of Files
 
-FIXME factor out a non-executable bin/pythonx.py, call it from python{3,2,}.py
+qb/c - calmer KeyboardInterrupt, and a full set of editing keystrokes
 
-byopyvm:  Work with Files and Dirs, not just Maths
-
-FIXME Bash of Zsh: echo -ne '\e[8;50;89t'
-
-FIXME the "  &&: # '", in place of "  &&: ", at such as:  ssh.py  &&:  # 'show these...
-
-FIXME scroll-preserving clear is write empty lines for the rows, then destructive clear
-
-solve p
+teach Clear to run outside Git - peek the whole stack, depth = 0, and delete just that
+add the E +/- Buttons
+add an Undo Button
+Work with Files and Dirs, not just Maths
 
 polish notation arithmetic, such as:  * 2 math.pi
 also: from decimal import Decimal as D
 also: dates and times
 
-Tab completion in such places as:  mv -i *.
 
-add expand.py
+: ByoBash :
+
+add cat.py, expand.py, vs Mac 'Illegal byte sequence's
+
+FIXME factor out a non-executable bin/pythonx.py, call it from python{3,2,}.py
+FIXME Bash of Zsh: echo -ne '\e[8;50;89t'
+FIXME the "  &&: # '", in place of "  &&: ", at such as:  ssh.py  &&:  # 'show these...
+FIXME scroll-preserving clear is write empty lines for the rows, then destructive clear
 
 implement the rest of the most prominently Helped Examples
     cp.py
     mv.py
     ...
+
+solve qb/p
+
+Tab completion in such places as:  mv -i *.
 
 byo.exit_via_shpath_shverb:
 forward down the Path
@@ -41,6 +45,9 @@ forward down the Path
         while dropping the absence of Real Path
     then find Self exactly once
         and forward to the Next After Self
+pass through to next .py in the Sh Path chain
+    and then to the next without Ext in the Sh Path chain
+        except fall back to first of chain when self Not found
 
 form my own ~/.bashrc, ~/.zshrc, from parts, as part of:  make push
 
@@ -64,28 +71,9 @@ then run it at .py
 
 earlier thoughts =>
 
-cat.py
-    'should work with my latest' was a note i took that meant something
-
-pass through to next .py in the Sh Path chain
-    and then to the next without Ext in the Sh Path chain
-        except fall back to first of chain when self Not found
-
 work more at
 
     clear.py sleep.py stty.py uptime.py watch.py
-
-    cv
-
-dream up a way to capture such idioms as
-
-    id -un
-    hostname
-    echo $PWD
-
-    git branch
-    git log --oneline --no-decorate -1
-    git describe --always --dirty
 
 fill out tab-completion, such as recent host names for Ssh
 
