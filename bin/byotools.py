@@ -784,8 +784,8 @@ def shlex_parms_partition(parms):
     """Split Options from Positional Args, in the classic way of ArgParse and Sh"""
 
     options = list()
-    first_seps = list()
-    positional_args = list()
+    seps = list()
+    words = list()
 
     for (index, parm) in enumerate(parms):
 
@@ -793,22 +793,19 @@ def shlex_parms_partition(parms):
         # and take the remaining Parms as Positional Args, not as Options
 
         if parm == "--":
-            first_seps.append(parm)
-            positional_args.extend(parms[(index + 1) :])
-
-            break
+            seps.append(parm)
 
         # Pick out each Option, before the First Sep
 
-        if (parm != "-") and parm.startswith("-"):
+        elif (not seps) and (parm != "-") and parm.startswith("-"):
             options.append(parm)
 
         # Pick out each Arg, before the First Sep
 
         else:
-            positional_args.append(parm)
+            words.append(parm)
 
-    return (options, first_seps, positional_args)
+    return (options, seps, words)
 
 
 #

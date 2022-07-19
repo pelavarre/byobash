@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
 r"""
-usage: shpipes.py [--help] [--ext=[EXT]] VERB [ARG ...]
+usage: shpipes.py [--help] [--ext=[EXT]] VERB [WORD ...]
 
 compose and run a Pipe on the Os Copy/Paste Buffer, or inside a Pipe
 
 positional arguments:
   VERB         choice of Alias to expand
-  ARG          choice of Options and Positional Args to run in place of defaults
+  WORD         choice of Options and Positional Args to run in place of defaults
 
 options:
   --help       show this help message and exit
@@ -153,7 +153,7 @@ assert SIGINT_RETURNCODE == 130, (SIGINT_RETURNCODE, 0x80, signal.SIGINT)
 
 
 # Mark the ShVerb's that wrongly fall back to hang for input at Tty Stdin,
-# when given only Options and Seps, but not Args, in the absence of PbPaste Stdin
+# when given only Options and Seps, but not Words, in the absence of PbPaste Stdin
 
 STR_PBPASTE_SHVERBS = """
     awk cat expand grep hexdump less sort sponge tail uniq wc
@@ -176,13 +176,13 @@ def main():
     byo.exit_if_testdoc()  # shpipes.py
     byo.exit_if_argdoc()  # shpipes.py --help
 
-    # Else pick apart how to take the Verb and its Args
+    # Else pick apart how to take the Verb and its Words
 
     exit_via_main_parms(parms)
 
 
 def exit_via_main_parms(parms):
-    """Run the Usage VERB [ARG ...]"""
+    """Run the Usage VERB [WORD ...]"""
 
     shfunc_by_verb = form_shfunc_by_verb()
 
@@ -433,8 +433,8 @@ def do_cv(parms):
 def exit_after_framed_cv_paste(parms):
     """Exit after Stderr Frame of Stdout 'pbpaste |cat -n -tv |expand' for Sep"""
 
-    (_, _, args) = byo.shlex_parms_partition(parms)
-    if args:
+    (_, _, words) = byo.shlex_parms_partition(parms)
+    if words:
         if main.ext is None:
             exit_after_cv_cv_pipe(parms)
         else:
@@ -455,8 +455,8 @@ def exit_after_cv_pbpaste(parms):
 
         exit_after_shpipe("pbpaste\n")
 
-    (options, seps, args) = byo.shlex_parms_partition(parms)
-    if seps and not (options or args):
+    (options, seps, words) = byo.shlex_parms_partition(parms)
+    if seps and not (options or words):
         shpipe = "pbpaste |cat -n -tv |expand\n"
 
         exit_after_shpipe(shpipe)
@@ -539,15 +539,15 @@ def subprocess_run_self(parms):
 def do_d(parms):
     """diff -brpu a b |less -FIRX"""
 
-    (options, seps, args) = byo.shlex_parms_partition(parms)
+    (options, seps, words) = byo.shlex_parms_partition(parms)
     if not (options or seps):
         options.append("-brpu")
-    if len(args) < 2:
-        args.insert(0, "a")
-    if len(args) < 2:
-        args.append("b")
+    if len(words) < 2:
+        words.insert(0, "a")
+    if len(words) < 2:
+        words.append("b")
 
-    argv = ["diff"] + options + seps + args
+    argv = ["diff"] + options + seps + words
     shline = byo.shlex_djoin(argv)
 
     exit_after_shline_to_tty(shline)
@@ -576,13 +576,13 @@ def do_em(parms):
 def do_f(parms):
     """find . -not -type d -not -path './.git/*' |less -FIRX"""  # Mac Find needs '.'
 
-    (options, seps, args) = byo.shlex_parms_partition(parms)
+    (options, seps, words) = byo.shlex_parms_partition(parms)
     if not (options or seps):
         options = ["-not", "-type", "d", "-not", "-path", "./.git/*"]
-    if not args:
-        args.append(".")  # Mac Find needs an explicit '.'
+    if not words:
+        words.append(".")  # Mac Find needs an explicit '.'
 
-    argv = ["find"] + args + options + seps  # classic Find takes Args before Options
+    argv = ["find"] + words + options + seps  # classic Find takes Words before Options
     shline = byo.shlex_djoin(argv)
 
     exit_after_shline_to_tty(shline)
@@ -591,37 +591,36 @@ def do_f(parms):
 def do_g(parms):
     """grep -i ."""
 
-    do_g_parms_shoptions_shargs(parms, shoptions="-i", shargs=".")
+    do_g_parms_shoptions_shwords(parms, shoptions="-i", shwords=".")
 
 
-def do_g_parms_shoptions_shargs(parms, shoptions, shargs=None):
-
-    """Forward ShLine of Options or Seps, else default to Options and to Args"""
+def do_g_parms_shoptions_shwords(parms, shoptions, shwords=None):
+    """Forward ShLine of Options or Seps, else default to Options and Words"""
 
     stdout_isatty = sys.stdout.isatty()
 
     # Forward ShLine w Parms of Options or Seps
 
-    (options, seps, args) = byo.shlex_parms_partition(parms)
+    (options, seps, words) = byo.shlex_parms_partition(parms)
     if options or seps:
         shline = "grep {}".format(shoptions).rstrip()
 
         exit_after_shparms(shline, parms=parms)
 
-    # Else default to Options and to Args
+    # Else default to Options and Words
 
     options = shlex.split(shoptions)
     if stdout_isatty:
-        if shargs:
+        if shwords:
             options.append("--color=yes")  # Also add '--color=yes' into Options
 
-    if not args:
-        if shargs:
-            args = shlex.split(shargs)
+    if not words:
+        if shwords:
+            words = shlex.split(shwords)
 
     # Trace and call and exit
 
-    argv = ["grep"] + options + seps + args
+    argv = ["grep"] + options + seps + words
     shline = byo.shlex_djoin(argv)
 
     exit_after_shline(shline)
@@ -630,31 +629,31 @@ def do_g_parms_shoptions_shargs(parms, shoptions, shargs=None):
 def do_gi(parms):
     """grep ."""
 
-    do_g_parms_shoptions_shargs(parms, shoptions="", shargs=".")
+    do_g_parms_shoptions_shwords(parms, shoptions="", shwords=".")
 
 
 def do_gl(parms):
-    """grep -ilR"""  # better No ShArgs, than r"." to match too many Lines
+    """grep -ilR"""  # better No ShWords, than r"." to match too many Lines
 
-    do_g_parms_shoptions_shargs(parms, shoptions="-ilR", shargs="")
+    do_g_parms_shoptions_shwords(parms, shoptions="-ilR", shwords="")
 
 
 def do_gli(parms):
-    """grep -lR"""  # better No ShArgs, than r"." to match too many Lines
+    """grep -lR"""  # better No ShWords, than r"." to match too many Lines
 
-    do_g_parms_shoptions_shargs(parms, shoptions="-lR", shargs="")
+    do_g_parms_shoptions_shwords(parms, shoptions="-lR", shwords="")
 
 
 def do_gv(parms):
     """grep -v -i ."""
 
-    do_g_parms_shoptions_shargs(parms, shoptions="-v -i", shargs="")
+    do_g_parms_shoptions_shwords(parms, shoptions="-v -i", shwords="")
 
 
 def do_gvi(parms):
     """grep -v"""
 
-    do_g_parms_shoptions_shargs(parms, shoptions="-v", shargs="")
+    do_g_parms_shoptions_shwords(parms, shoptions="-v", shwords="")
 
 
 def do_h(parms):
@@ -663,11 +662,11 @@ def do_h(parms):
     rows = byo.shutil_get_tty_height()
     thirdrows = max(3, rows // 3)
 
-    (options, seps, args) = byo.shlex_parms_partition(parms)
+    (options, seps, words) = byo.shlex_parms_partition(parms)
     if not (options or seps):
         options.append("-{}".format(thirdrows))
 
-    argv = ["head"] + options + seps + args
+    argv = ["head"] + options + seps + words
     shline = byo.shlex_djoin(argv)
 
     exit_after_shline(shline)
@@ -709,12 +708,12 @@ def do_mo(parms):
 def do_n(parms):
     """cat -n -tv |expand"""
 
-    (options, seps, args) = byo.shlex_parms_partition(parms)
+    (options, seps, words) = byo.shlex_parms_partition(parms)
     if not (options or seps):
         options.append("-n")
         options.append("-tv")
 
-    argv = ["cat"] + options + seps + args
+    argv = ["cat"] + options + seps + words
 
     shline = byo.shlex_djoin(argv)
     shpipe = "{} |expand".format(shline)
@@ -746,11 +745,11 @@ def do_t(parms):
     rows = byo.shutil_get_tty_height()
     thirdrows = max(3, rows // 3)
 
-    (options, seps, args) = byo.shlex_parms_partition(parms)
+    (options, seps, words) = byo.shlex_parms_partition(parms)
     if not (options or seps):
         options.append("-{}".format(thirdrows))
 
-    argv = ["tail"] + options + seps + args
+    argv = ["tail"] + options + seps + words
     shline = byo.shlex_djoin(argv)
 
     exit_after_shline(shline)
@@ -796,7 +795,7 @@ def do_xp(parms):
 def pbedit(parms):
     """Call on Vi to edit a Pipe Byte Stream, or on a chosen Editor"""
 
-    # Take 'usage: shpipes.py -- VERB [ARG ...]' as the Editor, else fallback to 'vi'
+    # Take 'usage: shpipes.py -- VERB [WORD ...]' as the Editor, else fallback to 'vi'
 
     vi_argv_minus = parms
     if parms in ([], ["--"]):
@@ -889,14 +888,14 @@ def exit_after_shverb_shparms(shline, parms):
 
     # Forward the Parms unless Options or Seps given
 
-    (options, seps, args) = byo.shlex_parms_partition(parms)
+    (options, seps, words) = byo.shlex_parms_partition(parms)
     if not (options or seps):
 
         exit_after_shparms(shline, parms=parms)
 
-    # Forward no Parms, in particular not the Seps, when no Options and no Args given
+    # Forward no Parms, in particular not the Seps, when no Options and no Words given
 
-    if (not options) and (not args):
+    if (not options) and (not words):
 
         exit_after_shline(shline=shverb)
 
@@ -972,12 +971,18 @@ def exit_after_shline(shline):
 def exit_after_one_argv(shline, argv):
     """Trace as ShLine but run as ArgV, then exit"""
 
-    shverb = shline.split()[0]
+    alt_argv = shlex.split(shline)
+    alt_argv = list(_ for _ in alt_argv if not re.match("^[0-9]*[<>]", string=_))
+    shverb = alt_argv[0]  # may be same as 'argv[0]'
+
+    (_, _, words) = byo.shlex_parms_partition(alt_argv[1:])
+
+    stdin_args = words and (words not in (["-"], ["/dev/stdin"], ["/dev/tty"]))
 
     # Figure out what to call
 
     tty_prompted = False
-    if shverb not in PBPASTE_SHVERBS:
+    if stdin_args or (shverb not in PBPASTE_SHVERBS):
         sys.stderr.write("+ {}\n".format(shline))
     elif shline in ("cat -", "cat - >/dev/null"):
         sys.stderr.write("+ {}\n".format(shline))
@@ -994,10 +999,12 @@ def exit_after_one_argv(shline, argv):
 
     # Run the code
 
-    stdin = None
-    if shverb in PBPASTE_SHVERBS:
-        if not tty_prompted:
-            stdin = stdin_demand()
+    if stdin_args or (shverb not in PBPASTE_SHVERBS):
+        stdin = subprocess.PIPE
+    elif tty_prompted:
+        stdin = None
+    else:
+        stdin = stdin_demand()
 
     try:
         run = subprocess.run(argv, stdin=stdin)
