@@ -25,6 +25,10 @@ also: dates and times
 
 add cat.py, expand.py, vs Mac 'Illegal byte sequence's
 
+adopt 'byo.stderr_print',
+    across the files of 'import byotools as byo',
+        in place of 'sys.stderr.write'
+
 FIXME factor out a non-executable bin/pythonx.py, call it from python{3,2,}.py
 FIXME Bash of Zsh: echo -ne '\e[8;50;89t'
 FIXME the "  &&: # '", in place of "  &&: ", at such as:  ssh.py  &&:  # 'show these...

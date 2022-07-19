@@ -807,6 +807,22 @@ def shlex_parms_partition(parms):
 
     return (options, seps, words)
 
+    #   look deeper into when '---' is an option, like Grep votes '---' is an Arg
+    #
+    #       % qd |g -e +++ -e ---
+    #       + git diff
+    #       ('+ grep -i -e +++ -e ---',)
+    #       --- a/bin/byotools.py
+    #       +++ b/bin/byotools.py
+    #       --- a/bin/git.py
+    #       +++ b/bin/git.py
+    #       --- a/bin/shpipes.py
+    #       +++ b/bin/shpipes.py
+    #       --- a/todo.txt
+    #       +++ b/todo.txt
+    #       %
+    #
+
 
 #
 # Add some Def's that 'import shutil' forgot
@@ -847,6 +863,16 @@ def shutil_get_tty_size():
 #
 # Add some Def's that 'import sys' forgot
 #
+
+
+def stderr_print(*args, **kwargs):
+    """Work like Print, but write Stderr in place of Stdout"""
+
+    sys.stdout.flush()
+
+    print(args, file=sys.stderr, **kwargs)  # todo: what if "file" in kwargs.keys() ?
+
+    sys.stderr.flush()
 
 
 class BrokenPipeSink:  # todo: add calls of it, don't just define it

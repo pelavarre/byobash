@@ -163,7 +163,7 @@ GitLikeAlias = collections.namedtuple("GitLikeAlias", "shlines authed".split())
 #
 
 
-def main():  # todo  # noqa C901 complex
+def main():
     """Run from the Sh Command Line"""
 
     # Emulate running as a Sh Alias that doesn't write PyC Files
@@ -561,10 +561,10 @@ ALIASES = {
     "em": "bash -c 'em $(qdhno |tee /dev/stderr)'",
     "f": "git fetch",
     "frb": "git fetch && git rebase",
-    "g": "git grep -i {}",  # todo: default Grep of $(-gdhno)
-    "gi": "git grep {}",  # todo: default Grep of $(-gdhno)
-    "gl": "git grep -il {}",  # todo: default Grep of $(-gdhno)
-    "gli": "git grep -l {}",  # todo: default Grep of $(-gdhno)
+    "g": "git grep -i {}",  # todo: default Grep of $(qno)
+    "gi": "git grep {}",  # todo: default Grep of $(qno)
+    "gl": "git grep -il {}",  # todo: default Grep of $(qno)
+    "gli": "git grep -l {}",  # todo: default Grep of $(qno)
     "l": "git log {}",
     "l1": "git log --decorate -1 {}",
     "lf": "git ls-files {}",
@@ -712,6 +712,25 @@ if __name__ == "__main__":
 
 # 'todo.txt' for 'git.py' =>
 
+# FIXME: echo qbin/qg{v,}{l,}{w,}{i,}
+# FIXME: echo qb/g{v,}{l,}{w,}{i,}
+# FIXME: auto-correct'ing the 'qg' [FILE ...] Parm to be:  $(qno)
+
+# FIXME: qno HEAD
+# $ qno HEAD
+# + git diff --name-only HEAD~1 |grep -e '[.]HEAD$'
+# git.py: + exit 1
+# $
+
+# FIXME: qno - go with the qdno if it's not empty
+# FIXME: qvi, qem - go with the qno, not always only the qdhno
+
+# FIXME: define qg algorithmically
+# FIXME: fan out as full 16 inside:  echo qbin/qg{v,}{l,}{w,}{i,}
+# FIXME: accept -l -w -i to toggle on those
+# FIXME: ditto via 'shpipes.py' as full 16 inside:  echo qb/g{v,}{l,}{w,}{i,}
+
+
 #
 # FIXME: add '-h' into 'git log grep' => grep -h def.shlex_quote $(-ggl def.shlex_quote)
 #
@@ -733,20 +752,20 @@ if __name__ == "__main__":
 #   such as 'git log --no-mer --one --deco' for '--no-merges --oneline --decorate'
 #
 
-_ = """
-% git checkout -b guests/jqdoe/sandbox1
-Switched to a new branch 'guests/jqdoe/sandbox1'
-% qrpar
-+ git rev-parse --abbrev-ref HEAD
-guests/jqdoe/sandbox1
-% git push
-fatal: The current branch guests/jqdoe/sandbox1 has no upstream branch.
-To push the current branch and set the remote as upstream, use
-
-    git push --set-upstream origin guests/jqdoe/sandbox1
-
-zsh: exit 128   git push
-"""
+# _ = """
+# % git checkout -b guests/jqdoe/sandbox1
+# Switched to a new branch 'guests/jqdoe/sandbox1'
+# % qrpar
+# + git rev-parse --abbrev-ref HEAD
+# guests/jqdoe/sandbox1
+# % git push
+# fatal: The current branch guests/jqdoe/sandbox1 has no upstream branch.
+# To push the current branch and set the remote as upstream, use
+#
+#     git push --set-upstream origin guests/jqdoe/sandbox1
+#
+# zsh: exit 128   git push
+# """
 
 #
 # trace what they mean - with inverse globs for concision, like at:  -ga bin/*.py

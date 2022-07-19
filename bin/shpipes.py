@@ -65,9 +65,10 @@ Call Python to filter whole Copies of the Os Copy/Paste Buffer
 
 Call Sh to filter Lines of the Os Copy/Paste Buffer
 
-  shpipes.py sh a '?' 1  # pbpaste |awk -F'?' '{print $1}' |pbcopy  # drop tracking tags
-  shpipes.py sh awk -F'?' '{print $1}'  # same work, but not so abbreviated
-  shpipes.py sh sponge  # works even while "bash -c 'sponge'" is missing
+  shpipes.py cv cut -d/ -f4-  # drop 'http://.../' suffix
+  shpipes.py cv a '?' 1  # pbpaste |awk -F'?' '{print $1}' |pbcopy  # drop tracking tags
+  shpipes.py cv awk -F'?' '{print $1}'  # same work, but not so abbreviated
+  shpipes.py cv sponge  # works even while "bash -c 'sponge'" is missing
 
   shpipes.py --ext=.sh lstrip  # print how it works, don't do it
 
@@ -256,8 +257,8 @@ def exit_after_shfunc(shfunc, parms):
 
     if main.ext is not None:
         if main.ext not in ("", ".bash", ".sh", ".zsh"):
-            sys.stderr.write(
-                "shpipes.py: ERROR: --ext={!r} not implemented for sh:  {}\n".format(
+            byo.stderr_print(
+                "shpipes.py: ERROR: --ext={!r} missing for shfunc:  {}".format(
                     main.ext, byo.shlex_djoin(parms) if parms else "--"
                 )
             )
@@ -445,7 +446,7 @@ def exit_after_framed_cv_paste(parms):
         exit_after_cv_pbpaste(parms)
     finally:
         sys.stdout.flush()
-        sys.stderr.write("\n")
+        byo.stderr_print()
 
 
 def exit_after_cv_pbpaste(parms):
@@ -522,7 +523,7 @@ def subprocess_run_self(parms):
             run = subprocess.run(argv, stdin=left_sponge, stdout=right_sponge)
 
             if run.returncode:
-                sys.stderr.write("+ exit {}\n".format(run.returncode))
+                byo.stderr_print("+ exit {}".format(run.returncode))
 
                 sys.exit(run.returncode)  # Pass back a NonZero Exit Status ReturnCode
 
@@ -562,8 +563,8 @@ def do_e(parms):
 def do_em(parms):
     """emacs -nw --no-splash --eval '(menu-bar-mode -1)'"""
 
-    sys.stderr.write(
-        "shpipes.py {}: Press Esc X revert Tab Return, and ⌃X⌃C, to quit\n".format(
+    byo.stderr_print(
+        "shpipes.py {}: Press Esc X revert Tab Return, and ⌃X⌃C, to quit".format(
             main.shverb
         )
     )
@@ -764,7 +765,7 @@ def do_u(parms):
 def do_v(parms):
     """vim"""
 
-    sys.stderr.write("shpipes.py v: Press ⇧Z ⇧Q to quit\n")
+    byo.stderr_print("shpipes.py v: Press ⇧Z ⇧Q to quit")
 
     exit_after_shparms("vim", parms=parms)
 
@@ -803,7 +804,7 @@ def pbedit(parms):
 
     # Authorize the leak of one Temporary File (commonly left in "/tmp" till Os Restart)
 
-    sys.stderr.write("+ F=$(mktemp)\n")
+    byo.stderr_print("+ F=$(mktemp)")
 
     run = subprocess.run(
         shlex.split("mktemp"), stdin=subprocess.PIPE, stdout=subprocess.PIPE, check=True
@@ -826,7 +827,7 @@ def pbedit(parms):
     vi_argv = vi_argv_minus + [mktemp_path]
 
     vi_shline_minus = byo.shlex_djoin(vi_argv_minus)
-    sys.stderr.write("+ {} $F\n".format(vi_shline_minus))
+    byo.stderr_print("+ {} $F".format(vi_shline_minus))
 
     subprocess.run(vi_argv, check=True)
 
@@ -836,15 +837,15 @@ def pbedit(parms):
         obytes = reading.read()
 
     obytelines = obytes.splitlines()
-    sys.stderr.write(
-        "... {} bytes of {} lines ...\n".format(len(obytes), len(obytelines))
+    byo.stderr_print(
+        "... {} bytes of {} lines ...".format(len(obytes), len(obytelines))
     )
 
     stdout_dump(obytes, shline="cat $F |pbcopy")
 
     # Race to destroy the Edited File, rather than leaking it
 
-    sys.stderr.write("+ rm $F\n")
+    byo.stderr_print("+ rm $F")
 
     os.remove(mktemp_path)
 
@@ -856,7 +857,7 @@ def stdin_load(shline="pbpaste"):
         with open("/dev/stdin", "rb") as reading:
             ibytes = reading.read()
     else:
-        sys.stderr.write("+ {}\n".format(shline))
+        byo.stderr_print("+ {}".format(shline))
         run = subprocess.run(
             "pbpaste", stdin=subprocess.PIPE, stdout=subprocess.PIPE, check=True
         )
@@ -872,7 +873,7 @@ def stdout_dump(obytes, shline="pbcopy"):
         with open("/dev/stdout", "wb") as writing:
             writing.write(obytes)
     else:
-        sys.stderr.write("+ {}\n".format(shline))
+        byo.stderr_print("+ {}".format(shline))
         subprocess.run("pbcopy", input=obytes, check=True)
 
 
@@ -990,7 +991,7 @@ def exit_after_one_argv(shline, argv):
 
     # Print the Code and exit zero, when Not authorized to run it
 
-    sys.stderr.write("+ {}\n".format(shline))
+    byo.stderr_print("+ {}".format(shline))
     if main.ext is not None:
 
         sys.exit(0)  # Exit 0 after printing Help Lines
@@ -998,7 +999,7 @@ def exit_after_one_argv(shline, argv):
     # Run the code
 
     if stdin_istty_prompted:
-        sys.stderr.write("shpipes.py {}: Press ⌃D TTY EOF to quit\n".format(shverb))
+        byo.stderr_print("shpipes.py {}: Press ⌃D TTY EOF to quit".format(shverb))
 
     # Figure out what to call
 
@@ -1007,21 +1008,21 @@ def exit_after_one_argv(shline, argv):
     elif (shverb not in PBPASTE_SHVERBS) or stdin_args:
         stdin = subprocess.PIPE
     else:
-        sys.stderr.write("+ pbpaste |{}\n".format(shline))
+        byo.stderr_print("+ pbpaste |{}".format(shline))
         stdin = stdin_demand()
 
     try:
         run = subprocess.run(argv, stdin=stdin)
     except KeyboardInterrupt:
-        sys.stderr.write("\n")
-        sys.stderr.write("KeyboardInterrupt\n")
+        byo.stderr_print()
+        byo.stderr_print("KeyboardInterrupt")
 
         assert SIGINT_RETURNCODE == 130, SIGINT_RETURNCODE
 
         sys.exit(SIGINT_RETURNCODE)  # Exit 130 to say KeyboardInterrupt SIGINT
 
     if run.returncode:  # Exit early, at the first NonZero Exit Status ReturnCode
-        sys.stderr.write("+ exit {}\n".format(run.returncode))
+        byo.stderr_print("+ exit {}".format(run.returncode))
 
         sys.exit(run.returncode)  # Pass back a NonZero Exit Status ReturnCode
 
@@ -1064,8 +1065,8 @@ def exit_if_shverb(parms):
     # Refuse to run when found, if Source also required
 
     if main.ext is not None:
-        sys.stderr.write(
-            "shpipes.py: ERROR: --ext={!r} not implemented for shverb:  {}\n".format(
+        byo.stderr_print(
+            "shpipes.py: ERROR: --ext={!r} missing for shverb:  {}".format(
                 main.ext, shverb
             )
         )
@@ -1091,8 +1092,8 @@ def exit_after_autocomplete(parms):
 
     if main.ext is not None:
         if main.ext not in ("", ".py", ".py3"):
-            sys.stderr.write(
-                "shpipes.py: ERROR: --ext={!r} not implemented for py: {}\n".format(
+            byo.stderr_print(
+                "shpipes.py: ERROR: --ext={!r} missing for py: {}".format(
                     main.ext, byo.shlex_djoin(argv) if argv else "--"
                 )
             )
@@ -1127,7 +1128,7 @@ def exit_after_autocomplete(parms):
 
     # Patch up Py Source, so as to autocomplete the argv
 
-    sys.stderr.write("+ ... {} ...\n".format(byo.shlex_djoin(argv)))
+    byo.stderr_print("+ ... {} ...".format(byo.shlex_djoin(argv)))
 
     if True:
         if len(argv) == 1:
@@ -1140,7 +1141,7 @@ def exit_after_autocomplete(parms):
     # Print Help Lines and exit, if not authorized to run
 
     if main.ext is not None:
-        sys.stderr.write("{}\n".format(pysource))
+        byo.stderr_print("{}".format(pysource))
 
         sys.exit(0)  # Exit 0 after printing Help Lines
 
@@ -1267,6 +1268,17 @@ BEAUTIFUL IS BETTER THAN UGLY
 
 if __name__ == "__main__":
     main()
+
+
+#
+# 'todo.txt' of 'bin/shpipes.py'
+#
+#   make more dry runs work, some do work now
+#
+#       % c --ext
+#       ('+ cat - >/dev/null',)
+#       %
+#
 
 
 # posted into:  https://.com/pelavarre/byobash/blob/main/bin/shpipes.py

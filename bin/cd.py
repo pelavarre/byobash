@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+# FIXME: picks the dir of the file when given dir/file
+# FIXME: drops the "scheme://prefix.domain:port" when present as prefix
+# FIXME: drops the "?..." key-value pairs when present as suffix
+
+# FIXME: usage: cd.py OLD NEW  # such as ...v1...$ cd.py v1 v2
+
 r"""
 usage: cd.py [--h] [--pwd] [DIR]
 
@@ -45,10 +51,12 @@ examples:
   cd.py --  # go to Desktop Dir inside Home Dir, same as:  cd ~/Desktop
   command bin/cd.py --  # show the Advanced Bash Install of Cd Py and exit
 
-  cd.py -  # toggle back to previous Sh Working Dir, same as:  cd -
   cd.py ~  # go to Home Dir, same as:  cd ~
   cd.py .  # stay put, same as:  cd .
   cd.py ..  # go one Dir up, same as:  cd ..
+
+  cd.py -  # toggle back to previous Sh Working Dir, same as:  cd -
+  cd https://google.com/search?tbl=isch&q=Carelman  # => cd /search
 """
 # todo: adopt 'cd.py -- OLD NEW' from Zsh, for editing $PWD
 

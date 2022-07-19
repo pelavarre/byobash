@@ -42,5 +42,9 @@ import byotools as byo
 byo.exit(__name__)
 
 
+# color a multiline _ = """..."""
+# much like '# '
+
+
 # posted into:  https://github.com/pelavarre/byobash/blob/main/bin/vi.py
 # copied from:  git clone https://github.com/pelavarre/byobash.git
