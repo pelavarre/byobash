@@ -971,6 +971,15 @@ def exit_after_shline(shline):
 def exit_after_one_argv(shline, argv):
     """Trace as ShLine but run as ArgV, then exit"""
 
+    # Collect context
+
+    stdin_ispipe = not sys.stdin.isatty()
+
+    stdin_istty_prompted = False
+    if not stdin_ispipe:
+        if shline in ("cat -", "cat - >/dev/null"):
+            stdin_istty_prompted = True
+
     alt_argv = shlex.split(shline)
     alt_argv = list(_ for _ in alt_argv if not re.match("^[0-9]*[<>]", string=_))
     shverb = alt_argv[0]  # may be same as 'argv[0]'
@@ -979,31 +988,26 @@ def exit_after_one_argv(shline, argv):
 
     stdin_args = words and (words not in (["-"], ["/dev/stdin"], ["/dev/tty"]))
 
-    # Figure out what to call
-
-    tty_prompted = False
-    if stdin_args or (shverb not in PBPASTE_SHVERBS):
-        sys.stderr.write("+ {}\n".format(shline))
-    elif shline in ("cat -", "cat - >/dev/null"):
-        sys.stderr.write("+ {}\n".format(shline))
-        sys.stderr.write("shpipes.py {}: Press ⌃D TTY EOF to quit\n".format(shverb))
-        tty_prompted = True
-    else:
-        sys.stderr.write("+ pbpaste |{}\n".format(shline))
-
     # Print the Code and exit zero, when Not authorized to run it
 
+    sys.stderr.write("+ {}\n".format(shline))
     if main.ext is not None:
 
         sys.exit(0)  # Exit 0 after printing Help Lines
 
     # Run the code
 
-    if stdin_args or (shverb not in PBPASTE_SHVERBS):
-        stdin = subprocess.PIPE
-    elif tty_prompted:
+    if stdin_istty_prompted:
+        sys.stderr.write("shpipes.py {}: Press ⌃D TTY EOF to quit\n".format(shverb))
+
+    # Figure out what to call
+
+    if stdin_ispipe or stdin_istty_prompted:
         stdin = None
+    elif shverb not in PBPASTE_SHVERBS:
+        stdin = subprocess.PIPE
     else:
+        sys.stderr.write("+ pbpaste |{}\n".format(shline))
         stdin = stdin_demand()
 
     try:
