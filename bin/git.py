@@ -52,8 +52,9 @@ examples:
   ls ~/.gitconfig
   ls .git/config
   git log -3 --pretty=$'%h "%an" %ae "%ad" "%cn" %ce "%cd" "%s"\n'
+  git log -3 --oneline 'HEAD@{45 days ago}'  # Git Time Machine
 
-  # Navigation
+  # Navigation (~20 aliases)
 
   git.py cd  # cd $(git rev-parse --show-toplevel)
   git.py co  # git checkout  # the calmest kind of 'git status'
@@ -67,7 +68,7 @@ examples:
   git.py gl  # git grep -ilR
   git.py gli  # git grep -lR
   git.py lf  # git ls-files
-  git.py no  # git diff --name-only HEAD~..., default HEAD~1  # same as:  git.py dhno
+  git.py no  # git show --pretty='' --name-only ..., else git diff --name-only HEAD~1
   git.py s  # git show
   git.py sp  # git show --pretty=''
   git.py spno  # git show --pretty='' --name-only
@@ -76,7 +77,7 @@ examples:
   git.py sun  # git status --untracked-files=no
   git.py vi  # bash -c 'vi $(qdhno |tee /dev/stderr)'
 
-  # Branch and Log Work
+  # Branch and Log Work (~27 aliases)
 
   git.py b  # git branch  # and see also:  git rev-parse --abbrev-ref
   git.py ba  # git branch --all
@@ -99,13 +100,14 @@ examples:
   git.py lv1  # git log --oneline --decorate -1
   git.py rb  # git rebase
   git.py ri  # git rebase --interactive --autosquash HEAD~...  # else {@upstream}
-  git.py rl  # git reflog  # show Commits
+  git.py rl  # git reflog  # show Commits of Clone, no matter the Branch
+  git.py rlv  # git reflog --format=fuller  # show more detail for Commits of Clone
   git.py rpar  # git rev-parse --abbrev-ref  # show the key line of:  git.py b
   git.py rpsfn  # git rev-parse --symbolic-full-name @{-...}  # show:  git.py co -
   git.py rv  # git remote -v
   git.py ssn  # git shortlog --summary --numbered
 
-  # Commit and Conflict Work
+  # Commit and Conflict Work (~17 aliases)
 
   git.py a  # git add
   git.py ap  # git add --patch
@@ -156,12 +158,19 @@ assert SIGINT_RETURNCODE == 130, (SIGINT_RETURNCODE, 0x80, signal.SIGINT)
 GitLikeAlias = collections.namedtuple("GitLikeAlias", "shlines authed".split())
 
 
+#
+# Run from the Sh Command Line
+#
+
+
 def main():  # todo  # noqa C901 complex
     """Run from the Sh Command Line"""
 
-    rm_fr_import_byotools_pyc()  # Give the Illusion of a Sh Alias without PyC
+    # Emulate running as a Sh Alias that doesn't write PyC Files
 
-    aliases_by_verb = form_aliases_by_verb()
+    rm_fr_import_byotools_pyc()
+
+    # Track how to patch a 'git.py cd' into the Memory of the Sh Process
 
     patchdoc = """
 
@@ -182,98 +191,77 @@ def main():  # todo  # noqa C901 complex
 
     """
 
-    # Drop the "--for-shproc" Parm
-    # if it's followed by no more Parms, or
-    # if it's followed one of "--help", "--hel", "--he", "--h"
+    # Take "--for-cdproc" and "--for-shproc" out early
 
-    parms = sys.argv[1:]
+    parms = None
 
-    if parms and (parms[0] == "--for-shproc"):
-        if not parms[1:]:
-            sys.argv[1:] = parms[1:]
-        else:
-            parm_1 = parms[1]
-            if parm_1.startswith("--h") and "--help".startswith(parm_1):
-                sys.argv[1:] = parms[1:]
-            elif parm_1 == "--":  # here emulate Sh Function:  git.py --
-                sys.argv[1:] = ["--for-shproc", "co"]
-                # FIXME: but show counts of 'gssi', to discourage forgetting:  git add
+    sys_parms = sys.argv[1:]
+    options = ("--for-cdproc", "--for-shproc")
+    if sys_parms and (sys_parms[0] in options):
+        parms = sys.argv[2:]
 
-        parms = sys.argv[1:]
+        # Define the 'git.py' that isn't 'command git.py'
 
-    # Define some forms of 'git.py'
+        if not parms:
+
+            byo.exit_after_testdoc()
+
+        # Define the 'git.py --' that isn't 'command git.py --'
+
+        if parms == ["--"]:
+
+            parms = ["co"]  # "git checkout"
+            # FIXME: print counts of 'gssi' as reminders for:  git add
+
+    # Define the most conventional forms of 'git.py'
 
     byo.exit_if_patchdoc(patchdoc)  # command git.py --
-    byo.exit_if_testdoc()  # git.py
+    byo.exit_if_testdoc()  # command git.py
     byo.exit_if_argdoc()  # git.py --help
 
-    # Define many GitLikeAlias'es
+    # Expand any of many intensely cryptic calls of "--for-cdproc" and "--for-shproc"
 
-    if parms[1:]:
-        option = parms[0]
-        if option.startswith("--for-"):
-            unevalled_parms = parms[2:]
+    if parms:
+        shverb = parms[0]
 
-            # Define 'git.py --for-chdir cd ...'
-            # to do only the 'git rev-parse --show-toplevel' work here,
-            # while trusting the caller to the the 'cd $(...)' work
-
-            if "--for-chdir".startswith(option):
-                cdverb = parms[1]
-                if cdverb == "cd":
-
-                    alias = aliases_by_verb[cdverb]
-                    authed = alias.authed
-                    shlines = ["git rev-parse --show-toplevel"]
-
-                    git_cd_shlines = ["cd $(git rev-parse --show-toplevel)"]
-                    assert alias.shlines == git_cd_shlines, alias.shlines
-
-                    exit_if_shproc(
-                        shverb=cdverb,
-                        parms=unevalled_parms,
-                        authed=authed,
-                        shlines=shlines,
-                    )
-
-            # Define 'git.py --for-shproc SHVERB ...'
-
-            if "--for-shproc".startswith(option):
-                shverb = parms[1]
-                if shverb in aliases_by_verb.keys():
-
-                    # Convert "no" up into a variable number of ShLine's
-
-                    if shverb == "no":
-                        assert aliases_by_verb[shverb].shlines == ["dhno", "spno"]
-
-                        shverb = "spno" if unevalled_parms else "dhno"
-
-                    # Convert "rpsfn" up into a variable number of ShLine's
-
-                    if shverb == "rpsfn":
-                        if not unevalled_parms:
-
-                            exit_if_rpsfn(parms=unevalled_parms)
-
-                        chars = unevalled_parms[0] if unevalled_parms else None
-                        if unevalled_parms and re.match(r"^[-+]?[0-9]+$", string=chars):
-
-                            exit_if_rpsfn(parms=unevalled_parms)
-
-                    # Else just copy/edit Parms into Git and exit, else return
-
-                    alias = aliases_by_verb[shverb]
-                    authed = alias.authed
-                    shlines = alias.shlines
-
-                    exit_if_shproc(
-                        shverb, parms=unevalled_parms, authed=authed, shlines=shlines
-                    )
+        exit_if_by_shverb(shverb, parms=parms[1:])
 
     # Default to forward the Parms into a Git Subprocess
 
     byo.exit_after_shverb()
+
+
+def exit_if_by_shverb(shverb, parms):
+    """Expand any of many intensely cryptic calls of Git Aliases"""
+
+    exit_if_funcs_by_shverb = form_exit_if_funcs_by_shverb()
+    aliases_by_shverb = form_aliases_by_shverb()
+
+    # For a few ShVerb's, take more context into account
+
+    exit_if_func = exit_if_funcs_by_shverb.get(shverb)
+    if exit_if_func:
+
+        exit_if_func(parms)
+
+    # Commonly, instantiate a fixed-length template of ShLine's
+
+    alias = aliases_by_shverb.get(shverb)
+    if alias:
+        authed = alias.authed
+
+        shlines = alias.shlines
+        if shverb == "cd":
+            shlines = ["git rev-parse --show-toplevel"]
+
+            git_cd_shlines = ["cd $(git rev-parse --show-toplevel)"]
+            assert alias.shlines == git_cd_shlines, alias.shlines
+
+        exit_if_shproc(shverb, parms=parms, authed=authed, shlines=shlines)
+
+    # Else return to try something else
+
+    return
 
 
 def rm_fr_import_byotools_pyc():
@@ -452,7 +440,7 @@ def exit_if_shproc(shverb, parms, authed, shlines):  # todo  # noqa: C901 comple
 
             sys.stderr.write("+ {}\n".format(rpar_shline))
             rpar_argv = shlex.split(rpar_shline)
-            _ = subprocess.run(rpar_argv)
+            _ = subprocess.run(rpar_argv, stdin=subprocess.PIPE)
             sys.stderr.write("+\n")
 
     if not authed:
@@ -475,53 +463,18 @@ def exit_if_shproc(shverb, parms, authed, shlines):  # todo  # noqa: C901 comple
 
 
 #
-# Wrap many many Shim's around Git
+# Define Git Alias'es that trace their own meaning, so i still learn over your shoulder
 #
 
 
-def exit_if_rpsfn(parms):
-    """Show the Stack of Git Checkout Choices, else return"""
-
-    shverb = "rpsfn"
-
-    aliases_by_verb = form_aliases_by_verb()
-
-    alias = aliases_by_verb[shverb]
-    authed = alias.authed
-    shlines = alias.shlines
-
-    assert authed
-    assert shlines == ["git rev-parse --symbolic-full-name @{{-{}}}"], shlines
-
-    # Default to show Current and then Previous Git Branch
-    # Else show the Current and then older and older previous Git Branches
-
-    alt_shlines = list()
-    alt_shlines.append("git rev-parse --abbrev-ref HEAD")
-    alt_shlines.append("git rev-parse --symbolic-full-name @{{-1}}")
-
-    if parms:
-
-        absintparm = abs(int(parms[0]))
-        if not absintparm:
-            alt_shlines[::] = alt_shlines[:1]
-        else:
-            for index in range(2, absintparm + 1):
-                alt_shlines.append(
-                    "git rev-parse --symbolic-full-name @{{{{-{}}}}}".format(index)
-                )
-
-    exit_if_shproc(shverb="rpsfn", parms=list(), authed=True, shlines=alt_shlines)
-
-
-def form_aliases_by_verb():
-    """Declare the GitLikeAlias'es"""
+def form_aliases_by_shverb():
+    """Declare the GitLikeAlias'es, indexed by ShVerb"""
 
     doc = __main__.__doc__
 
     # Visit each GitLike Alias
 
-    aliases_by_verb = dict()
+    aliases_by_shverb = dict()
     for (k, v) in ALIASES.items():
         verb = k
 
@@ -533,9 +486,13 @@ def form_aliases_by_verb():
 
         # Compile-time option for a breakpoint on a ShVerb or CdVerb
 
-        if False:
-            if verb == "cd":
-                pdb.set_trace()
+        _ = """  # duck Flake8 C901 is too complex (11)  # todo
+
+            if False:
+                if verb == "cd":
+                    pdb.set_trace()
+
+        """
 
         # Separate kinds of Alias'es
         # todo: Require the DocLine found in full, with only zero or more Comments added
@@ -558,7 +515,9 @@ def form_aliases_by_verb():
 
             if docline_3 in doc:  # add interlock before, and place Parms explicitly
                 pass
-            elif docline_2 in doc:  # place Parms explicitly, in the middle or at the end
+            elif (
+                docline_2 in doc
+            ):  # place Parms explicitly, in the middle or at the end
                 pass
             elif docline_1 in doc:  # add interlock before, but no Parms
                 pass
@@ -569,11 +528,11 @@ def form_aliases_by_verb():
 
         # Declare this GitLike Alias
 
-        assert verb not in aliases_by_verb.keys(), repr(verb)
+        assert verb not in aliases_by_shverb.keys(), repr(verb)
 
-        aliases_by_verb[verb] = alias
+        aliases_by_shverb[verb] = alias
 
-    return aliases_by_verb
+    return aliases_by_shverb
 
 
 ALIASES = {
@@ -619,13 +578,14 @@ ALIASES = {
     "ls": "git log --numstat {}",
     "lv": "git log --oneline --decorate -{}",
     "lv1": "git log --oneline --decorate -1 {}",
-    "no": ["dhno", "spno"],  # 'no' without Parms is 'dhno', with Parms is 'spno'
+    "no": "git show --pretty='' --name-only ..., else git diff --name-only HEAD~1",
     "pfwl": "cat - && git push --force-with-lease",
     "rb": "git rebase {}",  # auth w/out ⌃D
     "rh": "cat - && git reset --hard {}",
     "rhu": "cat - && git reset --hard @{{upstream}}",
     "ri": "git rebase --interactive --autosquash HEAD~{}",
     "rl": "git reflog",
+    "rlv": "git reflog --format=fuller",
     "rpar": "git rev-parse --abbrev-ref {}",
     "rpsfn": "git rev-parse --symbolic-full-name @{{-{}}}",
     "rv": "git remote -v",
@@ -647,6 +607,98 @@ ALIASES = {
 # 'qlgg' can't be 'qlG' in a Mac HFS FileSystem that has a 'qlg' already
 # 'qlgs' can't be 'qlS' in a Mac HFS FileSystem that has a 'qls' already
 #
+
+
+#
+# Define some Git Alias'es to take meaning out of Parm's, not just forward Parm's
+#
+
+
+def form_exit_if_funcs_by_shverb():
+    """Declare the Exit_If Func's, indexed by ShVerb"""
+
+    exit_if_funcs = dict(
+        no=exit_if_git_no,
+        rpsfn=exit_if_git_rpsfn,
+    )
+
+    return exit_if_funcs
+
+
+def exit_if_git_no(parms):
+    """List the Files of the Git Diff HEAD~1, else the Files of a chosen Hash"""
+
+    aliases_by_shverb = form_aliases_by_shverb()
+
+    dhno_alias = aliases_by_shverb["dhno"]
+    assert dhno_alias.shlines == ["git diff --name-only HEAD~{}"]
+
+    # Collapse back down to 'git diff --name-only HEAD~1', if no Parms
+
+    if not parms:
+
+        exit_if_by_shverb(shverb="dhno", parms=parms)
+
+    # Pick out an Ext, if 1 Parm that isn't an Int nor a Hash
+
+    if len(parms) == 1:
+        parms_0 = parms[0]
+        if not re.match(r"^[0-9A-Fa-f+]$", string=parms_0):
+
+            ext = parms_0 if parms_0.startswith(".") else ".{}".format(parms_0)
+            re_ext = re.escape(ext[1:])
+            alt_re_ext = r"[.]" + re_ext + r"$"  # simplify to r"[.]" down from "r\."
+
+            shline = "git diff --name-only HEAD~1 |grep -e {}".format(
+                byo.shlex_dquote(alt_re_ext)
+            )
+            shshline = "bash -c {!r}".format(shline)
+            argv = shlex.split(shshline)
+
+            byo.subprocess_run_else_exit(argv, shline)
+
+            sys.exit()  # Exit None after an ArgV exits Falsey
+
+    # Else fall back to list the Files of a chosen Hash
+
+    exit_if_by_shverb(shverb="spno", parms=parms)
+
+
+def exit_if_git_rpsfn(parms):
+    """List the last Symbolic Full Names through to an Int, else forward Parms"""
+
+    # Require the Alias "rpsfn" defined, same as here, across the ArgDoc and such
+
+    shverb = "rpsfn"
+
+    aliases_by_shverb = form_aliases_by_shverb()
+
+    alias = aliases_by_shverb[shverb]
+    authed = alias.authed
+    shlines = alias.shlines
+
+    assert authed
+    assert shlines == ["git rev-parse --symbolic-full-name @{{-{}}}"], shlines
+
+    # Take an Int as the Last to show, but ignore the Sign on the Int
+
+    alt_shlines = list()
+    alt_shlines.append("git rev-parse --abbrev-ref HEAD")
+
+    alt_parms = parms
+    if parms:
+        parms_0 = parms[0]
+        if re.match(r"^[-+]?[0-9]+$", string=parms_0):
+
+            absintparm = abs(int(parms_0))
+            alt_parms = parms[1:]
+
+            for index in range(1, absintparm + 1):
+                alt_shlines.append(
+                    "git rev-parse --symbolic-full-name @{{{{-{}}}}}".format(index)
+                )
+
+    exit_if_shproc(shverb="rpsfn", parms=alt_parms, authed=True, shlines=alt_shlines)
 
 
 #

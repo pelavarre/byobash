@@ -13,7 +13,7 @@ options:
   -a      append to the Files that already exist, don't create those
 
 quirks:
-  goes well with:  head.py, sed.py, tail.py
+  goes well with:  head.py, sed.py, tac.py, tail.py
   classic Tee rudely hangs with no prompt, when given no Parms with no Stdin
 
 examples:

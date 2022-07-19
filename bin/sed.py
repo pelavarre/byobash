@@ -15,7 +15,7 @@ options:
   -e CODE  some Code to run
 
 quirks:
-  goes well with:  head.py, tail.py, tee.py
+  goes well with:  head.py, tac.py, tail.py, tee.py
   often forwards the last line as is, without adding a line break to close it
   classic Sed rudely hangs with no prompt, when given no Parms with no Stdin
 

@@ -22,6 +22,8 @@ examples:
   vim -u /dev/null ~/.vimrc
 """
 
+# todo: vim options akin to less -FIRX
+
 # todo: vim $(which ...)
 # todo: ) lights for matching/ not
 # demo +123

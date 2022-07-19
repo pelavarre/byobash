@@ -9,7 +9,7 @@ options:
   --help  show this help message and exit
 
 quirks:
-  goes well with pbcopy.py, pbedit.py
+  goes well with:  pbcopy.py, pbedit.py
   Mac builds in PBPaste and PBCopy, but Linux & GShell don't
   classic PbPaste dumps the full Pasteboard, with no Scroll limit, when given no Parms
   classic PbPaste rudely dumps raw Paste, like 'less -r', unlike 'less -R' and 'less'

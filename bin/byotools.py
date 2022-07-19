@@ -33,17 +33,10 @@ _ = pdb
 
 
 #
-# Welcome Examples into 'p.py', Notes into 'p.py --h', & Preferences into 'p.py --'
+# Welcome Examples at 'p.py', Notes at 'p.py --h', & Preferences/ Setup at 'p.py --';
+# else exit after calling Subprocess of Sh Path;
+# else exit nonzero for rare usage
 #
-
-
-def alt_main_doc(xxfilexx):
-    """Form an Alt Main Doc to fall back on, when no '__main__.__doc__' found"""
-
-    filename = os.path.basename(xxfilexx)  # such as when 'xxfilexx=__main__.__file__'
-    alt_main_doc = ALT_MAIN_DOC.replace("p.py", filename)
-
-    return alt_main_doc
 
 
 def exit(name=None, shparms=None):
@@ -79,17 +72,43 @@ def exit(name=None, shparms=None):
     exit_after_shverb()
 
 
+#
+# Welcome Examples at 'p.py', Notes at 'p.py --h', & Preferences/ Setup at 'p.py --'
+#
+
+
 def exit_if_testdoc():
     """Exit after printing last Graf, if no Parms"""
 
     parms = sys.argv[1:]
 
+    _ = fetch_testdoc()  # always fetch, sometimes print
+
+    if not parms:
+
+        exit_after_testdoc()
+
+
+def exit_after_testdoc():
+    """Exit after printing a TestDoc of Examples"""
+
+    testdoc = fetch_testdoc()
+
+    print()
+    print(testdoc.strip())  # frame by 1 Empty Line above, and 1 Empty Line below
+    print()
+
+    sys.exit(0)  # Exit 0 after printing Help Lines
+
+
+def fetch_testdoc():
+    """Fetch the TestDoc of Examples"""
+
     # Collect many Args
 
-    doc = __main__.__doc__
-    doc = alt_main_doc() if (doc is None) else doc
+    argdoc = fetch_argdoc()
 
-    grafs = str_splitgrafs(doc)
+    grafs = str_splitgrafs(argdoc)
     last_graf = grafs[-1]
 
     tests = str_ripgraf(last_graf)
@@ -105,15 +124,9 @@ def exit_if_testdoc():
     if env_zsh:
         sh_testdoc = _sh_testdoc_to_zsh_testdoc(testdoc)
 
-    # Actually quit early, don't exit, when Parms supplied
+    # Suceed
 
-    if not parms:
-
-        print()
-        print(sh_testdoc)
-        print()
-
-        sys.exit(0)  # Exit 0 after printing Help Lines
+    return sh_testdoc
 
 
 def _sh_testdoc_to_zsh_testdoc(testdoc):
@@ -147,53 +160,98 @@ def _sh_testdoc_to_zsh_testdoc(testdoc):
     return zsh_testdoc
 
 
+#
+# Welcome Notes at 'p.py --h'
+#
+
+
 def exit_if_argdoc():
     """Exit after printing ArgDoc, if '--help' or '--hel' or ... '--h' before '--'"""
 
     parms = sys.argv[1:]
 
-    doc = __main__.__doc__
-    doc = alt_main_doc(__main__.__file__) if (doc is None) else doc
+    _ = fetch_argdoc()  # always fetch, sometimes print
 
-    # Actually quit early, don't exit, when no '--help' Parm supplied
+    if shlex_parms_want_help(parms):
 
-    for parm in parms:
-        if parm == "--":
-
-            break
-
-        if parm.startswith("--h") and "--help".startswith(parm):
-
-            # Else exit after printing ArgDoc
-
-            print()
-            print()
-            print(doc.strip())
-            print()
-            print()
-
-            sys.exit(0)  # Exit 0 after printing Help Lines
+        exit_after_argdoc()
 
 
-def exit_if_patchdoc(patchdoc):  # todo: pick the PatchDoc out of the ArgDoc
+def fetch_argdoc():
+    """Fetch the ArgDoc of Help Lines"""
+
+    main_doc = __main__.__doc__
+
+    filename = os.path.basename(__main__.__file__)
+    alt_main_doc = ALT_MAIN_DOC.replace("p.py", filename)
+
+    argdoc = alt_main_doc if (main_doc is None) else main_doc
+
+    return argdoc
+
+
+def exit_after_argdoc():
+    """Exit after printing an ArgDoc of Help Lines"""
+
+    argdoc = fetch_argdoc()  # always fetch, sometimes print
+
+    print()
+    print()
+    print(argdoc.strip())  # frame by 2 Empty Lines above, and 2 Empty Lines below
+    print()
+    print()
+
+    sys.exit(0)  # Exit 0 after printing Help Lines
+
+
+#
+# Welcome Preferences at 'p.py --', and Preference else Setup at 'command p.py --'
+#
+
+
+def exit_if_patchdoc(fetched_patchdoc):
     """Exit after printing PatchDoc, if "--" is the only Parm"""
-
-    # Collect many Args
-
-    doc = __main__.__doc__
-    doc = alt_main_doc(__main__.__file__) if (doc is None) else doc
 
     parms = sys.argv[1:]
 
-    patchdoc_body = textwrap.dedent(patchdoc)
-    patchdoc_body = patchdoc_body.strip()
-    dented_patchdoc = textwrap.indent(patchdoc_body, "  ")
+    _ = fetch_patchdoc(fetched_patchdoc)  # always fetch, sometimes print
+
+    if parms == ["--"]:
+
+        exit_after_patchdoc()
+
+
+def exit_after_patchdoc(fetched_patchdoc):
+    """Exit after printing a PatchDoc of how to poke the Memory of the Sh Process"""
+
+    patchdoc = fetch_patchdoc()
+
+    print()
+    print(patchdoc.strip())  # frame by 1 Empty Line above, and 1 Empty Line below
+    print()
+
+    sys.exit(0)  # Exit 0 after printing Help Lines
+
+
+def fetch_patchdoc(fetched_patchdoc):  # todo: pick the PatchDoc out of the ArgDoc
+    """Fetch the PatchDoc of how to poke the Memory of the Sh Process"""
+
+    # Collect many Args
+
+    argdoc = fetch_argdoc()
+
+    patchdoc = fetched_patchdoc
+    patchdoc = textwrap.dedent(patchdoc)
+    patchdoc = patchdoc.strip()
+    dented_patchdoc = textwrap.indent(patchdoc, "  ")
 
     # Demand one accurate copy of the PatchDoc in the ArgDoc
+    # Hope it doesn't have more Lines before or after it that we wrongly drop here
 
-    assert dented_patchdoc in doc
+    assert dented_patchdoc in argdoc
 
     # Demand one accurate copy of the PatchDoc in the DotFiles
+    # Again hope it doesn't have more Lines before or after it that we wrongly drop here
 
     bin_dir = os.path.dirname(__file__)
     dotfiles_dir = os.path.join(bin_dir, os.pardir, "dotfiles")
@@ -202,21 +260,16 @@ def exit_if_patchdoc(patchdoc):  # todo: pick the PatchDoc out of the ArgDoc
     path = pathlib.Path(pathname)
     dotfiles_doc = path.read_text()
 
-    assert patchdoc_body in dotfiles_doc  # else you need:  vi dotfiles/dot.byo.bashrc
+    assert patchdoc in dotfiles_doc  # else you need:  vi dotfiles/dot.byo.bashrc
 
-    # Actually quit early, don't exit, when no '--' Parm supplied
+    # Succeed
 
-    if parms != ["--"]:
+    return patchdoc
 
-        return
 
-    # Else exit after printing PatchDoc
-
-    print()
-    print(patchdoc_body)
-    print()
-
-    sys.exit(0)  # Exit 0 after printing Help Lines
+#
+# Else exit after calling Subprocess of Sh Path, else exit nonzero for rare usage
+#
 
 
 def exit_if_rare_parms(shline, parms):
@@ -303,13 +356,13 @@ def exit_after_one_argv(argv):
     sys.exit()  # Exit None after an ArgV exits Falsey
 
 
-def subprocess_run_else_exit(argv):
+def subprocess_run_else_exit(argv, shline=None):
     """Call a Subprocess to run the ArgV and return, except exit if exit nonzero"""
 
     main_py_basename = os.path.basename(sys.argv[0])
 
-    shline = shlex_djoin(argv)
-    sys.stderr.write("+ {}\n".format(shline))
+    alt_shline = shline if shline else shlex_djoin(argv)
+    sys.stderr.write("+ {}\n".format(alt_shline))
 
     run = subprocess.run(argv)  # close kin to 'subprocess.run(argv, check=True)'
     if run.returncode:
@@ -637,6 +690,19 @@ def shlex_quote(parm):  # missing from Python till Oct/2019 Python 3.8
     return quoted  # such as print(shlex_quote("<=>"))  # the 5 chars '<=>'
 
     # test results with:  python3 -c 'import sys; print(sys.argv)' ...
+
+
+def shlex_parms_want_help(parms):
+    """Return Truthy if '--help' or '--hel' or ... '--h' before '--'"""
+
+    for parm in parms:
+        if parm == "--":  # ignore '--help' etc after '--'
+
+            break
+
+        if parm.startswith("--h") and "--help".startswith(parm):
+
+            return True
 
 
 def shlex_parms_pop_opt_count(parms, opt):  # todo: add tests of this

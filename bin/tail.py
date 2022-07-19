@@ -10,19 +10,20 @@ positional arguments:
 
 options:
   --help                show this help message and exit
+  -r                    forward the lines in reverse order
   -v                    drop the leading lines instead, show the others
   -n COUNT, --lines COUNT
                         how many leading lines to show (default 25)
 
 quirks:
 
-  goes well with:  head.py, sed.py, tee.py
+  goes well with:  head.py, sed.py, tac.py, tee.py
   classic Tail rudely hangs with no prompt, when given no Parms with no Stdin
 
-  give '-' in place of '-n ' to get the same result more easily
-  give '-n +' to mean drop leading lines, and just '+' sometimes works too
-  give '-25' to occupy as much of a 2022 display as '-10' occupied a 1972 display
-  give Args or Stdin, or print a prompt, to stop more Tail's from hanging silently
+  takes '-' in place of '-n ' to get the same result more easily
+  takes '-n +' to mean drop leading lines, and just '+' sometimes works too
+  takes '-25' to occupy as much of a 2022 display as '-10' occupied a 1972 display
+  takes Args or Stdin, or print a prompt, to stop more Tail's from hanging silently
 
 examples:
 
