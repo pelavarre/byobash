@@ -1004,7 +1004,7 @@ def exit_after_one_argv(shline, argv):
 
     if stdin_ispipe or stdin_istty_prompted:
         stdin = None
-    elif shverb not in PBPASTE_SHVERBS:
+    elif (shverb not in PBPASTE_SHVERBS) or stdin_args:
         stdin = subprocess.PIPE
     else:
         sys.stderr.write("+ pbpaste |{}\n".format(shline))
