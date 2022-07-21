@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-usage: vim.py [--help] [-u VIMRC]
+usage: vi.py [--help] [-u VIMRC]
 
 todo
 
@@ -22,6 +22,13 @@ examples:
   vim -u /dev/null ~/.vimrc
 """
 
+
+import byotools as byo
+
+
+byo.exit(__name__)
+
+
 # todo: vim options akin to less -FIRX
 
 # todo: vim $(which ...)
@@ -35,15 +42,16 @@ examples:
 #
 # todo: Linux Vim splits lines from Command+Click, Linux Less does Not, Mac Vim hmm
 
-
-import byotools as byo
-
-
-byo.exit(__name__)
-
-
 # color a multiline _ = """..."""
 # much like '# '
+
+# solve
+#
+#    % bash -c vi </dev/null
+#    Vim: Warning: Input is not from a terminal
+#    :q%
+#    %
+#
 
 
 # posted into:  https://github.com/pelavarre/byobash/blob/main/bin/vi.py

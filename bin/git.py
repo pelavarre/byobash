@@ -62,20 +62,20 @@ examples:
   git.py dh  # git diff HEAD~...  # default HEAD~1, without '-b'
   git.py dhno  # git diff --name-only HEAD~..., default HEAD~1
   git.py dno  # git diff --name-only
-  git.py em  # bash -c 'em $(qdhno |tee /dev/stderr)'
+  git.py em  # qno ... && em $(qno ...)
   git.py g  # git grep -i
   git.py gi  # git grep
   git.py gl  # git grep -ilR
   git.py gli  # git grep -lR
   git.py lf  # git ls-files
-  git.py no  # git show --pretty='' --name-only ..., else git diff --name-only HEAD~1
+  git.py no  # git diff --name-only, else same of HEAD~1, else the EXT there
   git.py s  # git show
   git.py sp  # git show --pretty=''
   git.py spno  # git show --pretty='' --name-only
   git.py ssi  # git status --short --ignored  # calmer than 'git status'
   git.py st  # git status
   git.py sun  # git status --untracked-files=no
-  git.py vi  # bash -c 'vi $(qdhno |tee /dev/stderr)'
+  git.py vi  # qno ... && vi $(qno ...)
 
   # Branch and Log Work (~27 aliases)
 
@@ -402,13 +402,14 @@ def exit_if_shproc(shverb, parms, authed, shlines):  # todo  # noqa: C901 comple
 
         # Fix it up some more and ship it out
 
-        argv_shline = parmed_shline
+        argv_shline = parmed_shline.rstrip()
+        if " --author=$USER" in parmed_shline:
 
-        shguest = byo.shlex_dquote(getpass.getuser())
-        guest_key = " --author=$USER"
-        guest_repl = " --author={}".format(shguest)
+            shguest = byo.shlex_dquote(getpass.getuser())
+            guest_key = " --author=$USER"
+            guest_repl = " --author={}".format(shguest)
 
-        argv_shline = argv_shline.replace(guest_key, guest_repl)
+            argv_shline = parmed_shline.rstrip().replace(guest_key, guest_repl)
 
         argv = shlex.split(argv_shline)
         argvs.append(argv)
@@ -438,20 +439,20 @@ def exit_if_shproc(shverb, parms, authed, shlines):  # todo  # noqa: C901 comple
         if auth_shline == "git push --force-with-lease":
             rpar_shline = "git rev-parse --abbrev-ref HEAD"
 
-            sys.stderr.write("+ {}\n".format(rpar_shline))
+            byo.stderr_print("+ {}".format(rpar_shline))
             rpar_argv = shlex.split(rpar_shline)
             _ = subprocess.run(rpar_argv, stdin=subprocess.PIPE)
-            sys.stderr.write("+\n")
+            byo.stderr_print("+")
 
     if not authed:
 
-        sys.stderr.write("did you mean:  {}\n".format(auth_shline))
-        sys.stderr.write("press ⌃D to execute, or ⌃C to quit\n")
+        byo.stderr_print("did you mean:  {}".format(auth_shline))
+        byo.stderr_print("press ⌃D to execute, or ⌃C to quit")
         try:
             _ = sys.stdin.read()
         except KeyboardInterrupt:
-            sys.stderr.write("\n")
-            sys.stderr.write("KeyboardInterrupt\n")
+            byo.stderr_print()
+            byo.stderr_print("KeyboardInterrupt")
 
             assert SIGINT_RETURNCODE == 130, SIGINT_RETURNCODE
 
@@ -478,59 +479,52 @@ def form_aliases_by_shverb():
     for (k, v) in ALIASES.items():
         verb = k
 
-        shline = None
-        shlines = v
-        if not isinstance(v, list):
-            shline = "git.py {k}  # {v}".format(k=k, v=v)
-            shlines = v.split(" && ")
-
-        # Compile-time option for a breakpoint on a ShVerb or CdVerb
-
-        _ = """  # duck Flake8 C901 is too complex (11)  # todo
-
-            if False:
-                if verb == "cd":
-                    pdb.set_trace()
-
-        """
-
-        # Separate kinds of Alias'es
-        # todo: Require the DocLine found in full, with only zero or more Comments added
-
-        if shline is None:
-
-            alias = GitLikeAlias(shlines, authed=True)
-
-        else:
-
-            docline_0 = shline
-            docline_0 = byo.str_removesuffix(docline_0, " {}")
-            docline_1 = docline_0.replace("  # cat - && ", "  # take ⌃D to mean:  ")
-            docline_2 = docline_0.format("...")
-            docline_3 = docline_1.format("...")
-
-            alias = GitLikeAlias(shlines, authed=True)
-            if "  # cat - && " in shline:
-                alias = GitLikeAlias(shlines, authed=None)
-
-            if docline_3 in doc:  # add interlock before, and place Parms explicitly
-                pass
-            elif (
-                docline_2 in doc
-            ):  # place Parms explicitly, in the middle or at the end
-                pass
-            elif docline_1 in doc:  # add interlock before, but no Parms
-                pass
-            elif docline_0 in doc:  # add optional Parms past the end
-                pass
-            else:
-                assert False, (shlines, docline_0, docline_1)
-
         # Declare this GitLike Alias
+
+        shlines = v.split(" && ")
+        docline = "git.py {k}  # {v}".format(k=k, v=v)
+
+        alias = GitLikeAlias(shlines, authed=True)
+        if "  # cat - && " in docline:
+            alias = GitLikeAlias(shlines, authed=None)
 
         assert verb not in aliases_by_shverb.keys(), repr(verb)
 
         aliases_by_shverb[verb] = alias
+
+        # Require Alias found, close enough, in Doc
+        # todo: Require the DocLine found in full, with only zero or more Comments added
+
+        if docline in doc:
+
+            continue
+
+        docline_twice = docline.format("...", "...")
+        if docline_twice in doc:
+
+            continue
+
+        docline_once = docline.format("...")
+        if docline_once in doc:
+
+            continue
+
+        parmless_docline = byo.str_removesuffix(docline, " {}")
+        if parmless_docline in doc:
+
+            continue
+
+        authed_docline = docline.replace("  # cat - && ", "  # take ⌃D to mean:  ")
+        if authed_docline in doc:
+
+            continue
+
+        authed_docline_once = authed_docline.format("...")
+        if authed_docline_once in doc:
+
+            continue
+
+        assert False, (k, docline, shlines)
 
     return aliases_by_shverb
 
@@ -558,7 +552,7 @@ ALIASES = {
     "dh": "git diff HEAD~{}",  # default HEAD~1, without '-b'
     "dhno": "git diff --name-only HEAD~{}",
     "dno": "git diff --name-only {}",
-    "em": "bash -c 'em $(qdhno |tee /dev/stderr)'",
+    "em": "qno {} && em $(qno {})",
     "f": "git fetch",
     "frb": "git fetch && git rebase",
     "g": "git grep -i {}",  # todo: default Grep of $(qno)
@@ -578,7 +572,7 @@ ALIASES = {
     "ls": "git log --numstat {}",
     "lv": "git log --oneline --decorate -{}",
     "lv1": "git log --oneline --decorate -1 {}",
-    "no": "git show --pretty='' --name-only ..., else git diff --name-only HEAD~1",
+    "no": "git diff --name-only, else same of HEAD~1, else the EXT there",
     "pfwl": "cat - && git push --force-with-lease",
     "rb": "git rebase {}",  # auth w/out ⌃D
     "rh": "cat - && git reset --hard {}",
@@ -599,7 +593,7 @@ ALIASES = {
     "ssn": "git shortlog --summary --numbered",
     "st": "git status {}",
     "sun": "git status --untracked-files=no",
-    "vi": "bash -c 'vi $(qdhno |tee /dev/stderr)'",
+    "vi": "qno {} && vi $(qno {})",
 }
 
 #
@@ -618,50 +612,111 @@ def form_exit_if_funcs_by_shverb():
     """Declare the Exit_If Func's, indexed by ShVerb"""
 
     exit_if_funcs = dict(
+        em=exit_if_em,
         no=exit_if_git_no,
         rpsfn=exit_if_git_rpsfn,
+        vi=exit_if_vi,
     )
 
     return exit_if_funcs
 
 
 def exit_if_git_no(parms):
-    """List the Files of the Git Diff HEAD~1, else the Files of a chosen Hash"""
+    """List the Files of the Git Diff, else of Git Diff HEAD~1, else the EXT there"""
 
     aliases_by_shverb = form_aliases_by_shverb()
 
+    dno_alias = aliases_by_shverb["dno"]
+    assert dno_alias.shlines == ["git diff --name-only {}"], dno_alias.shlines
     dhno_alias = aliases_by_shverb["dhno"]
-    assert dhno_alias.shlines == ["git diff --name-only HEAD~{}"]
+    assert dhno_alias.shlines == ["git diff --name-only HEAD~{}"], dhno_alias.shlines
+    spno_alias = aliases_by_shverb["spno"]
+    assert spno_alias.shlines == ["git show --pretty='' --name-only {}"]
 
-    # Collapse back down to 'git diff --name-only HEAD~1', if no Parms
+    # Sample the 'git diff --name-only'
+
+    qd_shline = "git diff --name-only"
+    qd_argv = shlex.split(qd_shline)
+    qd_run = subprocess.run(qd_argv, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    assert not qd_run.returncode
+
+    qd_stdout = qd_run.stdout.decode()
+    qd_chars = qd_stdout.rstrip()
+
+    # If no Parms, then list the Files of the Git Diff, else of Git Diff HEAD~1
 
     if not parms:
+        if qd_chars:
 
-        exit_if_by_shverb(shverb="dhno", parms=parms)
+            exit_if_by_shverb(shverb="dno", parms=list())
 
-    # Pick out an Ext, if 1 Parm that isn't an Int nor a Hash
+        else:
 
-    if len(parms) == 1:
-        parms_0 = parms[0]
-        if not re.match(r"^[0-9A-Fa-f+]$", string=parms_0):
+            exit_if_by_shverb(shverb="dhno", parms=list())
 
-            ext = parms_0 if parms_0.startswith(".") else ".{}".format(parms_0)
-            re_ext = re.escape(ext[1:])
-            alt_re_ext = r"[.]" + re_ext + r"$"  # simplify to r"[.]" down from "r\."
+    # Take a File Ext as 1 Parm, or as the 2nd of 2 Parms
 
-            shline = "git diff --name-only HEAD~1 |grep -e {}".format(
-                byo.shlex_dquote(alt_re_ext)
-            )
-            shshline = "bash -c {!r}".format(shline)
-            argv = shlex.split(shshline)
+    parms_0 = parms[0]
 
-            byo.subprocess_run_else_exit(argv, shline)
+    uint_parm = re.match(r"^[0-9]+$", string=parms_0)
+    hash_parm = re.match(r"^[0-9A-Fa-f]+$", string=parms_0)
+    head_parm = parms_0.startswith("HEAD")
 
-            sys.exit()  # Exit None after an ArgV exits Falsey
+    depth_parm = uint_parm or hash_parm or head_parm
 
-    # Else fall back to list the Files of a chosen Hash
+    ext_parm = None
+    if len(parms) == 2:
+        if depth_parm:
+            ext_parm = parms[1]
+    elif len(parms) == 1:
+        if not depth_parm:
+            ext_parm = parms[0]
 
-    exit_if_by_shverb(shverb="spno", parms=parms)
+    # Expand a leading Unsigned Int Parm as a depth below HEAD
+
+    alt_parms = list(parms)
+    if uint_parm:
+        alt_parms[0] = "HEAD~{}".format(parms_0)
+
+    # Call on "git show --pretty=''" to deal with less simple Parms
+
+    if not ext_parm:
+
+        exit_if_by_shverb(shverb="spno", parms=alt_parms)
+
+    exit_if_git_no_ext(
+        ext_parm, qd_chars=qd_chars, depth_parm=depth_parm, alt_parms=alt_parms
+    )
+
+
+def exit_if_git_no_ext(ext_parm, qd_chars, depth_parm, alt_parms):
+    """List only the Files of EXT found in a Git Diff"""
+
+    # List the Files of the Git Diff, else of Git Diff HEAD~1, else of Chosen Depth
+
+    shline = "git diff --name-only"
+    if not qd_chars:
+        shline = "git diff --name-only HEAD~1"
+    if depth_parm:
+        shline = "git diff --name-only {}".format(alt_parms[0])
+
+    # Form a Reg Ex to pick out only the Files of the Ext
+
+    ext = ext_parm if ext_parm.startswith(".") else ".{}".format(ext_parm)
+
+    re_ext = re.escape(ext[1:])
+    alt_re_ext = r"[.]" + re_ext + r"$"  # simplify to r"[.]" down from "r\."
+    sh_alt_re_ext = byo.shlex_dquote(alt_re_ext)
+
+    # List only the Files of the Ext, else exit nonzero
+
+    shpipe = "{} |grep -e {}".format(shline, sh_alt_re_ext)
+    shshline = "bash -c {!r}".format(shpipe)
+    argv = shlex.split(shshline)
+
+    byo.subprocess_run_else_exit(argv, shpipe)
+
+    sys.exit()  # Exit None after an ArgV exits Falsey
 
 
 def exit_if_git_rpsfn(parms):
@@ -701,6 +756,42 @@ def exit_if_git_rpsfn(parms):
     exit_if_shproc(shverb="rpsfn", parms=alt_parms, authed=True, shlines=alt_shlines)
 
 
+def exit_if_em(parms):
+    exit_if_shverb_qno("em", parms)
+
+
+def exit_if_vi(parms):
+    exit_if_shverb_qno("vi", parms)
+
+
+def exit_if_shverb_qno(shverb, parms):
+
+    # Fetch the ShLine Templates
+
+    aliases_by_shverb = form_aliases_by_shverb()
+
+    assert shverb in aliases_by_shverb.keys()
+
+    em_alias = aliases_by_shverb["em"]
+    assert em_alias.shlines == ["qno {}", "em $(qno {})"], em_alias.shlines
+    vi_alias = aliases_by_shverb["vi"]
+    assert vi_alias.shlines == ["qno {}", "vi $(qno {})"], vi_alias.shlines
+
+    alias = aliases_by_shverb[shverb]
+    shlines = alias.shlines
+
+    # Fill out the ShLine Templates
+
+    shparms = byo.shlex_djoin(parms)
+    shpipe = " && ".join(_.format(shparms).rstrip() for _ in shlines)
+    shshline = "bash -c {!r}".format(shpipe)
+
+    argv = shlex.split(shshline)
+    byo.subprocess_run_else_exit(argv, shpipe=shpipe)
+
+    sys.exit()  # Exit None after an ArgV exits Falsey
+
+
 #
 # Run from the Command Line, when not imported into some other Main module
 #
@@ -722,9 +813,6 @@ if __name__ == "__main__":
 # git.py: + exit 1
 # $
 
-# FIXME: qno - go with the qdno if it's not empty
-# FIXME: qvi, qem - go with the qno, not always only the qdhno
-
 # FIXME: define qg algorithmically
 # FIXME: fan out as full 16 inside:  echo qbin/qg{v,}{l,}{w,}{i,}
 # FIXME: accept -l -w -i to toggle on those
@@ -745,7 +833,7 @@ if __name__ == "__main__":
 
 # compaction for qssi = git status --short --ignored
 
-# q ..., could mean ... $(qdhno)  # so should it?
+# q ..., could mean ... $(qno)  # so should it?
 
 #
 # expand unambiguous abbreviations
@@ -790,12 +878,12 @@ if __name__ == "__main__":
 #
 
 #
-# persist a focus larger than $(qdhno) for 'qg', maybe
+# persist a focus larger than $(qno) for 'qg', maybe
 # persist a history of what qb, qlq, qlv did say
 # persist notes onto each -gco, for display by -gbq and -gb
 #
 # compare
-# git commit $(qdhno)
+# git commit $(qno)
 # git commit --all
 #
 # compare

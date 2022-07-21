@@ -976,11 +976,6 @@ def exit_after_one_argv(shline, argv):
 
     stdin_ispipe = not sys.stdin.isatty()
 
-    stdin_istty_prompted = False
-    if not stdin_ispipe:
-        if shline in ("cat -", "cat - >/dev/null"):
-            stdin_istty_prompted = True
-
     alt_argv = shlex.split(shline)
     alt_argv = list(_ for _ in alt_argv if not re.match("^[0-9]*[<>]", string=_))
     shverb = alt_argv[0]  # may be same as 'argv[0]'
@@ -988,6 +983,15 @@ def exit_after_one_argv(shline, argv):
     (_, _, words) = byo.shlex_parms_partition(alt_argv[1:])
 
     stdin_args = words and (words not in (["-"], ["/dev/stdin"], ["/dev/tty"]))
+
+    # Connect to Tty, or not
+
+    stdin_istty_prompted = False
+    if not stdin_ispipe:
+        if shline in ("cat -", "cat - >/dev/null"):
+            stdin_istty_prompted = True
+        if shverb in ("em", "emacs", "vi", "vim"):  # FIXME: weakly accurate
+            stdin_istty_prompted = True
 
     # Print the Code and exit zero, when Not authorized to run it
 

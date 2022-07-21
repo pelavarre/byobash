@@ -280,7 +280,7 @@ def exit_if_rare_parms(shline, parms):
         return
 
     shparms = shlex_djoin(parms)
-    sys.stderr.write("{}: ERROR: unrecognized arguments: {}\n".format(shline, shparms))
+    stderr_print("{}: ERROR: unrecognized arguments: {}".format(shline, shparms))
 
     sys.exit(2)  # Exit 2 for rare usage
 
@@ -297,8 +297,8 @@ def exit_after_shverb():
     main_py_basename = os.path.basename(sys.argv[0])
     shverb = str_removesuffix(main_py_basename, suffix=".py")
 
-    sys.stderr.write(
-        "{}: ERROR: called while no {!r} found in Sh Path\n".format(
+    stderr_print(
+        "{}: ERROR: called while no {!r} found in Sh Path".format(
             main_py_basename, shverb
         )
     )
@@ -328,8 +328,8 @@ def exit_if_shverb(argv):
         return
 
     if os.path.realpath(which) == os.path.realpath(sys.argv[0]):
-        sys.stderr.write(
-            "byotools.py: declining to recurse through:  which -a {!r}\n".format(shverb)
+        stderr_print(
+            "byotools.py: declining to recurse through:  which -a {!r}".format(shverb)
         )
 
         return
@@ -356,17 +356,17 @@ def exit_after_one_argv(argv):
     sys.exit()  # Exit None after an ArgV exits Falsey
 
 
-def subprocess_run_else_exit(argv, shline=None):
+def subprocess_run_else_exit(argv, shpipe=None):
     """Call a Subprocess to run the ArgV and return, except exit if exit nonzero"""
 
     main_py_basename = os.path.basename(sys.argv[0])
 
-    alt_shline = shline if shline else shlex_djoin(argv)
-    sys.stderr.write("+ {}\n".format(alt_shline))
+    alt_shpipe = shpipe if shpipe else shlex_djoin(argv)
+    stderr_print("+ {}".format(alt_shpipe))
 
     run = subprocess.run(argv)  # close kin to 'subprocess.run(argv, check=True)'
     if run.returncode:
-        sys.stderr.write("{}: + exit {}\n".format(main_py_basename, run.returncode))
+        stderr_print("{}: + exit {}".format(main_py_basename, run.returncode))
 
         sys.exit(run.returncode)  # Pass back a NonZero Exit Status ReturnCode
 
@@ -762,8 +762,8 @@ def shlex_parms_pop_option_value(parms, option, enough, const):
 
                     else:
 
-                        sys.stderr.write(
-                            "{}: ERROR: argument {}: expected one argument\n".format(
+                        stderr_print(
+                            "{}: ERROR: argument {}: expected one argument".format(
                                 main_py_basename, option
                             )
                         )
@@ -870,7 +870,7 @@ def stderr_print(*args, **kwargs):
 
     sys.stdout.flush()
 
-    print(args, file=sys.stderr, **kwargs)  # todo: what if "file" in kwargs.keys() ?
+    print(*args, file=sys.stderr, **kwargs)  # todo: what if "file" in kwargs.keys() ?
 
     sys.stderr.flush()
 
