@@ -321,17 +321,30 @@ def do_ls(parms):
 def do_minus(parms):
     """Push Y - X in place of Y X"""
 
-    (_y, _x) = stack_pop(2, default=0)
-    x = _y - _x
-    stack_push(x)
+    if stack_depth() < 1:
+        stack_push(0)
+    elif stack_depth() < 2:
+        stack_push(0)
+        stack_swap()
+    else:
+
+        (_y, _x) = stack_pop(2, default=0)
+        x = _y - _x
+        stack_push(x)
 
 
 def do_plus(parms):
     """Push Y + X in place of Y X"""
 
-    (_y, _x) = stack_pop(2, default=0)
-    x = _y + _x
-    stack_push(x)
+    if stack_depth() < 1:
+        stack_push(0)
+    elif stack_depth() < 2:
+        stack_push(0)
+    else:
+
+        (_y, _x) = stack_pop(2, default=0)
+        x = _y + _x
+        stack_push(x)
 
 
 def do_name(parms):
@@ -342,30 +355,108 @@ def do_name(parms):
     if not isinstance(evalled, collections.abc.Callable):
         stack_push(evalled)
     else:
-        evalled(parms)
+        do_x_func(parms, evalled)
 
 
 def do_push_y(parms):
     """Push Y"""
 
-    (_y, _x) = stack_peek(2, default=None)
-    stack_push(_y)
+    if stack_depth() < 1:
+        stack_push(0)
+    elif stack_depth() < 2:
+        stack_push(0)
+    else:
+
+        (_y, _x) = stack_peek(2, default=None)
+        stack_push(_y)
 
 
 def do_slash(parms):
     """Push Y / X in place of Y X"""
 
-    (_y, _x) = stack_pop(2, default=1)
-    x = _y / _x
-    stack_push(x)
+    if stack_depth() < 1:
+        stack_push(1)
+    elif stack_depth() < 2:
+        stack_push(1)
+        stack_swap()
+    else:
+
+        (_, _x) = stack_peek(2, default=None)
+        if _x == 0:
+            stack_push(1)
+        else:
+
+            (_y, _x) = stack_pop(2, default=1)
+            x = _y / _x  # todo:  1 5 / -> 0.2 -> 5 should end in Int, not Float
+            stack_push(x)
 
 
 def do_star(parms):
     """Push Y * X in place of Y X"""
 
-    (_y, _x) = stack_pop(2, default=1)
-    x = _y * _x
-    stack_push(x)
+    if stack_depth() < 1:
+        stack_push(1)
+    elif stack_depth() < 2:
+        stack_push(1)
+    else:
+
+        (_y, _x) = stack_pop(2, default=1)
+        x = _y * _x  # todo: -0.0 should be 0
+        stack_push(x)
+
+
+def do_x_func(parms, func):
+    """Push Func(X) in place of X"""
+
+    assert func is math.sqrt
+
+    if stack_depth() < 1:
+        stack_push(1)
+    else:
+
+        _x = stack_peek(1, default=0)
+        if _x >= 0:
+            _x = stack_pop(1, default=0)
+            x = func(_x)  # todo: sqrt of int should still be int
+            stack_push(x)
+        else:
+            x = _x * _x
+            stack_push(x)
+
+
+#
+# Build a Stack out of Recently Touched Files in Cwd
+#
+
+
+def stack_depth():
+    """Count the Values in the Stack"""
+
+    pairs = stack_pairs_peek(0)  # todo:  stop evalling all the Values to count them
+    depth = len(pairs)
+
+    return depth
+
+
+def stack_swap():
+    """Drag the 2nd-to-Last Value to Top of Stack"""
+
+    if stack_depth() < 1:
+        stack_push(0)
+    elif stack_depth() < 2:
+        stack_push(0)
+    else:
+
+        pairs = stack_pairs_peek(2)
+        pair = pairs[0]
+        (basename, _) = pair
+
+        shline = "touch {}".format(byo.shlex_dquote(basename))
+        sys.stderr.write("+ {}\n".format(shline))
+
+        sys.stdout.flush()
+        sys.stderr.flush()
+        subprocess.run(shlex.split(shline))
 
 
 #
@@ -412,17 +503,20 @@ def stack_peek(depth, default):
     return peeks
 
 
-def stack_pairs_pop(depth, default_json=None, promise=""):
+def stack_pairs_pop(depth, default_json=json.dumps(None), promise=""):
     """Peek and remove some of the Basename-Chars Pairs most recently pushed"""
 
-    assert depth >= 1
+    assert depth >= 0
 
     pairs = stack_pairs_peek(depth, default_json=default_json)
 
     paths = list(_[0] for _ in pairs)
     shpaths = " ".join(byo.shlex_dquote(_) for _ in paths if _ is not None)
     if shpaths:
-        shline = "rm -f {}".format(shpaths)
+        if any(_.startswith("-") for _ in paths):
+            shline = "rm -f -- {}".format(shpaths)
+        else:
+            shline = "rm -f {}".format(shpaths)
 
         sys.stderr.write("+ {}{}\n".format(promise.format(shpaths), shline))
 
@@ -434,10 +528,10 @@ def stack_pairs_pop(depth, default_json=None, promise=""):
     return pairs
 
 
-def stack_pairs_peek(depth=1, default_json=None):
+def stack_pairs_peek(depth=1, default_json=json.dumps(None)):
     """Peek at some of the Basename-Chars Pairs most recently pushed"""
 
-    assert depth >= 1
+    assert depth >= 0
 
     #
 
@@ -463,6 +557,7 @@ def stack_pairs_peek(depth=1, default_json=None):
         if path.is_file():
 
             chars = path.read_text()
+            chars = chars.rstrip()
             try:
                 _ = json.loads(chars)
             except json.JSONDecodeError:  # todo: stack more types, not just Json Chars
@@ -472,7 +567,8 @@ def stack_pairs_peek(depth=1, default_json=None):
             pair = (str(path), chars)
             pairs.append(pair)
 
-    pairs = pairs[-depth:]  # todo: stop evalling the discarded Depths of Stack
+    if depth:
+        pairs = pairs[-depth:]  # todo: stop evalling the discarded Depths of Stack
 
     #
 
@@ -517,7 +613,7 @@ def stack_push_basename_value(basename, value):
     sys.stderr.write("+ {}\n".format(echo_shline))
 
     with open(alt_path, "w") as writing:
-        writing.write(chars)
+        writing.write("{}\n".format(chars))
 
 
 def find_alt_path(path):
@@ -588,6 +684,8 @@ def do_buttonfile_word(parms):
 
         elif word == "\N{Greek Small Letter Pi}":  # π
             do_dotted_name(parms=["math.pi"])
+        elif word == "\N{Square Root}":  # √
+            do_dotted_name(parms=["math.sqrt"])
 
         else:
 
@@ -604,22 +702,28 @@ def run_button_word(parms, word):
 
 
 def entries_clear():
-    """Clear this Dir of the Git Clone, and the Dir's it contains"""
+    """Pop all the Number Files, else push out four Numbers Files named 3, 2, 1, 0"""
 
-    shline = "git clean -f {}".format(byo.shlex_dquote(os.getcwd()))
-    sys.stderr.write("+ {}\n".format(shline))
-
-    sys.stdout.flush()
-    sys.stderr.flush()
-    subprocess.run(shlex.split(shline))
+    pairs = stack_pairs_pop(depth=0)
+    if not pairs:
+        stack_push(3)
+        stack_push(2)
+        stack_push(1)
+        stack_push(0)
 
 
 def run_button_comma(entry):
-    """Run '0' and ',' if no Entry preceded Comma, else do nothing but return"""
+    """Run '0' and ',' if no Entry preceded Comma, else dupe Top of Stack"""
 
     if entry is None:
-        entry_write_char(parms=["0"])
-        entry_close_if_open()
+
+        if stack_depth() < 1:
+            entry_write_char(parms=["0"])
+            entry_close_if_open()
+        else:
+
+            _x = stack_peek(1, default=0)
+            stack_push(_x)
 
 
 def entry_write_char(parms):
@@ -627,8 +731,17 @@ def entry_write_char(parms):
 
     word = parms.pop(0)
 
-    entry = pop_entry(default="")
-    entry += word
+    _entry = pop_entry(default="")
+    if word != ".":
+        entry = _entry + word
+    else:
+        if not _entry:
+            entry = "0."
+        elif _entry.endswith("."):
+            entry = _entry[:-1]
+        else:
+            entry = _entry.replace(".", "") + word
+
     entry += "_"
 
     stack_push(entry)

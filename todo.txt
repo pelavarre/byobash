@@ -3,15 +3,20 @@
 
 dreaming since Jul/2022 =>
 
+qcd broke
 
-: ByoPyVm :
+
+: MacOs ByoPyVm :
+
+to stay inside "int" when doing √ on squares of int's
+to go with 'decimal.Decimal' over 'float'
+to deal with float("NaN") and float("Inf") and float("-Inf")
 
 AssertionError: ('SyntaxError', ['4 copy'])
 repros only in Gui of File and Dupes of Files
 
 qb/c - calmer KeyboardInterrupt, and a full set of editing keystrokes
 
-teach Clear to run outside Git - peek the whole stack, depth = 0, and delete just that
 add the E +/- Buttons
 add an Undo Button
 Work with Files and Dirs, not just Maths

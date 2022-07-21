@@ -48,68 +48,8 @@ def exit():
             shutil.rmtree(pycache_path)
 
 
-BUTTON_FILE_DOC = """
-
-a popular corner of macOS configuration makes these Button Files work well
-
-
-1.1 drag the Folder containing these Button Files into macOS
-
-1.2 open this Folder, choose one Button File, and Double-Click through it
-
-1.3 odds on, then it just works
-
-1.3.1 like Finder > View > As List (⌘2) will show you the Fibonacci numbers
-
-    1 2 3 5
-
-after you double-click through the ten Button Files
-
-    clear
-    1 , 2
-    over over +
-    over over +
-
-
-2. icon layout =>
-
-i don't already know how to ship you a copy of my Button Icon Layout
-
-my own first Layout now is
-
-                 7  8  9  /
-           OVER  4  5  6  *
-            π    1  2  3  -
-    CLEAR        0  .  ,  +
-
-    icons  README.md buttonfile.py
-
-
-2. details =>
-
-2.1 your Control+Click on Button Files says more when you press the Option/Alt key
-2.1.1 it already says Always Open With > Terminal (default)
-2.1.2 because each of these Button Files has an Extension (Ext) of '.command'
-2.1.3 although it may be hidden from view
-
-2.2 your Terminal > Preferences > Profiles > Shell > When The Shell Exit speaks
-2.2.1 it already says Close If The Shell Exited Cleanly, or it already says Close
-
-2.3 inside your Terminal, your 'which -a python3' says Feb/2020 Python 3.8.2 or newer
-
-2.4 your Finder > File > Get Info on this Button File speaks
-2.4.1 it says the Extension on this Button File is:  .command
-2.4.2 it says Yes to Hide Extension?
-2.4.3 and someone has dragged a better Icon onto the upper left of its Get Info dialog
-
-2.5 your Finder View > As Icons (⌘1) is showing you this Folder
-2.5.1 not so much ⌘2 List, ⌘3 Columns, ⌘4 Gallery
-
-those kinds of details make this Button File work well, as a Desktop Calculator
-
-"""
-
-BUTTON_FILE_DOC = BUTTON_FILE_DOC.strip()
+# did you mean:  https://github.com/pelavarre/byobash/tree/main/macos#readme
+# sorry i've moved lots of words there, from:  BUTTON_FILE_DOC = """ ... """
 
 
 # posted into:  https://github.com/pelavarre/byobash/blob/main/macos/buttonfile.py
