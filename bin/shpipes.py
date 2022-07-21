@@ -59,7 +59,7 @@ Call Python to filter Lines of the Os Copy/Paste Buffer
 Call Python to filter whole Copies of the Os Copy/Paste Buffer
 
   shpipes.py join
-  shpipes.py enumerate  # kin to:  |shpipes.py c, |cat -n -tv |expand
+  shpipes.py enumerate  # kin to:  |shpipes.py c, |cat -n -tv - |expand
   shpipes.py readlines  # aka:  |shpipes.py sh sponge
   shpipes.py textwrap.dedent
 
@@ -88,12 +88,12 @@ Examples:
   shpipes.py a / -1 # awk '{print $(NF - 1)}'  # pick Dir of Basename out of Path
 
   shpipes.py c  # cat - >/dev/null
-  shpipes.py c --  # ... |cat -n -tv |expand  # shows PbPaste endswith unclosed Line
+  shpipes.py c --  # ... |cat -n -tv - |expand  # shows PbPaste endswith unclosed Line
   shpipes.py c |sort  # cat - |sort
-  shpipes.py echo abc |c  # cat -n -tv |expand
+  shpipes.py echo abc |c  # cat -n -tv - |expand
 
   shpipes.py cv  # pbpaste  # but framed by 1 Blank Stderr Line above, & 1 below
-  shpipes.py cv --  # pbpaste |cat -n -tv |expand  # but framed
+  shpipes.py cv --  # pbpaste |cat -n -tv - |expand  # but framed
   shpipes.py cv -etv  # pbpaste |cat -etv |expand  # but framed
   echo -n abcde |shpipes.py cv  # ... |pbcopy
   echo abcdef |shpipes.py cv |cat -  # ... |tee >(pbcopy) |...
@@ -157,8 +157,8 @@ assert SIGINT_RETURNCODE == 130, (SIGINT_RETURNCODE, 0x80, signal.SIGINT)
 # when given only Options and Seps, but not Words, in the absence of PbPaste Stdin
 
 STR_PBPASTE_SHVERBS = """
-    awk cat expand grep hexdump less sort sponge tail uniq wc
-"""
+    awk cat expand grep head hexdump less sed sort sponge sponge.py tail uniq wc
+"""  # FIXME: 'sponge.py' in the STR_PBPASTE_SHVERBS
 PBPASTE_SHVERBS = set(STR_PBPASTE_SHVERBS.split())
 
 
@@ -294,7 +294,7 @@ def form_shfunc_by_verb():
         ht=do_ht,  # sed -n -e '1,2p;3,3s/.*/&\n.../p;$p'  # Head and also Tail
         m=do_m,  # make --
         mo=do_mo,  # less -FIRX
-        n=do_n,  # cat -n -tv - |expand
+        n=do_n,  # cat -n -tv - - |expand
         pbedit=pbedit,  # Call on Vi to edit a Pipe Byte Stream, or on a chosen Editor
         q=do_q,  # git checkout
         s=do_s,  # sort -
@@ -389,13 +389,13 @@ def do_c(parms):
 
     if parms == ["--"]:
 
-        exit_after_shpipe("cat -n -tv |expand")
+        exit_after_shpipe("cat -n -tv - |expand")
 
     if not parms:
 
         if not stdin_isatty:
 
-            exit_after_shpipe("cat -n -tv |expand")
+            exit_after_shpipe("cat -n -tv - |expand")
 
         if stdout_isatty:
 
@@ -432,7 +432,7 @@ def do_cv(parms):
 
 
 def exit_after_framed_cv_paste(parms):
-    """Exit after Stderr Frame of Stdout 'pbpaste |cat -n -tv |expand' for Sep"""
+    """Exit after Stderr Frame of Stdout 'pbpaste |cat -n -tv - |expand' for Sep"""
 
     (_, _, words) = byo.shlex_parms_partition(parms)
     if words:
@@ -450,7 +450,7 @@ def exit_after_framed_cv_paste(parms):
 
 
 def exit_after_cv_pbpaste(parms):
-    """Exit after PbPaste '|cat -n -tv |expand' for Sep"""
+    """Exit after PbPaste '|cat -n -tv - |expand' for Sep"""
 
     if not parms:
 
@@ -458,7 +458,7 @@ def exit_after_cv_pbpaste(parms):
 
     (options, seps, words) = byo.shlex_parms_partition(parms)
     if seps and not (options or words):
-        shpipe = "pbpaste |cat -n -tv |expand\n"
+        shpipe = "pbpaste |cat -n -tv - |expand\n"
 
         exit_after_shpipe(shpipe)
 
@@ -707,12 +707,14 @@ def do_mo(parms):
 
 
 def do_n(parms):
-    """cat -n -tv |expand"""
+    """cat -n -tv - |expand"""
 
     (options, seps, words) = byo.shlex_parms_partition(parms)
     if not (options or seps):
         options.append("-n")
         options.append("-tv")
+    if not words:
+        words.append("-")
 
     argv = ["cat"] + options + seps + words
 
@@ -972,48 +974,51 @@ def exit_after_shline(shline):
 def exit_after_one_argv(shline, argv):
     """Trace as ShLine but run as ArgV, then exit"""
 
-    # Collect context
-
-    stdin_ispipe = not sys.stdin.isatty()
+    # Collect context  # FIXME: weakly focuses on first command before '|'
 
     alt_argv = shlex.split(shline)
     alt_argv = list(_ for _ in alt_argv if not re.match("^[0-9]*[<>]", string=_))
-    shverb = alt_argv[0]  # may be same as 'argv[0]'
 
-    (_, _, words) = byo.shlex_parms_partition(alt_argv[1:])
+    shverb = alt_argv[0]
 
-    stdin_args = words and (words not in (["-"], ["/dev/stdin"], ["/dev/tty"]))
+    stdin_ispipe = not sys.stdin.isatty()
+    tty_prompt = form_tty_prompt(stdin_ispipe, shline=shline, shverb=shverb)
+    pbpaste_shverb = judge_pbpaste_shverb(
+        shline, alt_argv=alt_argv, tty_prompt=tty_prompt
+    )
+    shverb = alt_argv[0]
 
-    # Connect to Tty, or not
+    # Choose Stdin and print the Code
 
-    stdin_istty_prompted = False
-    if not stdin_ispipe:
-        if shline in ("cat -", "cat - >/dev/null"):
-            stdin_istty_prompted = True
-        if shverb in ("em", "emacs", "vi", "vim"):  # FIXME: weakly accurate
-            stdin_istty_prompted = True
+    index = shline.find(" |")
+    index = index if (index >= 0) else len(shline)
 
-    # Print the Code and exit zero, when Not authorized to run it
+    no_stdin_shpipe = shline[:index] + " </dev/null" + shline[index:]
+    if shverb == "pbpaste":
+        no_stdin_shpipe = shline
 
-    byo.stderr_print("+ {}".format(shline))
+    pbpaste_shpipe = "pbpaste |{}".format(shline)
+
+    if stdin_ispipe or tty_prompt:
+        byo.stderr_print("+ {}".format(shline))
+        stdin = None
+    elif not pbpaste_shverb:
+        byo.stderr_print("+ {}".format(no_stdin_shpipe))
+        stdin = subprocess.PIPE
+    else:
+        byo.stderr_print("+ {}".format(pbpaste_shpipe))
+        stdin = stdin_demand()
+
+    # Exit zero, when Not authorized to run the Code
+
     if main.ext is not None:
 
         sys.exit(0)  # Exit 0 after printing Help Lines
 
-    # Run the code
+    # Run the Code
 
-    if stdin_istty_prompted:
-        byo.stderr_print("shpipes.py {}: Press ⌃D TTY EOF to quit".format(shverb))
-
-    # Figure out what to call
-
-    if stdin_ispipe or stdin_istty_prompted:
-        stdin = None
-    elif (shverb not in PBPASTE_SHVERBS) or stdin_args:
-        stdin = subprocess.PIPE
-    else:
-        byo.stderr_print("+ pbpaste |{}".format(shline))
-        stdin = stdin_demand()
+    if tty_prompt:
+        byo.stderr_print(tty_prompt)
 
     try:
         run = subprocess.run(argv, stdin=stdin)
@@ -1031,6 +1036,50 @@ def exit_after_one_argv(shline, argv):
         sys.exit(run.returncode)  # Pass back a NonZero Exit Status ReturnCode
 
     sys.exit()  # Exit None after this Subprocess
+
+
+def form_tty_prompt(stdin_ispipe, shline, shverb):
+    """Default to run without Tty, but make exceptions"""
+
+    tty_prompt = None
+    if not stdin_ispipe:
+        if shline in ("cat -", "cat - >/dev/null"):
+            tty_prompt = "shpipes.py {}: Press ⌃D TTY EOF to quit"
+        if shverb in ("em", "emacs"):
+            tty_prompt = "shpipes.py {}: Press Esc X revert Tab Return, and ⌃X⌃C, to quit".format(
+                shverb
+            )
+        if shverb in ("vi", "vim"):  # FIXME: weakly accurate
+            tty_prompt = "shpipes.py {}: Press ⇧Z ⇧Q to quit".format(shverb)
+
+    return tty_prompt
+
+
+def judge_pbpaste_shverb(shline, alt_argv, tty_prompt):
+    """Choose when to take Stdin from PbPaste"""
+
+    shverb = alt_argv[0]
+
+    (_, _, words) = byo.shlex_parms_partition(alt_argv[1:])
+
+    file_words = words
+    file_words = list(_ for _ in file_words if _ not in "- /dev/stdin /dev/tty".split())
+    file_words = list(_ for _ in file_words if not (set("{|}") & set(_)))
+    if shverb == "grep":  # FIXME: weakly picks out does Grep have File Parms
+        if ("-l" not in shline) and ("-il" not in shline):
+            if len(file_words) <= 1:
+                file_words = list()
+    if shverb == "sed":  # FIXME: weakly picks out does Sed have File Parms
+        file_words = list()
+
+    pbpaste_shverb = shverb in PBPASTE_SHVERBS
+    if file_words or tty_prompt:
+        pbpaste_shverb = False
+    if shverb == "grep":  # FIXME: weakly picks out does Grep have File Parms
+        if ("-l" in shline) or ("-il" in shline):
+            pbpaste_shverb = False
+
+    return pbpaste_shverb
 
 
 def stdin_demand():
