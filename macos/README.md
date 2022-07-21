@@ -1,6 +1,6 @@
 # byobash > macos
 
-thirteen steps
+fourteen steps
 
 1
 
@@ -81,7 +81,7 @@ who was littering your Screen with one more leftover Window,
 as often as you pressed a File Button?
 it was the "Don't Close The Window" choice
 
-5
+6
 
 once it works, you can make it prettier
 
@@ -96,7 +96,7 @@ except that you do also have to turn off
 Finder > Preferences > Advanced > Show All Filename Extensions,
 if you had turned on that wrinkle - that wrinkle is off by default
 
-6
+7
 
 ok fun you've made 1 Button File work
 
@@ -109,7 +109,7 @@ i don't know a good way to make Apple stop hassling you like this
 someone should teach me to push these Button Files
 out through the Apple macOS App Store, then they really could just plain work
 
-7
+8
 
 me, myself, instead of downloading the Zip,
 i tell Homebrew to give me Git inside my macOS Sh Terminal
@@ -126,7 +126,7 @@ that move makes it easy for me to receive Software Updates
 this early in the game, you'll want Software Updates,
 because we've got plenty of troublesome bugs haunting this work
 
-8
+9
 
 tell us if you succeed?
 
@@ -138,7 +138,7 @@ you really have to care, you have to be willing to fiddle
 maybe somebody good out there will make it easier for all of us,
 or teach me how to make it easier
 
-9
+10
 
 once you have several Button Files working, then you can combine them in demos
 
@@ -152,7 +152,7 @@ and sort by Last Modified
 
 these are the Files that are Numbers that you calculate with
 
-10
+11
 
 you press the Button Files,
 back in your first Finder Window of Finder > View > As Icons (⌘1),
@@ -190,7 +190,7 @@ as you keep going and going, you get up to
 
 and beyond
 
-11
+12
 
 when things don't just work for you, i'll be curious to see your Sh Terminal
 
@@ -201,7 +201,7 @@ me, i've got Oct/2021 Monterey macOS 12 with its Feb/2020 Python 3.8.2,
 except usually instead i run an upgraded Jun/2022 Python 3.10.5,
 that i took from Python Org > Downloads
 
-12
+13
 
 in early versions
 + the Clear Button File only worked inside Git Clones
@@ -209,7 +209,7 @@ in early versions
 + the Over / * - + Button Files only worked well with 2 or more Number Files present
 + the √ Button File was missing
 
-13
+14
 
 we did get it wrong if we gave you this message
 while this much macOS reconfiguration is still too expensive for you
@@ -218,7 +218,7 @@ please check back a year from now
 
 we'll move faster if you tell us that you're waiting on our progress
 
-    open https://twitter.com/intent/tweet?text=@PELaVarre
+> open https://twitter.com/intent/tweet?text=@PELaVarre
 
 
 ## Copied from
