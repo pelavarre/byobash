@@ -1,6 +1,6 @@
 # byobash > macos
 
-fourteen steps
+fifteen steps
 
 1
 
@@ -19,9 +19,9 @@ inside the unzipped main folder you'll find our "macos" Folder of Button Files
 the Button Files should appear inside your Finder < View > As Icons (⌘1),
 laid out like so =>
 
-                 7  8  9  /
-           OVER  4  5  6  *
-            π    1  2  3  -
+      i     π    7  8  9  /
+      e    OVER  4  5  6  *
+            √    1  2  3  -
     CLEAR        0  .  ,  +
 
     icons/  README.md  buttonfile.py
@@ -210,6 +210,15 @@ in early versions
 + the √ Button File was missing
 
 14
+
+after you download something through Safari,
+you can visit Safari > Preferences > Websites > Downloads
+and choose Ask or Deny for each website, in place of Allow
+
+those Ask and Deny choices slow or stop more downloads from coming at you later,
+wrongly neglecting to wait for your explicit invitation
+
+15
 
 we did get it wrong if we gave you this message
 while this much macOS reconfiguration is still too expensive for you

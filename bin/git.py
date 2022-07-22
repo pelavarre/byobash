@@ -89,8 +89,8 @@ examples:
   git.py l  # git log
   git.py l1  # git log --decorate -1
   git.py lg  # git log --oneline --no-decorate --grep ...
-  git.py lgg  # git log --oneline --no-decorate -G ...  # search for touches
-  git.py lgs  # git log --oneline --no-decorate -S ...  # search for adds/ deletes
+  git.py lgg  # git log --oneline --no-decorate -G ...  # grep for touches
+  git.py lgs  # git log --oneline --no-decorate -S ...  # grep for adds/ deletes
   git.py lols  # git log --oneline --numstat  # list Files per Commit
   git.py lq  # git log --oneline --no-decorate -...  # default lots, -0 for no limit
   git.py lq1  # git log --oneline --no-decorate -1

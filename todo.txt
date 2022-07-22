@@ -8,6 +8,12 @@ qcd broke
 
 : MacOs ByoPyVm :
 
+refresh the 'macos/.DS_Store' often enough
+    even though i often feel i have to log out to flush the Finder Cache of it
+
+add e, and ^, and make the square root of -1 work
+    so we can do:  e ( 0 1 - Sqrt ) pi * ^
+
 to stay inside "int" when doing √ on squares of int's
 to go with 'decimal.Decimal' over 'float'
 to deal with float("NaN") and float("Inf") and float("-Inf")

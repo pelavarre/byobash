@@ -869,9 +869,7 @@ def stderr_print(*args, **kwargs):
     """Work like Print, but write Stderr in place of Stdout"""
 
     sys.stdout.flush()
-
     print(*args, file=sys.stderr, **kwargs)  # todo: what if "file" in kwargs.keys() ?
-
     sys.stderr.flush()
 
 

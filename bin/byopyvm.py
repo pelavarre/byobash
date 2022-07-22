@@ -73,6 +73,9 @@ _ = math
 _ = pdb
 
 
+FILENAME_PRECISION_3 = 3  # 3 digits means mention 'math.pi' as '3.142'
+
+
 def main():
     """Run from the Sh Command Line"""
 
@@ -272,7 +275,8 @@ def form_func_by_verb():
         dotted_name=do_dotted_name,
         int=do_int,
         ls=do_ls,
-        minus=do_minus,
+        dash=do_dash,  # Monosyllabic Folk speak of the '-' Dash
+        minus=do_dash,  # Calculator Folk speak of the '-' Minus
         name=do_name,
         over=do_push_y,
         plus=do_plus,
@@ -318,7 +322,7 @@ def do_ls(parms):
     subprocess.run(argv, stdin=subprocess.PIPE, check=True)
 
 
-def do_minus(parms):
+def do_dash(parms):
     """Push Y - X in place of Y X"""
 
     if stack_depth() < 1:
@@ -471,7 +475,7 @@ def stack_pop(depth, default=None, promise=""):
 
     _ = stack_pairs_pop(depth, promise=promise)
 
-    return peeks
+    return peeks  # will be 'one_peek' in the corner of 'depth=1'
 
 
 def stack_peek(depth, default):
@@ -485,22 +489,43 @@ def stack_peek(depth, default):
 
     peeks = list()
     for value in values:
-
-        peek = default_json
-        if value is not None:
-            try:
-                peek = json.loads(value)
-            except json.JSONDecodeError:
-                peek = default
-
+        peek = stack_loads(chars=value, default=default)
         peeks.append(peek)
 
-    if len(peeks) == 1:
+    assert len(peeks) == depth, (len(peeks), depth)
+    if depth == 1:
         one_peek = peeks[-1]
 
-        return one_peek
+        return one_peek  # is 'one_peek' in the corner of 'depth=1'
 
-    return peeks
+    return peeks  # is zero, two, or more Peeks, in the corners of 'depth != 1'
+
+
+def stack_dumps(value):
+    """Format an Object as Chars"""
+
+    try:
+        poke = json.dumps(value)
+    except TypeError:
+        poke = str(value)
+
+        assert isinstance(value, complex), (type(value), poke)
+
+    return poke
+
+
+def stack_loads(chars, default):
+    """Unwrap the Object inside the Chars, else return the Default"""
+
+    try:
+        peek = json.loads(chars)
+    except json.JSONDecodeError:
+        try:
+            peek = complex(chars)
+        except ValueError:
+            peek = default
+
+    return peek
 
 
 def stack_pairs_pop(depth, default_json=json.dumps(None), promise=""):
@@ -558,9 +583,9 @@ def stack_pairs_peek(depth=1, default_json=json.dumps(None)):
 
             chars = path.read_text()
             chars = chars.rstrip()
-            try:
-                _ = json.loads(chars)
-            except json.JSONDecodeError:  # todo: stack more types, not just Json Chars
+
+            peek = stack_loads(chars, default=None)
+            if peek is None:  # such as json.JSONDecodeError
 
                 continue
 
@@ -585,7 +610,7 @@ def stack_push(value):
     """Push the Json Chars of a Value, into a new Autonamed File"""
 
     if isinstance(value, float):
-        basename = "{}".format(round(value, 3))
+        basename = "{}".format(round(value, FILENAME_PRECISION_3))
     else:
         basename = str(value)
 
@@ -596,7 +621,8 @@ def stack_push_basename_value(basename, value):
     """Push the Json Chars of a Value, into a fresh File"""
 
     path = pathlib.Path(basename)
-    chars = json.dumps(value)
+    chars = stack_dumps(value)
+
     shvalue = byo.shlex_dquote(chars)
 
     # Choose the given Basename, else the next that doesn't already exist
@@ -653,7 +679,7 @@ def do_buttonfile(parms):
         raise
 
 
-def do_buttonfile_word(parms):
+def do_buttonfile_word(parms):  # FIXME  # noqa C901 too complex (11)
     """Run the Name of a Dot-Command ButtonFile, without its Ext, as a Word"""
 
     assert parms
@@ -682,6 +708,12 @@ def do_buttonfile_word(parms):
         if word == "comma":
             run_button_comma(entry)
 
+        elif word == "e":
+            do_dotted_name(parms=["math.e"])
+        elif word == "i":
+            do_name(parms=["1j"])
+        elif word == "j":
+            do_name(parms=["1j"])
         elif word == "\N{Greek Small Letter Pi}":  # π
             do_dotted_name(parms=["math.pi"])
         elif word == "\N{Square Root}":  # √
@@ -788,9 +820,11 @@ def peek_entry(default):
         if basename.endswith("_"):
             basename_json = json.dumps(basename)
             if basename_json == value:
-                evalled = json.loads(value)
-                if re.match("^[-+.0-9][-+.0-9Ee]*_$", string=evalled):
 
+                evalled = stack_loads(value, default=None)
+                assert evalled is not None, repr(value)
+
+                if re.match("^[-+.0-9][-+.0-9Ee]*_$", string=evalled):
                     entry = byo.str_removesuffix(evalled, suffix="_")
 
     return entry
