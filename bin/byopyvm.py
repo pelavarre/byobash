@@ -73,6 +73,9 @@ _ = math
 _ = pdb
 
 
+EPSILON = 0  # last wins
+EPSILON = 1e-15  # say how much to round off to make comparisons come out equal
+
 FILENAME_PRECISION_3 = 3  # 3 digits means mention 'math.pi' as '3.142'
 
 MATH_J = 1j  # work around for Python forgetting to define 'math.j'
@@ -687,25 +690,55 @@ def stack_pairs_peek(depth=1):
 def stack_push(value):
     """Push the Json Chars of a Value, into a new Autonamed File"""
 
+    alt_value = value
+
+    #
+
     if isinstance(value, float):
 
-        for str_float in ("-Inf", "NaN", "Inf", None):
-            if str_float is None:
-                basename = str(round(value, FILENAME_PRECISION_3))
-            elif str(value) == str_float.lower():
-                basename = str_float
+        int_value = int(value)
+        if abs(value - int_value) < EPSILON:
+
+            alt_value = int_value
+            basename = str(alt_value)
+
+        else:
+
+            #
+
+            for str_float in ("-Inf", "NaN", "Inf", None):
+                if str_float is None:
+                    basename = str(round(value, FILENAME_PRECISION_3))
+                elif str(value) == str_float.lower():
+                    basename = str_float
+                else:
+
+                    continue
 
                 break
 
+    #
+
     elif isinstance(value, complex):
 
-        basename = str(value).replace("j", SH_J)
+        real = value.real
+        real = int(real) if (abs(real - int(real)) < EPSILON) else real
+
+        imag = value.imag
+        imag = int(imag) if (abs(imag - int(imag)) < EPSILON) else imag
+
+        if not imag:
+            alt_value = real
+        elif (real != value.real) or (imag != value.imag):
+            alt_value = complex(real, imag)
+
+        basename = str(alt_value).replace("j", SH_J)
 
     else:
 
         basename = str(value)
 
-    stack_push_basename_value(basename, value=value)
+    stack_push_basename_value(basename, value=alt_value)
 
 
 def stack_push_basename_value(basename, value):
