@@ -6,17 +6,17 @@ usage: byopyvm.py [--help] [WORD ...]
 work quickly and concisely, over Dirs of Dirs of Files
 
 positional arguments:
-  WORD   the name of the next Func to run, a la the Forth Programming Language
+  WORD   a word of command
 
 options:
   --help               show this help message and exit
 
-advanced bash install
+advanced bash install:
 
   function = {
     : : 'Show Stack, else else do other Stack Work' : :
     if [ "$#" = 0 ]; then
-        ~/Public/byobash/bin/byopyvm.py ls
+        ~/Public/byobash/bin/byopyvm.py =
     else
         ~/Public/byobash/bin/byopyvm.py "$@"
     fi
@@ -27,23 +27,16 @@ quick start:
   git clone https://github.com/pelavarre/byobash.git
   cd byobash/
 
-  source dotfiles/dot.byo.bashrc
   alias byopyvm.py=bin/byopyvm.py
-
   byopyvm.py
+
+  source dotfiles/dot.byo.bashrc
 
 examples:
 
   byopyvm.py  # show these examples and exit
   byopyvm.py --h  # show this help message and exit
   command bin/byopyvm.py --  # show the Advanced Bash Install of ByoPyVM Py and exit
-
-  # Files and Dirs
-
-  = ls  # ls -1Frt |tail -4
-  = cp  # cp -ip ... ...~$(date +%m%dpl%H%M%S)~  # FIXME
-  = cp  # cp -ipR .../ ...~$(date +%m%dpl%H%M%S)~  # FIXME
-  = mv  # mv -i ... ...~$(date +%m%dpl%H%M%S)~  # FIXME
 
   # Maths
 
@@ -52,7 +45,20 @@ examples:
   = .  # cat 6.283 && rm -f 6.283
 
   = math.pi 2 * .  # all at once
+
+  # choose from:  / * - + . , pi π over sqrt √ i e = clear
+
+  =  clear  / , .  / / , .  / / , .  2>/dev/null  # 0, inf, 0, ...
+  =  clear  * , .  * * , .  * * , .  2>/dev/null  # 1, 2, 4, ...
+  =  clear  + , .  + + , .  + + , .  2>/dev/null  # 0, 1, 2, ...
+  =  clear  - , .  - - , .  - - , .  2>/dev/null  # 1, -1, 1, ...
 """
+
+# todo:  # Files and Dirs
+# todo:  = ls  # ls -1Frt |tail -4
+# todo:  = cp  # cp -ip ... ...~$(date +%m%dpl%H%M%S)~
+# todo:  = cp  # cp -ipR .../ ...~$(date +%m%dpl%H%M%S)~
+# todo:  = mv  # mv -i ... ...~$(date +%m%dpl%H%M%S)~
 
 
 import collections
@@ -62,7 +68,6 @@ import os
 import pathlib
 import pdb
 import re
-import shlex
 import subprocess
 import sys
 import traceback
@@ -98,7 +103,7 @@ def main():
       function = {
         : : 'Show Stack, else else do other Stack Work' : :
         if [ "$#" = 0 ]; then
-            ~/Public/byobash/bin/byopyvm.py ls
+            ~/Public/byobash/bin/byopyvm.py =
         else
             ~/Public/byobash/bin/byopyvm.py "$@"
         fi
@@ -112,21 +117,23 @@ def main():
     byo.exit_if_testdoc()  # byopyvm.py
     byo.exit_if_argdoc()  # byopyvm.py --help
 
+    # Discard a lead word of "--"
+
+    alt_parms = parms
+    if parms and (parms[0] == "--"):
+        alt_parms = parms[1:]
+
     # Run well
 
-    parms_run(parms)
+    parms_run(parms=alt_parms)
 
 
 def collapse_star_parms(parms):
     """Reconstruct the Sh Input Line despite the presence of '*' as a word"""
 
     shline = "ls"
-    shshline = "bash -c {!r}".format(shline)
 
-    sys.stdout.flush()
-    sys.stderr.flush()
-    argv = shlex.split(shshline)
-    run = subprocess.run(argv, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    run = byo.subprocess_run_stdio(shline, stdout=subprocess.PIPE)
     stdout = run.stdout.decode()
     lines = stdout.splitlines()
 
@@ -293,25 +300,26 @@ def form_take_by_word():
 
     take_by_sh_noun["\N{Greek Small Letter Pi}"] = math.pi  # π
 
-    # Define Sh Verbs of Forth
+    # Define Sh Adverbs of Forth
 
-    take_by_sh_forth_verb = dict(
+    take_by_sh_adverb = dict(
         buttonfile=parms_buttonfile,
-        dot=parms_dot,
         dotted_name=parms_dotted_name,
         float_literal=parms_float_literal,
         int_literal=parms_int_literal,
         name=parms_name,
     )
 
-    # Define Button File Verbs of Folders
+    # Define SH Verbs of Forth
 
-    take_by_button_verb = dict(
+    take_by_sh_verb = dict(
+        clear=do_clear,
         comma=do_comma,
         dash=do_dash,  # invite Monosyllabic Folk to speak of the '-' Dash
+        dot=do_dot,
+        equals=do_equals,
         minus=do_dash,  # invite Calculator Folk to speak of the '-' Minus
         over=do_clone_y,
-        ls=do_ls,
         plus=do_plus,
         slash=do_slash,
         sqrt=do_sqrt,
@@ -319,12 +327,12 @@ def form_take_by_word():
         swap=do_swap_y_x,
     )
 
-    take_by_button_verb["\N{Square Root}"] = do_sqrt  # √
+    take_by_sh_verb["\N{Square Root}"] = do_sqrt  # √
 
     # Merge the Dicts of Words of Command
 
     d = dict()
-    for kvs in (take_by_sh_forth_verb, take_by_button_verb, take_by_sh_noun):
+    for kvs in (take_by_sh_adverb, take_by_sh_verb, take_by_sh_noun):
         for (k, v) in kvs.items():
             assert k not in d.keys(), k
             d[k] = v
@@ -339,14 +347,6 @@ def form_take_by_word():
 #
 # Define Sh Verbs of Forth
 #
-
-
-def parms_dot(parms):  # kin to Python's '-i' doing nothing after each None result
-    """Pop X but print its Value, or do nothing if Stack is Empty"""
-
-    if stack_depth():
-        x = stack_pop(asif_before_rm="cat {} && ")
-        print(x)
 
 
 def parms_dotted_name(parms):
@@ -370,20 +370,6 @@ def parms_int_literal(parms):
     str_x = parms[0]
     x = int(str_x)
     stack_push(x)
-
-
-def do_ls():  # todo:  reconcile with the Calculator Button Stack
-    """Show the Keys of the T Z Y X Stack, not its Values"""
-
-    shline = "ls -1Frt |tail -4"
-    sys.stderr.write("+ {}\n".format(shline))
-
-    shshline = "bash -c {!r}".format(shline)
-    argv = shlex.split(shshline)
-
-    sys.stdout.flush()
-    sys.stderr.flush()
-    subprocess.run(argv, stdin=subprocess.PIPE, check=True)
 
 
 def parms_name(parms):
@@ -411,6 +397,29 @@ def do_dash():
         (y, x) = stack_pop(2)
         x_ = y - x
         stack_push(x_)
+
+
+def do_dot():  # kin to Python's '-i' doing nothing after each None result
+    """Pop X but print its Value, or do nothing if Stack is Empty"""
+
+    if stack_depth():
+        x = stack_pop(asif_before_rm="cat {} && ")
+        print(x)
+
+
+def do_equals():
+    """Show the Keys of the T Z Y X Stack, not its Values"""
+
+    shline = "ls -1Frt |... |tail -4"
+    byo.stderr_print("+ {}".format(shline))
+
+    depth = max(4, stack_depth())
+    if not depth:
+        print()
+    else:
+        pairs = stack_pairs_peek(depth)
+        for pair in pairs:
+            (basename, _) = pair
 
 
 def do_plus():
@@ -480,6 +489,12 @@ def do_star():
 #
 
 
+def do_clear():  # a la GForth "clearstack"
+    """Pop X till no more X"""
+
+    stack_pairs_pop(depth=0)
+
+
 def do_clone_x():  # a la Forth "DUP", a la HP "Enter"
     """Push X X in place of X"""
 
@@ -523,17 +538,14 @@ def do_swap_y_x():
         if basename.startswith("-"):
             shline = "touch -- {}".format(shbasename)
 
-        sys.stderr.write("+ {}\n".format(shline))
-
-        sys.stdout.flush()
-        sys.stderr.flush()
-        subprocess.run(shlex.split(shline))
+        byo.stderr_print("+ {}".format(shline))
+        byo.subprocess_run_stdio(shline)
 
 
 def stack_depth():
     """Count the Values in the Stack"""
 
-    pairs = stack_pairs_peek(0)  # todo:  stop evalling all the Values to count them
+    pairs = stack_pairs_peek(0)  # todo: cache vs evalling for depth and again for use
     depth = len(pairs)
 
     return depth
@@ -614,6 +626,8 @@ def stack_pairs_pop(depth, asif_before_rm=""):
 
     assert depth >= 0
 
+    # Collect the work to do
+
     pairs = stack_pairs_peek(depth)
 
     paths = list(_[0] for _ in pairs)
@@ -624,12 +638,10 @@ def stack_pairs_pop(depth, asif_before_rm=""):
         else:
             shline = "rm -f {}".format(shpaths)
 
-        sys.stderr.write("+ {}{}\n".format(asif_before_rm.format(shpaths), shline))
+        # Trace the work, and do the work
 
-        sys.stdout.flush()
-        sys.stderr.flush()
-        argv = shlex.split(shline)
-        subprocess.run(argv, stdin=subprocess.PIPE, stdout=subprocess.PIPE, check=True)
+        byo.stderr_print("+ {}{}".format(asif_before_rm.format(shpaths), shline))
+        byo.subprocess_run_stdio(shline, stdout=subprocess.PIPE, check=True)
 
     return pairs
 
@@ -639,22 +651,16 @@ def stack_pairs_peek(depth=1):
 
     assert depth >= 0
 
-    #
+    # List Filenames by Modified Ascending
 
     shline = "ls -1rt"
-
-    sys.stdout.flush()
-    sys.stderr.flush()
-    argv = shlex.split(shline)
-    run = subprocess.run(
-        argv, stdin=subprocess.PIPE, stdout=subprocess.PIPE, check=True
-    )
+    run = byo.subprocess_run_stdio(shline, stdout=subprocess.PIPE, check=True)
     stdout = run.stdout.decode()
     lines = stdout.splitlines()
 
     filenames = lines
 
-    #
+    # Visit each File
 
     pairs = list()
 
@@ -665,6 +671,8 @@ def stack_pairs_peek(depth=1):
             chars = path.read_text()
             chars = chars.rstrip()
 
+            # Count the File only if it holds an intelligible Value
+
             peek = stack_loads(chars)
             if peek is None:  # such as json.JSONDecodeError
 
@@ -673,70 +681,71 @@ def stack_pairs_peek(depth=1):
             pair = (str(path), chars)
             pairs.append(pair)
 
+    # Limit the Depth peeked, except reserve Depth 0 to mean No Limit
+
     if depth:
-        pairs = pairs[-depth:]  # todo: stop evalling the discarded Depths of Stack
+        pairs = pairs[-depth:]  # todo: stop evalling more Pairs than needed
 
-    #
-
-    none_basename_pair = (None, None)
-    while len(pairs) < depth:
-        pairs.append(none_basename_pair)
-
-    #
+        assert len(pairs) == depth, len(pairs)
 
     return pairs
 
 
+# FIXME:  Factor out:  def object_basename(obj):
+# FIXME:  Snap most of the precision out of the Basename of Complex'es too
 def stack_push(value):
     """Push the Json Chars of a Value, into a new Autonamed File"""
 
+    basename = None
     alt_value = value
 
-    #
+    # Give a Basename to Complex'es, and snap out extreme precision
 
-    if isinstance(value, float):
+    if isinstance(value, complex):
 
-        int_value = int(value)
-        if abs(value - int_value) < EPSILON:
-
-            alt_value = int_value
-            basename = str(alt_value)
-
-        else:
-
-            #
-
-            for str_float in ("-Inf", "NaN", "Inf", None):
-                if str_float is None:
-                    basename = str(round(value, FILENAME_PRECISION_3))
-                elif str(value) == str_float.lower():
-                    basename = str_float
-                else:
-
-                    continue
-
-                break
-
-    #
-
-    elif isinstance(value, complex):
+        # Snap the Real and Imag of Complex to Int
 
         real = value.real
-        real = int(real) if (abs(real - int(real)) < EPSILON) else real
+        alt_real = int(real) if (abs(real - int(real)) < EPSILON) else real
 
         imag = value.imag
-        imag = int(imag) if (abs(imag - int(imag)) < EPSILON) else imag
+        alt_imag = int(imag) if (abs(imag - int(imag)) < EPSILON) else imag
 
-        if not imag:
-            alt_value = real
-        elif (real != value.real) or (imag != value.imag):
-            alt_value = complex(real, imag)
+        # Drop the Imag when it goes to zero
+
+        if not alt_imag:
+            alt_value = alt_real
+        elif (alt_real != value.real) or (alt_imag != value.imag):
+            alt_value = complex(alt_real, imag=alt_imag)
 
         basename = str(alt_value).replace("j", SH_J)
 
-    else:
+    # Give a Basename to Float's, and snap out extreme precision
 
-        basename = str(value)
+    if isinstance(value, float):
+
+        # Give mixed case Basename's to the named Float's
+
+        for str_float in ("-Inf", "NaN", "Inf"):
+            if str(value) == str_float.lower():
+                basename = str_float
+
+        # Snap Float to Int
+
+        if basename is None:
+            int_value = int(value)
+            if abs(value - int_value) < EPSILON:
+                alt_value = int_value
+                basename = str(alt_value)
+
+        # Snap most of the precision out of the Basename
+
+        if basename is None:
+            basename = str(round(value, FILENAME_PRECISION_3))
+
+    # Fall back to Str Value
+
+    basename = str(value)
 
     stack_push_basename_value(basename, value=alt_value)
 
@@ -760,7 +769,7 @@ def stack_push_basename_value(basename, value):
     # Trace and run
 
     echo_shline = "echo {} >{}".format(shvalue, alt_shpath)
-    sys.stderr.write("+ {}\n".format(echo_shline))
+    byo.stderr_print("+ {}".format(echo_shline))
 
     with open(alt_path, "w") as writing:
         writing.write("{}\n".format(chars))
@@ -793,11 +802,11 @@ def parms_buttonfile(parms):
         try_buttonfile(parms)
 
     except Exception:
-        sys.stderr.write("\n")
+        byo.stderr_print()
 
         traceback.print_exc()
 
-        sys.stderr.write("Press ⌃D TTY EOF to quit\n")
+        byo.stderr_print("Press ⌃D TTY EOF to quit\n")
         sys.stdin.read()
 
         raise
@@ -837,7 +846,7 @@ def try_buttonfile(parms):
 
 
 def try_buttonfile_clear():
-    """Pop all the Number Files, else push out four Numbers Files named 3, 2, 1, 0"""
+    """Pop X till no more X, else push 3, 2, 1, 0"""
 
     pairs = stack_pairs_pop(depth=0)
     if not pairs:

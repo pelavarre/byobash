@@ -218,13 +218,13 @@ def exit_if_patchdoc(fetched_patchdoc):
 
     if parms == ["--"]:
 
-        exit_after_patchdoc()
+        exit_after_patchdoc(fetched_patchdoc)
 
 
 def exit_after_patchdoc(fetched_patchdoc):
     """Exit after printing a PatchDoc of how to poke the Memory of the Sh Process"""
 
-    patchdoc = fetch_patchdoc()
+    patchdoc = fetch_patchdoc(fetched_patchdoc)
 
     print()
     print(patchdoc.strip())  # frame by 1 Empty Line above, and 1 Empty Line below
@@ -858,6 +858,28 @@ def shutil_get_tty_size():
     # from 'sys.__stdout__', else 'os.environ["LINES"], ["COLUMNS"]', else Fallback
 
     return size  # (.lines, .columns)
+
+
+#
+# Add some Def's that 'import subprocess' forgot
+#
+
+
+def subprocess_run_stdio(shline, *args, **kwargs):
+    """Flush Stdout, flush Stderr, and then call without Stdin"""
+
+    argv = shlex.split(shline)
+
+    alt_kwargs = dict(kwargs)
+    if "stdin" not in kwargs.keys():
+        alt_kwargs["stdin"] = subprocess.PIPE
+
+    sys.stdout.flush()
+    sys.stderr.flush()
+
+    run = subprocess.run(argv, *args, **kwargs)
+
+    return run
 
 
 #

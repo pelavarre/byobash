@@ -4,7 +4,7 @@
 function = {
   : : 'Show Stack, else else do other Stack Work' : :
   if [ "$#" = 0 ]; then
-      ~/Public/byobash/bin/byopyvm.py ls
+      ~/Public/byobash/bin/byopyvm.py =
   else
       ~/Public/byobash/bin/byopyvm.py "$@"
   fi
