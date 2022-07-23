@@ -8,6 +8,26 @@ qcd broke
 
 : MacOs ByoPyVm :
 
+@ 1 2 3
+
+= sys.argv
+= sys.version_info
+
+= dt.datetime.now()
+= datetime.now()
+= now()
+
+= pd...
+
+= requests.codes.OK
+= requests.get http://...
+
+str outside
+repr inside
+then hope to eval
+except dry run the eval
+
+
 i numbers from button i, j numbers
 
 'i' should be an entry char kind of like '.'

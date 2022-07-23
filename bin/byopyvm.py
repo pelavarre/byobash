@@ -27,8 +27,11 @@ quick start:
   git clone https://github.com/pelavarre/byobash.git
   cd byobash/
 
-  alias byopyvm.py=bin/byopyvm.py
-  byopyvm.py
+  function = { ~/Public/byobash/bin/byopyvm.py "$@"; }
+  = 12 34 +
+
+  alias @='~/Public/byobash/bin/byopyvm.py buttonfile'
+  @ 1 2 , 3 4 +
 
   source dotfiles/dot.byo.bashrc
 
@@ -387,9 +390,9 @@ def parms_name(parms):
 def do_dash():
     """Push Y - X in place of Y X"""
 
-    if stack_depth() < 1:
+    if not stack_has_x():
         stack_push(1)  # suggest 0 1 -, else 0 X -
-    elif stack_depth() < 2:
+    elif not stack_has_y():
         stack_push(0)
         do_swap_y_x()  # push -X in place of X, when run twice  # a la HP "CHS"
     else:
@@ -402,7 +405,7 @@ def do_dash():
 def do_dot():  # kin to Python's '-i' doing nothing after each None result
     """Pop X but print its Value, or do nothing if Stack is Empty"""
 
-    if stack_depth():
+    if stack_has_x():
         x = stack_pop(asif_before_rm="cat {} && ")
         print(x)
 
@@ -425,9 +428,9 @@ def do_equals():
 def do_plus():
     """Push Y + X in place of Y X"""
 
-    if stack_depth() < 1:
+    if not stack_has_x():
         stack_push(0)  # suggest 0 1 +, else 1 +
-    elif stack_depth() < 2:
+    elif not stack_has_y():
         stack_push(1)
     else:
 
@@ -439,9 +442,9 @@ def do_plus():
 def do_slash():
     """Push Y / X in place of Y X, and slide into -Inf, NaN, InF when X zeroed"""
 
-    if stack_depth() < 1:
+    if not stack_has_x():
         stack_push(0)  # suggest  1 0 /, else 1 X /
-    elif stack_depth() < 2:
+    elif not stack_has_y():
         stack_push(1)
         do_swap_y_x()  # push (1 / X) in place of X, when run twice  # a la HP "1/X"
     else:
@@ -461,7 +464,7 @@ def do_slash():
 def do_sqrt():
     """Push (X ** (1 / 2)) in place of X, and slide into Complex when X negative"""
 
-    if stack_depth() < 1:
+    if not stack_has_x():
         stack_push(-1)  # suggest -1 Sqrt
     else:
 
@@ -473,9 +476,9 @@ def do_sqrt():
 def do_star():
     """Push Y * X in place of Y X"""
 
-    if stack_depth() < 1:
+    if not stack_has_x():
         stack_push(1)  # suggest 1 2 *, else 2 *
-    elif stack_depth() < 2:
+    elif not stack_has_y():
         stack_push(2)
     else:
 
@@ -498,7 +501,7 @@ def do_clear():  # a la GForth "clearstack"
 def do_clone_x():  # a la Forth "DUP", a la HP "Enter"
     """Push X X in place of X"""
 
-    if stack_depth() < 1:
+    if not stack_has_x():
         stack_push(0)  # suggest:  0 Dup
     else:
 
@@ -509,9 +512,9 @@ def do_clone_x():  # a la Forth "DUP", a la HP "Enter"
 def do_clone_y():  # a la Forth "OVER", a la HP "RCL Y"
     """Push Y X Y in place of Y X"""  # chain bin ops at:  Y X  Over %  Over %  ...
 
-    if stack_depth() < 1:
+    if not stack_has_x():
         stack_push(1)  # suggest:  1 0 Over, else 0 Over
-    elif stack_depth() < 2:
+    elif not stack_has_y():
         stack_push(0)
     else:
 
@@ -522,9 +525,9 @@ def do_clone_y():  # a la Forth "OVER", a la HP "RCL Y"
 def do_swap_y_x():
     """Drag the 2nd-to-Last Value to Top of Stack"""
 
-    if stack_depth() < 1:
+    if not stack_has_x():
         stack_push(0)
-    elif stack_depth() < 2:
+    elif not stack_has_y():
         stack_push(0)
     else:
 
@@ -540,6 +543,22 @@ def do_swap_y_x():
 
         byo.stderr_print("+ {}".format(shline))
         byo.subprocess_run_stdio(shline)
+
+
+def stack_has_x():
+    """Say when the Stack contains one or more Values (that is, when it is Truthy)"""
+
+    has_x = bool(stack_depth())
+
+    return has_x
+
+
+def stack_has_y():
+    """Say when the Stack contains two or more Values"""
+
+    has_y = (stack_depth() >= 2)
+
+    return has_y
 
 
 def stack_depth():
@@ -797,19 +816,24 @@ def find_alt_path(path):
 def parms_buttonfile(parms):
     """Take one Double-Click of a Dot-Command ButtonFile"""
 
-    try:
+    while parms[1:]:
 
-        try_buttonfile(parms)
+        try:
 
-    except Exception:
-        byo.stderr_print()
+            try_buttonfile(parms)
 
-        traceback.print_exc()
+        except Exception:
+            byo.stderr_print()
+            traceback.print_exc()
+            byo.stderr_print("Press ⌃D TTY EOF to quit\n")
 
-        byo.stderr_print("Press ⌃D TTY EOF to quit\n")
-        sys.stdin.read()
+            sys.stdin.read()
 
-        raise
+            raise
+
+        parms[::] = parms[1:]
+
+        parms.insert(0, "buttonfile")
 
 
 def try_buttonfile(parms):
@@ -861,7 +885,7 @@ def do_comma():
 
     entry = entry_close_if_open()
     if entry is None:
-        if not stack_depth():
+        if not stack_has_x():
             entry_write_char("0")  # suggest:  0 ,
             entry_close_if_open()
         else:
@@ -940,23 +964,23 @@ def pop_entry_else_peek_none():
 def peek_entry():
     """Peek the collected Chars and return them, else return None"""
 
-    entry = None
+    if stack_has_x():
 
-    pair = stack_pairs_peek()[-1]
-    (basename, value) = pair
+        pair = stack_pairs_peek()[-1]
+        (basename, value) = pair
 
-    if basename is not None:
-        if basename.endswith("_"):
-            basename_json = json.dumps(basename)
-            if basename_json == value:
+        if basename is not None:
+            if basename.endswith("_"):
+                basename_json = json.dumps(basename)
+                if basename_json == value:
 
-                evalled = stack_loads(value)
-                assert evalled is not None, repr(value)
+                    evalled = stack_loads(value)
+                    assert evalled is not None, repr(value)
 
-                if re.match("^[-+.0-9][-+.0-9Ee]*_$", string=evalled):
-                    entry = byo.str_removesuffix(evalled, suffix="_")
+                    if re.match("^[-+.0-9][-+.0-9Ee]*_$", string=evalled):
+                        entry = byo.str_removesuffix(evalled, suffix="_")
 
-    return entry
+                        return entry
 
 
 #
