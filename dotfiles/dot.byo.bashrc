@@ -1,6 +1,8 @@
 # dotfiles/dot.byo.bashrc
 
 
+alias @='~/Public/byobash/bin/byopyvm.py buttonfile'
+
 function = {
   : : 'Show Stack, else else do other Stack Work' : :
   if [ "$#" = 0 ]; then

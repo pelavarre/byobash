@@ -13,6 +13,8 @@ options:
 
 advanced bash install:
 
+  alias @='~/Public/byobash/bin/byopyvm.py buttonfile'
+
   function = {
     : : 'Show Stack, else else do other Stack Work' : :
     if [ "$#" = 0 ]; then
@@ -65,6 +67,7 @@ examples:
 
 
 import collections
+import importlib
 import json
 import math
 import os
@@ -102,6 +105,8 @@ def main():
     collapse_star_parms(parms)
 
     patchdoc = """
+
+      alias @='~/Public/byobash/bin/byopyvm.py buttonfile'
 
       function = {
         : : 'Show Stack, else else do other Stack Work' : :
@@ -356,7 +361,14 @@ def parms_dotted_name(parms):
     """Eval a Dotted Name and push its Value"""
 
     py = parms[0]
-    stack_push(eval(py))
+
+    evalled = stackable_dotted_eval(py)
+
+    pushable = evalled
+    if isinstance(evalled, collections.abc.Callable):
+        pushable = evalled()
+
+    stack_push(pushable)
 
 
 def parms_float_literal(parms):
@@ -379,7 +391,14 @@ def parms_name(parms):
     """Eval a Name and push its Value"""
 
     py = parms[0]
-    stack_push(eval(py))
+
+    evalled = stackable_eval(py)
+
+    pushable = evalled  # todo: factor our commonalities with 'def parms_dotted_name'
+    if isinstance(evalled, collections.abc.Callable):
+        pushable = evalled()
+
+    stack_push(pushable)
 
 
 #
@@ -397,8 +416,15 @@ def do_dash():
         do_swap_y_x()  # push -X in place of X, when run twice  # a la HP "CHS"
     else:
 
-        (y, x) = stack_pop(2)
-        x_ = y - x
+        (y, x) = stack_peek(2)
+
+        try:
+            x_ = y - x
+        except Exception as exc:  # todo: indeed we could subtract Str, List, Tuple, ...
+
+            byo.exit_after_print_raise(exc)
+
+        stack_pop(2)
         stack_push(x_)
 
 
@@ -416,13 +442,15 @@ def do_equals():
     shline = "ls -1Frt |... |tail -4"
     byo.stderr_print("+ {}".format(shline))
 
-    depth = max(4, stack_depth())
+    depth = min(4, stack_depth())
     if not depth:
         print()
     else:
         pairs = stack_pairs_peek(depth)
         for pair in pairs:
             (basename, _) = pair
+
+            print(basename)
 
 
 def do_plus():
@@ -434,8 +462,15 @@ def do_plus():
         stack_push(1)
     else:
 
-        (y, x) = stack_pop(2)
-        x_ = y + x
+        (y, x) = stack_peek(2)
+
+        try:
+            x_ = y + x
+        except Exception as exc:
+
+            byo.exit_after_print_raise(exc)
+
+        stack_pop(2)
         stack_push(x_)
 
 
@@ -449,15 +484,23 @@ def do_slash():
         do_swap_y_x()  # push (1 / X) in place of X, when run twice  # a la HP "1/X"
     else:
 
-        (y, x) = stack_pop(2)
+        (y, x) = stack_peek(2)
 
         if y == x == 0:
             x_ = float("NaN")
         elif x == 0:
             x_ = float("-Inf") if (str(y).startswith("-")) else float("InF")
         else:
-            x_ = y / x  # todo:  1 5 / -> 0.2 -> 5 should end in Int, not Float
 
+            try:
+                x_ = y / x
+            except Exception as exc:
+
+                byo.exit_after_print_raise(exc)
+
+            # FIXME:  1 5 / -> 0.2 5 * -> 5 should end in Int, not Float
+
+        stack_pop(2)
         stack_push(x_)
 
 
@@ -468,8 +511,15 @@ def do_sqrt():
         stack_push(-1)  # suggest -1 Sqrt
     else:
 
-        x = stack_pop()
-        x_ = x ** (1 / 2)
+        x = stack_peek()
+
+        try:
+            x_ = x ** (1 / 2)
+        except Exception as exc:
+
+            byo.exit_after_print_raise(exc)
+
+        stack_pop()
         stack_push(x_)
 
 
@@ -482,8 +532,17 @@ def do_star():
         stack_push(2)
     else:
 
-        (y, x) = stack_pop(2)
-        x_ = y * x  # todo: -0.0 should be 0
+        (y, x) = stack_peek(2)
+
+        try:
+            x_ = y * x
+        except Exception as exc:
+
+            byo.exit_after_print_exc(exc)
+
+        # FIXME: -0.0 should be 0
+
+        stack_pop(2)
         stack_push(x_)
 
 
@@ -556,7 +615,7 @@ def stack_has_x():
 def stack_has_y():
     """Say when the Stack contains two or more Values"""
 
-    has_y = (stack_depth() >= 2)
+    has_y = stack_depth() >= 2
 
     return has_y
 
@@ -570,15 +629,194 @@ def stack_depth():
     return depth
 
 
-def stack_push_eval_py(py):
-    """Eval a Python Expression and push its Value"""
+#
+# Adapt the Json File Format
+#
+#   Serialize what 'json.dumps' knows how to serialize
+#   Serialize some of what Python Repr knows how to serialize too
+#   Give out some of the Basenames that Python Str knows how to choose
+#
 
-    evalled = eval(py)
-    stack_push(evalled)
+
+def stackable_dotted_eval(py):
+    """Call 'stackable_eval' but lazily import the Module it most obviously needs"""
+
+    # Accept a few established Module Nicknames
+
+    by_nickname = dict()
+
+    by_nickname["D"] = "decimal"
+    by_nickname["dt"] = "datetime"
+    by_nickname["pd"] = "pandas"
+
+    # Import the module now, if not cached earlier
+
+    words = py.split(".")
+
+    nickname = words[0]
+    modulename = by_nickname[nickname] if (nickname in by_nickname.keys()) else nickname
+
+    try:
+        _ = eval(nickname)
+    except NameError:
+        try:
+            imported = importlib.import_module(modulename)
+        except ImportError:
+            imported = None
+
+        if imported is not None:
+            globals()[nickname] = imported
+            _ = eval(nickname)
+
+    # Eval the Dotted Name and push its Value
+
+    evalled = stackable_eval(py)
+
+    return evalled
+
+
+def stackable_eval(py):
+    """Eval a Python expression & return its Value, else Stderr Print & Exit Nonzero"""
+
+    try:
+        evalled = eval(py)
+    except Exception as exc:
+
+        byo.exit_after_print_raise(exc)
+
+    return evalled
+
+
+def stackable_dumps(value):
+    """Format an Object as Chars"""
+
+    try:
+        poke = json.dumps(value)
+    except TypeError:
+        if isinstance(value, complex):
+            poke = str(value)
+        else:
+            poke = "eval({!r})".format(repr(value))
+
+    return poke
+
+
+def stackable_loads(chars):
+    """Unwrap the Object inside the Chars, else return None"""
+
+    try:
+        peek = json.loads(chars)
+    except json.JSONDecodeError:
+
+        prefix = "eval("
+        suffix = ")"
+        if chars.startswith(prefix) and chars.endswith(suffix):
+            rep_py = chars[len(prefix) : -len(suffix)]
+            py = eval(rep_py)  # todo: catch exceptions here
+            peek = stackable_dotted_eval(py)
+
+        else:  # todo:  much too weak reasons to conclude is Rep of Complex
+            try:
+                peek = complex(chars)
+            except ValueError:
+                peek = None  # todo: could:  raise ValueError(chars)
+
+    return peek
+
+
+def stackable_pair(value):
+    """Name the Print's of an Object"""
+
+    if isinstance(value, complex):
+        assert not isinstance(value, collections.abc.Container)
+        pair = stackable_pair_of_complex(value)
+
+        return pair
+
+    if isinstance(value, float):
+        assert not isinstance(value, collections.abc.Container)
+        pair = stackable_pair_of_float(value)
+
+        return pair
+
+    if isinstance(value, str):
+        assert isinstance(value, collections.abc.Container)
+        pair = value
+
+        return pair
+
+    if isinstance(value, collections.abc.Container):
+        pair = byo.dotted_typename(type(value))
+
+        return pair
+
+    pair = str(value)
+
+    return pair
+
+
+def stackable_pair_of_complex(value):
+    """Give a Basename to Complex'es, and snap out extreme precision"""
+
+    alt_value = value
+
+    # Snap the Real and Imag of Complex to Int
+
+    real = value.real
+    alt_real = int(real) if (abs(real - int(real)) < EPSILON) else real
+
+    imag = value.imag
+    alt_imag = int(imag) if (abs(imag - int(imag)) < EPSILON) else imag
+
+    # Drop the Imag when it goes to zero
+
+    if not alt_imag:
+        alt_value = alt_real
+    elif (alt_real != value.real) or (alt_imag != value.imag):
+        alt_value = complex(alt_real, imag=alt_imag)
+
+    basename = str(alt_value).replace("j", SH_J)
+    # FIXME: imprecise Imag & Real
+
+    # Succeed
+
+    return (basename, alt_value)
+
+
+def stackable_pair_of_float(value):
+    """Give a Basename to Float's, and snap out extreme precision"""
+
+    basename = None
+    alt_value = value
+
+    # Give mixed case Basename's to the named Float's
+
+    for str_float in ("-Inf", "NaN", "Inf"):
+        if str(value) == str_float.lower():
+            basename = str_float
+
+    # Snap Float to Int
+
+    if basename is None:
+        int_value = int(value)
+        if abs(value - int_value) < EPSILON:
+            alt_value = int_value
+            basename = str(alt_value)
+
+    # Snap most of the precision out of the Basename
+
+    if basename is None:
+        basename = str(round(value, FILENAME_PRECISION_3))
+
+    # Succeed
+
+    assert basename
+
+    return (basename, alt_value)
 
 
 #
-# Build a Stack out of Recently Touched Files in Cwd
+# Build a Stack out of Recently Touched Files in Cwd that contain Stackable LoadS
 #
 
 
@@ -602,7 +840,7 @@ def stack_peek(depth=1):
 
     peeks = list()
     for value in values:
-        peek = stack_loads(chars=value)
+        peek = stackable_loads(chars=value)
         peeks.append(peek)
 
     assert len(peeks) == depth, (len(peeks), depth)
@@ -612,32 +850,6 @@ def stack_peek(depth=1):
         return one_peek  # is 'one_peek' in the corner of 'depth=1'
 
     return peeks  # is zero, two, or more Peeks, in the corners of 'depth != 1'
-
-
-def stack_dumps(value):
-    """Format an Object as Chars"""
-
-    try:
-        poke = json.dumps(value)
-    except TypeError:
-        assert isinstance(value, complex), (type(value), value)
-        poke = str(value)
-
-    return poke
-
-
-def stack_loads(chars):
-    """Unwrap the Object inside the Chars, else return None"""
-
-    try:
-        peek = json.loads(chars)
-    except json.JSONDecodeError:
-        try:
-            peek = complex(chars)
-        except ValueError:
-            peek = None  # todo: could:  raise ValueError(chars)
-
-    return peek
 
 
 def stack_pairs_pop(depth, asif_before_rm=""):
@@ -692,7 +904,7 @@ def stack_pairs_peek(depth=1):
 
             # Count the File only if it holds an intelligible Value
 
-            peek = stack_loads(chars)
+            peek = stackable_loads(chars)
             if peek is None:  # such as json.JSONDecodeError
 
                 continue
@@ -710,61 +922,10 @@ def stack_pairs_peek(depth=1):
     return pairs
 
 
-# FIXME:  Factor out:  def object_basename(obj):
-# FIXME:  Snap most of the precision out of the Basename of Complex'es too
 def stack_push(value):
     """Push the Json Chars of a Value, into a new Autonamed File"""
 
-    basename = None
-    alt_value = value
-
-    # Give a Basename to Complex'es, and snap out extreme precision
-
-    if isinstance(value, complex):
-
-        # Snap the Real and Imag of Complex to Int
-
-        real = value.real
-        alt_real = int(real) if (abs(real - int(real)) < EPSILON) else real
-
-        imag = value.imag
-        alt_imag = int(imag) if (abs(imag - int(imag)) < EPSILON) else imag
-
-        # Drop the Imag when it goes to zero
-
-        if not alt_imag:
-            alt_value = alt_real
-        elif (alt_real != value.real) or (alt_imag != value.imag):
-            alt_value = complex(alt_real, imag=alt_imag)
-
-        basename = str(alt_value).replace("j", SH_J)
-
-    # Give a Basename to Float's, and snap out extreme precision
-
-    if isinstance(value, float):
-
-        # Give mixed case Basename's to the named Float's
-
-        for str_float in ("-Inf", "NaN", "Inf"):
-            if str(value) == str_float.lower():
-                basename = str_float
-
-        # Snap Float to Int
-
-        if basename is None:
-            int_value = int(value)
-            if abs(value - int_value) < EPSILON:
-                alt_value = int_value
-                basename = str(alt_value)
-
-        # Snap most of the precision out of the Basename
-
-        if basename is None:
-            basename = str(round(value, FILENAME_PRECISION_3))
-
-    # Fall back to Str Value
-
-    basename = str(value)
+    (basename, alt_value) = stackable_pair(value)
 
     stack_push_basename_value(basename, value=alt_value)
 
@@ -773,7 +934,7 @@ def stack_push_basename_value(basename, value):
     """Push the Json Chars of a Value, into a fresh File"""
 
     path = pathlib.Path(basename)
-    chars = stack_dumps(value)
+    chars = stackable_dumps(value)
 
     shvalue = byo.shlex_dquote(chars)
 
@@ -974,7 +1135,7 @@ def peek_entry():
                 basename_json = json.dumps(basename)
                 if basename_json == value:
 
-                    evalled = stack_loads(value)
+                    evalled = stackable_loads(value)
                     assert evalled is not None, repr(value)
 
                     if re.match("^[-+.0-9][-+.0-9Ee]*_$", string=evalled):

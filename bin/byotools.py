@@ -356,6 +356,30 @@ def exit_after_one_argv(argv):
     sys.exit()  # Exit None after an ArgV exits Falsey
 
 
+def exit_after_print_raise(exc):
+    """Stderr Print the Exec and then Exit Nonzero"""
+
+    typename = dotted_typename(type(exc))
+    str_raise = "byotools.py: {}: {}".format(typename, exc)
+    stderr_print(str_raise)
+
+    sys.exit(1)  # Exit 1 for Unhandled Exception
+
+
+def dotted_typename(cls):
+    """Return the 'module.type' name for most types, but 'type' for 'builtins.type's"""
+
+    modulename = cls.__module__
+    typename = cls.__name__
+    dotted_typename = "{}.{}".format(modulename, typename)
+
+    enough_typename = typename
+    if modulename != "builtins":
+        enough_typename = dotted_typename
+
+    return enough_typename
+
+
 def subprocess_run_else_exit(argv, shpipe=None):
     """Call a Subprocess to run the ArgV and return, except exit if exit nonzero"""
 

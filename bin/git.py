@@ -191,12 +191,12 @@ def main():
 
     """
 
-    # Take "--for-cdproc" and "--for-shproc" out early
+    # Take "--for-chdir" and "--for-shproc" out early
 
     parms = None
 
     sys_parms = sys.argv[1:]
-    options = ("--for-cdproc", "--for-shproc")
+    options = ("--for-chdir", "--for-shproc")
     if sys_parms and (sys_parms[0] in options):
         parms = sys.argv[2:]
 
@@ -219,7 +219,7 @@ def main():
     byo.exit_if_testdoc()  # command git.py
     byo.exit_if_argdoc()  # git.py --help
 
-    # Expand any of many intensely cryptic calls of "--for-cdproc" and "--for-shproc"
+    # Expand any of many intensely cryptic calls of "--for-chdir" and "--for-shproc"
 
     if parms:
         shverb = parms[0]
