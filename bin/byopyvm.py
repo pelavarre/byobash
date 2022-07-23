@@ -75,6 +75,10 @@ _ = pdb
 
 FILENAME_PRECISION_3 = 3  # 3 digits means mention 'math.pi' as '3.142'
 
+MATH_J = 1j  # work around for Python forgetting to define 'math.j'
+
+SH_J = "i"  # choose the Char to mark 'str' of '.imag', from outside r"[-+.012345679Ee]"
+
 
 def main():
     """Run from the Sh Command Line"""
@@ -110,29 +114,6 @@ def main():
     parms_run(parms)
 
 
-def parms_run(parms):
-    """Run the Parms = Read a Word, Evaluate the Word, Print the Result, Loop"""
-
-    # Take each word, one at a time
-
-    func_by_verb = form_func_by_verb()
-
-    while parms:
-
-        func = None
-
-        shverb = parms[0]
-        if shverb not in func_by_verb:
-            shverb = taker_from_word(word=shverb)
-
-        assert shverb in func_by_verb, (shverb, parms)
-
-        func = func_by_verb[shverb]
-        func(parms)
-
-        parms[::] = parms[1:]
-
-
 def collapse_star_parms(parms):
     """Reconstruct the Sh Input Line despite the presence of '*' as a word"""
 
@@ -166,16 +147,45 @@ def collapse_star_parms(parms):
 #
 
 
-def taker_from_word(word):
+def parms_run(parms):
+    """Run the Parms = Read a Word, Evaluate the Word, Print the Result, Loop"""
+
+    # Take each word, one at a time
+
+    take_by_word = form_take_by_word()
+
+    while parms:
+
+        word = parms[0]
+        if word not in take_by_word.keys():
+            word = to_fuzzed_word(word)
+
+        assert word in take_by_word.keys(), (word, parms)
+        take = take_by_word[word]
+
+        if not isinstance(take, collections.abc.Callable):
+            value = take
+            stack_push(value)
+        else:
+            func = take
+            if take.__name__.startswith("parms_"):
+                func(parms)
+            else:
+                func()
+
+        parms[::] = parms[1:]
+
+
+def to_fuzzed_word(word):
     """Pick out what kind of Input Word this is"""
 
     if re.match(r"^[-+]?[0-9]+$", string=word):
 
-        return "int"
+        return "int_literal"
 
     if re.match(r"^[-+]?[0-9]+[.][0-9]*$", string=word):  # todo: 1e-2
 
-        return "float"
+        return "float_literal"
 
     if re.match(r"^([A-Z_a-z][0-9A-Z_a-z]*)?[.][.0-9A-Z_a-z]+$", string=word):
 
@@ -215,7 +225,7 @@ def form_name_by_char():
     d["."] = "dot"
     d["/"] = "slash"
 
-    d["0"] = "zero"  # Python accepts Digital Digits in the Name, but not to start with
+    d["0"] = "zero"  # Decimal Digits alone are not Python Names
     d["1"] = "one"
     d["2"] = "two"
     d["3"] = "three"
@@ -236,17 +246,17 @@ def form_name_by_char():
     d["@"] = "at"
 
     # d["["]
-    d["\\"] = "backslant"
+    d["\\"] = "backslant"  # two syllables
     # d["]"]
     d["^"] = "hat"
-    d["_"] = "skid"  # underscore
+    d["_"] = "skid"  # aka underscore
 
-    d["`"] = "backtick"
+    d["`"] = "backtick"  # two syllables
 
     # d["{"]
     d["|"] = "bar"
     # d["}"]
-    d["~"] = "tilde"
+    d["~"] = "tilde"  # two syllables  # aka "squiggle"
 
     return d
 
@@ -262,53 +272,104 @@ NAME_BY_CHAR = form_name_by_char()
 
 
 #
-# Wrap Shim's around Sh Commands
+# Define Verbs
 #
 
 
-def form_func_by_verb():
-    """Declare the Pipe Filter Abbreviations"""
+def form_take_by_word():
+    """Declare our Built-In Verbs and Nouns"""
 
-    func_by_verb = dict(
-        buttonfile=do_buttonfile,
-        dot=do_dot,
-        dotted_name=do_dotted_name,
-        int=do_int,
-        ls=do_ls,
-        dash=do_dash,  # Monosyllabic Folk speak of the '-' Dash
-        minus=do_dash,  # Calculator Folk speak of the '-' Minus
-        name=do_name,
-        over=do_push_y,
-        plus=do_plus,
-        slash=do_slash,
-        star=do_star,
+    # Define Sh Nouns of Forth
+
+    take_by_sh_noun = dict(
+        e=math.e,
+        i=MATH_J,  # Sci Folk
+        j=MATH_J,  # Eng Folk
+        pi=math.pi,
     )
 
-    return func_by_verb
+    take_by_sh_noun["\N{Greek Small Letter Pi}"] = math.pi  # π
+
+    # Define Sh Verbs of Forth
+
+    take_by_sh_forth_verb = dict(
+        buttonfile=parms_buttonfile,
+        dot=parms_dot,
+        dotted_name=parms_dotted_name,
+        float_literal=parms_float_literal,
+        int_literal=parms_int_literal,
+        name=parms_name,
+    )
+
+    # Define Button File Verbs of Folders
+
+    take_by_button_verb = dict(
+        comma=do_comma,
+        dash=do_dash,  # invite Monosyllabic Folk to speak of the '-' Dash
+        minus=do_dash,  # invite Calculator Folk to speak of the '-' Minus
+        over=do_clone_y,
+        ls=do_ls,
+        plus=do_plus,
+        slash=do_slash,
+        sqrt=do_sqrt,
+        star=do_star,
+        swap=do_swap_y_x,
+    )
+
+    take_by_button_verb["\N{Square Root}"] = do_sqrt  # √
+
+    # Merge the Dicts of Words of Command
+
+    d = dict()
+    for kvs in (take_by_sh_forth_verb, take_by_button_verb, take_by_sh_noun):
+        for (k, v) in kvs.items():
+            assert k not in d.keys(), k
+            d[k] = v
+
+    take_by_word = d
+
+    # Succeed
+
+    return take_by_word
 
 
-def do_dot(parms):
-    """Pop X but print its Value"""
-
-    x = stack_pop(1, default=None, promise="cat {} && ")
-
-    print(x)
+#
+# Define Sh Verbs of Forth
+#
 
 
-def do_dotted_name(parms):
-    """Call a Dotted Name, else push its Value"""
+def parms_dot(parms):  # kin to Python's '-i' doing nothing after each None result
+    """Pop X but print its Value, or do nothing if Stack is Empty"""
 
-    do_name(parms)
+    if stack_depth():
+        x = stack_pop(asif_before_rm="cat {} && ")
+        print(x)
 
 
-def do_int(parms):
-    """Push the Value of an Int"""
+def parms_dotted_name(parms):
+    """Eval a Dotted Name and push its Value"""
 
-    x = int(parms[0])
+    py = parms[0]
+    stack_push(eval(py))
+
+
+def parms_float_literal(parms):
+    """Eval the Chars of a Float Literal"""
+
+    str_x = parms[0]
+    x = float(str_x)
     stack_push(x)
 
 
-def do_ls(parms):
+def parms_int_literal(parms):
+    """Eval the Chars of an Int Literal"""
+
+    str_x = parms[0]
+    x = int(str_x)
+    stack_push(x)
+
+
+def do_ls():  # todo:  reconcile with the Calculator Button Stack
     """Show the Keys of the T Z Y X Stack, not its Values"""
 
     shline = "ls -1Frt |tail -4"
@@ -322,127 +383,125 @@ def do_ls(parms):
     subprocess.run(argv, stdin=subprocess.PIPE, check=True)
 
 
-def do_dash(parms):
+def parms_name(parms):
+    """Eval a Name and push its Value"""
+
+    py = parms[0]
+    stack_push(eval(py))
+
+
+#
+# Define Calculator Buttons
+#
+
+
+def do_dash():
     """Push Y - X in place of Y X"""
 
     if stack_depth() < 1:
-        stack_push(0)
+        stack_push(1)  # suggest 0 1 -, else 0 X -
     elif stack_depth() < 2:
         stack_push(0)
-        stack_swap()
+        do_swap_y_x()  # push -X in place of X, when run twice  # a la HP "CHS"
     else:
 
-        (_y, _x) = stack_pop(2, default=0)
-        x = _y - _x
-        stack_push(x)
+        (y, x) = stack_pop(2)
+        x_ = y - x
+        stack_push(x_)
 
 
-def do_plus(parms):
+def do_plus():
     """Push Y + X in place of Y X"""
 
     if stack_depth() < 1:
-        stack_push(0)
-    elif stack_depth() < 2:
-        stack_push(0)
-    else:
-
-        (_y, _x) = stack_pop(2, default=0)
-        x = _y + _x
-        stack_push(x)
-
-
-def do_name(parms):
-    """Call a Name, else push its Value"""
-
-    evalled = eval(parms[0])
-
-    if not isinstance(evalled, collections.abc.Callable):
-        stack_push(evalled)
-    else:
-        do_x_func(parms, evalled)
-
-
-def do_push_y(parms):
-    """Push Y"""
-
-    if stack_depth() < 1:
-        stack_push(0)
-    elif stack_depth() < 2:
-        stack_push(0)
-    else:
-
-        (_y, _x) = stack_peek(2, default=None)
-        stack_push(_y)
-
-
-def do_slash(parms):
-    """Push Y / X in place of Y X"""
-
-    if stack_depth() < 1:
-        stack_push(1)
+        stack_push(0)  # suggest 0 1 +, else 1 +
     elif stack_depth() < 2:
         stack_push(1)
-        stack_swap()
     else:
 
-        (_, _x) = stack_peek(2, default=None)
-        if _x == 0:
-            stack_push(1)
+        (y, x) = stack_pop(2)
+        x_ = y + x
+        stack_push(x_)
+
+
+def do_slash():
+    """Push Y / X in place of Y X, and slide into -Inf, NaN, InF when X zeroed"""
+
+    if stack_depth() < 1:
+        stack_push(0)  # suggest  1 0 /, else 1 X /
+    elif stack_depth() < 2:
+        stack_push(1)
+        do_swap_y_x()  # push (1 / X) in place of X, when run twice  # a la HP "1/X"
+    else:
+
+        (y, x) = stack_pop(2)
+
+        if y == x == 0:
+            x_ = float("NaN")
+        elif x == 0:
+            x_ = float("-Inf") if (str(y).startswith("-")) else float("InF")
         else:
+            x_ = y / x  # todo:  1 5 / -> 0.2 -> 5 should end in Int, not Float
 
-            (_y, _x) = stack_pop(2, default=1)
-            x = _y / _x  # todo:  1 5 / -> 0.2 -> 5 should end in Int, not Float
-            stack_push(x)
+        stack_push(x_)
 
 
-def do_star(parms):
+def do_sqrt():
+    """Push (X ** (1 / 2)) in place of X, and slide into Complex when X negative"""
+
+    if stack_depth() < 1:
+        stack_push(-1)  # suggest -1 Sqrt
+    else:
+
+        x = stack_pop()
+        x_ = x ** (1 / 2)
+        stack_push(x_)
+
+
+def do_star():
     """Push Y * X in place of Y X"""
 
     if stack_depth() < 1:
-        stack_push(1)
+        stack_push(1)  # suggest 1 2 *, else 2 *
     elif stack_depth() < 2:
-        stack_push(1)
+        stack_push(2)
     else:
 
-        (_y, _x) = stack_pop(2, default=1)
-        x = _y * _x  # todo: -0.0 should be 0
+        (y, x) = stack_pop(2)
+        x_ = y * x  # todo: -0.0 should be 0
+        stack_push(x_)
+
+
+#
+# Define Calculator Stack Ops
+#
+
+
+def do_clone_x():  # a la Forth "DUP", a la HP "Enter"
+    """Push X X in place of X"""
+
+    if stack_depth() < 1:
+        stack_push(0)  # suggest:  0 Dup
+    else:
+
+        x = stack_peek()
         stack_push(x)
 
 
-def do_x_func(parms, func):
-    """Push Func(X) in place of X"""
-
-    assert func is math.sqrt
+def do_clone_y():  # a la Forth "OVER", a la HP "RCL Y"
+    """Push Y X Y in place of Y X"""  # chain bin ops at:  Y X  Over %  Over %  ...
 
     if stack_depth() < 1:
-        stack_push(1)
+        stack_push(1)  # suggest:  1 0 Over, else 0 Over
+    elif stack_depth() < 2:
+        stack_push(0)
     else:
 
-        _x = stack_peek(1, default=0)
-        if _x >= 0:
-            _x = stack_pop(1, default=0)
-            x = func(_x)  # todo: sqrt of int should still be int
-            stack_push(x)
-        else:
-            x = _x * _x
-            stack_push(x)
+        (y, x) = stack_peek(2)
+        stack_push(y)
 
 
-#
-# Build a Stack out of Recently Touched Files in Cwd
-#
-
-
-def stack_depth():
-    """Count the Values in the Stack"""
-
-    pairs = stack_pairs_peek(0)  # todo:  stop evalling all the Values to count them
-    depth = len(pairs)
-
-    return depth
-
-
-def stack_swap():
+def do_swap_y_x():
     """Drag the 2nd-to-Last Value to Top of Stack"""
 
     if stack_depth() < 1:
@@ -455,7 +514,12 @@ def stack_swap():
         pair = pairs[0]
         (basename, _) = pair
 
-        shline = "touch {}".format(byo.shlex_dquote(basename))
+        shbasename = byo.shlex_dquote(basename)
+
+        shline = "touch {}".format(shbasename)
+        if basename.startswith("-"):
+            shline = "touch -- {}".format(shbasename)
+
         sys.stderr.write("+ {}\n".format(shline))
 
         sys.stdout.flush()
@@ -463,33 +527,48 @@ def stack_swap():
         subprocess.run(shlex.split(shline))
 
 
+def stack_depth():
+    """Count the Values in the Stack"""
+
+    pairs = stack_pairs_peek(0)  # todo:  stop evalling all the Values to count them
+    depth = len(pairs)
+
+    return depth
+
+
+def stack_push_eval_py(py):
+    """Eval a Python Expression and push its Value"""
+
+    evalled = eval(py)
+    stack_push(evalled)
+
+
 #
 # Build a Stack out of Recently Touched Files in Cwd
 #
 
 
-def stack_pop(depth, default=None, promise=""):
+def stack_pop(depth=1, asif_before_rm=""):
     """Peek and eval and remove some of the Values most recently pushed"""
 
-    peeks = stack_peek(depth, default=default)
+    peeks = stack_peek(depth)
 
-    _ = stack_pairs_pop(depth, promise=promise)
+    _ = stack_pairs_pop(depth, asif_before_rm=asif_before_rm)
 
     return peeks  # will be 'one_peek' in the corner of 'depth=1'
 
 
-def stack_peek(depth, default):
+def stack_peek(depth=1):
     """Peek and eval some of the Values most recently pushed"""
 
     assert depth >= 1
-    default_json = json.dumps(default)
 
-    pairs = stack_pairs_peek(depth, default_json=default_json)  # peek, not pop
+    pairs = stack_pairs_peek(depth)
     values = list(_[-1] for _ in pairs)
 
     peeks = list()
     for value in values:
-        peek = stack_loads(chars=value, default=default)
+        peek = stack_loads(chars=value)
         peeks.append(peek)
 
     assert len(peeks) == depth, (len(peeks), depth)
@@ -507,15 +586,14 @@ def stack_dumps(value):
     try:
         poke = json.dumps(value)
     except TypeError:
+        assert isinstance(value, complex), (type(value), value)
         poke = str(value)
-
-        assert isinstance(value, complex), (type(value), poke)
 
     return poke
 
 
-def stack_loads(chars, default):
-    """Unwrap the Object inside the Chars, else return the Default"""
+def stack_loads(chars):
+    """Unwrap the Object inside the Chars, else return None"""
 
     try:
         peek = json.loads(chars)
@@ -523,17 +601,17 @@ def stack_loads(chars, default):
         try:
             peek = complex(chars)
         except ValueError:
-            peek = default
+            peek = None  # todo: could:  raise ValueError(chars)
 
     return peek
 
 
-def stack_pairs_pop(depth, default_json=json.dumps(None), promise=""):
+def stack_pairs_pop(depth, asif_before_rm=""):
     """Peek and remove some of the Basename-Chars Pairs most recently pushed"""
 
     assert depth >= 0
 
-    pairs = stack_pairs_peek(depth, default_json=default_json)
+    pairs = stack_pairs_peek(depth)
 
     paths = list(_[0] for _ in pairs)
     shpaths = " ".join(byo.shlex_dquote(_) for _ in paths if _ is not None)
@@ -543,7 +621,7 @@ def stack_pairs_pop(depth, default_json=json.dumps(None), promise=""):
         else:
             shline = "rm -f {}".format(shpaths)
 
-        sys.stderr.write("+ {}{}\n".format(promise.format(shpaths), shline))
+        sys.stderr.write("+ {}{}\n".format(asif_before_rm.format(shpaths), shline))
 
         sys.stdout.flush()
         sys.stderr.flush()
@@ -553,7 +631,7 @@ def stack_pairs_pop(depth, default_json=json.dumps(None), promise=""):
     return pairs
 
 
-def stack_pairs_peek(depth=1, default_json=json.dumps(None)):
+def stack_pairs_peek(depth=1):
     """Peek at some of the Basename-Chars Pairs most recently pushed"""
 
     assert depth >= 0
@@ -584,7 +662,7 @@ def stack_pairs_peek(depth=1, default_json=json.dumps(None)):
             chars = path.read_text()
             chars = chars.rstrip()
 
-            peek = stack_loads(chars, default=None)
+            peek = stack_loads(chars)
             if peek is None:  # such as json.JSONDecodeError
 
                 continue
@@ -597,7 +675,7 @@ def stack_pairs_peek(depth=1, default_json=json.dumps(None)):
 
     #
 
-    none_basename_pair = (None, default_json)
+    none_basename_pair = (None, None)
     while len(pairs) < depth:
         pairs.append(none_basename_pair)
 
@@ -610,8 +688,21 @@ def stack_push(value):
     """Push the Json Chars of a Value, into a new Autonamed File"""
 
     if isinstance(value, float):
-        basename = "{}".format(round(value, FILENAME_PRECISION_3))
+
+        for str_float in ("-Inf", "NaN", "Inf", None):
+            if str_float is None:
+                basename = str(round(value, FILENAME_PRECISION_3))
+            elif str(value) == str_float.lower():
+                basename = str_float
+
+                break
+
+    elif isinstance(value, complex):
+
+        basename = str(value).replace("j", SH_J)
+
     else:
+
         basename = str(value)
 
     stack_push_basename_value(basename, value=value)
@@ -661,12 +752,12 @@ def find_alt_path(path):
 #
 
 
-def do_buttonfile(parms):
+def parms_buttonfile(parms):
     """Take one Double-Click of a Dot-Command ButtonFile"""
 
     try:
 
-        do_buttonfile_word(parms)
+        try_buttonfile(parms)
 
     except Exception:
         sys.stderr.write("\n")
@@ -679,7 +770,7 @@ def do_buttonfile(parms):
         raise
 
 
-def do_buttonfile_word(parms):  # FIXME  # noqa C901 too complex (11)
+def try_buttonfile(parms):
     """Run the Name of a Dot-Command ButtonFile, without its Ext, as a Word"""
 
     assert parms
@@ -696,44 +787,23 @@ def do_buttonfile_word(parms):  # FIXME  # noqa C901 too complex (11)
 
     word = root
     if word in "0123456789":
-        entry_write_char(parms=[word])
-    elif word == "E":  # todo:  add "+:-" to toggle the Sign of Exp else of Mantissa
-        entry_write_char(parms=["E".lower()])
-    elif word == "clear":
-        entries_clear()
+        entry_write_char(word)
     elif word == "dot":
-        entry_write_char(parms=["."])
+        entry_write_char(".")
+    elif word == "clear":
+        try_buttonfile_clear()
+    elif word == "comma":
+        do_comma()
     else:
         entry = entry_close_if_open()
         if word == "comma":
-            run_button_comma(entry)
-
-        elif word == "e":
-            do_dotted_name(parms=["math.e"])
-        elif word == "i":
-            do_name(parms=["1j"])
-        elif word == "j":
-            do_name(parms=["1j"])
-        elif word == "\N{Greek Small Letter Pi}":  # π
-            do_dotted_name(parms=["math.pi"])
-        elif word == "\N{Square Root}":  # √
-            do_dotted_name(parms=["math.sqrt"])
-
+            if entry is None:
+                do_comma(entry)
         else:
-
-            run_button_word(parms, word=word)
-
-
-def run_button_word(parms, word):
-    """Run the Parms, but first close the last Entry, if needed"""
-
-    entry_close_if_open()
-
-    parms = [word]
-    parms_run(parms)
+            parms_run(parms=[word])
 
 
-def entries_clear():
+def try_buttonfile_clear():
     """Pop all the Number Files, else push out four Numbers Files named 3, 2, 1, 0"""
 
     pairs = stack_pairs_pop(depth=0)
@@ -744,76 +814,93 @@ def entries_clear():
         stack_push(0)
 
 
-def run_button_comma(entry):
-    """Run '0' and ',' if no Entry preceded Comma, else dupe Top of Stack"""
+def do_comma():
+    """Run like '0' and ',' if no Entry preceded Comma, else dupe Top of Stack"""
 
+    entry = entry_close_if_open()
     if entry is None:
-
-        if stack_depth() < 1:
-            entry_write_char(parms=["0"])
+        if not stack_depth():
+            entry_write_char("0")  # suggest:  0 ,
             entry_close_if_open()
         else:
-
-            _x = stack_peek(1, default=0)
-            stack_push(_x)
+            do_clone_x()  # a la Forth "DUP", a la HP "Enter"
 
 
-def entry_write_char(parms):
-    """Push the first Char, or append a later Char, of an Int or Float Literal"""
+def entry_write_char(ch):
+    """Take a Char into the Entry"""
 
-    word = parms.pop(0)
+    entry = pop_entry_else_peek_none()
 
-    _entry = pop_entry(default="")
-    if word != ".":
-        entry = _entry + word
-    else:
-        if not _entry:
-            entry = "0."
-        elif _entry.endswith("."):
-            entry = _entry[:-1]
+    if ch in ".j":  # Keep at most 1 of a "." Decimal Dot or a "j" Math J
+
+        if not entry:
+            entry_ = "0." if (ch == ".") else "0j"  # Toggle it on
+        elif not entry.endswith(ch):
+            entry_ = entry.replace(ch, "") + ch  # Warp it to the tail end
         else:
-            entry = _entry.replace(".", "") + word
+            entry_ = entry[:-1]  # Toggle it off
 
-    entry += "_"
+    elif not entry:
 
-    stack_push(entry)
+        entry_ = ch  # Start up an Entry with 1 Char
+
+    else:
+
+        entry_ = entry + ch  # Accumulate Chars in the Entry
+
+    push_entry(entry_)
 
 
 def entry_close_if_open():
-    """Push the first Char, or append a later Char, of an Int or Float Literal"""
+    """Return an Unevalled Copy of the Entry, but replace it with its Eval"""
 
-    entry = pop_entry()
-    if entry is not None:
+    # Report no Entry found
 
-        try:
-            evalled = int(entry)
-        except ValueError:
-            evalled = float(entry)
-
-        stack_push(evalled)
-
-    return entry  # not Eval'led
-
-
-def pop_entry(default=None):
-    """Pop the collected Chars and return them, else return the chosen Default"""
-
-    entry = peek_entry(default=None)
+    entry = pop_entry_else_peek_none()
     if entry is None:
 
-        return default
+        return None
 
-    _ = stack_pop(1)
+    # Replace the Entry with its Eval
+
+    try:
+        evalled = int(entry)
+    except ValueError:
+        evalled = float(entry)
+
+    # todo:  more snap to round'ing out the 16th place
+    # todo:  more snap to 'int' from 'float' from 'complex'
+
+    stack_push(evalled)
+
+    # Return an Unevalled Copy of the Entry
 
     return entry
 
 
-def peek_entry(default):
-    """Peek the collected Chars and return them, else return the chosen Default"""
+def push_entry(chars):
+    """Push the"""
 
-    entry = default
+    entry = chars + "_"
+    stack_push(entry)
 
-    pair = stack_pairs_peek(1)[-1]
+
+def pop_entry_else_peek_none():
+    """Pop the collected Chars and return them, else return None"""
+
+    entry = peek_entry()
+    if entry is not None:
+        _ = stack_pop(1)
+
+    return entry
+
+
+def peek_entry():
+    """Peek the collected Chars and return them, else return None"""
+
+    entry = None
+
+    pair = stack_pairs_peek()[-1]
     (basename, value) = pair
 
     if basename is not None:
@@ -821,7 +908,7 @@ def peek_entry(default):
             basename_json = json.dumps(basename)
             if basename_json == value:
 
-                evalled = stack_loads(value, default=None)
+                evalled = stack_loads(value)
                 assert evalled is not None, repr(value)
 
                 if re.match("^[-+.0-9][-+.0-9Ee]*_$", string=evalled):
