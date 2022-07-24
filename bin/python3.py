@@ -22,6 +22,7 @@ examples:
   python3.py --  # todo: run as you like it
 
   : Dec/2008 Python 3  # major release date
+  : Jun/2009 Python 3.1  # minor release date
   : Feb/2011 Python 3.2  # minor release date
   : Sep/2012 Python 3.3  # minor release date
   : Mar/2014 Python 3.4  # minor release date

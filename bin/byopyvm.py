@@ -73,6 +73,7 @@ examples:
 # todo:  = mv  # mv -i ... ...~$(date +%m%dpl%H%M%S)~
 
 
+import ast
 import collections
 import importlib
 import json
@@ -204,19 +205,23 @@ def parms_run(parms):
 def to_fuzzed_word(word):
     """Pick out what kind of Input Word this is"""
 
-    if re.match(r"^[-+]?[0-9]+$", string=word):
+    int_regex = r"^" + r"[-+]?[0-9]+" + r"$"
+    if re.match(int_regex, string=word):
 
         return "int_literal"
 
-    if re.match(r"^[-+]?[0-9]+[.][0-9]*$", string=word):  # todo: 1e-2
+    float_regex = r"^" r"([-+]?[0-9]+)" r"([.][0-9]*)?" r"([Ee][-+]?[0-9]+)?" r"$"
+    if re.match(float_regex, string=word):
 
         return "float_literal"
 
-    if re.match(r"^([A-Z_a-z][0-9A-Z_a-z]*)?[.][.0-9A-Z_a-z]+$", string=word):
+    dotted_name_regex = r"^" r"([A-Z_a-z][0-9A-Z_a-z]*)?" r"[.]" r"[.0-9A-Z_a-z]+" r"$"
+    if re.match(dotted_name_regex, string=word):
 
         return "dotted_name"
 
-    if re.match(r"^[0-9A-Z_a-z]+$", string=word):
+    name_regex = r"^" r"[0-9A-Z_a-z]+" r"$"
+    if re.match(name_regex, string=word):
 
         return "name"
 
@@ -373,7 +378,7 @@ def parms_dotted_name(parms):
 
     evalled = stackable_dotted_eval(py)
 
-    pushable = evalled
+    pushable = evalled  # todo: factor out commonalities with 'def parms_name'
     if isinstance(evalled, collections.abc.Callable):
         pushable = evalled()
 
@@ -403,7 +408,7 @@ def parms_name(parms):
 
     evalled = stackable_eval(py)
 
-    pushable = evalled  # todo: factor our commonalities with 'def parms_dotted_name'
+    pushable = evalled  # todo: factor out commonalities with 'def parms_dotted_name'
     if isinstance(evalled, collections.abc.Callable):
         pushable = evalled()
 
@@ -525,7 +530,7 @@ def do_slash():
         if y == x == 0:
             x_ = float("NaN")
         elif x == 0:
-            x_ = float("-Inf") if (str(y).startswith("-")) else float("InF")
+            x_ = float("-Inf") if (repr(y).startswith("-")) else float("InF")
         else:
 
             try:
@@ -533,8 +538,6 @@ def do_slash():
             except Exception as exc:
 
                 byo.exit_after_print_raise(exc)
-
-            # FIXME:  1 5 / -> 0.2 5 * -> 5 should end in Int, not Float
 
         stack_pop(2)
         stack_push(x_)
@@ -575,8 +578,6 @@ def do_star():
         except Exception as exc:
 
             byo.exit_after_print_exc(exc)
-
-        # FIXME: -0.0 should be 0
 
         stack_pop(2)
         stack_push(x_)
@@ -692,17 +693,23 @@ def stackable_dotted_eval(py):
     nickname = words[0]
     modulename = by_nickname[nickname] if (nickname in by_nickname.keys()) else nickname
 
-    try:
-        _ = eval(nickname)
-    except NameError:
-        try:
-            imported = importlib.import_module(modulename)
-        except ImportError:
-            imported = None
+    if nickname not in globals().keys():
+        imported = None
 
-        if imported is not None:
+        if modulename in sys.modules.keys():
+
+            imported = sys.modules[modulename]
+
+        else:
+
+            try:
+                imported = importlib.import_module(modulename)
+            except ImportError:
+                pass
+
+        if imported:
+            assert imported is sys.modules[modulename], imported
             globals()[nickname] = imported
-            _ = eval(nickname)
 
     # Eval the Dotted Name and push its Value
 
@@ -729,10 +736,13 @@ def stackable_dumps(value):
     try:
         poke = json.dumps(value)
     except TypeError:
-        if isinstance(value, complex):
-            poke = str(value)
-        else:
-            poke = "eval({!r})".format(repr(value))
+        repr_value = repr(value)
+
+        poke = repr_value
+        if not isinstance(value, complex):
+            repr_py = repr(repr_value)
+            poke = "eval({})".format(repr_py)
+            # such as eval('datetime.datetime(2022, 7, 24, 16, 4, 7, 624925)')
 
     return poke
 
@@ -747,11 +757,14 @@ def stackable_loads(chars):
         prefix = "eval("
         suffix = ")"
         if chars.startswith(prefix) and chars.endswith(suffix):
-            rep_py = chars[len(prefix) : -len(suffix)]
-            py = eval(rep_py)  # todo: catch exceptions here
+            repr_py = chars[len(prefix) : -len(suffix)]
+
+            py = ast.literal_eval(repr_py)
+
             peek = stackable_dotted_eval(py)
 
         else:  # todo:  much too weak reasons to conclude is Rep of Complex
+
             try:
                 peek = complex(chars)
             except ValueError:
@@ -794,12 +807,13 @@ def stackable_pair(value):
     return pair
 
 
+# FIXME: solve def stackable_pair_of_complex after _of_complex
 def stackable_pair_of_complex(value):
     """Give a Basename to Complex'es, and snap out extreme precision"""
 
     alt_value = value
 
-    # Snap the Real and Imag of Complex to Int
+    # Snap the Complex to Int, in its Real dimension, in its Imag, or in both
 
     real = value.real
     alt_real = int(real) if (abs(real - int(real)) < EPSILON) else real
@@ -807,7 +821,7 @@ def stackable_pair_of_complex(value):
     imag = value.imag
     alt_imag = int(imag) if (abs(imag - int(imag)) < EPSILON) else imag
 
-    # Drop the Imag when it goes to zero
+    # Drop the Imag when it bumps against Zero
 
     if not alt_imag:
         alt_value = alt_real
@@ -815,7 +829,6 @@ def stackable_pair_of_complex(value):
         alt_value = complex(alt_real, imag=alt_imag)
 
     basename = str(alt_value).replace("j", SH_J)
-    # FIXME: imprecise Imag & Real
 
     # Succeed
 
@@ -823,7 +836,12 @@ def stackable_pair_of_complex(value):
 
     return pair
 
+    # such as '(-1+0j)' to -1, at:  = j j *
+    # such as '-1+1.2246467991473532e-16' to -1 at:  = e i pi * pow
+    # such as '2.220446049250313e-16+1j' to 1j at:  = j sqrt , *
 
+
+# FIXME: solve def stackable_pair_of_float before _of_complex
 def stackable_pair_of_float(value):
     """Give a Basename to Float's, and snap out extreme precision"""
 
@@ -856,6 +874,9 @@ def stackable_pair_of_float(value):
     pair = (basename, alt_value)
 
     return pair
+
+    # such as '-0.0' to 0, at:  = 0 -1 /
+    # such as '...' to 2.0000000000000004 at:  = 2 , sqrt , * -
 
 
 #
@@ -972,18 +993,15 @@ def stack_push(value):
 
     (basename, alt_value) = stackable_pair(value)
 
-    stack_push_basename_value(basename, value=alt_value)
+    stack_push_basename_alt_value(basename, value=value, alt_value=alt_value)
 
 
-def stack_push_basename_value(basename, value):
+def stack_push_basename_alt_value(basename, value, alt_value):
     """Push the Json Chars of a Value, into a fresh File"""
 
-    path = pathlib.Path(basename)
-    chars = stackable_dumps(value)
-
-    shvalue = byo.shlex_dquote(chars)
-
     # Choose the given Basename, else the next that doesn't already exist
+
+    path = pathlib.Path(basename)
 
     alt_path = path
     if path.exists():
@@ -993,11 +1011,16 @@ def stack_push_basename_value(basename, value):
 
     # Trace and run
 
-    echo_shline = "echo {} >{}".format(shvalue, alt_shpath)
+    alt_chars = stackable_dumps(alt_value)
+    alt_shvalue = byo.shlex_dquote(alt_chars)
+
+    alt_shcomment = "  # {!r}".format(value) if (repr(alt_value) != repr(value)) else ""
+
+    echo_shline = "echo {} >{}{}".format(alt_shvalue, alt_shpath, alt_shcomment)
     byo.stderr_print("+ {}".format(echo_shline))
 
     with open(alt_path, "w") as writing:
-        writing.write("{}\n".format(chars))
+        writing.write("{}\n".format(alt_chars))
 
 
 def find_alt_path(path):
@@ -1130,14 +1153,12 @@ def entry_close_if_open():
         return None
 
     # Replace the Entry with its Eval
+    # Accept its whole precision, don't snap off excess precision this early
 
     try:
         evalled = int(entry)
     except ValueError:
         evalled = float(entry)
-
-    # todo:  more snap to round'ing out the 16th place
-    # todo:  more snap to 'int' from 'float' from 'complex'
 
     stack_push(evalled)
 
@@ -1174,7 +1195,7 @@ def peek_entry():
         if basename is not None:
             if basename.endswith("_"):
                 basename_json = stackable_dumps(basename)
-                if basename_json == value:  # FIXME tolerate "i" not in str(MATH_J)
+                if basename_json == value:  # FIXME tolerate "i" not in repr(MATH_J)
 
                     entry_chars = stackable_loads(value)
                     assert entry_chars is not None, repr(value)
