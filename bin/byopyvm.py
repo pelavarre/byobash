@@ -807,41 +807,6 @@ def stackable_pair(value):
     return pair
 
 
-# FIXME: solve def stackable_pair_of_complex after _of_complex
-def stackable_pair_of_complex(value):
-    """Give a Basename to Complex'es, and snap out extreme precision"""
-
-    alt_value = value
-
-    # Snap the Complex to Int, in its Real dimension, in its Imag, or in both
-
-    real = value.real
-    alt_real = int(real) if (abs(real - int(real)) < EPSILON) else real
-
-    imag = value.imag
-    alt_imag = int(imag) if (abs(imag - int(imag)) < EPSILON) else imag
-
-    # Drop the Imag when it bumps against Zero
-
-    if not alt_imag:
-        alt_value = alt_real
-    elif (alt_real != value.real) or (alt_imag != value.imag):
-        alt_value = complex(alt_real, imag=alt_imag)
-
-    basename = str(alt_value).replace("j", SH_J)
-
-    # Succeed
-
-    pair = (basename, alt_value)
-
-    return pair
-
-    # such as '(-1+0j)' to -1, at:  = j j *
-    # such as '-1+1.2246467991473532e-16' to -1 at:  = e i pi * pow
-    # such as '2.220446049250313e-16+1j' to 1j at:  = j sqrt , *
-
-
-# FIXME: solve def stackable_pair_of_float before _of_complex
 def stackable_pair_of_float(value):
     """Give a Basename to Float's, and snap out extreme precision"""
 
@@ -877,6 +842,39 @@ def stackable_pair_of_float(value):
 
     # such as '-0.0' to 0, at:  = 0 -1 /
     # such as '...' to 2.0000000000000004 at:  = 2 , sqrt , * -
+
+
+def stackable_pair_of_complex(value):
+    """Give a Basename to Complex'es, and snap out extreme precision"""
+
+    alt_value = value
+
+    # Snap the Complex to Int, in its Real dimension, in its Imag, or in both
+
+    real = value.real
+    alt_real = int(real) if (abs(real - int(real)) < EPSILON) else real
+
+    imag = value.imag
+    alt_imag = int(imag) if (abs(imag - int(imag)) < EPSILON) else imag
+
+    # Drop the Imag when it bumps against Zero
+
+    if not alt_imag:
+        alt_value = alt_real
+    elif (alt_real != value.real) or (alt_imag != value.imag):
+        alt_value = complex(alt_real, imag=alt_imag)
+
+    basename = str(alt_value).replace("j", SH_J)
+
+    # Succeed
+
+    pair = (basename, alt_value)
+
+    return pair
+
+    # such as '(-1+0j)' to -1, at:  = j j *
+    # such as '-1+1.2246467991473532e-16' to -1 at:  = e i pi * pow
+    # such as '2.220446049250313e-16+1j' to 1j at:  = j sqrt , *
 
 
 #
