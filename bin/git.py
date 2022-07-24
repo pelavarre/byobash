@@ -803,32 +803,28 @@ if __name__ == "__main__":
 
 # 'todo.txt' for 'git.py' =>
 
-# FIXME: echo qbin/qg{v,}{l,}{w,}{i,}
-# FIXME: echo qb/g{v,}{l,}{w,}{i,}
-# FIXME: auto-correct'ing the 'qg' [FILE ...] Parm to be:  $(qno)
+# todo: echo qbin/qg{v,}{l,}{w,}{i,}
+# todo: echo qb/g{v,}{l,}{w,}{i,}
+# todo: auto-correct'ing the 'qg' [FILE ...] Parm to be:  $(qno)
 
-# FIXME: qno HEAD
+# todo: qno HEAD
 # $ qno HEAD
 # + git diff --name-only HEAD~1 |grep -e '[.]HEAD$'
 # git.py: + exit 1
 # $
 
-# FIXME: define qg algorithmically
-# FIXME: fan out as full 16 inside:  echo qbin/qg{v,}{l,}{w,}{i,}
-# FIXME: accept -l -w -i to toggle on those
-# FIXME: ditto via 'shpipes.py' as full 16 inside:  echo qb/g{v,}{l,}{w,}{i,}
+# todo: define qg algorithmically
+# todo: fan out as full 16 inside:  echo qbin/qg{v,}{l,}{w,}{i,}
+# todo: accept -l -w -i to toggle on those
+# todo: ditto via 'shpipes.py' as full 16 inside:  echo qb/g{v,}{l,}{w,}{i,}
 
 
 #
-# FIXME: add '-h' into 'git log grep' => grep -h def.shlex_quote $(-ggl def.shlex_quote)
+# todo: add '-h' into 'git log grep' => grep -h def.shlex_quote $(-ggl def.shlex_quote)
 #
 # FIXME: dial back the over-aggressive quoting at qrpsfn => git rev-parse ... '@{-1}'
 #
-# FIXME: solve:  qrpsfn --
-#
-
-#
-# todo
+# todo: solve:  qrpsfn --
 #
 
 # compaction for qssi = git status --short --ignored

@@ -11,9 +11,11 @@ options:
   --norc       launch without running personal startup files
 
 quirks:
-  classic Bash rudely opens a new Session, with an empty "$@", when given no Parms
-  classic Bash rudely places no Scroll Limits on Sh Commands
-  todo: limit Control Sequences dumped into Tty, a la 'less', 'less -R', 'less -r'
+  some Bash open a new Session, with an empty "$@", when given no Parms
+  some Bash place no Scroll Limits on Sh Commands
+  some Bash dump raw Control Sequences into Tty, a la 'less -R', 'less -r'
+  some Bash drive apart the source for 'alias'es, vs
+  Apple macOS promotes ancient Nov/2014 Bash 3.2.57 over modern Bash
 
 examples:
 
@@ -26,7 +28,21 @@ examples:
   bash --noprofile --norc  # run with less local quirks
   export |grep SHLVL  # show how deeply incepted
   set |grep -e ^PS1= -e ^PS4=  # show the outer and incepted shell prompts
+
+  function aliases () { echo + alias >&2 && alias; }
+
+  function funcs () {
+    local L="set |grep '^[^ =]* ('"  # not Zsh 'set |grep'
+    echo + $L >&2
+    echo
+    set |grep '^[^ =]* ('
+    echo
+    echo ': # you might next like:  declare -f funcs'
+  }
 """
+
+# FIXME: code up a PatchDoc here
+
 # talk out how best to clear Bash History for a Bash Screen
 # todo: TabTab Completion of:  mv -i *.jp
 # todo: Bash already can do TabTab Completion of:  $D/

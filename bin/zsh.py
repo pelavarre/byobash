@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""
+r"""
 usage: zsh.py [--h] [-f] ...
 
 shell out to a host
@@ -22,7 +22,20 @@ examples:
 
   export |grep SHLVL
   zsh -f  # run with less local quirks
+
+  function aliases () { echo + alias >&2 && alias; }
+
+  function funcs () {
+    local L="functions |grep \$'^[^ \\t=]* ('"
+    echo + $L >&2
+    echo
+    functions |grep $'^[^ \t=]* ('
+    echo
+    echo ': # you might next like:  declare -f funcs'
+  }
 """
+
+# FIXME: code up a PatchDoc here
 
 
 import byotools as byo

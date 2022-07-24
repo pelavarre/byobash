@@ -27,9 +27,10 @@ quirks:
 advanced bash install:
 
   function - () { echo + cd - && cd - >/dev/null && (dirs -p |head -1); }
-  # Bash will say 'bash: cd: OLDPWD not set' and fail, till after Cd
+  # some Bash says 'bash: cd: OLDPWD not set' and fails, till after first Cd
 
   function .. () { echo + cd .. && cd .. && (dirs -p |head -1); }
+  # macOS Nov/2014 Bash 3.2.57 doesn't do:  shopt -p |grep autocd
 
   function cd.py () {
     : : 'Print some kind of Help, else change the Sh Working Dir' : :
@@ -75,9 +76,10 @@ def main():
     patchdoc = """
 
   function - () { echo + cd - && cd - >/dev/null && (dirs -p |head -1); }
-  # Bash will say 'bash: cd: OLDPWD not set' and fail, till after Cd
+  # some Bash says 'bash: cd: OLDPWD not set' and fails, till after first Cd
 
   function .. () { echo + cd .. && cd .. && (dirs -p |head -1); }
+  # macOS Nov/2014 Bash 3.2.57 doesn't do:  shopt -p |grep autocd
 
   function cd.py () {
     : : 'Print some kind of Help, else change the Sh Working Dir' : :

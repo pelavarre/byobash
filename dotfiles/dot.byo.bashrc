@@ -1,6 +1,42 @@
 # dotfiles/dot.byo.bashrc
 
 
+#
+# Take in Sh Alias'es and Sh Function's from 'byobash/dotfiles/dot.byo.bashrc'
+# todo: adjust correctly for Mac Zsh when not run by Bash
+#
+
+
+# for 'byobash/bin/zsh.py', in place of 'byobash/bin/bash.py'
+
+function aliases () { echo + alias >&2 && alias; }
+
+function funcs () {
+  local L="functions |grep \$'^[^ \\t=]* ('"  # not Bash 'set |grep'
+  echo + $L >&2
+  echo
+  functions |grep $'^[^ \t=]* ('
+  echo
+  echo ': # you might next like:  declare -f funcs'
+}
+
+
+# for 'byobash/bin/bash.py', distinct from 'byobash/bin/zsh.py'
+
+function aliases () { echo + alias >&2 && alias; }
+
+function funcs () {
+  local L="set |grep '^[^ =]* ('"  # not Zsh 'set |grep'
+  echo + $L >&2
+  echo
+  set |grep '^[^ =]* ('
+  echo
+  echo ': # you might next like:  declare -f funcs'
+}
+
+
+# for 'byobash/bin/byopyvm.py'
+
 alias @='~/Public/byobash/bin/byopyvm.py buttonfile'
 
 function = {
@@ -13,10 +49,13 @@ function = {
 }
 
 
+# for 'byobash/bin/cd.py'
+
 function - () { echo + cd - && cd - >/dev/null && (dirs -p |head -1); }
-# Bash will say 'bash: cd: OLDPWD not set' and fail, till after Cd
+# some Bash says 'bash: cd: OLDPWD not set' and fails, till after first Cd
 
 function .. () { echo + cd .. && cd .. && (dirs -p |head -1); }
+# macOS Nov/2014 Bash 3.2.57 doesn't do:  shopt -p |grep autocd
 
 function cd.py () {
   : : 'Print some kind of Help, else change the Sh Working Dir' : :
@@ -32,6 +71,8 @@ function cd.py () {
 }
 
 
+# for 'byobash/bin/echo.py'
+
 function echo.py {
   local xc=$?
   : : 'Print and clear the Process Exit Status ReturnCode, else print the Parms' : :
@@ -42,6 +83,11 @@ function echo.py {
   fi
 }
 
+# Bash says 'not a valid identifier' if you quote the Function Name a la Zsh, but
+# some Vi ':syntax on' sneers at the '}' brace closing an unquoted 'function echo.py'
+
+
+# for 'byobash/bin/git.py'
 
 function git.py () {
   : : 'Show Git Status, else change the Sh Working Dir, else do other Git Work' : :
@@ -59,7 +105,9 @@ function qcd () {
 }
 
 
-# note: Vim ':syntax on' complains, when we don't quote our quoted mention of 'echo.py'
+#
+#
+#
 
 
 # posted into:  https://github.com/pelavarre/byobash/blob/main/dotfiles/dot.byo.bashrc

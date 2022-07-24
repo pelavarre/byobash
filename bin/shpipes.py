@@ -126,7 +126,8 @@ Examples:
   shpipes.py x  # hexdump -C
   shpipes.py xp  # expand
 """
-# FIXME shpipes.py p  # popd
+# todo:  solve my Sh Rc Aliases:  black flake8 2to3 futurize
+# todo:  solve my Sh Rc Funcs:  :: ? cp dir-p-tac jqd mv o p py pylint pys while_ssh
 
 
 import argparse
@@ -441,7 +442,7 @@ def exit_after_framed_cv_paste(parms):
         else:
             exit_after_cv_cv_pipe(["--ext={}".format(main.ext)] + parms)
 
-    sys.stdout.flush()  # todo: should we flush Stdout before every Stderr Write?
+    sys.stdout.flush()  # todo: adopt byo.stderr_print
     try:
         exit_after_cv_pbpaste(parms)
     finally:
@@ -974,7 +975,7 @@ def exit_after_shline(shline):
 def exit_after_one_argv(shline, argv):
     """Trace as ShLine but run as ArgV, then exit"""
 
-    # Collect context  # FIXME: weakly focuses on first command before '|'
+    # Collect context  # todo: weakly focuses on first command before '|'
 
     alt_argv = shlex.split(shline)
     alt_argv = list(_ for _ in alt_argv if not re.match("^[0-9]*[<>]", string=_))
@@ -1049,7 +1050,7 @@ def form_tty_prompt(stdin_ispipe, shline, shverb):
             tty_prompt = "shpipes.py {}: Press Esc X revert Tab Return, and ⌃X⌃C, to quit".format(
                 shverb
             )
-        if shverb in ("vi", "vim"):  # FIXME: weakly accurate
+        if shverb in ("vi", "vim"):  # todo: weakly accurate
             tty_prompt = "shpipes.py {}: Press ⇧Z ⇧Q to quit".format(shverb)
 
     return tty_prompt
@@ -1065,17 +1066,17 @@ def judge_pbpaste_shverb(shline, alt_argv, tty_prompt):
     file_words = words
     file_words = list(_ for _ in file_words if _ not in "- /dev/stdin /dev/tty".split())
     file_words = list(_ for _ in file_words if not (set("{|}") & set(_)))
-    if shverb == "grep":  # FIXME: weakly picks out does Grep have File Parms
+    if shverb == "grep":  # todo: weakly picks out does Grep have File Parms
         if ("-l" not in shline) and ("-il" not in shline):
             if len(file_words) <= 1:
                 file_words = list()
-    if shverb == "sed":  # FIXME: weakly picks out does Sed have File Parms
+    if shverb == "sed":  # todo: weakly picks out does Sed have File Parms
         file_words = list()
 
     pbpaste_shverb = shverb in PBPASTE_SHVERBS
     if file_words or tty_prompt:
         pbpaste_shverb = False
-    if shverb == "grep":  # FIXME: weakly picks out does Grep have File Parms
+    if shverb == "grep":  # todo: weakly picks out does Grep have File Parms
         if ("-l" in shline) or ("-il" in shline):
             pbpaste_shverb = False
 
@@ -1326,7 +1327,9 @@ if __name__ == "__main__":
 #
 # 'todo.txt' of 'bin/shpipes.py'
 #
-#   make more dry runs work, some do work now
+#  FIXME: take each Arg of 'g...' as list of '-e' REGEX to Logical-Or, up to '--'
+#
+#  make more dry runs work, some do work now
 #
 #       % c --ext
 #       ('+ cat - >/dev/null',)

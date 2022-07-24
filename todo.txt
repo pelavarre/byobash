@@ -6,6 +6,9 @@ dreaming since Jul/2022 =>
 
 == MacOs ByoPyVm ==
 
+
+++ dreaming since Jul/2022 ++
+
 entry i toggles imaginary or real
 
 entry e toggles exponents
@@ -34,6 +37,9 @@ refresh the 'macos/.DS_Store' often enough
 
 == ByoBash ==
 
+
+++ dreaming since Jul/2022 ++
+
 teach 'make style' to complain about leftover 'pdb.set_trace()' breakpoints
 
 'qb/c' - calmer KeyboardInterrupt, and a full set of editing keystrokes
@@ -56,7 +62,8 @@ implement the rest of the most prominently Helped Examples
 
 solve 'qb/p'
 
-Tab completion in such places as:  mv -i *.
+Tab Completion in such places as:  mv -i *.
+Tab Completion shouldn't require startswith, should care about history freq & recent
 
 byo.exit_via_shpath_shverb:
 forward down the Path
@@ -73,7 +80,7 @@ form my own ~/.bashrc, ~/.zshrc, from parts, as part of:  make push
 easy grep of just dot configuration, without also picking up dot histoy
 
 
-== dreaming since Jun/2022 =>
+++ dreaming since Jun/2022 ++
 
 ship 'README.py', not just 'README.md'
 
@@ -81,11 +88,14 @@ collapse '  # ' to '  # ' only when leading '  '  both present
     or some other way of remembering to insert both '  '
 
 
-dreaming since May/2022 =>
+++ dreaming since May/2022 ++
 
 ship better Arg Doc first
 then drop better code into .py --python3
 then run it at .py
+
+'shopt autocd' could take '/dev/null' as 'cat - >/dev/null'
+'shopt autocd' could take '/dev/zero' as infinite Cpu 'cat /dev/zero |hexdump -C'
 
 
 == earlier thoughts =>
