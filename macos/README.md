@@ -19,10 +19,10 @@ inside the unzipped main folder you'll find our "macos" Folder of Button Files
 the Button Files should appear inside your Finder < View > As Icons (⌘1),
 laid out like so =>
 
-      i     π    7  8  9  /
-      e    OVER  4  5  6  *
-            √    1  2  3  -
-    CLEAR        0  .  ,  +
+      i      pi  7  8  9  /
+     OVER    e   4  5  6  *
+            POW  1  2  3  -
+    CLEAR    √   0  .  ,  +
 
     icons/  README.md  buttonfile.py
 
