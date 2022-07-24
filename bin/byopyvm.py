@@ -1058,21 +1058,17 @@ def try_buttonfile(parms):
     # Run the Word
 
     word = root
-    if word in "0123456789":
-        entry_write_char(word)
+    if word in "0123456789":  # FIXME: E I J e i j + -
+        entry_write_char(word.lower())
     elif word == "dot":
         entry_write_char(".")
     elif word == "clear":
         try_buttonfile_clear()
-    elif word == "comma":
-        do_comma()
+    elif word in (",", "comma"):
+        do_comma()  # does its own 'entry_close_if_open()'
     else:
-        entry = entry_close_if_open()
-        if word == "comma":
-            if entry is None:
-                do_comma(entry)
-        else:
-            parms_run(parms=[word])
+        entry_close_if_open()
+        parms_run(parms=[word])
 
 
 def try_buttonfile_clear():
@@ -1103,10 +1099,11 @@ def entry_write_char(ch):
 
     entry = pop_entry_else_peek_none()
 
-    if ch in ".j":  # Keep at most 1 of a "." Decimal Dot or a "j" Math J
+    if ch in ".ij":  # Keep at most 1 of a "." Decimal Dot or a "j" Math J
+        pdb.set_trace()
 
         if not entry:
-            entry_ = "0." if (ch == ".") else "0j"  # Toggle it on
+            entry_ = "0" + ch  # Toggle it on
         elif not entry.endswith(ch):
             entry_ = entry.replace(ch, "") + ch  # Warp it to the tail end
         else:
@@ -1177,16 +1174,69 @@ def peek_entry():
 
         if basename is not None:
             if basename.endswith("_"):
-                basename_json = json.dumps(basename)
-                if basename_json == value:
+                basename_json = stackable_dumps(basename)
+                if basename_json == value:  # FIXME tolerate "i" not in str(MATH_J)
 
-                    evalled = stackable_loads(value)
-                    assert evalled is not None, repr(value)
+                    entry_chars = stackable_loads(value)
+                    pdb.set_trace()
+                    assert entry_chars is not None, repr(value)
 
-                    if re.match("^[-+.0-9][-+.0-9Ee]*_$", string=evalled):
-                        entry = byo.str_removesuffix(evalled, suffix="_")
+                    if re.match("^[-+.0-9][-+.0-9Ee]*_$", string=entry_chars):
+                        entry = byo.str_removesuffix(entry_chars, suffix="_")
 
                         return entry
+
+                    if entry_chars == "e_":
+
+                        return json.dumps(math.e)
+
+                    if entry_chars == "i_":
+
+                        return json.dumps(MATH_J)
+
+
+#
+# Track dreams
+#
+
+
+_ = """
+
+leading data type for the result
+trailing data type for the op
+
+bits = hex, oct, or bin
+
+bits / to rotate right & >> |
+bits * to rotate left & << |
+bits + for bits |
+bits - for bits &
+
+bits √ for bits ~
+
+bits y^x pow for bits ^
+dec y^x pow for **
+
+"""
+
+
+_ = """
+
+dot plus = dec
+dot minus = hex
+dot star = oct
+dot slash = bin
+
+changing base
+reopens as entry
+closes as tuple of (type, value)
+
+0x_
+lower 'x' but upper nybbles
+
+A B C D E F keys - first class, not mapped
+
+"""
 
 
 #

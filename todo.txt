@@ -4,29 +4,37 @@
 dreaming since Jul/2022 =>
 
 
-: MacOs ByoPyVm :
+== MacOs ByoPyVm ==
 
-= requests.codes.OK
-= requests.get http://...
+entry i toggles imaginary or real
 
-'i' should be an entry char kind of like '.'
-but default to "1i"
-add the E +/- Buttons
+entry e toggles exponents
+entry e minus plus to toggle sign of exponent
+entry . minus plus to toggle sign of mantissa
 
-go with 'decimal.Decimal' over 'float'
-consider '^' for 'pow' for decimal Int/ Float/ Decimal
+entry π is the backspace of entry
+backspace down to _
+comma that goes to zero
+
+same thing in a TUI, TUI in a GShell
+--tui paper tape
+main.stderr
 
 add an Undo Button
 
-Work with Files and Dirs, not just Maths
+= requests.get http://...
+work with Files and Dirs, not just Maths
+go with 'decimal.Decimal' over 'float'
+consider '^' for 'pow' for decimal Int/ Float/ Decimal
 
 factor the common code out from:  / * - +
-
 refresh the 'macos/.DS_Store' often enough
     even though i often feel i have to log out to flush the Finder Cache of it
 
 
-: ByoBash :
+== ByoBash ==
+
+'qb/c' - calmer KeyboardInterrupt, and a full set of editing keystrokes
 
 add cat.py, expand.py, vs Mac 'Illegal byte sequence's
 
@@ -44,7 +52,7 @@ implement the rest of the most prominently Helped Examples
     mv.py
     ...
 
-solve qb/p
+solve 'qb/p'
 
 Tab completion in such places as:  mv -i *.
 
@@ -63,7 +71,7 @@ form my own ~/.bashrc, ~/.zshrc, from parts, as part of:  make push
 easy grep of just dot configuration, without also picking up dot histoy
 
 
-dreaming since Jun/2022 =>
+== dreaming since Jun/2022 =>
 
 ship 'README.py', not just 'README.md'
 
@@ -78,7 +86,7 @@ then drop better code into .py --python3
 then run it at .py
 
 
-earlier thoughts =>
+== earlier thoughts =>
 
 work more at
 
