@@ -34,6 +34,8 @@ refresh the 'macos/.DS_Store' often enough
 
 == ByoBash ==
 
+teach 'make style' to complain about leftover 'pdb.set_trace()' breakpoints
+
 'qb/c' - calmer KeyboardInterrupt, and a full set of editing keystrokes
 
 add cat.py, expand.py, vs Mac 'Illegal byte sequence's

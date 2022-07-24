@@ -1100,7 +1100,6 @@ def entry_write_char(ch):
     entry = pop_entry_else_peek_none()
 
     if ch in ".ij":  # Keep at most 1 of a "." Decimal Dot or a "j" Math J
-        pdb.set_trace()
 
         if not entry:
             entry_ = "0" + ch  # Toggle it on
@@ -1178,7 +1177,6 @@ def peek_entry():
                 if basename_json == value:  # FIXME tolerate "i" not in str(MATH_J)
 
                     entry_chars = stackable_loads(value)
-                    pdb.set_trace()
                     assert entry_chars is not None, repr(value)
 
                     if re.match("^[-+.0-9][-+.0-9Ee]*_$", string=entry_chars):
