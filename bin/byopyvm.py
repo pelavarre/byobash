@@ -51,6 +51,10 @@ examples:
 
   =  pi 2 * .  # all at once
 
+  # Debugger
+
+  =  pdb.set_trace  # like to follow up with:  stack_peek(0)
+
   # Demos chosen from:  / * - + . , pi π over sqrt √ i e = clear
 
   =  e i pi * pow  # another calculation
@@ -872,9 +876,11 @@ def stack_pop(depth=1, asif_before_rm=""):
 def stack_peek(depth=1):
     """Peek and eval some of the Values most recently pushed"""
 
-    assert depth >= 1
+    assert depth >= 0
 
-    pairs = stack_pairs_peek(depth)
+    alt_depth = depth if depth else stack_depth()
+
+    pairs = stack_pairs_peek(alt_depth)
     values = list(_[-1] for _ in pairs)
 
     peeks = list()
@@ -882,8 +888,8 @@ def stack_peek(depth=1):
         peek = stackable_loads(chars=value)
         peeks.append(peek)
 
-    assert len(peeks) == depth, (len(peeks), depth)
-    if depth == 1:
+    assert len(peeks) == alt_depth, (len(peeks), alt_depth)
+    if depth == 1:  # only if 'depth == 1', not also if 'alt_depth == 1'
         one_peek = peeks[-1]
 
         return one_peek  # is 'one_peek' in the corner of 'depth=1'

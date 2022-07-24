@@ -9,37 +9,21 @@ dreaming since Jul/2022 =>
 = requests.codes.OK
 = requests.get http://...
 
-
-i numbers from button i, j numbers
-
 'i' should be an entry char kind of like '.'
 but default to "1i"
+add the E +/- Buttons
 
-conform 'ls' sometimes and not to the ButtonFile idea of a Stack?
+go with 'decimal.Decimal' over 'float'
+consider '^' for 'pow' for decimal Int/ Float/ Decimal
+
+add an Undo Button
+
+Work with Files and Dirs, not just Maths
 
 factor the common code out from:  / * - +
 
 refresh the 'macos/.DS_Store' often enough
     even though i often feel i have to log out to flush the Finder Cache of it
-
-add ^ to mean **, for:  e ( 0 1 - Sqrt ) pi * ^
-
-to stay inside "int" when doing √ on squares of int's
-to go with 'decimal.Decimal' over 'float'
-to deal with float("NaN") and float("Inf") and float("-Inf")
-
-AssertionError: ('SyntaxError', ['4 copy'])
-repros only in Gui of File and Dupes of Files
-
-qb/c - calmer KeyboardInterrupt, and a full set of editing keystrokes
-
-add the E +/- Buttons
-add an Undo Button
-Work with Files and Dirs, not just Maths
-
-polish notation arithmetic, such as:  * 2 math.pi
-also: from decimal import Decimal as D
-also: dates and times
 
 
 : ByoBash :
