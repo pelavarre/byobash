@@ -45,18 +45,21 @@ examples:
 
   # Maths
 
-  = math.pi  # echo 3.141592653589793 >3.142
-  = 2 *  # echo 2 >2 && rm -f 3.142 2 && echo 6.283185307179586 >6.283
-  = .  # cat 6.283 && rm -f 6.283
+  =  pi  # echo 3.141592653589793 >3.142
+  =  2 *  # echo 2 >2 && rm -f 3.142 2 && echo 6.283185307179586 >6.283
+  =  .  # cat 6.283 && rm -f 6.283
 
-  = math.pi 2 * .  # all at once
+  =  pi 2 * .  # all at once
 
-  # choose from:  / * - + . , pi π over sqrt √ i e = clear
+  # Demos chosen from:  / * - + . , pi π over sqrt √ i e = clear
 
-  =  clear  / , .  / / , .  / / , .  2>/dev/null  # 0, inf, 0, ...
-  =  clear  * , .  * * , .  * * , .  2>/dev/null  # 1, 2, 4, ...
-  =  clear  + , .  + + , .  + + , .  2>/dev/null  # 0, 1, 2, ...
-  =  clear  - , .  - - , .  - - , .  2>/dev/null  # 1, -1, 1, ...
+  =  e i pi * pow  # another calculation
+
+  =  clear  pow , .  pow pow , .  pow pow , .  2>/dev/null  # 2, 4, 16, ...
+  =  clear  / , .    / / , .      / / , .      2>/dev/null  # 0, inf, 0, ...
+  =  clear  * , .    * * , .      * * , .      2>/dev/null  # 1, 2, 4, ...
+  =  clear  + , .    + + , .      + + , .      2>/dev/null  # 0, 1, 2, ...
+  =  clear  - , .    - - , .      - - , .      2>/dev/null  # 1, -1, 1, ...
 """
 
 # todo:  # Files and Dirs
@@ -316,6 +319,7 @@ def form_take_by_word():
         float_literal=parms_float_literal,
         int_literal=parms_int_literal,
         name=parms_name,
+        hash=parms_hash,  # this 'hash' is not 'builtins.hash'
     )
 
     # Define SH Verbs of Forth
@@ -328,6 +332,7 @@ def form_take_by_word():
         equals=do_equals,
         minus=do_dash,  # invite Calculator Folk to speak of the '-' Minus
         over=do_clone_y,
+        pow=do_pow,  # this 'pow' is not 'builtins.pow'
         plus=do_plus,
         slash=do_slash,
         sqrt=do_sqrt,
@@ -401,6 +406,12 @@ def parms_name(parms):
     stack_push(pushable)
 
 
+def parms_hash(parms):
+    """Discard the remaining Parms as Commentary"""  # traditional in Sh at ': '
+
+    parms[::] = list()
+
+
 #
 # Define Calculator Buttons
 #
@@ -451,6 +462,27 @@ def do_equals():
             (basename, _) = pair
 
             print(basename)
+
+
+def do_pow():
+    """Push Y ** X in place of Y X, by way of 'pow(y, exp=x)'"""
+
+    if not stack_has_x():
+        stack_push(2)  # suggest 2 2 **, else 2 **
+    elif not stack_has_y():
+        stack_push(2)
+    else:
+
+        (y, x) = stack_peek(2)
+
+        try:
+            x_ = pow(y, exp=x)
+        except Exception as exc:
+
+            byo.exit_after_print_raise(exc)
+
+        stack_pop(2)
+        stack_push(x_)
 
 
 def do_plus():
@@ -741,16 +773,19 @@ def stackable_pair(value):
 
     if isinstance(value, str):
         assert isinstance(value, collections.abc.Container)
-        pair = value
+        basename = value
+        pair = (basename, value)
 
         return pair
 
     if isinstance(value, collections.abc.Container):
-        pair = byo.dotted_typename(type(value))
+        basename = byo.dotted_typename(type(value))
+        pair = (basename, value)
 
         return pair
 
-    pair = str(value)
+    basename = str(value)
+    pair = (basename, value)
 
     return pair
 
@@ -780,7 +815,9 @@ def stackable_pair_of_complex(value):
 
     # Succeed
 
-    return (basename, alt_value)
+    pair = (basename, alt_value)
+
+    return pair
 
 
 def stackable_pair_of_float(value):
@@ -812,7 +849,9 @@ def stackable_pair_of_float(value):
 
     assert basename
 
-    return (basename, alt_value)
+    pair = (basename, alt_value)
+
+    return pair
 
 
 #
