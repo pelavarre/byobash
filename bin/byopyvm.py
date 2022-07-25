@@ -116,6 +116,7 @@ BUTTONFILE_TESTCHARS = """
     = clear  &&  @  . ,  . + ,  . - ,  # NaN, Inf, -Inf
 
     = clear  &&  @  e i pi * pow  # -1
+    = clear  &&  @  j , j /  # 1
     = clear  &&  @  j , j *  # -1
     = clear  &&  @  j sqrt  # (0.707+0.707i)
 
@@ -1205,24 +1206,32 @@ def try_buttonfile(parms):
 
     main_file = parms.pop(1)
 
-    basename = os.path.basename(main_file)
-    (root, ext) = os.path.splitext(basename)
+    if main_file == "/":  # FIXME: less hack to welcome quick test via extra Parms
+        word = main_file
+    else:
+        basename = os.path.basename(main_file)
+        (root, ext) = os.path.splitext(basename)
 
-    word = root if (ext == ".command") else basename
+        word = root if (ext == ".command") else basename
 
     # Run the Word
+    # FIXME: Clear the Stack if asked to Clear at Clear Entry
 
     moved = try_entry_move_by_word(word)
     if not moved:
         if word == "clear":
+
             try_buttonfile_clear()  # works in place of 'entry_close_if_open()'
-        if word in (",", "comma"):
+
+        elif word in (",", "comma"):
+
             entry = entry_close_if_open()
             if entry is None:
                 do_comma()
-        else:
-            entry_close_if_open()
 
+        else:
+
+            entry_close_if_open()
             parms_run(parms=[word])
 
 
