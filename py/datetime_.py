@@ -3,15 +3,26 @@
 
 _ = """
 
+
+# give the " " of RFC 3339, as less loud than ISO 8601 "T"
+
 import datetime as dt
 
 now = dt.datetime.now()
-print(now.strftime("%Y-%m-%d %H:%M:%S").replace(" ", "T"))
+FORMAT_YMD_HM = "%Y-%m-%d %H:%M"
+ymd_hm = now.strftime(FORMAT_YMD_HM)  # such as '2022-07-25 08:24'
+print(ymd_hm)
 
-chars = "2022-07-18 08:18"  # take r"[ Tt]" a la RFC 3339, not only ISO 8601 "T"
-format = "%Y-%m-%dT%H:%M"  # <= workaround 'TypeError: ... takes no keyword arguments'
-print(dt.datetime.strptime(chars.replace(" ", "T"), format))
-# 2022-07-18 08:18:00
+
+# take the r"[ Tt]" from RFC 3339, to allow " " less loud than ISO 8601 "T"
+
+import datetime as dt
+
+ymd_hm = "2022-07-25 08:24"
+ymd_t_hm = ymd_hm.replace(" ", "T")
+FORMAT_YMD_T_HM = "%Y-%m-%dT%H:%M"
+then = dt.datetime.strptime(ymd_t_hm, FORMAT_YMD_T_HM)
+print(then)  # such as '2022-07-25 08:24:00' from:  dt.datetime(2022, 7, 25, 8, 24)
 
 """
 

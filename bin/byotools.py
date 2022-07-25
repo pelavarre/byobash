@@ -32,6 +32,9 @@ import textwrap
 _ = pdb
 
 
+DEFAULT_NONE = None
+
+
 #
 # Welcome Examples at 'p.py', Notes at 'p.py --h', & Preferences/ Setup at 'p.py --';
 # else exit after calling Subprocess of Sh Path;
@@ -117,7 +120,7 @@ def fetch_testdoc():
 
     # Choose a local End-of-ShLine Comment Style, for Paste of Sh Command Lines
 
-    env_ps1 = os.environ.get("PS1")
+    env_ps1 = os.environ.get("PS1", DEFAULT_NONE)
     env_zsh = env_ps1.strip().endswith("%#") if env_ps1 else False
 
     sh_testdoc = testdoc
@@ -930,10 +933,10 @@ class BrokenPipeSink:  # todo: add calls of it, don't just define it
     as per:  https://docs.python.org/3/library/signal.html#note-on-sigpipe
     """
 
-    DEFAULT_RETURN_CODE = 0x80 | signal.SIGPIPE
-    assert DEFAULT_RETURN_CODE == 141, DEFAULT_RETURN_CODE  # viva Mac & Linux
+    RETURN_CODE_141 = 141  # Mac & Linux convention for Signal SigPipe
+    assert RETURN_CODE_141 == (0x80 | signal.SIGPIPE), (0x80, signal.SIGPIPE)
 
-    def __enter__(self, returncode=DEFAULT_RETURN_CODE):
+    def __enter__(self, returncode=RETURN_CODE_141):
         self.returncode = returncode
 
         return self

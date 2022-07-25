@@ -152,6 +152,8 @@ import byotools as byo
 _ = pdb
 
 
+DEFAULT_NONE = None
+
 SIGINT_RETURNCODE = 0x80 | signal.SIGINT
 assert SIGINT_RETURNCODE == 130, (SIGINT_RETURNCODE, 0x80, signal.SIGINT)
 
@@ -239,14 +241,14 @@ def exit_if_by_shverb(shverb, parms):
 
     # For a few ShVerb's, take more context into account
 
-    exit_if_func = exit_if_funcs_by_shverb.get(shverb)
+    exit_if_func = exit_if_funcs_by_shverb.get(shverb, DEFAULT_NONE)
     if exit_if_func:
 
         exit_if_func(parms)
 
     # Commonly, instantiate a fixed-length template of ShLine's
 
-    alias = aliases_by_shverb.get(shverb)
+    alias = aliases_by_shverb.get(shverb, DEFAULT_NONE)
     if alias:
         authed = alias.authed
 
