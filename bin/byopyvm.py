@@ -1648,6 +1648,25 @@ bits dot clear = Drop  # same as dec
 
 """
 
+_ = """
+
+same thing in a TUI, TUI in a GShell
+--tui paper tape
+main.stderr
+
+add an Undo Button
+
+= requests.get http://...
+work with Files and Dirs, not just Maths
+go with 'decimal.Decimal' over 'float'
+consider '^' for 'pow' for decimal Int/ Float/ Decimal
+
+factor the common code out from:  / * - +
+refresh the 'macos/.DS_Store' often enough
+    even though i often feel i have to log out to flush the Finder Cache of it
+
+"""
+
 
 #
 # Run from the Command Line, when not imported into some other Main module

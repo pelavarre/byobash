@@ -29,7 +29,7 @@ examples:
   clear.py --  # clear Terminal history, like ⌘K
   qbin/cls  # clear Terminal history, like ⌘K
 
-  clear.py -x  # scroll the Rows on Screen, like ⌃L
+  clear -x  # scroll away the Rows on Screen, as if ⌃L pressed in place of ⌘K
 
   echo -ne '\e[H\e[2J\e[3J'  # clear Terminal History, like ⌘K
   echo -ne '\e[H\e[2J'  # scroll the Rows on Screen, like ⌃L

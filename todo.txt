@@ -1,34 +1,14 @@
 # todo.txt
 
 
-dreaming since Jul/2022 =>
-
-
-== MacOs ByoPyVm ==
-
-
 ++ dreaming since Jul/2022 ++
 
-same thing in a TUI, TUI in a GShell
---tui paper tape
-main.stderr
+cv indent
+cv dedent
 
-add an Undo Button
+...
 
-= requests.get http://...
-work with Files and Dirs, not just Maths
-go with 'decimal.Decimal' over 'float'
-consider '^' for 'pow' for decimal Int/ Float/ Decimal
-
-factor the common code out from:  / * - +
-refresh the 'macos/.DS_Store' often enough
-    even though i often feel i have to log out to flush the Finder Cache of it
-
-
-== ByoBash ==
-
-
-++ dreaming since Jul/2022 ++
+faster fanout of 'git push' to multiple hosts
 
 teach 'make style' to complain about leftover 'pdb.set_trace()' breakpoints
 
@@ -88,7 +68,7 @@ then run it at .py
 'shopt autocd' could take '/dev/zero' as infinite Cpu 'cat /dev/zero |hexdump -C'
 
 
-== earlier thoughts =>
+++ earlier thoughts ++
 
 work more at
 
