@@ -1018,7 +1018,7 @@ def stack_peek(depth=1):
 
     alt_depth = depth if depth else stack_depth()
 
-    pairs = stack_pairs_peek(alt_depth)
+    pairs = stack_pairs_peek(alt_depth)  # FIXME: stack_triples_peeks to get the evalled
     values = list(_[-1] for _ in pairs)
 
     peeks = list()
@@ -1080,20 +1080,26 @@ def stack_pairs_peek(depth=1):
 
     for filename in filenames:
         path = pathlib.Path(filename)
-        if path.is_file():
 
-            chars = path.read_text()
-            chars = chars.rstrip()
+        chars = None
+        if path.is_file():
+            try:
+                chars = path.read_text()
+            except UnicodeDecodeError:
+                pass
+
+        if chars is not None:
+            strip = chars.rstrip()
 
             # Count the File only if it holds an intelligible Value
 
-            peek = stackable_loads(chars)
+            peek = stackable_loads(strip)
             if peek is None:  # such as json.JSONDecodeError
 
                 continue
 
-            pair = (str(path), chars)
-            pairs.append(pair)
+            pair = (str(path), strip)  # FIXME: stack_triples_peeks to get the evalled
+            pairs.append(pair)  # FIXME: send the raw chars, not the strip?
 
     # Limit the Depth peeked, except reserve Depth 0 to mean No Limit
 
