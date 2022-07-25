@@ -55,9 +55,10 @@ examples:
 
   =  pdb.set_trace  # like to follow up with:  stack_peek(0)
 
-  # Demos chosen from:  / * - + . , pi π over sqrt √ i e = clear
+  # More sequences of digits and:  / * - + . , pi π i e over pow sqrt √ clear
 
   =  e i pi * pow  # another calculation
+  =  dt.datetime.now dt.datetime.now over -  # dt.timedelta
 
   =  clear  pow , .  pow pow , .  pow pow , .  2>/dev/null  # 2, 4, 16, ...
   =  clear  / , .    / / , .      / / , .      2>/dev/null  # 0, inf, 0, ...
@@ -84,6 +85,7 @@ import pdb
 import re
 import subprocess
 import sys
+import textwrap
 import traceback
 
 import byotools as byo
@@ -92,10 +94,45 @@ _ = math
 _ = pdb
 
 
+BUTTONFILE_TESTCHARS = """
+
+    @  # show these examples and exit
+
+    = clear  &&  @  1 2 3 ,  # 123
+    = clear  &&  @  3 2 1 π π 4 5 ,  # 345
+    = clear  &&  @  . - 1 2 3 ,  # -123
+
+    = clear  &&  @  e  # 2.718...
+    = clear  &&  @  . e ,  # 2.718...  # same answer, less directly
+    = clear  &&  @  . e 3 ,  # 1000
+    = clear  &&  @  . - e 3 ,  # -1000
+
+    = clear  &&  @  i  # 1i
+    = clear  &&  @  . i ,  # 1i  # same answer, less directly
+    = clear  &&  @  . e 3 i ,  # 1000i
+
+    = clear  &&  @  3 . 2 e - 1 ,  # 0.32
+
+    = clear  &&  @  . ,  . + ,  . - ,  # NaN, Inf, -Inf
+
+    = clear  &&  @  e i pi * pow  # -1
+    = clear  &&  @  j , j *  # -1
+    = clear  &&  @  j sqrt  # (0.707+0.707i)
+
+    = clear  &&  @  dt.datetime.now dt.datetime.now over -  # dt.timedelta
+
+    # sequences chosen from digits and:  / * - + . , pi π i e over pow sqrt √ clear
+
+"""
+
+BUTTONFILE_TESTDOC = textwrap.dedent(BUTTONFILE_TESTCHARS).strip()
+
+
 #
 # Configure
 #
 
+BY_NICKNAME = dict(D="decimal", dt="datetime", pd="pandas")  # abbreviate Module Names
 
 EPSILON = 0  # last wins
 EPSILON = 1e-15  # say how much to round off to make comparisons come out equal
@@ -116,7 +153,7 @@ STR_SQRT = "\N{Square Root}"  # √
 #
 
 
-NAME_REGEX = r"[0-9A-Z_a-z]+"
+NAME_REGEX = r"[A-Z_a-z][0-9A-Z_a-z]*"
 CLOSED_NAME_REGEX = r"^" + NAME_REGEX + r"$"
 
 
@@ -124,16 +161,17 @@ DOTTED_NAME_REGEX = "({})([.]{})+".format(NAME_REGEX, NAME_REGEX)
 CLOSED_DOTTED_NAME_REGEX = r"^" + DOTTED_NAME_REGEX + r"$"
 
 
-DECINTEGER_REGEX = r"([1-9](_[0-9])*)|(0(_0)*)"
+DECINTEGER_REGEX = r"([1-9](_?[0-9])*)|(0(_0)*)"
 INT_REGEX = r"[-+]?" + r"({})".format(DECINTEGER_REGEX)
-CLOSED_INT_REGEX = r"^" + DECINTEGER_REGEX + r"$"
+CLOSED_INT_REGEX = r"^" + INT_REGEX + r"$"
 # as per 2.4.5 'Integer literals' in Jun/2022 Python 3.10.5 at Docs Python Org
+# https://docs.python.org/3/reference/lexical_analysis.html
 
 
-DIGITPART_REGEX = r"[0-9](_[0-9])*"
-FRACTION_REGEX = r"." + DIGITPART_REGEX
-EXPONENT_REGEX = r"[Ee][-+]" + DIGITPART_REGEX
-POINTFLOAT_REGEX_1 = r"({})?".format(DIGITPART_REGEX) + FRACTION_REGEX
+DIGITPART_REGEX = r"[0-9](_?[0-9])*"
+FRACTION_REGEX = r"[.]" + DIGITPART_REGEX
+EXPONENT_REGEX = r"[Ee][-+]?" + DIGITPART_REGEX
+POINTFLOAT_REGEX_1 = r"({})?{}".format(DIGITPART_REGEX, FRACTION_REGEX)
 POINTFLOAT_REGEX_2 = DIGITPART_REGEX + r"[.]"
 POINTFLOAT_REGEX = r"({})|({})".format(POINTFLOAT_REGEX_1, POINTFLOAT_REGEX_2)
 EXPONENTFLOAT_REGEX = r"(({})|({})){}".format(
@@ -143,6 +181,21 @@ FLOATNUMBER_REGEX = r"({})|({})".format(POINTFLOAT_REGEX, EXPONENTFLOAT_REGEX)
 FLOAT_REGEX = r"[-+]?" + r"({})".format(FLOATNUMBER_REGEX)
 CLOSED_FLOAT_REGEX = r"^" + FLOAT_REGEX + "$"
 # as per 2.4.6 'Floating point literals' in Jun/2022 Python 3.10.5 at Docs Python Org
+# https://docs.python.org/3/reference/lexical_analysis.html
+
+
+#
+# Declare how to accept Chars into Words of Python
+#
+
+
+SIGNABLE_ENTRIES = ("", "+", "-", ".")
+
+OPEN_ENTRIES = ("", "+", "+e", "+j", "-", "-e", "-j", ".", "e", "j")
+assert set(SIGNABLE_ENTRIES).issubset(set(OPEN_ENTRIES))
+
+ENTRY_REGEX = r"({}|{})[Jj]?".format(FLOAT_REGEX, INT_REGEX)
+CLOSED_ENTRY_REGEX = r"^" + ENTRY_REGEX + r"$"
 
 
 #
@@ -722,20 +775,15 @@ def stack_depth():
 def stackable_dotted_eval(py):
     """Call 'stackable_eval' but lazily import the Module it most obviously needs"""
 
-    # Accept a few established Module Nicknames
-
-    by_nickname = dict()
-
-    by_nickname["D"] = "decimal"
-    by_nickname["dt"] = "datetime"
-    by_nickname["pd"] = "pandas"
+    by_nickname = dict(D="decimal", dt="datetime", pd="pandas")
+    assert by_nickname == BY_NICKNAME
 
     # Import the module now, if not cached earlier
 
     words = py.split(".")
 
     nickname = words[0]
-    modulename = by_nickname[nickname] if (nickname in by_nickname.keys()) else nickname
+    modulename = BY_NICKNAME[nickname] if (nickname in BY_NICKNAME.keys()) else nickname
 
     if nickname not in globals().keys():
         imported = None
@@ -777,16 +825,33 @@ def stackable_eval(py):
 def stackable_dumps(value):
     """Format an Object as Chars"""
 
+    by_nickname = dict(D="decimal", dt="datetime", pd="pandas")
+    assert by_nickname == BY_NICKNAME
+
+    #
+
     try:
         poke = json.dumps(value)
     except TypeError:
         repr_value = repr(value)
 
-        poke = repr_value
-        if not isinstance(value, complex):
-            repr_py = repr(repr_value)
-            poke = "eval({})".format(repr_py)
-            # such as eval('datetime.datetime(2022, 7, 24, 16, 4, 7, 624925)')
+        if isinstance(value, complex):
+            poke = repr_value
+        else:
+            py = repr_value
+            poke_py = repr(py)
+
+            poke = "eval({})".format(poke_py)
+            for (nickname, modulename) in BY_NICKNAME.items():
+                prefix = modulename + "."
+                if py.startswith(prefix):
+                    alt_py = nickname + "." + py[len(prefix) :]
+                    alt_poke_py = repr(alt_py)
+                    poke = "eval({})".format(alt_poke_py)
+
+                    break
+
+            # such as eval('dt.datetime(2022, 7, 24, 16, 4, 7, 624925)')
 
     return poke
 
@@ -908,7 +973,17 @@ def stackable_pair_of_complex(value):
     elif (alt_real != value.real) or (alt_imag != value.imag):
         alt_value = complex(alt_real, imag=alt_imag)
 
-    basename = str(alt_value).replace("j", SH_J)
+    # Snap most of the precision out of the Basename
+
+    if not alt_imag:
+        basename = str(round(alt_value, FILENAME_PRECISION_3))
+    elif not alt_real:
+        basename = str(round(alt_value.imag, FILENAME_PRECISION_3)) + SH_J
+    else:
+        fuzzed_alt_real = round(alt_value.real, FILENAME_PRECISION_3)
+        fuzzed_alt_imag = round(alt_value.imag, FILENAME_PRECISION_3)
+        fuzzed_alt_value = complex(fuzzed_alt_real, imag=fuzzed_alt_imag)
+        basename = str(fuzzed_alt_value).replace("j", SH_J)
 
     # Succeed
 
@@ -1087,6 +1162,14 @@ def find_alt_path(path):
 def parms_buttonfile(parms):
     """Take one Double-Click of a Dot-Command ButtonFile"""
 
+    if not parms[1:]:
+
+        print()
+        print(BUTTONFILE_TESTDOC)
+        print()
+
+        sys.exit(0)  # Exit 0 after printing Help Lines
+
     while parms[1:]:
 
         try:
@@ -1112,38 +1195,90 @@ def try_buttonfile(parms):
 
     assert parms
 
-    # Take the Name, without its Ext, as a Word
+    # Take the Name of the Filename as the Word of Command, without the Ext
 
     main_file = parms.pop(1)
 
     basename = os.path.basename(main_file)
     (root, ext) = os.path.splitext(basename)
-    _ = ext
+
+    word = root if (ext == ".command") else basename
 
     # Run the Word
 
-    entry = peek_entry_else()
+    moved = try_entry_move_by_word(word)
+    if not moved:
+        if word == "clear":
+            try_buttonfile_clear()  # works in place of 'entry_close_if_open()'
+        if word in (",", "comma"):
+            entry = entry_close_if_open()
+            if entry is None:
+                do_comma()
+        else:
+            entry_close_if_open()
 
-    word = root
-    ch = word if (len(word) == 1) else None
+            parms_run(parms=[word])
 
-    if (entry is not None) and (word in ("pi", STR_PI)):  # π
+
+def try_entry_move_by_word(word):
+    """Return None after closing or dropping the Entry, else return the Open Entry"""
+
+    # Edit the Entry in one of many ways
+
+    entry = entry_peek_else()
+    signable = entry_is_signable(entry)
+
+    moved = True
+    if (entry is not None) and (word == "clear"):
+        entry_write_char("")
+    elif (entry is not None) and (word in ("pi", STR_PI)):  # π
         entry_write_char("π")
-    elif ch and (ch in "0123456789IJij"):  # FIXME: E e + -
-        entry_write_char("j" if (ch.lower() in "ij") else ch.lower())
+    elif signable and (word in ("+", "plus")):
+        entry_write_char("+")
+    elif signable and (word in ("-", "dash", "minus")):
+        entry_write_char("-")
+    elif word in ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9"):
+        entry_write_char(word)
+    elif (entry is not None) and (word in ("E", "e")):
+        entry_write_char("e")
+    elif (entry is not None) and (word in ("I", "J", "i", "j")):
+        entry_write_char("j")
     elif word in (".", "dot"):
         entry_write_char(".")
-    elif word in (",", "comma"):
-        do_comma()  # does its own 'entry_close_if_open()'
-
-    elif word == "clear":
-
-        try_buttonfile_clear()
-
     else:
+        moved = False
 
-        entry_close_if_open()
-        parms_run(parms=[word])
+    # Succeed anyhow, but return False after running no Word
+
+    return moved
+
+
+def entry_is_signable(entry):
+    """Say when to take the + - Buttons to Choose Sign"""
+
+    signable_entries = ("", "+", "-", ".")
+    assert signable_entries == SIGNABLE_ENTRIES
+
+    open_entries = ("", "+", "+e", "+j", "-", "-e", "-j", ".", "e", "j")
+    assert open_entries == OPEN_ENTRIES
+
+    # Sign the SIGNABLE_ENTRIES and the 'fit_before_0' entries that end in 'e'
+
+    signable = False
+    if entry is None:
+        pass
+    elif entry in SIGNABLE_ENTRIES:
+        signable = True
+    elif entry in OPEN_ENTRIES:
+        pass
+    elif entry.endswith("e"):
+        signable = True
+    else:
+        pass
+
+    # Say when
+
+    return signable
 
 
 def try_buttonfile_clear():
@@ -1160,61 +1295,123 @@ def try_buttonfile_clear():
 def do_comma():
     """Open Entry if no Entry open, else dupe Top of Stack"""
 
-    entry = entry_close_if_open()
-
-    if entry is None:
-        if not stack_has_x():
-            entry_write_char("")
-        else:
-            do_clone_x()  # a la Forth "DUP", a la HP "Enter"
+    if not stack_has_x():
+        entry_write_char("")
+    else:
+        do_clone_x()  # a la Forth "DUP", a la HP "Enter"
 
 
 def entry_write_char(ch):
     """Take a Char into the Entry"""
 
+    open_entries = ("", "+", "+e", "+j", "-", "-e", "-j", ".", "e", "j")
+    assert open_entries == OPEN_ENTRIES
+
     # Peek the Entry
 
-    entry = peek_entry_else()
-    old_entry = "" if (entry is None) else entry
+    entry = entry_peek_else()
 
-    # Shrink or Edit or Start or Grow the Entry
+    # Edit the Entry
 
-    if ch == STR_PI:  # π
-        new_entry = old_entry[:-1]  # Pi = Delete = Backspace = Drop the last Char
+    edited = entry_take_char(entry, ch=ch)
 
-    elif ch in ".j":  # Keep at most 1 of a "." Decimal Dot or a "j" Math J
-        if not old_entry:
-            new_entry = ch  # Start it on
-        elif not old_entry.endswith(ch):
-            new_entry = old_entry.replace(ch, "") + ch  # Warp it to the tail end
-        else:
-            new_entry = old_entry[:-1]  # Toggle it off
+    # Suggest some AutoCorrection's
 
-    elif not old_entry:  # Start the Entry
-        new_entry = ch
+    fit_before_0 = edited + "0"
 
-    else:  # Grow the Entry
-        new_entry = old_entry + ch
+    fit_after_1 = "1" + edited
+    if edited[:1] in "+-":
+        fit_after_1 = edited[:1] + "1" + edited[1:]
 
-    # Keep the "j", if any, at the far end of the Entry
+    fit_after_1_before_0 = fit_after_1 + "0"
 
-    evallable = new_entry
-    if "j" in new_entry:
-        if not new_entry.endswith("j"):
-            evallable = new_entry.replace("j", "") + "j"
+    # Immediately apply an AutoCorrection at left, if available
 
-    # Mark the Entry apart, as an Entry, by ending it with "_"
+    fit = edited
+    if edited not in OPEN_ENTRIES:
+        if not re.match(CLOSED_ENTRY_REGEX, string=edited):
 
-    pushable = evallable + "_"
-    if evallable == ".":
-        pushable = "_._"
+            if not re.match(CLOSED_ENTRY_REGEX, string=fit_before_0):
+                matched = re.match(CLOSED_ENTRY_REGEX, string=fit_after_1_before_0)
+                assert matched, (ch, entry, edited, fit_after_1_before_0)
+
+                fit = fit_after_1
+
+    # Strongly mark the Entry as sincerely inviting further input
+
+    memorable = fit + "_"
+    if fit == ".":
+        memorable = "_._"
 
     # Replace the Entry, else start the Entry
 
     if entry is not None:
         _ = stack_pop(1)
 
-    stack_push(pushable)
+    stack_push(memorable)  # FIXME: serialize Entry's differently than Strings
+
+
+def entry_take_char(entry, ch):
+    """Edit the Entry = Take the Ch as an Editor Command for the Entry"""
+
+    editing = "" if (entry is None) else entry
+
+    signable_entries = ("", "+", "-", ".")
+    assert signable_entries == SIGNABLE_ENTRIES
+
+    # Work as instructed
+
+    if ch == "":
+
+        edited = ""  # Clear => Drop all Chars
+
+        # Allow Button Clear to drop much stale input
+
+    elif ch == STR_PI:
+
+        edited = editing[:-1]  # π Pi = Delete = Backspace => Drop the last Char
+
+        # Allow π to make no reply, while Entry Empty
+
+    elif ch in ("+", "-"):
+
+        if editing.endswith("e"):
+            edited = editing + ch  # Append Ch
+        else:
+            assert editing in SIGNABLE_ENTRIES, (entry, ch, editing)
+            edited = ch  # +, - => Start over with a choice of Sign
+
+        # Allow Buttons "+" and "-" to make no reply, while Entry is "+" or "-"
+
+    elif ch in (".", "e", "j"):
+
+        if ch in editing:
+            edited = editing.partition(ch)[0]  # . => Cut back to before Ch
+        elif editing == ".":
+            assert ch != ".", (entry, ch, editing)
+            edited = ch  # Start over with Ch
+        else:
+            edited = editing + ch  # Append Ch  # may be wrongly after "j" till fixed
+
+        # Allow Button E to drop much stale input
+
+    elif not editing:
+
+        edited = ch  # Start with Ch
+
+    else:
+
+        edited = editing + ch  # Append Ch  # may be wrongly after "j" till fixed
+
+    # Warp the "j" to the far right end, if present, if not there already
+
+    taken = edited
+    if "j" in taken:
+        taken = edited.replace("j", "") + "j"
+
+    # Succeed
+
+    return taken
 
 
 def entry_close_if_open():
@@ -1226,29 +1423,16 @@ def entry_close_if_open():
 
         return None
 
-    entry = peek_entry()  # Top of Stack is Not an Entry
+    entry = entry_peek()  # Top of Stack is Not an Entry
     if entry is None:
 
         return None
 
-    # Replace the Entry with its Eval
-    # Accept its whole precision, don't snap off excess precision this early
+    # Replace the Entry with its Evaluation, except discard an Empty Entry
 
-    try:
-        evalled = int(entry)
-    except ValueError:
-        try:
-            evalled = float(entry)
-        except ValueError:
-            try:
-                evalled = complex(entry)
-            except ValueError:
-                assert entry == "", repr(entry)
-
-                evalled = None  # Delete the Entry and don't replace it, if Empty Entry
+    evalled = entry_eval(entry)
 
     _ = stack_pop(1)
-
     if evalled is not None:
         stack_push(evalled)
 
@@ -1257,21 +1441,75 @@ def entry_close_if_open():
     return entry
 
 
-def peek_entry_else():
-    """Peek the collected Chars and return them, else None"""
+def entry_eval(entry):
+    """Eval an Entry"""
+
+    open_entries = ("", "+", "+e", "+j", "-", "-e", "-j", ".", "e", "j")
+    assert open_entries == OPEN_ENTRIES
+
+    # Eval all the OPEN_ENTRIES that the Python 'complex' Func has rejected
+
+    by_entry = dict()
+
+    by_entry[""] = None
+    by_entry["+"] = float("Inf")
+    by_entry["+e"] = math.e
+    assert complex("+j") == 1j
+    by_entry["-"] = float("-Inf")
+    by_entry["-e"] = -math.e
+    assert complex("-j") == -1j
+    by_entry["."] = float("NaN")
+    by_entry["e"] = math.e
+    assert complex("j") == 1j
+
+    if entry in by_entry.keys():
+
+        evalled = by_entry[entry]
+
+        return evalled
+
+    # Ask Python to eval the Entry, else append a "0" to autocomplete the Entry
+
+    evalled = None
+
+    fit_before_0 = entry + "0"
+    for fitted in (entry, fit_before_0):
+
+        evalled = None
+        try:
+            evalled = int(fitted)  # covers CLOSED_REGEX_INT
+        except ValueError:
+            try:
+                evalled = float(fitted)  # covers CLOSED_REGEX_FLOAT
+            except ValueError:
+                try:
+                    evalled = complex(fitted)  # covers "+j", "-j", and "j"
+                except ValueError:
+                    occasion = (fitted, entry, fit_before_0)
+                    assert fitted == entry != fit_before_0, occasion
+
+                    continue
+
+        break
+
+    # Succeed
+    # Accept the whole precise eval, don't snap off excess precision till next Sh Word
+
+    return evalled
+
+
+def entry_peek_else():
+    """Peek the collected Chars and return them, else return None"""
 
     entry = None
     if stack_has_x():
-        entry = peek_entry()
+        entry = entry_peek()
 
     return entry
 
 
-def peek_entry():
+def entry_peek():
     """Peek the collected Chars and return them"""
-
-    ENTRY_REGEX = "({}|{}|[.]|[Jj]|)?".format(FLOAT_REGEX, INT_REGEX)
-    CLOSED_ENTRY_REGEX = r"^" + ENTRY_REGEX + r"$"
 
     if stack_has_x():
 
@@ -1283,21 +1521,28 @@ def peek_entry():
                 basename_json = stackable_dumps(basename)
                 if basename_json == value:
 
-                    entry_chars = stackable_loads(value)
-                    assert entry_chars is not None, repr(value)
+                    memorable = stackable_loads(value)
+                    assert memorable is not None, repr(value)
 
-                    entry = byo.str_removesuffix(entry_chars, suffix="_")
-                    if entry_chars == "_._":
+                    entry = byo.str_removesuffix(memorable, suffix="_")
+                    if memorable == "_._":
                         entry = "."
 
-                    if re.match(CLOSED_ENTRY_REGEX, string=entry):
+                    evalled = entry_eval(entry)
+                    if entry == "":
+                        assert evalled is None, (entry, evalled)
+                    else:
+                        assert evalled is not None, (entry, evalled)
 
-                        return entry
+                    return entry
 
 
 #
 # Track dreams
 #
+
+
+# FixMe: add Bits alongside Decimal Int and Decimal Float and Decimal Complex
 
 
 _ = """
@@ -1307,34 +1552,84 @@ trailing data type for the op
 
 bits = hex, oct, or bin
 
-bits / to rotate right & >> |
-bits * to rotate left & << |
-bits + for bits |
-bits - for bits &
+= '~'
+= '&'
+= '|'
+= '>>'
+= '<<'
+= ^
 
-bits √ for bits ~
+= -i  # for interactive CLI, till ⌃D Tty Eof
+@ -i  # for interactive CLI, till ⌃D Tty Eof
 
-bits y^x pow for bits ^
-dec y^x pow for **
+"""
+
+_ = """
+
+got puns in / for hex, . for dec, i for oct, * for bin
+but too expensive so many buttons
+
+dot dot ... to visit each base:  to-hex, to-dec, to-oct, to-bin
+except skip the to- where we already are, so first strike is always to-hex else to-dec
+
+# dot /
+# dot *
+Y@ dot - , = Inf
+Y@ dot - ... = negative imaginary/ float/ int
+Y@ dot + , = Inf
+Y@ dot + ... = positive imaginary/ float/ int
+
+# dot dot ... to-hex, to-dec, to-oct, to-bin
+Y@ dot comma = NaN
+
+dot sqrt = Square
+dot pow = Log
+
+dot pi = tau 𝜏
+# dot i
+Y@ dot e , = e
+Y@ dot e ... = 1e...
+
+dot over = Swap
+dot clear = Drop
+
+no hurry on the A B C D E F keys - first class, not mapped
+
+i've long forgotten what a complex sqrt is ...
 
 """
 
 
 _ = """
 
-dot plus = dec
-dot minus = hex
-dot star = oct
-dot slash = bin
+conversions to Bits first dupe as floor Decimal Int, if given Complex or Float
+    except is it Ceiling when negative?
 
-changing base
-reopens as entry
-closes as tuple of (type, value)
+bits / to shift right >>
+bits dot / to rotate right & >> |
+bits * to shift left <<
+bits dot * to rotate left & << |
+bits + for bits |
+# bits dot +
+bits - for bits ~ &
+# bits dot -
 
-0x_
-lower 'x' but upper nybbles
+bits sqrt for bits ~
+bits dot sqrt for 0 bits -
 
-A B C D E F keys - first class, not mapped
+bits pow for bits ^
+bits dot pow for 0 bits - &
+
+bits comma = dup  # same as dec
+# bits dot comma
+
+# bits dot pi
+# bits dot i
+# bits dot e
+# bits dot e ...
+
+bits dot over = Swap  # same as dec
+bits dot clear = Drop  # same as dec
 
 """
 

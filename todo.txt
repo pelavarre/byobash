@@ -9,16 +9,6 @@ dreaming since Jul/2022 =>
 
 ++ dreaming since Jul/2022 ++
 
-entry i toggles imaginary or real
-
-entry e toggles exponents
-entry e minus plus to toggle sign of exponent
-entry . minus plus to toggle sign of mantissa
-
-entry π is the backspace of entry
-backspace down to _
-comma that goes to zero
-
 same thing in a TUI, TUI in a GShell
 --tui paper tape
 main.stderr
