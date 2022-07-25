@@ -45,9 +45,9 @@ examples:
 
   # Maths
 
-  =  pi  # echo 3.141592653589793 >3.142
-  =  2 *  # echo 2 >2 && rm -f 3.142 2 && echo 6.283185307179586 >6.283
-  =  .  # cat 6.283 && rm -f 6.283
+  =  pi
+  =  2 *
+  =  .
 
   =  pi 2 * .  # all at once
 
@@ -92,6 +92,11 @@ _ = math
 _ = pdb
 
 
+#
+# Configure
+#
+
+
 EPSILON = 0  # last wins
 EPSILON = 1e-15  # say how much to round off to make comparisons come out equal
 
@@ -99,7 +104,50 @@ FILENAME_PRECISION_3 = 3  # 3 digits means mention 'math.pi' as '3.142'
 
 MATH_J = 1j  # work around for Python forgetting to define 'math.j'
 
+SH_J = "j"  # last wins
 SH_J = "i"  # choose the Char to mark 'str' of '.imag', from outside r"[-+.012345679Ee]"
+
+STR_PI = "\N{Greek Small Letter Pi}"  # π
+STR_SQRT = "\N{Square Root}"  # √
+
+
+#
+# Declare some of how to divide Chars into Words of Python
+#
+
+
+NAME_REGEX = r"[0-9A-Z_a-z]+"
+CLOSED_NAME_REGEX = r"^" + NAME_REGEX + r"$"
+
+
+DOTTED_NAME_REGEX = "({})([.]{})+".format(NAME_REGEX, NAME_REGEX)
+CLOSED_DOTTED_NAME_REGEX = r"^" + DOTTED_NAME_REGEX + r"$"
+
+
+DECINTEGER_REGEX = r"([1-9](_[0-9])*)|(0(_0)*)"
+INT_REGEX = r"[-+]?" + r"({})".format(DECINTEGER_REGEX)
+CLOSED_INT_REGEX = r"^" + DECINTEGER_REGEX + r"$"
+# as per 2.4.5 'Integer literals' in Jun/2022 Python 3.10.5 at Docs Python Org
+
+
+DIGITPART_REGEX = r"[0-9](_[0-9])*"
+FRACTION_REGEX = r"." + DIGITPART_REGEX
+EXPONENT_REGEX = r"[Ee][-+]" + DIGITPART_REGEX
+POINTFLOAT_REGEX_1 = r"({})?".format(DIGITPART_REGEX) + FRACTION_REGEX
+POINTFLOAT_REGEX_2 = DIGITPART_REGEX + r"[.]"
+POINTFLOAT_REGEX = r"({})|({})".format(POINTFLOAT_REGEX_1, POINTFLOAT_REGEX_2)
+EXPONENTFLOAT_REGEX = r"(({})|({})){}".format(
+    DIGITPART_REGEX, POINTFLOAT_REGEX, EXPONENT_REGEX
+)
+FLOATNUMBER_REGEX = r"({})|({})".format(POINTFLOAT_REGEX, EXPONENTFLOAT_REGEX)
+FLOAT_REGEX = r"[-+]?" + r"({})".format(FLOATNUMBER_REGEX)
+CLOSED_FLOAT_REGEX = r"^" + FLOAT_REGEX + "$"
+# as per 2.4.6 'Floating point literals' in Jun/2022 Python 3.10.5 at Docs Python Org
+
+
+#
+# Run from the Sh Command Line
+#
 
 
 def main():
@@ -205,23 +253,19 @@ def parms_run(parms):
 def to_fuzzed_word(word):
     """Pick out what kind of Input Word this is"""
 
-    int_regex = r"^" + r"[-+]?[0-9]+" + r"$"
-    if re.match(int_regex, string=word):
+    if re.match(CLOSED_INT_REGEX, string=word):
 
-        return "int_literal"
+        return "lit_int"
 
-    float_regex = r"^" r"([-+]?[0-9]+)" r"([.][0-9]*)?" r"([Ee][-+]?[0-9]+)?" r"$"
-    if re.match(float_regex, string=word):
+    if re.match(CLOSED_FLOAT_REGEX, string=word):
 
-        return "float_literal"
+        return "lit_float"
 
-    dotted_name_regex = r"^" r"([A-Z_a-z][0-9A-Z_a-z]*)?" r"[.]" r"[.0-9A-Z_a-z]+" r"$"
-    if re.match(dotted_name_regex, string=word):
+    if re.match(CLOSED_DOTTED_NAME_REGEX, string=word):
 
         return "dotted_name"
 
-    name_regex = r"^" r"[0-9A-Z_a-z]+" r"$"
-    if re.match(name_regex, string=word):
+    if re.match(CLOSED_NAME_REGEX, string=word):
 
         return "name"
 
@@ -318,15 +362,15 @@ def form_take_by_word():
         pi=math.pi,
     )
 
-    take_by_sh_noun["\N{Greek Small Letter Pi}"] = math.pi  # π
+    take_by_sh_noun[STR_PI] = math.pi  # π
 
     # Define Sh Adverbs of Forth
 
     take_by_sh_adverb = dict(
         buttonfile=parms_buttonfile,
         dotted_name=parms_dotted_name,
-        float_literal=parms_float_literal,
-        int_literal=parms_int_literal,
+        lit_float=parms_lit_float,
+        lit_int=parms_lit_int,
         name=parms_name,
         hash=parms_hash,  # this 'hash' is not 'builtins.hash'
     )
@@ -349,7 +393,7 @@ def form_take_by_word():
         swap=do_swap_y_x,
     )
 
-    take_by_sh_verb["\N{Square Root}"] = do_sqrt  # √
+    take_by_sh_verb[STR_SQRT] = do_sqrt  # √
 
     # Merge the Dicts of Words of Command
 
@@ -380,12 +424,12 @@ def parms_dotted_name(parms):
 
     pushable = evalled  # todo: factor out commonalities with 'def parms_name'
     if isinstance(evalled, collections.abc.Callable):
-        pushable = evalled()
+        pushable = evalled()  # might be:  pdb.set_trace()
 
-    stack_push(pushable)
+    stack_push(pushable)  # you might next:  stack_peek(0)
 
 
-def parms_float_literal(parms):
+def parms_lit_float(parms):
     """Eval the Chars of a Float Literal"""
 
     str_x = parms[0]
@@ -393,7 +437,7 @@ def parms_float_literal(parms):
     stack_push(x)
 
 
-def parms_int_literal(parms):
+def parms_lit_int(parms):
     """Eval the Chars of an Int Literal"""
 
     str_x = parms[0]
@@ -948,7 +992,7 @@ def stack_pairs_peek(depth=1):
 
     # List Filenames by Modified Ascending
 
-    shline = "ls -1rt"
+    shline = "ls -1art"
     run = byo.subprocess_run_stdio(shline, stdout=subprocess.PIPE, check=True)
     stdout = run.stdout.decode()
     lines = stdout.splitlines()
@@ -1078,16 +1122,26 @@ def try_buttonfile(parms):
 
     # Run the Word
 
+    entry = peek_entry_else()
+
     word = root
-    if word in "0123456789":  # FIXME: E I J e i j + -
-        entry_write_char(word.lower())
-    elif word == "dot":
+    ch = word if (len(word) == 1) else None
+
+    if (entry is not None) and (word in ("pi", STR_PI)):  # π
+        entry_write_char("π")
+    elif ch and (ch in "0123456789IJij"):  # FIXME: E e + -
+        entry_write_char("j" if (ch.lower() in "ij") else ch.lower())
+    elif word in (".", "dot"):
         entry_write_char(".")
-    elif word == "clear":
-        try_buttonfile_clear()
     elif word in (",", "comma"):
         do_comma()  # does its own 'entry_close_if_open()'
+
+    elif word == "clear":
+
+        try_buttonfile_clear()
+
     else:
+
         entry_close_if_open()
         parms_run(parms=[word])
 
@@ -1104,13 +1158,13 @@ def try_buttonfile_clear():
 
 
 def do_comma():
-    """Run like '0' and ',' if no Entry preceded Comma, else dupe Top of Stack"""
+    """Open Entry if no Entry open, else dupe Top of Stack"""
 
     entry = entry_close_if_open()
+
     if entry is None:
         if not stack_has_x():
-            entry_write_char("0")  # suggest:  0 ,
-            entry_close_if_open()
+            entry_write_char("")
         else:
             do_clone_x()  # a la Forth "DUP", a la HP "Enter"
 
@@ -1118,34 +1172,61 @@ def do_comma():
 def entry_write_char(ch):
     """Take a Char into the Entry"""
 
-    entry = pop_entry_else_peek_none()
+    # Peek the Entry
 
-    if ch in ".ij":  # Keep at most 1 of a "." Decimal Dot or a "j" Math J
+    entry = peek_entry_else()
+    old_entry = "" if (entry is None) else entry
 
-        if not entry:
-            entry_ = "0" + ch  # Toggle it on
-        elif not entry.endswith(ch):
-            entry_ = entry.replace(ch, "") + ch  # Warp it to the tail end
+    # Shrink or Edit or Start or Grow the Entry
+
+    if ch == STR_PI:  # π
+        new_entry = old_entry[:-1]  # Pi = Delete = Backspace = Drop the last Char
+
+    elif ch in ".j":  # Keep at most 1 of a "." Decimal Dot or a "j" Math J
+        if not old_entry:
+            new_entry = ch  # Start it on
+        elif not old_entry.endswith(ch):
+            new_entry = old_entry.replace(ch, "") + ch  # Warp it to the tail end
         else:
-            entry_ = entry[:-1]  # Toggle it off
+            new_entry = old_entry[:-1]  # Toggle it off
 
-    elif not entry:
+    elif not old_entry:  # Start the Entry
+        new_entry = ch
 
-        entry_ = ch  # Start up an Entry with 1 Char
+    else:  # Grow the Entry
+        new_entry = old_entry + ch
 
-    else:
+    # Keep the "j", if any, at the far end of the Entry
 
-        entry_ = entry + ch  # Accumulate Chars in the Entry
+    evallable = new_entry
+    if "j" in new_entry:
+        if not new_entry.endswith("j"):
+            evallable = new_entry.replace("j", "") + "j"
 
-    push_entry(entry_)
+    # Mark the Entry apart, as an Entry, by ending it with "_"
+
+    pushable = evallable + "_"
+    if evallable == ".":
+        pushable = "_._"
+
+    # Replace the Entry, else start the Entry
+
+    if entry is not None:
+        _ = stack_pop(1)
+
+    stack_push(pushable)
 
 
 def entry_close_if_open():
     """Return an Unevalled Copy of the Entry, but replace it with its Eval"""
 
-    # Report no Entry found
+    # Report either of the two kinds of Got No Entry
 
-    entry = pop_entry_else_peek_none()
+    if not stack_has_x():  # Empty Stack
+
+        return None
+
+    entry = peek_entry()  # Top of Stack is Not an Entry
     if entry is None:
 
         return None
@@ -1156,34 +1237,41 @@ def entry_close_if_open():
     try:
         evalled = int(entry)
     except ValueError:
-        evalled = float(entry)
+        try:
+            evalled = float(entry)
+        except ValueError:
+            try:
+                evalled = complex(entry)
+            except ValueError:
+                assert entry == "", repr(entry)
 
-    stack_push(evalled)
+                evalled = None  # Delete the Entry and don't replace it, if Empty Entry
+
+    _ = stack_pop(1)
+
+    if evalled is not None:
+        stack_push(evalled)
 
     # Return an Unevalled Copy of the Entry
 
     return entry
 
 
-def push_entry(chars):
-    """Push the"""
+def peek_entry_else():
+    """Peek the collected Chars and return them, else None"""
 
-    entry = chars + "_"
-    stack_push(entry)
-
-
-def pop_entry_else_peek_none():
-    """Pop the collected Chars and return them, else return None"""
-
-    entry = peek_entry()
-    if entry is not None:
-        _ = stack_pop(1)
+    entry = None
+    if stack_has_x():
+        entry = peek_entry()
 
     return entry
 
 
 def peek_entry():
-    """Peek the collected Chars and return them, else return None"""
+    """Peek the collected Chars and return them"""
+
+    ENTRY_REGEX = "({}|{}|[.]|[Jj]|)?".format(FLOAT_REGEX, INT_REGEX)
+    CLOSED_ENTRY_REGEX = r"^" + ENTRY_REGEX + r"$"
 
     if stack_has_x():
 
@@ -1193,23 +1281,18 @@ def peek_entry():
         if basename is not None:
             if basename.endswith("_"):
                 basename_json = stackable_dumps(basename)
-                if basename_json == value:  # FIXME tolerate "i" not in repr(MATH_J)
+                if basename_json == value:
 
                     entry_chars = stackable_loads(value)
                     assert entry_chars is not None, repr(value)
 
-                    if re.match("^[-+.0-9][-+.0-9Ee]*_$", string=entry_chars):
-                        entry = byo.str_removesuffix(entry_chars, suffix="_")
+                    entry = byo.str_removesuffix(entry_chars, suffix="_")
+                    if entry_chars == "_._":
+                        entry = "."
+
+                    if re.match(CLOSED_ENTRY_REGEX, string=entry):
 
                         return entry
-
-                    if entry_chars == "e_":
-
-                        return json.dumps(math.e)
-
-                    if entry_chars == "i_":
-
-                        return json.dumps(MATH_J)
 
 
 #
