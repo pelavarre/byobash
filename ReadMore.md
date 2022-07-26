@@ -27,7 +27,7 @@ We're giving you **three gifts**, into the first minute after you download them
 
 2 ) **your own notes**, at "P.py --h"
 
-3 ) **your own tweaks** to defaults and behavior, at "P.py --"
+3 ) **your own preferences** in defaults and behavior, at "P.py --"
 
 For each plain old "P" defined by a File in your Sh Path,
 or defined as a Built-In Function inside your Sh Process
