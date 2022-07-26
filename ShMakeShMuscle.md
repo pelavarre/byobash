@@ -83,7 +83,7 @@ blank page, green field, limitlessly creative options
 
 because reasons, put in place back in about 1972
 
-## 3.1 - how they accidentally gave me a room of my own
+### 3.1 - how they accidentally gave me a room of my own
 
 specifically,
 in the grammar of these conversations i hold with the machine,
@@ -104,7 +104,7 @@ i can choose to decline to deliver
 i can show up with literally nothing after that "--" mark -
 i can choose to break my promise
 
-## 3.2 - who designs the interior of my room? i do
+### 3.2 - who designs the interior of my room? i do
 
 when youibetray and surprise a machine with that kind of ju-jitsu,
 then sure in theory there's no telling what it will do -
@@ -129,7 +129,7 @@ what happens there is a default just obscure enough,
 slipped just far enough off the beaten path,
 that they've practically always left it undefined
 
-## 3.3 - they didn't tell me, they just gave me, this place for me
+### 3.3 - they didn't tell me, they just gave me, this place for me
 
 pratically nobody defines 'clear --' to do anything different than 'clear' does,
 which opens up a wide space for me to work,
