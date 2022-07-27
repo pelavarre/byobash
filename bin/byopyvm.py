@@ -564,10 +564,8 @@ def do_equals():
     if not depth:
         print()
     else:
-        pairs = stack_pairs_peek(depth)
-        for pair in pairs:
-            (basename, _) = pair
-
+        basenames = stack_triples_peek_basenames(depth)
+        for basename in basenames:
             print(basename)
 
 
@@ -689,7 +687,7 @@ def do_star():
 def do_clear():  # a la GForth "clearstack"
     """Pop X till no more X"""
 
-    stack_pairs_pop(depth=0)
+    stack_triples_pop(depth=0)
 
 
 def do_clone_x():  # a la Forth "DUP", a la HP "Enter"
@@ -725,9 +723,8 @@ def do_swap_y_x():
         stack_push(0)
     else:
 
-        pairs = stack_pairs_peek(2)
-        pair = pairs[0]
-        (basename, _) = pair
+        basenames = stack_triples_peek_basenames(2)
+        basename = basenames[0]
 
         shbasename = byo.shlex_dquote(basename)
 
@@ -758,8 +755,8 @@ def stack_has_y():
 def stack_depth():
     """Count the Values in the Stack"""
 
-    pairs = stack_pairs_peek(0)  # todo: cache vs evalling for depth and again for use
-    depth = len(pairs)
+    triples = stack_triples_peek(0)  # todo: cache vs evalling for depth and to process
+    depth = len(triples)
 
     return depth
 
@@ -883,41 +880,47 @@ def stackable_loads(chars):
     return peek
 
 
-def stackable_pair(value):
+def stackable_triple(value):
     """Name the Print's of an Object"""
+
+    basename = str(value)
+    dumped = stackable_dumps(value)
 
     if isinstance(value, complex):
         assert not isinstance(value, collections.abc.Container)
-        pair = stackable_pair_of_complex(value)
 
-        return pair
+        triple = stackable_triple_of_complex(value)
+
+        return triple
 
     if isinstance(value, float):
         assert not isinstance(value, collections.abc.Container)
-        pair = stackable_pair_of_float(value)
 
-        return pair
+        triple = stackable_triple_of_float(value)
+
+        return triple
 
     if isinstance(value, str):
         assert isinstance(value, collections.abc.Container)
-        basename = value
-        pair = (basename, value)
 
-        return pair
+        basename = value
+        triple = (basename, dumped, value)
+
+        return triple
 
     if isinstance(value, collections.abc.Container):
+
         basename = byo.dotted_typename(type(value))
-        pair = (basename, value)
+        triple = (basename, dumped, value)
 
-        return pair
+        return triple
 
-    basename = str(value)
-    pair = (basename, value)
+    triple = (basename, dumped, value)
 
-    return pair
+    return triple
 
 
-def stackable_pair_of_float(value):
+def stackable_triple_of_float(value):
     """Give a Basename to Float's, and snap out extreme precision"""
 
     basename = None
@@ -946,15 +949,16 @@ def stackable_pair_of_float(value):
 
     assert basename
 
-    pair = (basename, alt_value)
+    alt_dumped = stackable_dumps(alt_value)
+    triple = (basename, alt_dumped, alt_value)
 
-    return pair
+    return triple
 
     # such as '-0.0' to 0, at:  = 0 -1 /
     # such as '...' to 2.0000000000000004 at:  = 2 , sqrt , * -
 
 
-def stackable_pair_of_complex(value):
+def stackable_triple_of_complex(value):
     """Give a Basename to Complex'es, and snap out extreme precision"""
 
     alt_value = value
@@ -988,9 +992,10 @@ def stackable_pair_of_complex(value):
 
     # Succeed
 
-    pair = (basename, alt_value)
+    alt_dumped = stackable_dumps(alt_value)
+    triple = (basename, alt_dumped, alt_value)
 
-    return pair
+    return triple
 
     # such as '(-1+0j)' to -1, at:  = j j *
     # such as '-1+1.2246467991473532e-16' to -1 at:  = e i pi * pow
@@ -1007,7 +1012,7 @@ def stack_pop(depth=1, asif_before_rm=""):
 
     peeks = stack_peek(depth)
 
-    _ = stack_pairs_pop(depth, asif_before_rm=asif_before_rm)
+    _ = stack_triples_pop(depth, asif_before_rm=asif_before_rm)
 
     return peeks  # will be 'one_peek' in the corner of 'depth=1'
 
@@ -1019,33 +1024,27 @@ def stack_peek(depth=1):
 
     alt_depth = depth if depth else stack_depth()
 
-    pairs = stack_pairs_peek(alt_depth)  # FIXME: stack_triples_peeks to get the evalled
-    values = list(_[-1] for _ in pairs)
+    values = stack_triples_peek_values(alt_depth)
 
-    peeks = list()
-    for value in values:
-        peek = stackable_loads(chars=value)
-        peeks.append(peek)
-
-    assert len(peeks) == alt_depth, (len(peeks), alt_depth)
+    assert len(values) == alt_depth, (len(values), alt_depth)
     if depth == 1:  # only if 'depth == 1', not also if 'alt_depth == 1'
-        one_peek = peeks[-1]
+        one_value = values[-1]
 
-        return one_peek  # is 'one_peek' in the corner of 'depth=1'
+        return one_value  # is 'one_value' in the corner of 'depth=1'
 
-    return peeks  # is zero, two, or more Peeks, in the corners of 'depth != 1'
+    return values  # is zero, two, or more Values, in the corners of 'depth != 1'
 
 
-def stack_pairs_pop(depth, asif_before_rm=""):
-    """Peek and remove some of the Basename-Chars Pairs most recently pushed"""
+def stack_triples_pop(depth, asif_before_rm=""):
+    """Peek and remove some of the Basename-Chars Triples most recently pushed"""
 
     assert depth >= 0
 
     # Collect the work to do
 
-    pairs = stack_pairs_peek(depth)
+    triples = stack_triples_peek(depth)
 
-    paths = list(_[0] for _ in pairs)
+    paths = list(_[0] for _ in triples)
     shpaths = " ".join(byo.shlex_dquote(_) for _ in paths if _ is not None)
     if shpaths:
         if any(_.startswith("-") for _ in paths):
@@ -1058,11 +1057,29 @@ def stack_pairs_pop(depth, asif_before_rm=""):
         byo.stderr_print("+ {}{}".format(asif_before_rm.format(shpaths), shline))
         byo.subprocess_run_stdio(shline, stdout=subprocess.PIPE, check=True)
 
-    return pairs
+    return triples
 
 
-def stack_pairs_peek(depth=1):
-    """Peek at some of the Basename-Chars Pairs most recently pushed"""
+def stack_triples_peek_basenames(depth):
+    """Peek at some of the Basename's most recently pushed"""
+
+    triples = stack_triples_peek(depth)
+    basenames = list(_[0] for _ in triples)  # as if:  (basename, _, _) = triple
+
+    return basenames
+
+
+def stack_triples_peek_values(depth):
+    """Peek at some of the Value's most recently pushed"""
+
+    triples = stack_triples_peek(depth)
+    values = list(_[-1] for _ in triples)  # as if:  (_, _, value) = triple
+
+    return values
+
+
+def stack_triples_peek(depth=1):
+    """Peek at some of the Basename-Chars Triples most recently pushed"""
 
     assert depth >= 0
 
@@ -1077,7 +1094,7 @@ def stack_pairs_peek(depth=1):
 
     # Visit each File
 
-    pairs = list()
+    triples = list()
 
     for filename in filenames:
         path = pathlib.Path(filename)
@@ -1090,7 +1107,7 @@ def stack_pairs_peek(depth=1):
                 pass
 
         if chars is not None:
-            strip = chars.rstrip()
+            dumped = chars.rstrip()  # todo: strip only trailing "\n"?
 
             if False:
                 if filename == "2.718_":
@@ -1098,28 +1115,28 @@ def stack_pairs_peek(depth=1):
 
             # Count the File only if it holds an intelligible Value
 
-            peek = stackable_loads(strip)
+            peek = stackable_loads(dumped)
             if peek is None:  # such as json.JSONDecodeError
 
                 continue
 
-            pair = (str(path), strip)  # FIXME FIXME FIXME FIXME: stack_triples_peeks to get the evalled
-            pairs.append(pair)  # FIXME: send the raw chars, not the strip?
+            triple = (str(path), dumped, peek)
+            triples.append(triple)
 
     # Limit the Depth peeked, except reserve Depth 0 to mean No Limit
 
     if depth:
-        pairs = pairs[-depth:]  # todo: stop evalling more Pairs than needed
+        triples = triples[-depth:]  # todo: stop evalling more Triples than needed
 
-        assert len(pairs) == depth, len(pairs)
+        assert len(triples) == depth, len(triples)
 
-    return pairs
+    return triples
 
 
 def stack_push(value):
     """Push the Json Chars of a Value, into a new Autonamed File"""
 
-    (basename, alt_value) = stackable_pair(value)
+    (basename, dumped, alt_value) = stackable_triple(value)
 
     stack_push_basename_alt_value(basename, value=value, alt_value=alt_value)
 
@@ -1139,8 +1156,8 @@ def stack_push_basename_alt_value(basename, value, alt_value):
 
     # Trace and run
 
-    alt_chars = stackable_dumps(alt_value)
-    alt_shvalue = byo.shlex_dquote(alt_chars)
+    alt_dumped = stackable_dumps(alt_value)
+    alt_shvalue = byo.shlex_dquote(alt_dumped)
 
     alt_shcomment = "  # {!r}".format(value) if (repr(alt_value) != repr(value)) else ""
 
@@ -1148,7 +1165,7 @@ def stack_push_basename_alt_value(basename, value, alt_value):
     byo.stderr_print("+ {}".format(echo_shline))
 
     with open(alt_path, "w") as writing:
-        writing.write("{}\n".format(alt_chars))
+        writing.write("{}\n".format(alt_dumped))
 
 
 def find_alt_path(path):
@@ -1219,7 +1236,6 @@ def try_buttonfile(parms):
         word = root if (ext == ".command") else basename
 
     # Run the Word
-    # FIXME: Clear the Stack if asked to Clear at Clear Entry
 
     moved = try_entry_move_by_word(word)
     if not moved:
@@ -1248,7 +1264,7 @@ def try_entry_move_by_word(word):
     signable = entry_is_signable(entry)
 
     moved = True
-    if (entry is not None) and (word == "clear"):
+    if entry and (word == "clear"):  # take Clear to empty the Entry, else empty Stack
         entry_write_char("")
     elif (entry is not None) and (word in ("pi", STR_PI)):  # π
         entry_write_char("π")
@@ -1303,8 +1319,8 @@ def entry_is_signable(entry):
 def try_buttonfile_clear():
     """Pop X till no more X, else push 3, 2, 1, 0"""
 
-    pairs = stack_pairs_pop(depth=0)
-    if not pairs:
+    triples = stack_triples_pop(depth=0)
+    if not triples:
         stack_push(3)
         stack_push(2)
         stack_push(1)
@@ -1356,18 +1372,18 @@ def entry_write_char(ch):
 
                 fit = fit_after_1
 
-    # Strongly mark the Entry as sincerely inviting further input
+    # Add a Strong Mark of the Entry as inviting further input
 
-    memorable = fit + "_"
+    value = fit + "_"
     if fit == ".":
-        memorable = "_._"
+        value = "_._"
 
     # Replace the Entry, else start the Entry
 
     if entry is not None:
         _ = stack_pop(1)
 
-    stack_push(memorable)  # FIXME: serialize Entry's differently than Strings
+    stack_push(value)  # FIXME: serialize Entry's differently than Strings
 
 
 def entry_take_char(entry, ch):
@@ -1530,28 +1546,35 @@ def entry_peek_else():
 def entry_peek():
     """Peek the collected Chars and return them"""
 
+    # Peek from the Top of Stack
+
     if stack_has_x():
 
-        pair = stack_pairs_peek()[-1]
-        (basename, value) = pair
+        triple = stack_triples_peek()[-1]
+        (basename, dumped, value) = triple
+
+        # Peek only if the Basename ends with '_' and was Dumped
 
         if basename is not None:
             if basename.endswith("_"):
                 basename_json = stackable_dumps(basename)
-                if basename_json == value:
+                if basename_json == dumped:
 
-                    memorable = stackable_loads(value)
-                    assert memorable is not None, repr(value)
+                    # Remove the Strong Mark of the Entry as inviting further input
 
-                    entry = byo.str_removesuffix(memorable, suffix="_")
-                    if memorable == "_._":
+                    entry = byo.str_removesuffix(value, suffix="_")
+                    if value == "_._":
                         entry = "."
+
+                    # Test that any Entry inviting further input is evallable
 
                     evalled = entry_eval(entry)
                     if entry == "":
                         assert evalled is None, (entry, evalled)
                     else:
                         assert evalled is not None, (entry, evalled)
+
+                    # Succeed
 
                     return entry
 
