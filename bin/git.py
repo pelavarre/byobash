@@ -17,13 +17,13 @@ options:
   --for-chdir CDVERB   print the $(git rev-parse --show-toplevel) to tell Cd where to go
 
 quirks:
-  trace the expansion of each Alias as it runs, to help people learn by watching
+  trace the expansion of each ShVerb as it runs, to help people learn by watching
   dumps larger numbers of Lines into taller Screens, as defaults of:  git log -...
   interlocks the most destructive moves by hanging till ⌃D Tty Eof
   classic Git rudely dumps Help & exits via a Code 1 Usage Error, when given no Parms
   Zsh and Bash take '(dirs -p |head -1)', but only Bash takes 'dirs +0'
 
-advanced bash install:
+advanced Bash install:
 
   source qbin/env-path-append.source  # define 'q', 'qd', 'qlf', 'qs', etc
 
@@ -42,12 +42,20 @@ advanced bash install:
     'cd' "$(command git.py --for-chdir cd $@)" && (dirs -p |head -1)
   }
 
+  function --- () {
+    command git.py -- --for-shproc --- "$@"
+  }
+
+  function +++ () {
+    command git.py -- --for-shproc --- "$@"
+  }
+
 examples:
 
   git.py  # show these examples and exit
   git.py --h  # show this help message and exit
   git.py --  # git checkout
-  command bin/git.py --  # show the Advanced Bash Install of Git Py and exit
+  command git.py --  # show the Advanced Bash Install of Git Py and exit
 
   ls ~/.gitconfig
   ls .git/config
@@ -191,29 +199,46 @@ def main():
     'cd' "$(command git.py --for-chdir cd $@)" && (dirs -p |head -1)
   }
 
+  function --- () {
+    command git.py -- --for-shproc --- "$@"
+  }
+
+  function +++ () {
+    command git.py -- --for-shproc --- "$@"
+  }
+
     """
 
-    # Take "--for-chdir" and "--for-shproc" out early
-
-    parms = None
+    # Take out "--for-shproc" and "--for-chdir" early, and skip over "--"
 
     sys_parms = sys.argv[1:]
     options = ("--for-chdir", "--for-shproc")
-    if sys_parms and (sys_parms[0] in options):
-        parms = sys.argv[2:]
+
+    parms = None
+    if sys_parms:
+        if sys_parms[0] in options:
+
+            parms = sys_parms[1:]
+
+        elif sys_parms[0] == "--":
+            if sys_parms[1:]:
+                if sys_parms[1] in options:
+
+                    parms = sys_parms[2:]
 
         # Define the 'git.py' that isn't 'command git.py'
 
-        if not parms:
+        if parms is not None:
+            if not parms:
 
-            byo.exit_after_testdoc()
+                byo.exit_after_testdoc()
 
-        # Define the 'git.py --' that isn't 'command git.py --'
+            # Define the 'git.py --' that isn't 'command git.py --'
 
-        if parms == ["--"]:
+            if parms == ["--"]:
 
-            parms = ["co"]  # "git checkout"
-            # FIXME: print counts of 'gssi' as reminders for:  git add
+                parms = ["co"]  # "git checkout"
+                # FIXME: print counts of 'gssi' as reminders for:  git add
 
     # Define the most conventional forms of 'git.py'
 
@@ -235,6 +260,8 @@ def main():
 
 def exit_if_by_shverb(shverb, parms):
     """Expand any of many intensely cryptic calls of Git Aliases"""
+
+    main.shverb = shverb
 
     exit_if_funcs_by_shverb = form_exit_if_funcs_by_shverb()
     aliases_by_shverb = form_aliases_by_shverb()
@@ -620,7 +647,42 @@ def form_exit_if_funcs_by_shverb():
         vi=exit_if_vi,
     )
 
+    exit_if_funcs["---"] = exit_if_by_git_stdout_line
+    exit_if_funcs["+++"] = exit_if_by_git_stdout_line
+
     return exit_if_funcs
+
+
+def exit_if_by_git_stdout_line(parms):
+    """Take or suggest next action after being fed back a Line of Git Stdout"""
+
+    shverb = main.shverb
+
+    # Receive one Parm from such as:  --- a/bin/git.py
+    # or from such as:  +++ b/bin/git.py
+
+    if (shverb in ("---", "+++")) and (len(parms) == 1):
+        prefix = parms[0][:2]
+        if prefix in ("a/", "b/"):
+
+            path = parms[0]
+            path = byo.str_removeprefix(path, prefix=prefix)
+
+            # Form a ShLine to forward the one Parm into the local choice of Editor
+
+            git_config_shline = "git config core.editor"
+            byo.stderr_print("+ {}".format(git_config_shline))
+
+            vi_shline = byo.subprocess_run_oneline("git config core.editor")
+            vi_shline = vi_shline + " " + byo.shlex_dquote(path)
+            vi_argv = shlex.split(vi_shline)
+
+            # Run the Shline
+
+            vi_argv = shlex.split(vi_shline)
+            byo.subprocess_run_loud_else_exit(vi_argv)
+
+            sys.exit()  # Exit None after an ArgV exits Falsey
 
 
 def exit_if_git_no(parms):
@@ -716,7 +778,7 @@ def exit_if_git_no_ext(ext_parm, qd_chars, depth_parm, alt_parms):
     shshline = "bash -c {!r}".format(shpipe)
     argv = shlex.split(shshline)
 
-    byo.subprocess_run_else_exit(argv, shpipe)
+    byo.subprocess_run_loud_else_exit(argv, shpipe)
 
     sys.exit()  # Exit None after an ArgV exits Falsey
 
@@ -789,7 +851,7 @@ def exit_if_shverb_qno(shverb, parms):
     shshline = "bash -c {!r}".format(shpipe)
 
     argv = shlex.split(shshline)
-    byo.subprocess_run_else_exit(argv, shpipe=shpipe)
+    byo.subprocess_run_loud_else_exit(argv, shpipe=shpipe)
 
     sys.exit()  # Exit None after an ArgV exits Falsey
 
@@ -803,7 +865,12 @@ if __name__ == "__main__":
     main()
 
 
-# 'todo.txt' for 'git.py' =>
+#
+# ToDo Txt for Git Py
+#
+
+
+# todo: test:  qno qa  # it should mean:  git add $(git diff --name-only)
 
 # todo: echo qbin/qg{v,}{l,}{w,}{i,}
 # todo: echo qb/g{v,}{l,}{w,}{i,}
@@ -815,11 +882,10 @@ if __name__ == "__main__":
 # git.py: + exit 1
 # $
 
+# FIXME: take each Arg of 'g...' as list of '-e' REGEX to Logical-Or, up to '--'
 # todo: define qg algorithmically
-# todo: fan out as full 16 inside:  echo qbin/qg{v,}{l,}{w,}{i,}
-# todo: accept -l -w -i to toggle on those
-# todo: ditto via 'shpipes.py' as full 16 inside:  echo qb/g{v,}{l,}{w,}{i,}
-
+# todo: fan out as full 32 inside:  echo qbin/qg{v,}{l,}{w,}{i,}{n,}
+# todo: ditto via 'shpipes.py' as full 32 inside:  echo qb/g{v,}{l,}{w,}{i,}{n,}
 
 #
 # todo: add '-h' into 'git log grep' => grep -h def.shlex_quote $(-ggl def.shlex_quote)

@@ -11,7 +11,7 @@ positional arguments:
 options:
   --help               show this help message and exit
 
-advanced bash install:
+advanced Bash install:
 
   alias @='~/Public/byobash/bin/byopyvm.py buttonfile'
 
@@ -41,7 +41,7 @@ examples:
 
   byopyvm.py  # show these examples and exit
   byopyvm.py --h  # show this help message and exit
-  command bin/byopyvm.py --  # show the Advanced Bash Install of ByoPyVM Py and exit
+  command bin/byopyvm.py --  # show the Advanced Bash Install of ByoPyVm Py and exit
 
   # Maths
 
@@ -1092,6 +1092,10 @@ def stack_pairs_peek(depth=1):
         if chars is not None:
             strip = chars.rstrip()
 
+            if False:
+                if filename == "2.718_":
+                    pdb.set_trace()
+
             # Count the File only if it holds an intelligible Value
 
             peek = stackable_loads(strip)
@@ -1099,7 +1103,7 @@ def stack_pairs_peek(depth=1):
 
                 continue
 
-            pair = (str(path), strip)  # FIXME: stack_triples_peeks to get the evalled
+            pair = (str(path), strip)  # FIXME FIXME FIXME FIXME: stack_triples_peeks to get the evalled
             pairs.append(pair)  # FIXME: send the raw chars, not the strip?
 
     # Limit the Depth peeked, except reserve Depth 0 to mean No Limit

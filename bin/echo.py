@@ -17,7 +17,7 @@ quirks:
   \e is \x1B Esc
   \c cancels the rest: it stops the print and implies -n
 
-advanced bash install:
+advanced Bash install:
 
   function echo.py {
     local xc=$?

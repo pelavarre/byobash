@@ -24,7 +24,7 @@ quirks:
   classic Cd rudely loses all Parms past the first
   Zsh and Bash take '(dirs -p |head -1)', but only Bash takes 'dirs +0'
 
-advanced bash install:
+advanced Bash install:
 
   function - () { echo + cd - && cd - >/dev/null && (dirs -p |head -1); }
   # some Bash says 'bash: cd: OLDPWD not set' and fails, till after first Cd

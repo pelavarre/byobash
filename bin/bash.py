@@ -17,6 +17,19 @@ quirks:
   some Bash drive apart the source for 'alias'es, vs
   Apple macOS promotes ancient Nov/2014 Bash 3.2.57 over modern Bash
 
+advanced Bash install:
+
+  function aliases () { echo + alias >&2 && alias; }
+
+  function funcs () {
+    local L="set |grep '^[^ =]* (' | sort"  # not Zsh 'set |grep'
+    echo + $L >&2
+    echo
+    set |grep '^[^ =]* (' |sort
+    echo
+    echo ': # you might next like:  declare -f funcs'
+  }
+
 examples:
 
   ls ~/.bashrc ~/.bash_profile ~/.profile
@@ -24,24 +37,12 @@ examples:
   bash.py  # show these examples and exit
   bash.py --h  # show this help message and exit
   bash.py --  # todo: run as you like it
+  command bin/bash.py --  # show the Advanced Bash Install of Bash Py and exit
 
   bash --noprofile --norc  # run with less local quirks
   export |grep SHLVL  # show how deeply incepted
   set |grep -e ^PS1= -e ^PS4=  # show the outer and incepted shell prompts
-
-  function aliases () { echo + alias >&2 && alias; }
-
-  function funcs () {
-    local L="set |grep '^[^ =]* ('"  # not Zsh 'set |grep'
-    echo + $L >&2
-    echo
-    set |grep '^[^ =]* ('
-    echo
-    echo ': # you might next like:  declare -f funcs'
-  }
 """
-
-# FIXME: code up a PatchDoc here
 
 # talk out how best to clear Bash History for a Bash Screen
 # todo: TabTab Completion of:  mv -i *.jp
@@ -52,7 +53,36 @@ examples:
 import byotools as byo
 
 
-byo.exit(__name__)
+def main():
+    """Run from the Sh Command Line"""
+
+    patchdoc = r"""
+
+  function aliases () { echo + alias >&2 && alias; }
+
+  function funcs () {
+    local L="set |grep '^[^ =]* (' | sort"  # not Zsh 'set |grep'
+    echo + $L >&2
+    echo
+    set |grep '^[^ =]* (' |sort
+    echo
+    echo ': # you might next like:  declare -f funcs'
+  }
+
+    """
+
+    byo.exit_if_patchdoc(patchdoc)  # bash.py --
+
+    byo.exit(__name__)
+
+
+#
+# Run from the Command Line, when not imported into some other Main module
+#
+
+
+if __name__ == "__main__":
+    main()
 
 
 # posted into:  https://github.com/pelavarre/byobash/blob/main/bin/bash.py

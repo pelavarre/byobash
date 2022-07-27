@@ -13,7 +13,7 @@ options:
   --help       show this help message and exit
   --ext=[EXT]  autocomplete & print, don't run the Code (default None, else '--ext=""')
 
-Quirks:
+quirks:
 
   frames dumps of 'pbpaste' to Stdout with one empty Stderr Line before, and one after,
     especially for the case of an Os Copy/Paste Buffer leaving its last Line unclosed
@@ -26,7 +26,7 @@ Quirks:
   calls 'make --' even for Make's that can't distinguish 'make --' from 'make'
   lets Linux Terminal Stdin echo ⌃D TTY EOF as '', vs macOS as '^D', all without '\n'
 
-Slang:
+slang:
 
   sends Cat '--show-tabs --show-nonprinting' as '-tv', not so much '--show-ends' as '-e'
   sends Diff '--ignore-space-change --recursive --show-c-function -unified' as '-brpu'
@@ -37,13 +37,13 @@ Slang:
   sends Uniq '--count' as '-c'
   sends Wc '--lines' as '-l'
 
-Advanced Bash Install:
+Bash Install:
 
   source qb/env-path-append.source  # define 'c', 'cv', 'd', 'g', 'gi', and so on
   bash qb/env-path-append.source  # show how it works
-  export PATH="${PATH:+$PATH:}~/Public/byobash/qb"  # add it into '~/.bashrc' etc
+  export PATH="${PATH:+$PATH:}~/Public/byobash/qb"  # clone it into '~/.bashrc' yourself
 
-Call Python to filter Lines of the Os Copy/Paste Buffer
+call Python to filter Lines of the Os Copy/Paste Buffer
 
   python3 -c 'import this' |tail -n +3 |shpipes.py cv
 
@@ -56,14 +56,14 @@ Call Python to filter Lines of the Os Copy/Paste Buffer
 
   shpipes.py --ext=.py lstrip  # print how it works, don't do it
 
-Call Python to filter whole Copies of the Os Copy/Paste Buffer
+call Python to filter whole Copies of the Os Copy/Paste Buffer
 
   shpipes.py join
   shpipes.py enumerate  # kin to:  |shpipes.py c, |cat -n -tv - |expand
   shpipes.py readlines  # aka:  |shpipes.py sh sponge
   shpipes.py textwrap.dedent
 
-Call Sh to filter Lines of the Os Copy/Paste Buffer
+call Sh to filter Lines of the Os Copy/Paste Buffer
 
   shpipes.py cv cut -d/ -f4-  # drop 'http://.../' suffix
   shpipes.py cv a '?' 1  # pbpaste |awk -F'?' '{print $1}' |pbcopy  # drop tracking tags
@@ -72,7 +72,7 @@ Call Sh to filter Lines of the Os Copy/Paste Buffer
 
   shpipes.py --ext=.sh lstrip  # print how it works, don't do it
 
-Examples:
+examples:
 
   shpipes.py  # show these examples and exit
   shpipes.py --h  # show this help message and exit
@@ -1325,10 +1325,14 @@ if __name__ == "__main__":
 
 
 #
-# 'todo.txt' of 'bin/shpipes.py'
+# ToDo Txt for ShPipes Py
 #
-#  FIXME: take each Arg of 'g...' as list of '-e' REGEX to Logical-Or, up to '--'
-#
+
+# FIXME: take each Arg of 'g...' as list of '-e' REGEX to Logical-Or, up to '--'
+# todo: define qg algorithmically
+# todo: fan out as full 32 inside:  echo qbin/qg{v,}{l,}{w,}{i,}{n,}
+# todo: ditto via 'git.py' as full 32 inside:  echo qb/g{v,}{l,}{w,}{i,}{n,}
+
 #  make more dry runs work, some do work now
 #
 #       % c --ext

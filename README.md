@@ -113,7 +113,7 @@ then you'll have to change one sourceline of it
     + import __main__ as byo
 
 
-## Advanced install
+## Advanced Sh install
 
 Odds on **you've already told your Shell to give some permissions
 only to the commands you've placed inside Sh Process Memory**,

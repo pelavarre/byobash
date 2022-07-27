@@ -6,6 +6,44 @@
 cv indent
 cv dedent
 
+pull most to all of the Sh Alias & Sh Func
+    into ByoBash
+        out of my own ~/.zshrc ~/.bashrc Files
+
+            Bash/Zsh Py
+                --dir-p-tac ()
+                DotFiles Track-Changes & Distribution
+                Add-On Distribution & Update, such as ByoBash itself
+                History dumps, especially pass default Retention Limits
+                .. ()  # for when got no:  shopt autocd
+                o ()
+                p ()
+                ps1 ()
+
+            Cp Mv
+
+                -cp ()
+                -jqd ()
+                -mv ()
+
+            PbCopy PbPaste
+                --colon-colon ()
+
+            PyLint
+                --pylint1 ()
+                --pylint2 ()
+
+            Python
+                --activate-bin-source ()
+                    run Pip Install verbs without activate, or to activate
+                -p ()
+                -p2 ()
+                -p3 ()
+                -ps ()
+
+            Ssh
+                --while-ssh ()
+
 ...
 
 faster fanout of 'git push' to multiple hosts

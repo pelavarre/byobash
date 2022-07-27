@@ -1,0 +1,14 @@
+
+
+% cv |g
++ pbpaste
+
++ grep -i --color=yes .
+alpha
+bravo
+charlie
+delta
+echo
+
+foxtrot
+%

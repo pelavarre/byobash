@@ -346,7 +346,7 @@ def exit_after_some_argv(argvs):
     """Run the ArgV's in order, till exit nonzero, else exit zero after the last one"""
 
     for argv in argvs:
-        subprocess_run_else_exit(argv)
+        subprocess_run_loud_else_exit(argv)
 
     sys.exit()  # Exit None after every ArgV exits Falsey
 
@@ -354,7 +354,7 @@ def exit_after_some_argv(argvs):
 def exit_after_one_argv(argv):
     """Call a Subprocess to run the ArgV, and then exit"""
 
-    subprocess_run_else_exit(argv)
+    subprocess_run_loud_else_exit(argv)
 
     sys.exit()  # Exit None after an ArgV exits Falsey
 
@@ -383,7 +383,7 @@ def dotted_typename(cls):
     return enough_typename
 
 
-def subprocess_run_else_exit(argv, shpipe=None):
+def subprocess_run_loud_else_exit(argv, shpipe=None):
     """Call a Subprocess to run the ArgV and return, except exit if exit nonzero"""
 
     main_py_basename = os.path.basename(sys.argv[0])
@@ -890,6 +890,19 @@ def shutil_get_tty_size():
 #
 # Add some Def's that 'import subprocess' forgot
 #
+
+
+def subprocess_run_oneline(shline, *args, **kwargs):
+
+    run = subprocess_run_stdio(shline, *args, stdout=subprocess.PIPE, **kwargs)
+
+    stdout = run.stdout.decode()
+    lines = stdout.splitlines()
+
+    assert len(lines) == 1, (shline, args, kwargs, lines)
+    line = lines[0]
+
+    return line
 
 
 def subprocess_run_stdio(shline, *args, **kwargs):
