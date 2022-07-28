@@ -1328,6 +1328,10 @@ if __name__ == "__main__":
 # ToDo Txt for ShPipes Py
 #
 
+# todo: cv spill
+# to inject line-break's well
+# such as http://api?k1=v1&k2=v2
+
 # FIXME: take each Arg of 'g...' as list of '-e' REGEX to Logical-Or, up to '--'
 # todo: define qg algorithmically
 # todo: fan out as full 32 inside:  echo qbin/qg{v,}{l,}{w,}{i,}{n,}

@@ -362,25 +362,11 @@ def exit_after_one_argv(argv):
 def exit_after_print_raise(exc):
     """Stderr Print the Exec and then Exit Nonzero"""
 
-    typename = dotted_typename(type(exc))
+    typename = class_fullname(type(exc))
     str_raise = "byotools.py: {}: {}".format(typename, exc)
     stderr_print(str_raise)
 
     sys.exit(1)  # Exit 1 for Unhandled Exception
-
-
-def dotted_typename(cls):
-    """Return the 'module.type' name for most types, but 'type' for 'builtins.type's"""
-
-    modulename = cls.__module__
-    typename = cls.__name__
-    dotted_typename = "{}.{}".format(modulename, typename)
-
-    enough_typename = typename
-    if modulename != "builtins":
-        enough_typename = dotted_typename
-
-    return enough_typename
 
 
 def subprocess_run_loud_else_exit(argv, shpipe=None):
@@ -460,6 +446,39 @@ class ShPath:
 
 
 #
+# Add some Def's to Class'es
+#
+
+
+def class_fullname(cls):
+    """Return the 'module.type' name for most types, but 'type' for 'builtins.type's"""
+
+    modulename = cls.__module__
+    typename = cls.__name__
+    wholename = "{}.{}".format(modulename, typename)
+
+    fullname = typename
+    if modulename != "builtins":
+        fullname = wholename
+
+    return fullname
+
+    # such as the fullname 'OSError', or the dotted fullname 'io.UnsupportedOperation',
+    # but never the whole name 'builtins.OSError'
+
+
+def class_mro_join(cls):
+    """Format the list of Class'es searched for Attributes missing from the Instance"""
+
+    mro = cls.__mro__
+    join = " else ".join(class_fullname(_) for _ in mro)
+
+    return join
+
+    # such as 'io.UnsupportedOperation else OSError else ValueError ... else object'
+
+
+#
 # Add some Def's to List's
 #
 
@@ -497,7 +516,8 @@ def list_strip(items):
 
 
 #
-# Add some Def's to Str's, while not found in 'import textwrap'
+# Add some Def's to Str's and Byte's,
+# partly because not found in 'import textwrap'
 #
 
 

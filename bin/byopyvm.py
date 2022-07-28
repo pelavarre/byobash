@@ -158,8 +158,8 @@ NAME_REGEX = r"[A-Z_a-z][0-9A-Z_a-z]*"
 CLOSED_NAME_REGEX = r"^" + NAME_REGEX + r"$"
 
 
-DOTTED_NAME_REGEX = "({})([.]{})+".format(NAME_REGEX, NAME_REGEX)
-CLOSED_DOTTED_NAME_REGEX = r"^" + DOTTED_NAME_REGEX + r"$"
+FULLNAME_REGEX = "({})([.]{})+".format(NAME_REGEX, NAME_REGEX)
+CLOSED_FULLNAME_REGEX = r"^" + FULLNAME_REGEX + r"$"
 
 
 DECINTEGER_REGEX = r"([1-9](_?[0-9])*)|(0(_0)*)"
@@ -197,6 +197,41 @@ assert set(SIGNABLE_ENTRIES).issubset(set(OPEN_ENTRIES))
 
 ENTRY_REGEX = r"({}|{})[Jj]?".format(FLOAT_REGEX, INT_REGEX)
 CLOSED_ENTRY_REGEX = r"^" + ENTRY_REGEX + r"$"
+
+
+Q2 = '"'
+Q3 = "_"
+
+
+class ButtonEntry(str):
+    """Work like a classic Python Str, but de/serialize differently"""
+
+    def json_dumps(self):
+        """Format the Chars of this Str distinctly, apart from how Json Dumps would"""
+
+        dumped = json.dumps(self)
+        assert dumped.startswith(Q2) and dumped.endswith(Q2)
+
+        skinless = dumped[len(Q2) :][: -len(Q2)]
+        skidded = Q3 + skinless + Q3
+
+        return skidded
+
+    def json_loads(s):
+        """Take the S as coming from 'json_dumps', else Raise 'json.JSONDecodeError'"""
+
+        dumped = s
+
+        if not dumped.startswith(Q3) or not dumped.endswith(Q3):
+
+            raise json.JSONDecodeError(msg="not a ButtonEntry", doc=dumped, pos=0)
+
+        skinless = dumped[len(Q3) :][: -len(Q3)]
+        loadable = Q2 + skinless + Q2
+
+        loaded = json.loads(loadable)
+
+        return loaded
 
 
 #
@@ -315,9 +350,9 @@ def to_fuzzed_word(word):
 
         return "lit_float"
 
-    if re.match(CLOSED_DOTTED_NAME_REGEX, string=word):
+    if re.match(CLOSED_FULLNAME_REGEX, string=word):
 
-        return "dotted_name"
+        return "fullname"
 
     if re.match(CLOSED_NAME_REGEX, string=word):
 
@@ -422,7 +457,7 @@ def form_take_by_word():
 
     take_by_sh_adverb = dict(
         buttonfile=parms_buttonfile,
-        dotted_name=parms_dotted_name,
+        fullname=parms_fullname,
         lit_float=parms_lit_float,
         lit_int=parms_lit_int,
         name=parms_name,
@@ -469,12 +504,12 @@ def form_take_by_word():
 #
 
 
-def parms_dotted_name(parms):
-    """Eval a Dotted Name and push its Value"""
+def parms_fullname(parms):
+    """Eval a Fullname (composed of ModuleName Dot Name) and push its Value"""
 
     py = parms[0]
 
-    evalled = stackable_dotted_eval(py)
+    evalled = stackable_eval_fullname(py)
 
     pushable = evalled  # todo: factor out commonalities with 'def parms_name'
     if isinstance(evalled, collections.abc.Callable):
@@ -506,7 +541,7 @@ def parms_name(parms):
 
     evalled = stackable_eval(py)
 
-    pushable = evalled  # todo: factor out commonalities with 'def parms_dotted_name'
+    pushable = evalled  # todo: factor out commonalities with 'def parms_fullname'
     if isinstance(evalled, collections.abc.Callable):
         pushable = evalled()
 
@@ -770,7 +805,7 @@ def stack_depth():
 #
 
 
-def stackable_dotted_eval(py):
+def stackable_eval_fullname(py):
     """Call 'stackable_eval' but lazily import the Module it most obviously needs"""
 
     by_nickname = dict(D="decimal", dt="datetime", pd="pandas")
@@ -801,7 +836,7 @@ def stackable_dotted_eval(py):
             assert imported is sys.modules[modulename], imported
             globals()[nickname] = imported
 
-    # Eval the Dotted Name and push its Value
+    # Eval the Fullname and push its Value
 
     evalled = stackable_eval(py)
 
@@ -820,64 +855,96 @@ def stackable_eval(py):
     return evalled
 
 
-def stackable_dumps(value):
+def stackable_dumps(obj):
     """Format an Object as Chars"""
 
     by_nickname = dict(D="decimal", dt="datetime", pd="pandas")
     assert by_nickname == BY_NICKNAME
 
-    #
+    repr_obj = repr(obj)
+    repr_repr_obj = repr(repr_obj)
 
-    try:
-        poke = json.dumps(value)
-    except TypeError:
-        repr_value = repr(value)
+    # Dump some Types differently than Json would
 
-        if isinstance(value, complex):
-            poke = repr_value
-        else:
-            py = repr_value
-            poke_py = repr(py)
+    if hasattr(obj, "json_dumps"):
+        assert isinstance(obj, ButtonEntry), byo.class_mro_join(type(obj))
 
-            poke = "eval({})".format(poke_py)
-            for (nickname, modulename) in BY_NICKNAME.items():
-                prefix = modulename + "."
-                if py.startswith(prefix):
-                    alt_py = nickname + "." + py[len(prefix) :]
-                    alt_poke_py = repr(alt_py)
-                    poke = "eval({})".format(alt_poke_py)
+        dumped = obj.json_dumps()  # such as: '_-1.2e_'
 
-                    break
+    # Dump any Json Type
 
-            # such as eval('dt.datetime(2022, 7, 24, 16, 4, 7, 624925)')
+    else:
+        try:
 
-    return poke
+            dumped = json.dumps(obj)  # such as '"abc"'
+
+        # Dump Complex Obj
+
+        except TypeError:
+            if isinstance(obj, complex):
+
+                dumped = repr_obj  # such as:  '(-1+2j)'
+
+            # Dump other Obj's as a Py Sourceline to Eval the Chars of Repr
+            # todo:  Repr of Collections.Counter etc omits its ModuleName
+
+            else:
+                dumped = "eval({})".format(repr_repr_obj)
+
+                for (nickname, modulename) in BY_NICKNAME.items():
+                    prefix = modulename + "."
+                    if repr_obj.startswith(prefix):
+                        alt_py = nickname + "." + repr_obj[len(prefix) :]
+                        alt_repr_repr_obj = repr(alt_py)
+
+                        dumped = "eval({})".format(alt_repr_repr_obj)
+                        # such as:  "eval('dt.datetime(2022, 7, 24, 16, 4, 7, 624925)')"
+
+                        break
+
+    return dumped
 
 
-def stackable_loads(chars):
+def stackable_loads_else(s):
     """Unwrap the Object inside the Chars, else return None"""
 
+    dumped = s
+
+    # Load any Json Type
+
     try:
-        peek = json.loads(chars)
+
+        loaded = json.loads(dumped)
+
     except json.JSONDecodeError:
+
+        # Load a Py Sourceline to Eval the Chars of Repr
 
         prefix = "eval("
         suffix = ")"
-        if chars.startswith(prefix) and chars.endswith(suffix):
-            repr_py = chars[len(prefix) : -len(suffix)]
-
+        if dumped.startswith(prefix) and dumped.endswith(suffix):
+            repr_py = dumped[len(prefix) : -len(suffix)]
             py = ast.literal_eval(repr_py)
 
-            peek = stackable_dotted_eval(py)
+            loaded = stackable_eval_fullname(py)
+
+        # Load Complex Values
 
         else:  # todo:  much too weak reasons to conclude is Rep of Complex
-
             try:
-                peek = complex(chars)
-            except ValueError:
-                peek = None  # todo: could:  raise ValueError(chars)
 
-    return peek
+                loaded = complex(dumped)
+
+            except ValueError:
+                try:
+
+                    loaded = ButtonEntry.json_loads(dumped)
+
+                except json.JSONDecodeError:
+
+                    loaded = None  # todo: could:  raise ValueError(dumped)
+
+    return loaded
 
 
 def stackable_triple(value):
@@ -887,21 +954,21 @@ def stackable_triple(value):
     dumped = stackable_dumps(value)
 
     if isinstance(value, complex):
-        assert not isinstance(value, collections.abc.Container)
+        assert not isinstance(value, collections.abc.Container), type(value)
 
         triple = stackable_triple_of_complex(value)
 
         return triple
 
     if isinstance(value, float):
-        assert not isinstance(value, collections.abc.Container)
+        assert not isinstance(value, collections.abc.Container), type(value)
 
         triple = stackable_triple_of_float(value)
 
         return triple
 
-    if isinstance(value, str):
-        assert isinstance(value, collections.abc.Container)
+    if isinstance(value, str):  # test Str before trying Container
+        assert isinstance(value, collections.abc.Container), type(value)
 
         basename = value
         triple = (basename, dumped, value)
@@ -910,7 +977,7 @@ def stackable_triple(value):
 
     if isinstance(value, collections.abc.Container):
 
-        basename = byo.dotted_typename(type(value))
+        basename = byo.class_fullname(type(value))
         triple = (basename, dumped, value)
 
         return triple
@@ -1115,7 +1182,7 @@ def stack_triples_peek(depth=1):
 
             # Count the File only if it holds an intelligible Value
 
-            peek = stackable_loads(dumped)
+            peek = stackable_loads_else(dumped)
             if peek is None:  # such as json.JSONDecodeError
 
                 continue
@@ -1383,7 +1450,7 @@ def entry_write_char(ch):
     if entry is not None:
         _ = stack_pop(1)
 
-    stack_push(value)  # FIXME: serialize Entry's differently than Strings
+    stack_push(ButtonEntry(value))
 
 
 def entry_take_char(entry, ch):
@@ -1557,7 +1624,7 @@ def entry_peek():
 
         if basename is not None:
             if basename.endswith("_"):
-                basename_json = stackable_dumps(basename)
+                basename_json = stackable_dumps(ButtonEntry(basename))
                 if basename_json == dumped:
 
                     # Remove the Strong Mark of the Entry as inviting further input
@@ -1585,6 +1652,8 @@ def entry_peek():
 
 
 # FixMe: add Bits alongside Decimal Int and Decimal Float and Decimal Complex
+
+# FixMe: add our TestDoc and our Button TestDoc here into Make SelfTest
 
 
 _ = """
