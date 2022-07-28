@@ -65,6 +65,12 @@ examples:
   =  clear  * , .    * * , .      * * , .      2>/dev/null  # 1, 2, 4, ...
   =  clear  + , .    + + , .      + + , .      2>/dev/null  # 0, 1, 2, ...
   =  clear  - , .    - - , .      - - , .      2>/dev/null  # 1, -1, 1, ...
+
+  =  clear   / / / / /  # 0, 1 0, Inf, 1 Inf, 0, ...  # looping
+  =  clear   * * *   # 0, 0 1, 0, ...  # looping
+  =  clear   + + +   # 1, 1 0, 1, ...  # looping
+  =  clear   - - - - -  # 1, 0 1, -1, 0 -1, 1, ...  # looping
+  =  clear   % % % % %  # 9, 9 2, 1, 1 2, 1, ...  # looping
 """
 
 # todo:  # Files and Dirs
@@ -122,6 +128,14 @@ BUTTONFILE_TESTCHARS = """
 
     = clear  &&  @  dt.datetime.now dt.datetime.now over -  # dt.timedelta
 
+    = clear && @ 9 , 2 , . slash  # take Dot Slash as Mod
+    = clear && @ 12 . sqrt   # take Dot Sqrt as Square
+    = clear && @ 10 e . pow   # take Dot Pow as Log
+    = clear && @ . pi  # take Dot Pi as Tau
+
+    = clear && @ 123 456 . clear   # take Dot Clear as Drop
+    = clear && @ 123 456 . over    # take Dot Over as Swap
+
     # sequences chosen from digits and:  / * - + . , pi π i e over pow sqrt √ clear
 
 """
@@ -147,6 +161,18 @@ SH_J = "i"  # choose the Char to mark 'str' of '.imag', from outside r"[-+.01234
 
 STR_PI = "\N{Greek Small Letter Pi}"  # π
 STR_SQRT = "\N{Square Root}"  # √
+STR_TAU = "\N{Greek Small Letter Tau}"  # τ
+
+
+#
+# Declare how to change the Meaning of a Word by marking the Word
+#
+
+ALT_BY_WORD = dict(
+    clear="drop", over="swap", pi="tau", slash="mod", sqrt="square", pow="log"
+)
+ALT_BY_WORD["/"] = ALT_BY_WORD["slash"]
+ALT_BY_WORD[STR_PI] = ALT_BY_WORD["pi"]
 
 
 #
@@ -374,19 +400,19 @@ def form_name_by_char():
     d[" "] = "space"
     d["!"] = "bang"
     d['"'] = "quote"
-    d["#"] = "hash"
-    # d["$"]
-    # d["%"]
+    d["#"] = "hash"  # aka a form of "splat"
+    d["$"] = "buck"
+    d["%"] = "mod"
     d["&"] = "amp"
     d["'"] = "tick"
-    # d["("]
-    # d[")"]
-    d["*"] = "star"
+    # d["("]  # "in"  # "paren"  # two syllables
+    # d[")"]  # "out"
+    d["*"] = "star"  # aka a form of "splat"
     d["+"] = "plus"
     d[","] = "comma"
     d["-"] = "dash"
     d["."] = "dot"
-    d["/"] = "slash"
+    d["/"] = "slash"  # commonly misspoken as "backslash"
 
     d["0"] = "zero"  # Decimal Digits alone are not Python Names
     d["1"] = "one"
@@ -399,35 +425,37 @@ def form_name_by_char():
     d["8"] = "eight"
     d["9"] = "nine"
 
-    d[":"] = "colon"
-    d[";"] = "semi"
-    # d["<"]
+    d[":"] = "colon"  # two syllables
+    d[";"] = "semi"  # two syllables
+    # d["<"]  # "from"  # "angle"  # two syllables
     d["="] = "equals"
-    # d[">"]
+    # d[">"]  # "to"
     d["?"] = "query"
 
     d["@"] = "at"
 
-    # d["["]
-    d["\\"] = "backslant"  # two syllables
+    # d["["]  # "bracket"  # two syllables
+    d["\\"] = "backslant"  # two syllables  # commonly misspoken as "slash"
     # d["]"]
     d["^"] = "hat"
-    d["_"] = "skid"  # aka underscore
+    d["_"] = "skid"  # aka three syllables "underscore"
 
     d["`"] = "backtick"  # two syllables
 
-    # d["{"]
+    # d["{"]  # "brace"
     d["|"] = "bar"
     # d["}"]
     d["~"] = "tilde"  # two syllables  # aka "squiggle"
 
     return d
 
-    # https://unicode.org/charts/PDF/U0000.pdf
-    # http://www.catb.org/jargon/html/A/ASCII.html
-    # https://www.dourish.com/goodies/jargon.html
+    # https://unicode.org/charts/PDF/U0000.pdf  # C0 Controls and Basic Latin
+    # http://www.catb.org/jargon/html/A/ASCII.html  # Hacker's Dictionary > Ascii
+    # https://www.dourish.com/goodies/jargon.html  # The Original Hacker's Dictionary
 
-    # http://www.forth.org/svfig/Win32Forth/DPANS94.txt
+    # http://www.forth.org/svfig/Win32Forth/DPANS94.txt  # DPANS'94
+    # http://forth.sourceforge.net/std/dpans/  # DPANS'94
+
     # https://aplwiki.com/wiki/Unicode
 
 
@@ -448,7 +476,8 @@ def form_take_by_word():
         e=math.e,
         i=MATH_J,  # Sci Folk
         j=MATH_J,  # Eng Folk
-        pi=math.pi,
+        pi=math.pi,  # π  # Classic Folk
+        tau=math.tau,  # τ  # Modern Folk
     )
 
     take_by_sh_noun[STR_PI] = math.pi  # π
@@ -464,25 +493,30 @@ def form_take_by_word():
         hash=parms_hash,  # this 'hash' is not 'builtins.hash'
     )
 
-    # Define SH Verbs of Forth
+    # Define Sh Verbs of Forth
 
     take_by_sh_verb = dict(
         clear=do_clear,
         comma=do_comma,
-        dash=do_dash,  # invite Monosyllabic Folk to speak of the '-' Dash
+        dash=do_dash_y_x,  # invite Monosyllabic Folk to speak of the '-' Dash
         dot=do_dot,
+        drop=do_pop_x,
         equals=do_equals,
-        minus=do_dash,  # invite Calculator Folk to speak of the '-' Minus
+        log=do_log_y_x,
+        minus=do_dash_y_x,  # invite Calculator Folk to speak of the '-' Minus
+        mod=do_mod_y_x,
         over=do_clone_y,
-        pow=do_pow,  # this 'pow' is not 'builtins.pow'
-        plus=do_plus,
-        slash=do_slash,
-        sqrt=do_sqrt,
-        star=do_star,
+        plus=do_plus_y_x,
+        pow=do_pow_y_x,  # this key='pow' is a str, not the 'builtins.pow' Func
+        slash=do_slash_y_x,
+        sqrt=do_sqrt_x,
+        square=do_square_x,
+        star=do_star_y_x,
         swap=do_swap_y_x,
     )
 
-    take_by_sh_verb[STR_SQRT] = do_sqrt  # √
+    take_by_sh_verb[STR_SQRT] = do_sqrt_x  # √
+    take_by_sh_verb[STR_TAU] = math.tau  # τ
 
     # Merge the Dicts of Words of Command
 
@@ -559,7 +593,7 @@ def parms_hash(parms):
 #
 
 
-def do_dash():
+def do_dash_y_x():
     """Push Y - X in place of Y X"""
 
     if not stack_has_x():
@@ -604,7 +638,50 @@ def do_equals():
             print(basename)
 
 
-def do_pow():
+def do_mod_y_x():
+    """Push Y % X in place of Y X, if X not zeroed"""
+
+    if not stack_has_x():
+        stack_push(9)  # suggest  9 2 %, else X 2 %
+    elif not stack_has_y():
+        stack_push(2)
+    else:
+
+        (y, x) = stack_peek(2)
+
+        try:
+            x_ = y % x
+        except Exception as exc:
+
+            byo.exit_after_print_raise(exc)
+
+        stack_pop(2)
+        stack_push(x_)
+
+
+def do_log_y_x():
+    """Push Log Base X of Y in place of Y X, by way of 'log(y, x)'"""
+
+    if not stack_has_x():
+        stack_push(10)  # suggest 10 e log, else e log
+    elif not stack_has_y():
+        stack_push(math.e)
+    else:
+
+        (y, x) = stack_peek(2)
+
+        base_x = x
+        try:
+            x_ = math.log(y, base_x)
+        except Exception as exc:
+
+            byo.exit_after_print_raise(exc)
+
+        stack_pop(2)
+        stack_push(x_)
+
+
+def do_pow_y_x():
     """Push Y ** X in place of Y X, by way of 'pow(y, exp=x)'"""
 
     if not stack_has_x():
@@ -625,13 +702,13 @@ def do_pow():
         stack_push(x_)
 
 
-def do_plus():
+def do_plus_y_x():
     """Push Y + X in place of Y X"""
 
     if not stack_has_x():
-        stack_push(0)  # suggest 0 1 +, else 1 +
+        stack_push(1)  # suggest 1 0 +, else 0 +
     elif not stack_has_y():
-        stack_push(1)
+        stack_push(0)
     else:
 
         (y, x) = stack_peek(2)
@@ -646,7 +723,7 @@ def do_plus():
         stack_push(x_)
 
 
-def do_slash():
+def do_slash_y_x():
     """Push Y / X in place of Y X, and slide into -Inf, NaN, InF when X zeroed"""
 
     if not stack_has_x():
@@ -674,7 +751,26 @@ def do_slash():
         stack_push(x_)
 
 
-def do_sqrt():
+def do_square_x():
+    """Push (X ** 2) in place of X"""
+
+    if not stack_has_x():
+        stack_push(-0.5)  # suggest -0.5 Square
+    else:
+
+        x = stack_peek()
+
+        try:
+            x_ = x ** 2
+        except Exception as exc:
+
+            byo.exit_after_print_raise(exc)
+
+        stack_pop()
+        stack_push(x_)
+
+
+def do_sqrt_x():
     """Push (X ** (1 / 2)) in place of X, and slide into Complex when X negative"""
 
     if not stack_has_x():
@@ -693,13 +789,13 @@ def do_sqrt():
         stack_push(x_)
 
 
-def do_star():
+def do_star_y_x():
     """Push Y * X in place of Y X"""
 
     if not stack_has_x():
-        stack_push(1)  # suggest 1 2 *, else 2 *
+        stack_push(0)  # suggest 0 1 *, else 1 *
     elif not stack_has_y():
-        stack_push(2)
+        stack_push(1)
     else:
 
         (y, x) = stack_peek(2)
@@ -724,6 +820,8 @@ def do_clear():  # a la GForth "clearstack"
 
     stack_triples_pop(depth=0)
 
+    # different than our 'def try_buttonfile_clear'
+
 
 def do_clone_x():  # a la Forth "DUP", a la HP "Enter"
     """Push X X in place of X"""
@@ -747,6 +845,15 @@ def do_clone_y():  # a la Forth "OVER", a la HP "RCL Y"
 
         (y, x) = stack_peek(2)
         stack_push(y)
+
+
+def do_pop_x():  # a la Forth "DROP"
+    """Pop X if X"""
+
+    if stack_has_x():
+        stack_pop()
+
+    # different than our 'def try_buttonfile_drop'
 
 
 def do_swap_y_x():
@@ -1302,35 +1409,65 @@ def try_buttonfile(parms):
 
         word = root if (ext == ".command") else basename
 
+    word = word.casefold()  # Ignore Upper/Lower Case in ButtonFile Names
+
     # Run the Word
 
-    moved = try_entry_move_by_word(word)
-    if not moved:
-        if word == "clear":
+    keyed = try_entry_dot_key_map(word)
+    if not keyed:
 
-            try_buttonfile_clear()  # works in place of 'entry_close_if_open()'
+        moved = try_entry_move_by_word(word)
+        if not moved:
+            if word == "clear":
 
-        elif word in (",", "comma"):
+                try_buttonfile_clear()  # works in place of 'entry_close_if_open()'
 
-            entry = entry_close_if_open()
-            if entry is None:
-                do_comma()
+            elif word in (",", "comma"):
 
-        else:
+                entry = entry_close_if_open()
+                if entry is None:
+                    do_comma()
 
-            entry_close_if_open()
-            parms_run(parms=[word])
+            else:
+
+                entry_close_if_open()
+                parms_run(parms=[word])
+
+
+def try_entry_dot_key_map(word):
+    """Run an Alt Key Map after a leading "." Dot"""
+
+    entry = entry_peek_else()
+
+    if entry == ".":
+        alt_word = ALT_BY_WORD.get(word)
+        if alt_word is not None:
+            byo.stderr_print(
+                "byopyvm.py: Easter Egg:  Found {} at Dot {}".format(
+                    alt_word.title(), word.title()
+                )
+            )  # Egg's of Mod Drop Log Square Swap Tau at Slash Clear Pow Sqrt Over Pi
+
+            do_pop_x()  # drop the "." Dot Entry, in place of 'entry_close_if_open()'
+
+            if alt_word == "drop":
+                try_buttonfile_drop()
+            else:
+                parms_run(parms=[alt_word])
+
+            return True
 
 
 def try_entry_move_by_word(word):
     """Return None after closing or dropping the Entry, else return the Open Entry"""
 
-    # Edit the Entry in one of many ways
-
     entry = entry_peek_else()
     signable = entry_is_signable(entry)
 
+    # Edit the Entry in one of many ways
+
     moved = True
+
     if entry and (word == "clear"):  # take Clear to empty the Entry, else empty Stack
         entry_write_char("")
     elif (entry is not None) and (word in ("pi", STR_PI)):  # π
@@ -1348,6 +1485,7 @@ def try_entry_move_by_word(word):
     elif word in (".", "dot"):
         entry_write_char(".")
     else:
+
         moved = False
 
     # Succeed anyhow, but return False after running no Word
@@ -1388,10 +1526,19 @@ def try_buttonfile_clear():
 
     triples = stack_triples_pop(depth=0)
     if not triples:
-        stack_push(3)
+        stack_push(3)  # suggest:  3 2 1 0 Clear
         stack_push(2)
         stack_push(1)
         stack_push(0)
+
+
+def try_buttonfile_drop():
+    """Pop X if X, else push 0"""
+
+    if not stack_has_x():
+        stack_push(0)  # suggest:  0 Drop
+    else:
+        stack_pop()
 
 
 def do_comma():
@@ -1461,7 +1608,10 @@ def entry_take_char(entry, ch):
     signable_entries = ("", "+", "-", ".")
     assert signable_entries == SIGNABLE_ENTRIES
 
+    entry_celebrate_egg_found(entry, ch)
+
     # Work as instructed
+    # (already at max C901 Complex 10, until we factor out the +/- and ./e/j work)
 
     if ch == "":
 
@@ -1516,6 +1666,22 @@ def entry_take_char(entry, ch):
     return taken
 
 
+def entry_celebrate_egg_found(entry, ch):
+    """Celebrate finding an Egg, while editing an Entry"""
+
+    eggs = dict()
+
+    eggs["+"] = "Plus Sign at Dot Plus"
+    eggs["-"] = "Minus Sign at Dot Minus"
+    eggs["e"] = "Exp at Dot E"
+    eggs["j"] = "Imag at Dot J"
+    eggs[STR_PI] = "Delete at Dot Pi"
+
+    if ch in eggs.keys():
+        egg = eggs[ch]
+        byo.stderr_print("byopyvm.py: Easter Egg:  Found {}".format(egg))
+
+
 def entry_close_if_open():
     """Return an Unevalled Copy of the Entry, but replace it with its Eval"""
 
@@ -1530,9 +1696,25 @@ def entry_close_if_open():
 
         return None
 
-    # Replace the Entry with its Evaluation, except discard an Empty Entry
+    # Eval the Entry
 
     evalled = entry_eval(entry)
+
+    # Celebrate finding an Egg
+
+    eggs = dict()
+
+    eggs[""] = "None at Dot Comma"
+    eggs["+"] = "Inf at Dot Plus Comma"
+    eggs["-"] = "-Inf at Dot Minus Comma "
+    eggs["."] = "NaN at Dot Comma"
+
+    if entry in eggs.keys():
+        egg = eggs[entry]
+        assert str(evalled).casefold() == egg.split()[0].casefold(), (evalled, egg)
+        byo.stderr_print("byopyvm.py: Easter Egg:  Found {}".format(egg))
+
+    # Replace the Entry with its Evaluation, except discard an Empty Entry
 
     _ = stack_pop(1)
     if evalled is not None:
@@ -1651,10 +1833,38 @@ def entry_peek():
 #
 
 
-# FixMe: add Bits alongside Decimal Int and Decimal Float and Decimal Complex
+# FIXME: add Bits alongside Decimal Int and Decimal Float and Decimal Complex
 
-# FixMe: add our TestDoc and our Button TestDoc here into Make SelfTest
+# FIXME: add our TestDoc and our Button TestDoc here into Make SelfTest
 
+
+_ = """
+
+todo:  . , should be : because no longer NaN
+todo:  . √ should be Log2 because no longer X*X
+
+main key map
+
+      i      pi  7  8   9   /
+     OVER    e   4  5   6   *
+            POW  1  2   3   -
+    CLEAR    √   0  .  DUP  +
+
+dot key map - stacked as Entry .
+
+          IMAG  TAU/DEL      7       8      9             MOD/SLASH
+     SWAP/OVER  LN/EXP       4       5      6             LOG10/STAR
+                LOGYX/POW    1       2      3             NEG/MINUS
+     DROP/WIPE  LOG2/SQRT    0  BASE/.  :/-INF/INF/COMMA  POS/PLUS
+
+dot comma key map - stacked as Entry :
+
+     NAN   INT-FRAC  7  8  9  1/X
+     DUP2    E**X    4  5  6  10**X
+             Y.LAST  1  2  3  0-X
+    DROP2     2**X   0  .  COMMA  X.LAST
+
+"""
 
 _ = """
 
@@ -1677,74 +1887,34 @@ bits = hex, oct, or bin
 
 _ = """
 
-got puns in / for hex, . for dec, i for oct, * for bin
-but too expensive so many buttons
-
 dot dot ... to visit each base:  to-hex, to-dec, to-oct, to-bin
 except skip the to- where we already are, so first strike is always to-hex else to-dec
 
-# dot /
-# dot *
-Y@ dot - , = Inf
-Y@ dot - ... = negative imaginary/ float/ int
-Y@ dot + , = Inf
-Y@ dot + ... = positive imaginary/ float/ int
-
 # dot dot ... to-hex, to-dec, to-oct, to-bin
-Y@ dot comma = NaN
-
-dot sqrt = Square
-dot pow = Log
-
-dot pi = tau 𝜏
-# dot i
-Y@ dot e , = e
-Y@ dot e ... = 1e...
-
-dot over = Swap
-dot clear = Drop
-
-no hurry on the A B C D E F keys - first class, not mapped
-
-i've long forgotten what a complex sqrt is ...
-
-"""
-
-
-_ = """
 
 conversions to Bits first dupe as floor Decimal Int, if given Complex or Float
     except is it Ceiling when negative?
 
 bits / to shift right >>
-bits dot / to rotate right & >> |
 bits * to shift left <<
-bits dot * to rotate left & << |
 bits + for bits |
-# bits dot +
 bits - for bits ~ &
-# bits dot -
 
 bits sqrt for bits ~
-bits dot sqrt for 0 bits -
-
 bits pow for bits ^
+
+bits dot / to rotate right & >> |
+bits dot * to rotate left & << |
+bits dot sqrt for 0 bits -
 bits dot pow for 0 bits - &
 
-bits comma = dup  # same as dec
-# bits dot comma
-
-# bits dot pi
-# bits dot i
-# bits dot e
-# bits dot e ...
-
-bits dot over = Swap  # same as dec
-bits dot clear = Drop  # same as dec
+no hurry on the A B C D E F keys - first class, not mapped
 
 """
 
 _ = """
+
+i've long forgotten what a complex sqrt is ...
 
 same thing in a TUI, TUI in a GShell
 --tui paper tape
