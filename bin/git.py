@@ -111,7 +111,7 @@ examples:
   git.py rl  # git reflog  # show Commits of Clone, no matter the Branch
   git.py rlv  # git reflog --format=fuller  # show more detail for Commits of Clone
   git.py rpar  # git rev-parse --abbrev-ref  # show the key line of:  git.py b
-  git.py rpsfn  # git rev-parse --symbolic-full-name @{-...}  # show:  git.py co -
+  git.py rpsfn  # git rev-parse --symbolic-full-name  # like show @{-1} of 'co -'
   git.py rv  # git remote -v
   git.py ssn  # git shortlog --summary --numbered
 
@@ -610,7 +610,7 @@ ALIASES = {
     "rl": "git reflog",
     "rlv": "git reflog --format=fuller",
     "rpar": "git rev-parse --abbrev-ref {}",
-    "rpsfn": "git rev-parse --symbolic-full-name @{{-{}}}",
+    "rpsfn": "git rev-parse --symbolic-full-name {}",  # such as:  rpsfn @{-1]
     "rv": "git remote -v",
     "s": "git show {}",
     "s1": "git show :1:{}",
@@ -673,7 +673,7 @@ def exit_if_by_git_stdout_line(parms):
             git_config_shline = "git config core.editor"
             byo.stderr_print("+ {}".format(git_config_shline))
 
-            vi_shline = byo.subprocess_run_oneline("git config core.editor", check=True)
+            vi_shline = byo.subprocess_run_oneline("git config core.editor")
             vi_shline = vi_shline + " " + byo.shlex_dquote(path)
             vi_argv = shlex.split(vi_shline)
 
@@ -797,7 +797,7 @@ def exit_if_git_rpsfn(parms):
     shlines = alias.shlines
 
     assert authed
-    assert shlines == ["git rev-parse --symbolic-full-name @{{-{}}}"], shlines
+    assert shlines == ["git rev-parse --symbolic-full-name {}"], shlines
 
     # Take an Int as the Last to show, but ignore the Sign on the Int
 
@@ -805,19 +805,54 @@ def exit_if_git_rpsfn(parms):
     alt_shlines.append("git rev-parse --abbrev-ref HEAD")
 
     alt_parms = parms
-    if parms:
+    if not parms:
+
+        alt_parms = ["@{-1}"]  # Define 'rpsfn' as 'rpsfn @{-1}'
+
+    elif len(parms) == 1:
+
         parms_0 = parms[0]
+        if parms == ["--"]:
+            parms_0 = "-4"  # Define 'rpsfn --' as 'rpsfn -4'
+
         if re.match(r"^[-+]?[0-9]+$", string=parms_0):
-
             absintparm = abs(int(parms_0))
-            alt_parms = parms[1:]
 
-            for index in range(1, absintparm + 1):
+            for index in range(1, absintparm):
                 alt_shlines.append(
-                    "git rev-parse --symbolic-full-name @{{{{-{}}}}}".format(index)
+                    "git rev-parse --symbolic-full-name @{{-{}}}".format(index)
                 )
 
-    exit_if_shproc(shverb="rpsfn", parms=alt_parms, authed=True, shlines=alt_shlines)
+            exit_after_rpsfn_shlines(shlines=alt_shlines)
+
+    assert alt_parms
+
+    exit_if_shproc(shverb="rpsfn", parms=alt_parms, authed=True, shlines=shlines)
+
+    assert False, alt_parms
+
+
+def exit_after_rpsfn_shlines(shlines):
+    """Trace all the ShLines before any of the Outputs, and drop the 'refs/heads/'"""
+
+    expansions = list()
+    for shline in shlines:
+        if len(shlines) == 1:
+            byo.stderr_print("+ {}".format(shline))
+        expansion = byo.subprocess_run_oneline(shline)
+        expansions.append(expansion)
+
+    if len(shlines) != 1:
+        for (index, shline) in enumerate(shlines):
+            if not index:
+                byo.stderr_print("+ {}".format(shline))
+            else:
+                byo.stderr_print("+ {} |sed 's,^refs/heads/,,'".format(shline))
+
+    for expansion in expansions:
+        print(byo.str_removeprefix(expansion, "refs/heads/"))
+
+    sys.exit(0)  # Exit 0 after printing Help Lines
 
 
 def exit_if_em(parms):
@@ -889,10 +924,6 @@ if __name__ == "__main__":
 
 #
 # todo: add '-h' into 'git log grep' => grep -h def.shlex_quote $(-ggl def.shlex_quote)
-#
-# FIXME: dial back the over-aggressive quoting at qrpsfn => git rev-parse ... '@{-1}'
-#
-# todo: solve:  qrpsfn --
 #
 
 # compaction for qssi = git status --short --ignored

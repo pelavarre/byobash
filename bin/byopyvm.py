@@ -305,7 +305,7 @@ def main():
 
     # Run well
 
-    parms_run_many(parms=alt_parms)
+    parms_run_some(parms=alt_parms)
 
 
 def collapse_star_parms(parms):
@@ -337,7 +337,7 @@ def collapse_star_parms(parms):
 #
 
 
-def parms_run_many(parms):
+def parms_run_some(parms):
     """Run the Parms = Read a Word, Evaluate the Word, Print the Result, Loop"""
 
     while parms:
@@ -1465,7 +1465,7 @@ def try_buttonfile(parms):
             else:
 
                 entry_close_if_open()
-                parms_run_many(parms=[word])
+                parms_run_some(parms=[word])
 
 
 def try_entry_dot_key_map(word):
@@ -1487,7 +1487,7 @@ def try_entry_dot_key_map(word):
             if alt_word == "drop":
                 try_buttonfile_drop()
             else:
-                parms_run_many(parms=[alt_word])
+                parms_run_some(parms=[alt_word])
 
             return True
 

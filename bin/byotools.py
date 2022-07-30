@@ -921,8 +921,11 @@ def shutil_get_tty_size():
 
 
 def subprocess_run_oneline(shline, *args, **kwargs):
+    """Call 'subprocess_run_stdio' but require one line of Stdout and exit zero"""
 
-    run = subprocess_run_stdio(shline, *args, stdout=subprocess.PIPE, **kwargs)
+    run = subprocess_run_stdio(
+        shline, *args, stdout=subprocess.PIPE, check=True, **kwargs
+    )
 
     stdout = run.stdout.decode()
     lines = stdout.splitlines()
