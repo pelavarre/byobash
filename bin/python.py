@@ -395,7 +395,7 @@ def exit_unless_doc_eq(doc, verbs, parser):
 
     # Print the Diff to Parser Doc from Main Doc and exit, if Diff exists
 
-    diff_lines = list(
+    difflines = list(
         difflib.unified_diff(
             a=got.splitlines(),
             b=want.splitlines(),
@@ -404,8 +404,8 @@ def exit_unless_doc_eq(doc, verbs, parser):
         )
     )
 
-    if diff_lines:
-        print("\n".join(diff_lines))
+    if difflines:
+        print("\n".join(difflines))
 
         sys.exit(1)  # trust caller to log SystemExit exceptions well
 

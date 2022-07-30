@@ -166,6 +166,7 @@ STR_TAU = "\N{Greek Small Letter Tau}"  # τ
 
 #
 # Declare how to change the Meaning of a Word by marking the Word
+# FIXME: Key Map
 #
 
 ALT_BY_WORD = dict(
@@ -304,7 +305,7 @@ def main():
 
     # Run well
 
-    parms_run(parms=alt_parms)
+    parms_run_many(parms=alt_parms)
 
 
 def collapse_star_parms(parms):
@@ -336,118 +337,161 @@ def collapse_star_parms(parms):
 #
 
 
-def parms_run(parms):
+def parms_run_many(parms):
     """Run the Parms = Read a Word, Evaluate the Word, Print the Result, Loop"""
 
-    # Take each word, one at a time
-
-    take_by_word = form_take_by_word()
-
     while parms:
-
-        word = parms[0]
-        if word not in take_by_word.keys():
-            word = to_fuzzed_word(word)
-
-        assert word in take_by_word.keys(), (word, parms)
-        take = take_by_word[word]
-
-        if not isinstance(take, collections.abc.Callable):
-            value = take
-            stack_push(value)
-        else:
-            func = take
-            if take.__name__.startswith("parms_"):
-                func(parms)
-            else:
-                func()
-
+        parms_run_one(parms)
         parms[::] = parms[1:]
 
 
-def to_fuzzed_word(word):
-    """Pick out what kind of Input Word this is"""
+def parms_run_one(parms):
+    """Run one Parm"""
+
+    # Index Words
+
+    noun_by_word = form_noun_by_word()
+    verb_by_word = form_verb_by_word()
+    adverb_by_word = form_adverb_by_word()
+
+    # Require each Word found exactly once
+    # todo: run this Contradictions Self-Test less often
+
+    keys = list()
+    for kvs in (noun_by_word, verb_by_word, adverb_by_word, INK_BY_CHAR):
+        keys.extend(kvs.keys())
+
+    contradictions = list()
+    for item in collections.Counter(keys).items():
+        if item[-1] != 1:
+            contradictions.append(item)
+
+    assert not contradictions, contradictions
+
+    # Accept the Word as Given, as Inked, or as Blurred
+
+    parm_0 = parms[0]
+
+    given = parm_0  # the Parm as given, as typed, without correction
+    ink = INK_BY_CHAR.get(parm_0)  # such as 'plus' for '+', else None
+    blur = to_blurry_word(parm_0)  # such as 'lit_int' for '123', else None
+
+    for word in (given, ink, blur):
+
+        # Call to work with Parms
+
+        if word in adverb_by_word.keys():
+            func = adverb_by_word[word]
+
+            func(parms)  # such as the blur of 'parms_lit_int' at '123'
+
+            return
+
+        # Call to work without Parms
+
+        elif word in verb_by_word.keys():
+            func = verb_by_word[word]
+
+            value = func()  # such as the ink 'plus' for 'do_plus_y_x' at '+'
+            if value is not None:
+                stack_push(value)
+
+            return
+
+        # Push a clone of a Noun
+
+        elif word in noun_by_word.keys():
+            value = noun_by_word[word]  # such as the ink 'pi' for 'math.pi' at 'π'
+
+            stack_push(value)
+
+            return
+
+    # After all else, then still do fall back to eval as Python
+
+    parms_eval(parms)  # such as when 'parms[0] == "dt.datetime(2038, 1, 19)"'
+
+
+BLURRY_WORDS = "lit_int lit_float fullname name".split()
+
+
+def to_blurry_word(word):
+    """Say what kind of Input Word this is, else say None"""
+
+    blur = None
 
     if re.match(CLOSED_INT_REGEX, string=word):
+        blur = "lit_int"
+    elif re.match(CLOSED_FLOAT_REGEX, string=word):
+        blur = "lit_float"
+    elif re.match(CLOSED_FULLNAME_REGEX, string=word):
+        blur = "fullname"
+    elif re.match(CLOSED_NAME_REGEX, string=word):
+        blur = "name"
 
-        return "lit_int"
-
-    if re.match(CLOSED_FLOAT_REGEX, string=word):
-
-        return "lit_float"
-
-    if re.match(CLOSED_FULLNAME_REGEX, string=word):
-
-        return "fullname"
-
-    if re.match(CLOSED_NAME_REGEX, string=word):
-
-        return "name"
-
-    if word in NAME_BY_CHAR.keys():
-        name = NAME_BY_CHAR[word]
-
-        return name
-
-    return "SyntaxError"
+    return blur
 
 
-def form_name_by_char():
+def form_ink_by_char():
     """Choose Names for Chars that Python Names reject"""
 
-    d = dict()
+    by_char = dict()
 
-    d[" "] = "space"
-    d["!"] = "bang"
-    d['"'] = "quote"
-    d["#"] = "hash"  # aka a form of "splat"
-    d["$"] = "buck"
-    d["%"] = "mod"
-    d["&"] = "amp"
-    d["'"] = "tick"
-    # d["("]  # "in"  # "paren"  # two syllables
-    # d[")"]  # "out"
-    d["*"] = "star"  # aka a form of "splat"
-    d["+"] = "plus"
-    d[","] = "comma"
-    d["-"] = "dash"
-    d["."] = "dot"
-    d["/"] = "slash"  # commonly misspoken as "backslash"
+    by_char[" "] = "space"
+    by_char["!"] = "bang"
+    by_char['"'] = "quote"
+    by_char["#"] = "hash"  # aka a form of "splat"
+    by_char["$"] = "buck"
+    by_char["%"] = "mod"
+    by_char["&"] = "amp"
+    by_char["'"] = "tick"
+    # by_char["("]  # "in"  # "paren"  # two syllables
+    # by_char[")"]  # "out"
+    by_char["*"] = "star"  # aka a form of "splat"
+    by_char["+"] = "plus"
+    by_char[","] = "comma"
+    by_char["-"] = "dash"
+    by_char["."] = "dot"
+    by_char["/"] = "slash"  # commonly misspoken as "backslash"
 
-    d["0"] = "zero"  # Decimal Digits alone are not Python Names
-    d["1"] = "one"
-    d["2"] = "two"
-    d["3"] = "three"
-    d["4"] = "four"
-    d["5"] = "five"
-    d["6"] = "six"
-    d["7"] = "seven"
-    d["8"] = "eight"
-    d["9"] = "nine"
+    by_char["0"] = "zero"  # Decimal Digits alone are not Python Names
+    by_char["1"] = "one"
+    by_char["2"] = "two"
+    by_char["3"] = "three"
+    by_char["4"] = "four"
+    by_char["5"] = "five"
+    by_char["6"] = "six"
+    by_char["7"] = "seven"
+    by_char["8"] = "eight"
+    by_char["9"] = "nine"
 
-    d[":"] = "colon"  # two syllables
-    d[";"] = "semi"  # two syllables
-    # d["<"]  # "from"  # "angle"  # two syllables
-    d["="] = "equals"
-    # d[">"]  # "to"
-    d["?"] = "query"
+    by_char[":"] = "colon"  # two syllables
+    by_char[";"] = "semi"  # two syllables
+    # by_char["<"]  # "from"  # "angle"  # two syllables
+    by_char["="] = "equals"
+    # by_char[">"]  # "to"
+    by_char["?"] = "query"
 
-    d["@"] = "at"
+    by_char["@"] = "at"
 
-    # d["["]  # "bracket"  # two syllables
-    d["\\"] = "backslant"  # two syllables  # commonly misspoken as "slash"
-    # d["]"]
-    d["^"] = "hat"
-    d["_"] = "skid"  # aka three syllables "underscore"
+    # by_char["["]  # "bracket"  # two syllables
+    by_char["\\"] = "backslant"  # two syllables  # commonly misspoken as "slash"
+    # by_char["]"]
+    by_char["^"] = "hat"
+    by_char["_"] = "skid"  # aka three syllables "underscore"
 
-    d["`"] = "backtick"  # two syllables
+    by_char["`"] = "backtick"  # two syllables
 
-    # d["{"]  # "brace"
-    d["|"] = "bar"
-    # d["}"]
-    d["~"] = "tilde"  # two syllables  # aka "squiggle"
+    # by_char["{"]  # "brace"
+    by_char["|"] = "bar"
+    # by_char["}"]
+    by_char["~"] = "tilde"  # two syllables  # aka "squiggle"
 
-    return d
+    by_char["\N{Greek Small Letter Pi}"] = "pi"  # π  # STR_PI
+    by_char["\N{Greek Small Letter Tau}"] = "tau"  # τ  # STR_TAU
+    by_char["\N{Square Root}"] = "sqrt"  # √  # STR_SQRT
+
+    return by_char
 
     # https://unicode.org/charts/PDF/U0000.pdf  # C0 Controls and Basic Latin
     # http://www.catb.org/jargon/html/A/ASCII.html  # Hacker's Dictionary > Ascii
@@ -459,7 +503,7 @@ def form_name_by_char():
     # https://aplwiki.com/wiki/Unicode
 
 
-NAME_BY_CHAR = form_name_by_char()
+INK_BY_CHAR = form_ink_by_char()
 
 
 #
@@ -467,12 +511,10 @@ NAME_BY_CHAR = form_name_by_char()
 #
 
 
-def form_take_by_word():
-    """Declare our Built-In Verbs and Nouns"""
+def form_noun_by_word():
+    """Declare our Built-In Nouns"""
 
-    # Define Sh Nouns of Forth
-
-    take_by_sh_noun = dict(
+    noun_by_word = dict(
         e=math.e,
         i=MATH_J,  # Sci Folk
         j=MATH_J,  # Eng Folk
@@ -480,22 +522,13 @@ def form_take_by_word():
         tau=math.tau,  # τ  # Modern Folk
     )
 
-    take_by_sh_noun[STR_PI] = math.pi  # π
+    return noun_by_word
 
-    # Define Sh Adverbs of Forth
 
-    take_by_sh_adverb = dict(
-        buttonfile=parms_buttonfile,
-        fullname=parms_fullname,
-        lit_float=parms_lit_float,
-        lit_int=parms_lit_int,
-        name=parms_name,
-        hash=parms_hash,  # this 'hash' is not 'builtins.hash'
-    )
+def form_verb_by_word():
+    """Declare our Built-In Verbs"""
 
-    # Define Sh Verbs of Forth
-
-    take_by_sh_verb = dict(
+    verb_by_word = dict(
         clear=do_clear,
         comma=do_comma,
         dash=do_dash_y_x,  # invite Monosyllabic Folk to speak of the '-' Dash
@@ -515,22 +548,22 @@ def form_take_by_word():
         swap=do_swap_y_x,
     )
 
-    take_by_sh_verb[STR_SQRT] = do_sqrt_x  # √
-    take_by_sh_verb[STR_TAU] = math.tau  # τ
+    return verb_by_word
 
-    # Merge the Dicts of Words of Command
 
-    d = dict()
-    for kvs in (take_by_sh_adverb, take_by_sh_verb, take_by_sh_noun):
-        for (k, v) in kvs.items():
-            assert k not in d.keys(), k
-            d[k] = v
+def form_adverb_by_word():
+    """Declare our Built-In Adverbs"""
 
-    take_by_word = d
+    adverb_by_word = dict(
+        buttonfile=parms_buttonfile,
+        fullname=parms_fullname,
+        lit_float=parms_lit_float,
+        lit_int=parms_lit_int,
+        name=parms_name,
+        hash=parms_hash,  # this 'hash' is not the 'builtins.hash'
+    )
 
-    # Succeed
-
-    return take_by_word
+    return adverb_by_word
 
 
 #
@@ -538,22 +571,32 @@ def form_take_by_word():
 #
 
 
-def parms_fullname(parms):
-    """Eval a Fullname (composed of ModuleName Dot Name) and push its Value"""
+def parms_eval(parms):
+    """Eval a Parm (such as a Name or Fullname or other Py)"""
 
     py = parms[0]
 
-    evalled = stackable_eval_fullname(py)
+    # Eval
 
-    pushable = evalled  # todo: factor out commonalities with 'def parms_name'
+    evalled = stack_eval_once(py)
+
+    # Call with No Args as Evalled, if Evalled as Callable, else Push as Evalled
+
+    pushable = evalled
     if isinstance(evalled, collections.abc.Callable):
-        pushable = evalled()  # might be:  pdb.set_trace()
+        pushable = evalled()
 
     stack_push(pushable)  # you might next:  stack_peek(0)
 
 
+def parms_fullname(parms):
+    """Eval a Fullname, spoken as ModuleName Dot Name or as DottedModuleName Dot Name"""
+
+    parms_eval(parms)
+
+
 def parms_lit_float(parms):
-    """Eval the Chars of a Float Literal"""
+    """Eval a Float Literal"""
 
     str_x = parms[0]
     x = float(str_x)
@@ -561,7 +604,7 @@ def parms_lit_float(parms):
 
 
 def parms_lit_int(parms):
-    """Eval the Chars of an Int Literal"""
+    """Eval an Int Literal"""
 
     str_x = parms[0]
     x = int(str_x)
@@ -569,17 +612,9 @@ def parms_lit_int(parms):
 
 
 def parms_name(parms):
-    """Eval a Name and push its Value"""
+    """Eval a Name, spoken as a Nickname without Dots"""
 
-    py = parms[0]
-
-    evalled = stackable_eval(py)
-
-    pushable = evalled  # todo: factor out commonalities with 'def parms_fullname'
-    if isinstance(evalled, collections.abc.Callable):
-        pushable = evalled()
-
-    stack_push(pushable)
+    parms_eval(parms)
 
 
 def parms_hash(parms):
@@ -811,7 +846,7 @@ def do_star_y_x():
 
 
 #
-# Define Calculator Stack Ops
+# Define Stack Ops
 #
 
 
@@ -878,6 +913,64 @@ def do_swap_y_x():
         byo.subprocess_run_stdio(shline)
 
 
+def stack_depth():
+    """Count the Values in the Stack"""
+
+    triples = stack_triples_peek(0)  # todo: cache vs evalling for depth and to process
+    depth = len(triples)
+
+    return depth
+
+
+def stack_eval_once(py):
+    """Eval a Python expression & return its Value, else Stderr Print & Exit Nonzero"""
+
+    by_nickname = dict(D="decimal", dt="datetime", pd="pandas")
+    assert by_nickname == BY_NICKNAME
+
+    # Eval the Py
+
+    try:
+
+        evalled = eval(py)
+
+        return evalled
+
+    # Try once to Eval again after inferring 1 Import
+
+    except NameError as exc:
+
+        name = exc.name
+        modulename = BY_NICKNAME[name] if (name in BY_NICKNAME.keys()) else name
+        if modulename not in sys.modules.keys():
+
+            imported = importlib.import_module(modulename)
+            assert imported is sys.modules[modulename], imported
+            globals()[name] = imported
+
+            try:
+
+                evalled = eval(py)
+
+                return evalled
+
+            except Exception:
+
+                # Else fuhgeddaboudit
+
+                byo.exit_after_print_raise(exc)
+
+    except UnboundLocalError as exc:  # UnboundLocalError is a Subclass of NameError
+
+        byo.exit_after_print_raise(exc)
+
+    except Exception as exc:
+
+        byo.exit_after_print_raise(exc)
+
+    return evalled
+
+
 def stack_has_x():
     """Say when the Stack contains one or more Values (that is, when it is Truthy)"""
 
@@ -894,15 +987,6 @@ def stack_has_y():
     return has_y
 
 
-def stack_depth():
-    """Count the Values in the Stack"""
-
-    triples = stack_triples_peek(0)  # todo: cache vs evalling for depth and to process
-    depth = len(triples)
-
-    return depth
-
-
 #
 # Adapt the Json File Format
 #
@@ -910,56 +994,6 @@ def stack_depth():
 #   Serialize some of what Python Repr knows how to serialize too
 #   Give out some of the Basenames that Python Str knows how to choose
 #
-
-
-def stackable_eval_fullname(py):
-    """Call 'stackable_eval' but lazily import the Module it most obviously needs"""
-
-    by_nickname = dict(D="decimal", dt="datetime", pd="pandas")
-    assert by_nickname == BY_NICKNAME
-
-    # Import the module now, if not cached earlier
-
-    words = py.split(".")
-
-    nickname = words[0]
-    modulename = BY_NICKNAME[nickname] if (nickname in BY_NICKNAME.keys()) else nickname
-
-    if nickname not in globals().keys():
-        imported = None
-
-        if modulename in sys.modules.keys():
-
-            imported = sys.modules[modulename]
-
-        else:
-
-            try:
-                imported = importlib.import_module(modulename)
-            except ImportError:
-                pass
-
-        if imported:
-            assert imported is sys.modules[modulename], imported
-            globals()[nickname] = imported
-
-    # Eval the Fullname and push its Value
-
-    evalled = stackable_eval(py)
-
-    return evalled
-
-
-def stackable_eval(py):
-    """Eval a Python expression & return its Value, else Stderr Print & Exit Nonzero"""
-
-    try:
-        evalled = eval(py)
-    except Exception as exc:
-
-        byo.exit_after_print_raise(exc)
-
-    return evalled
 
 
 def stackable_dumps(obj):
@@ -1033,7 +1067,7 @@ def stackable_loads_else(s):
             repr_py = dumped[len(prefix) : -len(suffix)]
             py = ast.literal_eval(repr_py)
 
-            loaded = stackable_eval_fullname(py)
+            loaded = stack_eval_once(py)
 
         # Load Complex Values
 
@@ -1431,7 +1465,7 @@ def try_buttonfile(parms):
             else:
 
                 entry_close_if_open()
-                parms_run(parms=[word])
+                parms_run_many(parms=[word])
 
 
 def try_entry_dot_key_map(word):
@@ -1453,7 +1487,7 @@ def try_entry_dot_key_map(word):
             if alt_word == "drop":
                 try_buttonfile_drop()
             else:
-                parms_run(parms=[alt_word])
+                parms_run_many(parms=[alt_word])
 
             return True
 
