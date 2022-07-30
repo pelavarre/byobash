@@ -673,7 +673,7 @@ def exit_if_by_git_stdout_line(parms):
             git_config_shline = "git config core.editor"
             byo.stderr_print("+ {}".format(git_config_shline))
 
-            vi_shline = byo.subprocess_run_oneline("git config core.editor")
+            vi_shline = byo.subprocess_run_oneline("git config core.editor", check=True)
             vi_shline = vi_shline + " " + byo.shlex_dquote(path)
             vi_argv = shlex.split(vi_shline)
 

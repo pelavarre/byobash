@@ -682,10 +682,18 @@ def shlex_dquote(parm):
     # Accept the ~ Tilde when the Parm does Not start with the ~ Tilde
 
     unplain_set = set(parm) - set(SH_PLAIN)
-    if parm.startswith("^"):
-        unplain_set = set(parm[1:]) - set(SH_PLAIN)  # restart
-    if not parm.startswith("~"):
-        unplain_set = unplain_set - set("~")  # mutate
+
+    if parm.startswith("^"):  # Forward the ^ Caret as start of Parm
+        unplain_set = set(parm[1:]) - set(SH_PLAIN)
+
+    if not parm.startswith("~"):  # Forward the ~ Tilde if after start of Parm
+        unplain_set = unplain_set - set("~")
+
+    if (parm.count("{") == 1) and (parm.count("}") == 1):  # Forward {} wout ,
+        head = parm.partition("{")[0]
+        tail = parm.rpartition("}")[-1]
+        if "," not in (head + tail):  # todo: overly restrictive for:  echo ,}{,
+            unplain_set = unplain_set - set("{}")
 
     unplain_ascii_set = "".join(_ for _ in unplain_set if ord(_) < 0x80)
     if not unplain_ascii_set:

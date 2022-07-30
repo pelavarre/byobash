@@ -33,5 +33,9 @@ import byotools as byo
 byo.exit(__name__)
 
 
+# todo:  'mv.py --' to move my Trash out
+# such as Screen Shots off of Desktop
+
+
 # posted into:  https://github.com/pelavarre/byobash/blob/main/bin/mv.py
 # copied from:  git clone https://github.com/pelavarre/byobash.git

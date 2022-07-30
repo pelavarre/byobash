@@ -1,3 +1,20 @@
+# bugs.txt
+
+
+++ dreaming since Jul/2022 ++
+
+
+% = 'dt.datetime(2038, 1, 19)'
+Traceback (most recent call last):
+  File "/Users/plavarre/Public/byobash/bin/byopyvm.py", line 1943, in <module>
+    main()
+  File "/Users/plavarre/Public/byobash/bin/byopyvm.py", line 307, in main
+    parms_run(parms=alt_parms)
+  File "/Users/plavarre/Public/byobash/bin/byopyvm.py", line 352, in parms_run
+    assert word in take_by_word.keys(), (word, parms)
+AssertionError: ('SyntaxError', ['dt.datetime(2038, 1, 19)'])
+zsh: exit 1
+%
 
 
 % cv |g

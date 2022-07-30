@@ -564,6 +564,14 @@ def do_e(parms):
 def do_em(parms):
     """emacs -nw --no-splash --eval '(menu-bar-mode -1)'"""
 
+    if not parms:  # a la 'byo.exit_if_testdoc'
+
+        print()
+        print("emacs -nw --no-splash --eval '(menu-bar-mode -1)'")
+        print()
+
+        sys.exit(0)  # Exit 0 after printing Help Lines
+
     byo.stderr_print(
         "shpipes.py {}: Press Esc X revert Tab Return, and ⌃X⌃C, to quit".format(
             main.shverb
@@ -767,6 +775,14 @@ def do_u(parms):
 
 def do_v(parms):
     """vim"""
+
+    if not parms:  # a la 'byo.exit_if_testdoc'
+
+        print()
+        print("ls |vi -")
+        print()
+
+        sys.exit(0)  # Exit 0 after printing Help Lines
 
     byo.stderr_print("shpipes.py v: Press ⇧Z ⇧Q to quit")
 
