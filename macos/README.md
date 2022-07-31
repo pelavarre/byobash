@@ -315,15 +315,15 @@ we've taught 11 Buttons to work differently there
                Y X Log    1   2   3   -...
     Drop X     X 2 Log    0  2nd 3rd  +...
 
-there Dot I picks the Real Float out of a 'complex' Pair of Floats
+Dot I picks the Real Float out of a 'complex' Pair of Floats
 
-there Dot / runs Python's // Floor Division in place of Python's / True Division
+Dot / runs Python's // Floor Division in place of Python's / True Division
 
-there Dot * runs Python's % Modulo in place of Python's * Mul
+Dot * runs Python's % Modulo in place of Python's * Mul
 
 and after Clear or , Comma, pressing the . Dot Button and then the , Comma Button
 opens up a 3rd Folder of visually identical Button Files, and
-we've taught 10 Buttons to work differently there
+we've taught 11 Buttons to work differently there
 
        .Imag     10 X Pow   7   8   9   1 X /
      Rot Y X Z    E X Pow   4   5   6   X X *
@@ -337,43 +337,50 @@ you can bring in Modular Int's to work with you
 
 deep inside our Python, a Modular Int is three numbers in one:  bits, base, width
 
-press 16 Base, 10 Base, 8 Base, or 2 Base to convert to Hex, Dec, Oct, or Bin
+Y X Base converts to Hex, Dec, Oct, or Bin
 
-    0 16 -  16 . , Base  15 +  # 0xFF
-    0xFF 10 . , Base  # 0d999
-    0d999 8 . , Base  # 0o7777
-    0o7777 2 . , Base  # 0b1111_1111_1111
+    . - 1 , 1 6 , Base  # 0xF
+    0xFF 10 Base  # 0d999
+    0d999 8 Base  # 0o7777
+    0o7777 2 Base  # 0b1111_1111_1111
+    0b1111_1111_1111 16 Base  # 0xFFF
 
-and pushing a Modular Int as Top of Stack
-opens up a 4th Folder of visually identical Button Files, and
+and pushing a Modular Int as Top of Stack like that
+does open up a 4th Folder of visually identical Button Files, and
 we've taught 9 Buttons to work differently here
 
-      x&-x  shrink  7  8  9  y^x
-      yxy    grow   4  5  6  y&x
-              int   1  2  3  y&~x
-     clear     ~x   0  .  ,  y|x
+     X X ~ 1 + &    Thin   7   8   9    ^
+         Over      Widen   4   5   6    &
+                    Int    1   2   3   ~ &
+        Clear       X ~    0  2nd 3rd   |
 
-press Int, or 0 . , Base,
-to convert back to a plain Decimal Int, no longer a Modular Int
+for brevity, we speak of each Modular Int as Bits pushed as the Top of Stack Object
+
+Bits Int, same as 0 Dot Base,
+converts the Module Int back to a plain Decimal Int
 
     0b1111_1111_1111 0 Base  # 4095
 
-    0 1 -  16 Base  Grow Grow  # 0xFFF
+Bits Widen inserts Digits at the left, as Sign Extension Digits
 
-press the Shrink button to delete Digits from left,
+    0 1 -  16 Base  Widen Widen  # 0xFFF
+
+Bits Thin deletes Digits from the left,
 no matter if they are Sign Extension Digits or not
 
     0xFFF Shrink Shrink  # 0xF
 
-press the x&-x button to work with Bitmasks
+@ X X ~ 1 + & when X is Bits does pick the Shift Mask out of a Bit Mask,
+just as = X X - & 16 Base would
 
-for example, to pick out the 2 found in 0xC1 inside Bitmask 0x60
+for example, to pick out the Field Value 2 found in 0xC1 inside Bit Mask 0x60
 
    0 √ +  , 96 0 +  193 +  # 0x60 0xC1
-   0x60 0xC1 over &  over x&-x  # 0x40 0x20
+   0x60 0xC1 over &  over x&-x  # 0x40 0x20  # Shift Mask 0x20
    0x40 0x20 /  # 2
 
-and then symmetrically, to make 0xC1 again out of stuffing that 2 back into place
+and then symmetrically,
+to make 0xC1 again out of stuffing that Field Value 2 back into place
 
    0 √ +  , 129 0 +  96 +  # 0x81 0x60
    0x81 0x60  x&-x  2 swap *  # 0x81 0x40
@@ -384,11 +391,6 @@ we hid our last three Easter Eggs inside of 0 √
 > 0x0 0 hides at 0 √<br>
 > 0x0 alone hides at 0 √ +<br>
 > the Hex for X hides at 0 √ + X +<br>
-
-someday we might drop another Button
-into the blank cell in our layout, between Clear and Over
-
-someday we might add a row of A B C D E F Buttons, to make keying hex go quicker
 
 
 ## 16 Wish us well
@@ -403,6 +405,14 @@ but before you go, we'll move faster if you tell us that you're waiting on our p
 > open https://twitter.com/intent/tweet?text=@PELaVarre
 
 got thoughts?
+
+
+## Future work
+
+someday we might drop another Button
+into the blank cell in our layout, between Clear and Over
+
+someday we might add a row of A B C D E F Buttons, to make keying hex go quicker
 
 
 ## Copied from

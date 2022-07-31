@@ -124,35 +124,41 @@ BUTTONFILE_TESTCHARS = """
 
     = clear  &&  @  0 , 0 /  1 , 0 /   0 , 1 - 0 /  # NaN, Inf, -Inf
 
+    = clear  &&  @  i  # 1j
     = clear  &&  @  e i pi * pow  # -1
-    = clear  &&  @  j , j /  # 1
-    = clear  &&  @  j , j *  # -1
-    = clear  &&  @  j sqrt  # (0.707+0.707i)
+    = clear  &&  @  i , i /  # 1
+    = clear  &&  @  i , i *  # -1
+    = clear  &&  @  i sqrt  # (0.707+0.707i)
 
     = clear  &&  @  dt.datetime.now dt.datetime.now over -  # dt.timedelta
 
-    # Easter Eggs at Dot Buttons
+    # 11 Easter Eggs at Dot Buttons
 
-    = clear  &&  @  i  # 1j
-    = clear  &&  @  i  . i  =  # 0 1j  # FIXME  # because Split Real from Imag
+    = clear  &&  @  e i pi * +  . i  =  # 2.718  # because Dot Real
     = clear  &&  @  e i  . over  =  # i e  # because Swap
-    # FIXME: # because Drop
-    # FIXME: # because Log 10 X
-    # FIXME: # because Log E X
-    # FIXME: # because Log Y X
-    # FIXME: # because Log 2 X
-    # FIXME: # because // Slash Slash Floor Division
-    # FIXME: # because % Percent Modulo
-    # FIXME: # because - Negative Sign
-    # FIXME: # because + Positive Sign
+    = clear  &&  @  e i  . clear  =  # e  # because Drop
 
-    # Easter Eggs at Dot Comma Buttons
+    = clear  &&  @  10 . - 3 pow  . pi =  # -3  # because Log 10 X
+    = clear  &&  @  pi 2 pow  pi . pow =  # 2  # because Log Y X
+    = clear  &&  @  e . - 1 pow  . e =  # -1  # because Log E X
+    = clear  &&  @  2 , . - 5 pow  . sqrt =  # -5  # because Log 2 X
+
+    = clear  &&  @  9 , 2 ,  . / =  # 4  # because // Slash Slash Floor Division
+    = clear  &&  @  9 , 2 ,  . * =  # 1  # because % Mod
+    = clear  &&  @  . - 7 , =  # -7  # because - Negative Sign
+    = clear  &&  @  . + 8 , =  # 8  # because + Positive Sign
+
+    # 10 Easter Eggs at Dot Comma Buttons
+
+    = clear  &&  @  e i pi * +  . , i  # 3.142  # because Dot Comma Imag
 
     # FIXME: # because Rot Y X Z
     # FIXME: # because Drop Y X
+
     # FIXME: # because 10 X **
     # FIXME: # because E X **
     # FIXME: # because 2 X **
+
     # FIXME: # because 1 X /
     # FIXME: # because X X *
     # FIXME: # because 0 X -
@@ -229,9 +235,15 @@ CLOSED_FLOAT_REGEX = r"^" + FLOAT_REGEX + "$"
 #
 
 
+OPEN_ENTRIES = ("", "+", "+e", "+j", ",", "-", "-e", "-j", ".", "e", "j")
+
+BLURRY_ENTRIES = ("", "+", ",", "-", ".")
+DROPPABLE_ENTRIES = ("", "+", ",", "-", ".")
+FORKABLE_ENTRIES = (",", ".")
 SIGNABLE_ENTRIES = ("", "+", "-", ".")
 
-OPEN_ENTRIES = ("", "+", "+e", "+j", "-", "-e", "-j", ".", "e", "j")
+assert set(DROPPABLE_ENTRIES).issubset(set(OPEN_ENTRIES))
+assert set(FORKABLE_ENTRIES).issubset(set(OPEN_ENTRIES))
 assert set(SIGNABLE_ENTRIES).issubset(set(OPEN_ENTRIES))
 
 ENTRY_REGEX = r"({}|{})[Jj]?".format(FLOAT_REGEX, INT_REGEX)
@@ -744,7 +756,7 @@ def do_mod_y_x():
 
 
 def do_log_y_x():
-    """Push Log Base X of Y in place of Y X, by way of 'log(y, x)'"""
+    """Push Log Base X of Y in place of Y X, by way of 'log(y, base_x)'"""
 
     if not stack_has_x():
         stack_push(10)  # suggest 10 e log, else e log
@@ -866,7 +878,7 @@ def do_square_x():
         x = stack_peek()
 
         try:
-            x_ = x ** 2
+            x_ = x**2
         except Exception as exc:
 
             byo.exit_after_print_raise(exc)
@@ -922,9 +934,8 @@ def do_star_y_x():
 
 def try_docs_button(word):
     """Run Buttons as sketched in Doc, even while not shipping deployed in Folder"""
-    # todo: move out of Easter Eggs
 
-    docs_defs = dict()
+    docs_defs = dict() # todo: move out of Easter Eggs
 
     docs_defs["y↑x"] = do_pow_y_x
     docs_defs[".real"] = do_real_x
@@ -937,7 +948,7 @@ def try_docs_button(word):
         func = docs_defs[word]
         alt_word = func.__name__
         byo.stderr_print(
-            "byopyvm.py: Easter Egg:  Found {!r} at {}".format(
+            "byopyvm.py: Easter Egg:  Found {} at {}".format(
                 alt_word.title(), word.title()
             )
         )
@@ -970,6 +981,7 @@ def try_dot_button(word):
 
     dot_defs = dict(
         i=do_real_x,
+        j=do_real_x,
         over=do_swap_x_y,
         clear=do_pop_x,
         pi=do_log_10_x,
@@ -980,6 +992,12 @@ def try_dot_button(word):
         star=do_mod_y_x,
     )
 
+    dot_defs["*"] = dot_defs["star"]
+    dot_defs["/"] = dot_defs["slash"]
+
+    dot_defs[STR_PI] = dot_defs["pi"]
+    dot_defs[STR_SQRT] = dot_defs["sqrt"]
+
     # Run the hidden Egg, if found
 
     if word in dot_defs.keys():
@@ -988,7 +1006,7 @@ def try_dot_button(word):
         func = dot_defs[word]
         alt_word = func.__name__
         byo.stderr_print(
-            "byopyvm.py: Easter Egg:  Found {!r} at Dot {}".format(
+            "byopyvm.py: Easter Egg:  Found {} at Dot {}".format(
                 alt_word.title(), word.title()
             )
         )
@@ -999,19 +1017,81 @@ def try_dot_button(word):
 
 
 def do_real_x():
-    assert False
+    """Push the Real part of the Complex X"""
+
+    if not stack_has_x():
+        stack_push(math.e + (1j * math.pi))  # suggest:  j π * e +
+    else:
+
+        x = stack_peek()
+
+        try:
+            x_ = complex(x)
+        except Exception as exc:
+
+            byo.exit_after_print_raise(exc)
+
+        stack_pop()
+        stack_push(x_.real)
 
 
 def do_log_10_x():
-    assert False
+    """Push Log Base 10 of X in place of X, by way of 'log(x, base_10)'"""
+
+    if not stack_has_x():
+        stack_push(math.e)  # suggest the e of:  e 10 log
+    else:
+
+        x = stack_peek()
+
+        base_10 = 10
+        try:
+            x_ = math.log(x, base_10)
+        except Exception as exc:
+
+            byo.exit_after_print_raise(exc)
+
+        stack_pop()
+        stack_push(x_)
 
 
 def do_log_e_x():
-    assert False
+    """Push Log Base E of X in place of X, by way of 'log(x)'"""
+
+    if not stack_has_x():
+        stack_push(10)  # suggest the 10 of:  10 e log
+    else:
+
+        x = stack_peek()
+
+        try:
+            x_ = math.log(x)  # implicit ', base_e'
+        except Exception as exc:
+
+            byo.exit_after_print_raise(exc)
+
+        stack_pop()
+        stack_push(x_)
 
 
 def do_log_2_x():
-    assert False
+    """Push Log Base 2 of X in place of X, by way of 'log(x, base_2)'"""
+
+    if not stack_has_x():
+        stack_push(10)  # suggest the 10 of:  10 2 log
+    else:
+
+        x = stack_peek()
+
+        base_2 = 2
+        try:
+            x_ = math.log(x, base_2)
+        except Exception as exc:
+
+            byo.exit_after_print_raise(exc)
+
+        stack_pop()
+        stack_push(x_)
 
 
 #
@@ -1032,7 +1112,9 @@ def try_comma_button(word):
     # Hide 10 Easter Eggs
 
     comma_defs = dict(
+        dash=do_negate_x,
         i=do_imag_x,
+        j=do_imag_x,
         over=do_rot_y_x_z,
         clear=do_drop_y_x,
         pi=do_pow_10_x,
@@ -1045,6 +1127,12 @@ def try_comma_button(word):
         plus=do_abs_x,
     )
 
+    comma_defs["*"] = comma_defs["star"]
+    comma_defs["/"] = comma_defs["slash"]
+
+    comma_defs[STR_PI] = comma_defs["pi"]
+    comma_defs[STR_SQRT] = comma_defs["sqrt"]
+
     # Run the hidden Egg, if found
 
     if word in comma_defs.keys():
@@ -1053,7 +1141,7 @@ def try_comma_button(word):
         func = comma_defs[word]
         alt_word = func.__name__
         byo.stderr_print(
-            "byopyvm.py: Easter Egg:  Found {!r} at Dot Comma {}".format(
+            "byopyvm.py: Easter Egg:  Found {} at Dot Comma {}".format(
                 alt_word.title(), word.title()
             )
         )
@@ -1064,7 +1152,22 @@ def try_comma_button(word):
 
 
 def do_imag_x():
-    assert False
+    """Push the Imag part of the Complex X"""
+
+    if not stack_has_x():
+        stack_push(math.e + (1j * math.pi))  # suggest:  j π * e +
+    else:
+
+        x = stack_peek()
+
+        try:
+            x_ = complex(x)
+        except Exception as exc:
+
+            byo.exit_after_print_raise(exc)
+
+        stack_pop()
+        stack_push(x_.imag)
 
 
 def do_rot_y_x_z():
@@ -1148,7 +1251,7 @@ def try_bits_button(word):
         func = bits_defs[word]
         alt_word = func.__name__
         byo.stderr_print(
-            "byopyvm.py: Easter Egg:  Found {!r} at Bits {}".format(
+            "byopyvm.py: Easter Egg:  Found {} at Bits {}".format(
                 alt_word.title(), word.title()
             )
         )
@@ -1293,7 +1396,12 @@ def stack_eval_once(py):
         modulename = BY_NICKNAME[name] if (name in BY_NICKNAME.keys()) else name
         if modulename not in sys.modules.keys():
 
-            imported = importlib.import_module(modulename)
+            try:
+                imported = importlib.import_module(modulename)
+            except Exception:
+
+                byo.exit_after_print_raise(exc)
+
             assert imported is sys.modules[modulename], imported
             globals()[name] = imported
 
@@ -1301,13 +1409,11 @@ def stack_eval_once(py):
 
                 evalled = eval(py)
 
-                return evalled
-
             except Exception:
 
-                # Else fuhgeddaboudit
-
                 byo.exit_after_print_raise(exc)
+
+            return evalled
 
     except UnboundLocalError as exc:  # UnboundLocalError is a Subclass of NameError
 
@@ -1541,9 +1647,9 @@ def stackable_triple_from_float(obj):
 
     brief = obj
     if name is None:
-        int_value = int(obj)
-        if abs(obj - int_value) < EPSILON:
-            brief = int_value
+        floor_int = int(math.floor(obj))
+        if abs(obj - floor_int) < EPSILON:
+            brief = floor_int
 
             name = str(brief)
 
@@ -1784,12 +1890,16 @@ def try_buttonfile(parms):
 
     main_file = parms.pop(1)
 
-    word = main_file
+    mixed_word = main_file
     if main_file.endswith(".command"):
         basename = os.path.basename(main_file)
         (root, ext) = os.path.splitext(basename)
 
-        word = root
+        mixed_word = root
+
+    # Ignore Case in the Root of the Basename of the Filename of a Button File Path
+
+    word = mixed_word.casefold()
 
     # Run the Word
 
@@ -1851,9 +1961,13 @@ def try_alt_defs(word):
 def try_entry_button(word):
     """Return None after closing or dropping the Entry, else return the Open Entry"""
 
+    forkable_entries = (",", ".")
+    assert forkable_entries == FORKABLE_ENTRIES
+
+    # Fetch the Entry
+
     entry = entry_peek_else()
     signable = entry_is_signable(entry)
-    forkable = entry in (".", ",")
 
     # Edit the Entry in one of many ways
 
@@ -1875,7 +1989,7 @@ def try_entry_button(word):
         entry_write_char("j")
     elif word in (".", "dot"):
         entry_write_char(".")
-    elif forkable and (word in (",", "comma")):
+    elif (entry in FORKABLE_ENTRIES) and (word in (",", "comma")):
         entry_write_char(",")
     else:
 
@@ -1892,7 +2006,7 @@ def entry_is_signable(entry):
     signable_entries = ("", "+", "-", ".")
     assert signable_entries == SIGNABLE_ENTRIES
 
-    open_entries = ("", "+", "+e", "+j", "-", "-e", "-j", ".", "e", "j")
+    open_entries = ("", "+", "+e", "+j", ",", "-", "-e", "-j", ".", "e", "j")
     assert open_entries == OPEN_ENTRIES
 
     # Sign the SIGNABLE_ENTRIES and the 'fit_before_0' entries that end in 'e'
@@ -1946,7 +2060,7 @@ def do_comma():
 def entry_write_char(ch):
     """Take a Char into the Entry"""
 
-    open_entries = ("", "+", "+e", "+j", "-", "-e", "-j", ".", "e", "j")
+    open_entries = ("", "+", "+e", "+j", ",", "-", "-e", "-j", ".", "e", "j")
     assert open_entries == OPEN_ENTRIES
 
     # Peek the Entry
@@ -1981,16 +2095,16 @@ def entry_write_char(ch):
 
     # Add a Strong Mark of the Entry as inviting further input
 
-    value = fit + "_"
-    if fit == ".":
-        value = "_._"
+    name = fit + "_"
+    if fit in (".", ","):
+        name = "_" + fit + "_"  # "_._" else "_,_"  # todo: a more distinct "-,-"
 
     # Replace the Entry, else start the Entry
 
     if entry is not None:
         _ = stack_pop(1)
 
-    stack_push(ButtonEntry(value))
+    stack_push(ButtonEntry(name))
 
 
 def entry_take_char(entry, ch):
@@ -2062,21 +2176,24 @@ def entry_take_char(entry, ch):
 def entry_celebrate_egg_found(entry, ch):
     """Celebrate finding an Egg, while editing an Entry"""
 
-    eggs = dict()
+    finds = dict()
 
-    eggs["+"] = "Plus Sign at Dot Plus"
-    eggs["-"] = "Minus Sign at Dot Minus"
-    eggs["e"] = "Exp at Dot E"
-    eggs["j"] = "Imag at Dot J"
-    eggs[STR_PI] = "Delete at Dot Pi"
+    finds["+"] = "Plus Sign at Dot Plus"
+    finds["-"] = "Minus Sign at Dot Minus"
+    finds["e"] = "Exp at Dot E"
+    finds["j"] = "Imag at Dot J"
+    finds[STR_PI] = "Delete at Dot Pi"
 
-    if ch in eggs.keys():
-        egg = eggs[ch]
-        byo.stderr_print("byopyvm.py: Easter Egg:  Found {}".format(egg))
+    if ch in finds.keys():
+        find = finds[ch]
+        byo.stderr_print("byopyvm.py: Easter Egg:  Found {}".format(find))
 
 
 def entry_close_if_open():
     """Return an Unevalled Copy of the Entry, but replace it with its Eval"""
+
+    blurry_entries = ("", "+", ",", "-", ".")
+    assert blurry_entries == BLURRY_ENTRIES
 
     # Report either of the two kinds of Got No Entry
 
@@ -2095,17 +2212,18 @@ def entry_close_if_open():
 
     # Celebrate finding an Egg
 
-    eggs = dict()
+    finds = dict()
 
-    eggs[""] = "None at Dot Comma"
-    eggs["+"] = "Inf at Dot Plus Comma"
-    eggs["-"] = "-Inf at Dot Minus Comma "
-    eggs["."] = "NaN at Dot Comma"
+    finds[""] = "None at Dot Dot Op"
+    finds["+"] = "None at Dot Plus Op"
+    finds[","] = "None at Dot Comma Op"
+    finds["-"] = "None at Dot Minus Op"
+    finds["."] = "None at Dot Op"
 
-    if entry in eggs.keys():
-        egg = eggs[entry]
-        assert str(evalled).casefold() == egg.split()[0].casefold(), (evalled, egg)
-        byo.stderr_print("byopyvm.py: Easter Egg:  Found {}".format(egg))
+    if entry in finds.keys():
+        find = finds[entry]
+        assert str(evalled).casefold() == find.split()[0].casefold(), (evalled, find)
+        byo.stderr_print("byopyvm.py: Easter Egg:  Found {}".format(find))
 
     # Replace the Entry with its Evaluation, except discard an Empty Entry
 
@@ -2121,23 +2239,28 @@ def entry_close_if_open():
 def entry_eval(entry):
     """Eval an Entry"""
 
-    open_entries = ("", "+", "+e", "+j", "-", "-e", "-j", ".", "e", "j")
-    assert open_entries == OPEN_ENTRIES
-
-    # Eval all the OPEN_ENTRIES that the Python 'complex' Func has rejected
+    # Eval the signed or unsigned "e" and "j" OPEN_ENTRIES by Math Conventions
 
     by_entry = dict()
 
-    by_entry[""] = None
-    by_entry["+"] = float("Inf")
     by_entry["+e"] = math.e
-    assert complex("+j") == 1j
-    by_entry["-"] = float("-Inf")
     by_entry["-e"] = -math.e
-    assert complex("-j") == -1j
-    by_entry["."] = float("NaN")
     by_entry["e"] = math.e
+
+    assert complex("+j") == 1j
+    assert complex("-j") == -1j
     assert complex("j") == 1j
+
+    # Eval the remaining OPEN_ENTRIES, all of which are or could be FORKABLE_ENTRIES
+
+    by_entry[""] = None
+    by_entry["+"] = None
+    by_entry[","] = None  # often intercepted by:  def try_comma_button
+    by_entry["-"] = None
+    by_entry["."] = None  # often intercepted by:  def try_dot_button
+
+    keys_of_none = tuple(_[0] for _ in by_entry.items() if _[-1] is None)
+    assert keys_of_none == DROPPABLE_ENTRIES
 
     if entry in by_entry.keys():
 
@@ -2147,12 +2270,9 @@ def entry_eval(entry):
 
     # Ask Python to eval the Entry, else append a "0" to autocomplete the Entry
 
-    evalled = None
-
     fit_before_0 = entry + "0"
     for fitted in (entry, fit_before_0):
 
-        evalled = None
         try:
             evalled = int(fitted)  # covers CLOSED_REGEX_INT
         except ValueError:
@@ -2188,6 +2308,9 @@ def entry_peek_else():
 def entry_peek():
     """Peek the collected Chars and return them"""
 
+    droppable_entries = ("", "+", ",", "-", ".")
+    assert droppable_entries == DROPPABLE_ENTRIES
+
     # Peek from the Top of Stack
 
     if stack_has_x():
@@ -2207,11 +2330,13 @@ def entry_peek():
                     entry = byo.str_removesuffix(value, suffix="_")
                     if value == "_._":
                         entry = "."
+                    elif value == "_,_":
+                        entry = ","
 
                     # Test that any Entry inviting further input is evallable
 
                     evalled = entry_eval(entry)
-                    if entry == "":
+                    if entry in DROPPABLE_ENTRIES:
                         assert evalled is None, (entry, evalled)
                     else:
                         assert evalled is not None, (entry, evalled)
@@ -2230,6 +2355,11 @@ def entry_peek():
 
 
 _ = """
+
+towards buttons of Last X, Last Y
+keep up  __pycache__/x
+keep up  __pycache__/y
+but ouch not quite worth creating __pycache__/ it it doesn't already exist
 
 leading data type for the result
 trailing data type for the op
