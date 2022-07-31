@@ -1867,94 +1867,27 @@ def entry_peek():
 #
 
 
-# FIXME: add Bits alongside Decimal Int and Decimal Float and Decimal Complex
-
 # FIXME: add our TestDoc and our Button TestDoc here into Make SelfTest
 
-
-_ = """
-
-todo:  . , should be : because no longer NaN
-todo:  . √ should be Log2 because no longer X*X
-
-main key map
-
-      i      pi  7  8   9   /
-     OVER    e   4  5   6   *
-            POW  1  2   3   -
-    CLEAR    √   0  .  DUP  +
-
-dot key map - stacked as Entry .
-
-          IMAG  TAU/DEL      7       8      9             MOD/SLASH
-     SWAP/OVER  LN/EXP       4       5      6             LOG10/STAR
-                LOGYX/POW    1       2      3             NEG/MINUS
-     DROP/WIPE  LOG2/SQRT    0  BASE/.  :/-INF/INF/COMMA  POS/PLUS
-
-dot comma key map - stacked as Entry :
-
-     NAN   INT-FRAC  7  8  9  1/X
-     DUP2    E**X    4  5  6  10**X
-             Y.LAST  1  2  3  0-X
-    DROP2     2**X   0  .  COMMA  X.LAST
-
-"""
 
 _ = """
 
 leading data type for the result
 trailing data type for the op
 
-bits = hex, oct, or bin
-
-= '~'
-= '&'
-= '|'
-= '>>'
-= '<<'
-= ^
-
 = -i  # for interactive CLI, till ⌃D Tty Eof
 @ -i  # for interactive CLI, till ⌃D Tty Eof
 
-"""
-
-_ = """
-
-dot dot ... to visit each base:  to-hex, to-dec, to-oct, to-bin
-except skip the to- where we already are, so first strike is always to-hex else to-dec
-
-# dot dot ... to-hex, to-dec, to-oct, to-bin
-
 conversions to Bits first dupe as floor Decimal Int, if given Complex or Float
-    except is it Ceiling when negative?
-
-bits / to shift right >>
-bits * to shift left <<
-bits + for bits |
-bits - for bits ~ &
-
-bits sqrt for bits ~
-bits pow for bits ^
-
-bits dot / to rotate right & >> |
-bits dot * to rotate left & << |
-bits dot sqrt for 0 bits -
-bits dot pow for 0 bits - &
+    except it is Ceiling when negative
 
 no hurry on the A B C D E F keys - first class, not mapped
-
-"""
-
-_ = """
 
 i've long forgotten what a complex sqrt is ...
 
 same thing in a TUI, TUI in a GShell
 --tui paper tape
 main.stderr
-
-add an Undo Button
 
 = requests.get http://...
 work with Files and Dirs, not just Maths
@@ -1964,6 +1897,8 @@ consider '^' for 'pow' for decimal Int/ Float/ Decimal
 factor the common code out from:  / * - +
 refresh the 'macos/.DS_Store' often enough
     even though i often feel i have to log out to flush the Finder Cache of it
+
+add an Undo Button
 
 """
 
