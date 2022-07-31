@@ -283,10 +283,10 @@ this Calculator Folder is a playground, in which we've hidden dozens of Easter E
 
 as the faces of the Button Files, you've been looking at
 
-      i      π   7  8  9  y/x
-     over    e   4  5  6  y*x
-            y↑x  1  2  3  y-x
-    clear    √   0  .  ,  y+x
+      i      π   7  8  9  /
+     over    e   4  5  6  *
+            y↑x  1  2  3  -
+    clear    √   0  .  ,  +
 
 sure you can run your Folder entirely inside this small world
 
@@ -306,27 +306,29 @@ we hid three Easter Eggs inside the / Slash Button =>
 and pressing Pi after typing a Digit undoes it,
 like the Delete Key on a Mac Keyboard
 
-and after Clear or , Comma,
-pressing the . Dot Button
-opens up the 2nd Folder of visually identical Button Files, and
-we've taught 9 Buttons to work differently there
+and after Clear or , Comma, pressing the . Dot Button
+opens up a 2nd Folder of visually identical Button Files, and
+we've taught 11 Buttons to work differently there
 
-    real,imag  log10  7   8   9    floordiv
-        xy       ln   4   5   6       mod
-               logyx  1   2   3       ___
-      dropx     log2  0  2nd 3rd      ___
+      .Real    X 10 Log   7   8   9   //
+    Swap X Y   X Ln       4   5   6   %
+               Y X Log    1   2   3   -...
+    Drop X     X 2 Log    0  2nd 3rd  +...
 
-and 1 Dot Slash splits an ordinary Python Float into Int and Frac Float
+there Dot I picks the Real Float out of a 'complex' Pair of Floats
 
-and after Clear or , Comma,
-pressing the . Dot Button and then the , Comma Button
-opens up the 3rd Folder of visually identical Button Files, and
+there Dot / runs Python's // Floor Division in place of Python's / True Division
+
+there Dot * runs Python's % Modulo in place of Python's * Mul
+
+and after Clear or , Comma, pressing the . Dot Button and then the , Comma Button
+opens up a 3rd Folder of visually identical Button Files, and
 we've taught 10 Buttons to work differently there
 
-      ___  10**x  7   8   9   1/x
-      yxz   e**x  4   5   6   x*x
-            base  1   2   3   0-x
-    dropyx  2**x  0  2nd 3rd  abs
+       .Imag     10 X Pow   7   8   9   1 X /
+     Rot Y X Z    E X Pow   4   5   6   X X *
+                 Y X Base   1   2   3   0 X -
+     Drop Y X     2 X Pow   0  2nd 3rd  X ABS
 
 see those Base and Int Buttons?
 
@@ -343,7 +345,7 @@ press 16 Base, 10 Base, 8 Base, or 2 Base to convert to Hex, Dec, Oct, or Bin
     0o7777 2 . , Base  # 0b1111_1111_1111
 
 and pushing a Modular Int as Top of Stack
-opens up the 4th Folder of visually identical Button Files, and
+opens up a 4th Folder of visually identical Button Files, and
 we've taught 9 Buttons to work differently here
 
       x&-x  shrink  7  8  9  y^x

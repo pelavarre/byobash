@@ -35,6 +35,8 @@ quick start:
   alias @='~/Public/byobash/bin/byopyvm.py buttonfile'
   @ 1 2 , 3 4 +
 
+  open macos/
+
   source dotfiles/dot.byo.bashrc
 
 examples:
@@ -111,13 +113,12 @@ BUTTONFILE_TESTCHARS = """
     = clear  &&  @  . - 1 2 3 ,  # -123
 
     = clear  &&  @  e  # 2.718...
-    = clear  &&  @  . e ,  # 2.718...  # same answer, less directly
-    = clear  &&  @  . e 3 ,  # 1000
+    = clear  &&  @  1 e 3 ,  # 1000
     = clear  &&  @  . - e 3 ,  # -1000
 
     = clear  &&  @  i  # 1i
-    = clear  &&  @  . i ,  # 1i  # same answer, less directly
-    = clear  &&  @  . e 3 i ,  # 1000i
+    = clear  &&  @  1 e 3 i ,  # 1000i
+    = clear  &&  @  0 , 1 - 0 /  j *  # (NaN-Infi)
 
     = clear  &&  @  3 . 2 e - 1 ,  # 0.32
 
@@ -132,19 +133,34 @@ BUTTONFILE_TESTCHARS = """
 
     # Easter Eggs at Dot Buttons
 
-    = clear  &&  @  i  # 1j  # FIXME: snap to int
-    = clear  &&  @  i  . i  =  # 0 1j
-    = clear  &&  @  e i  . over  =  # i e
-
-    FIXME
+    = clear  &&  @  i  # 1j
+    = clear  &&  @  i  . i  =  # 0 1j  # FIXME  # because Split Real from Imag
+    = clear  &&  @  e i  . over  =  # i e  # because Swap
+    # FIXME: # because Drop
+    # FIXME: # because Log 10 X
+    # FIXME: # because Log E X
+    # FIXME: # because Log Y X
+    # FIXME: # because Log 2 X
+    # FIXME: # because // Slash Slash Floor Division
+    # FIXME: # because % Percent Modulo
+    # FIXME: # because - Negative Sign
+    # FIXME: # because + Positive Sign
 
     # Easter Eggs at Dot Comma Buttons
 
-    FIXME
+    # FIXME: # because Rot Y X Z
+    # FIXME: # because Drop Y X
+    # FIXME: # because 10 X **
+    # FIXME: # because E X **
+    # FIXME: # because 2 X **
+    # FIXME: # because 1 X /
+    # FIXME: # because X X *
+    # FIXME: # because 0 X -
+    # FIXME: # because X Abs
 
     # Easter Eggs at Modular Int Buttons
 
-    FIXME
+    # FIXME: # because BASE
 
 """
 
@@ -226,35 +242,42 @@ Q2 = '"'
 Q3 = "_"
 
 
+class StackableTriple(
+    collections.namedtuple("StackableTriple", "name code obj".split())
+):
+    """Collect the 3 Takes on an Object:  its Filename, Serialization, and Self"""
+
+
 class ButtonEntry(str):
     """Work like a classic Python Str, but de/serialize differently"""
 
-    def json_dumps(self):
+    def stackable_dumps(self):
         """Format the Chars of this Str distinctly, apart from how Json Dumps would"""
 
-        dumped = json.dumps(self)
-        assert dumped.startswith(Q2) and dumped.endswith(Q2)
+        code = json.dumps(self)
+        assert code.startswith(Q2) and code.endswith(Q2)
 
-        skinless = dumped[len(Q2) :][: -len(Q2)]
+        skinless = code[len(Q2) :][: -len(Q2)]
         skidded = Q3 + skinless + Q3
 
         return skidded
 
-    def json_loads(s):
+    @classmethod
+    def stackable_loads(cls, s):
         """Take the S as coming from 'json_dumps', else Raise 'json.JSONDecodeError'"""
 
-        dumped = s
+        code = s
 
-        if not dumped.startswith(Q3) or not dumped.endswith(Q3):
+        if not code.startswith(Q3) or not code.endswith(Q3):
 
-            raise json.JSONDecodeError(msg="not a ButtonEntry", doc=dumped, pos=0)
+            raise json.JSONDecodeError(msg="not a ButtonEntry", doc=code, pos=0)
 
-        skinless = dumped[len(Q3) :][: -len(Q3)]
+        skinless = code[len(Q3) :][: -len(Q3)]
         loadable = Q2 + skinless + Q2
 
-        loaded = json.loads(loadable)
+        obj = json.loads(loadable)
 
-        return loaded
+        return obj
 
 
 #
@@ -499,6 +522,8 @@ def form_ink_by_char():
     by_char["\N{Greek Small Letter Tau}"] = "tau"  # τ  # STR_TAU
     by_char["\N{Square Root}"] = "sqrt"  # √  # STR_SQRT
 
+    by_char["//"] = "slash_slash"  # kin to Forth SlashMod
+
     return by_char
 
     # https://unicode.org/charts/PDF/U0000.pdf  # C0 Controls and Basic Latin
@@ -542,18 +567,24 @@ def form_verb_by_word():
     """Declare our Built-In Verbs"""
 
     verb_by_word = dict(
+        abs=do_abs_x,  # this key='abs' is a str, not the 'builtins.abs' Func
+        base=do_base_y_x,
         clear=do_clear,
         comma=do_comma,
         dash=do_dash_y_x,
         dot=do_dot,
         drop=do_pop_x,
+        drop2=do_pop_y_x,
         equals=do_equals,
         log=do_log_y_x,
+        ln=do_log_e_x,
         mod=do_mod_y_x,
         over=do_clone_y,
         plus=do_plus_y_x,
         pow=do_pow_y_x,  # this key='pow' is a str, not the 'builtins.pow' Func
+        rot=do_rot_y_x_z,
         slash=do_slash_y_x,
+        slash_slash=do_slash_slash_y_x,  # kin to Forth SlashMod
         sqrt=do_sqrt_x,
         square=do_square_x,
         star=do_star_y_x,
@@ -686,13 +717,13 @@ def do_equals():
     if not depth:
         print()
     else:
-        basenames = stack_triples_peek_basenames(depth)
-        for basename in basenames:
-            print(basename)
+        names = stack_triples_peek_names(depth)
+        for name in names:
+            print(name)
 
 
 def do_mod_y_x():
-    """Push Y % X in place of Y X, if X not zeroed"""
+    """Push Y % X in place of Y X, if X not zeroed"""  # todo: what if zeroed
 
     if not stack_has_x():
         stack_push(9)  # suggest  9 2 %, else X 2 %
@@ -795,10 +826,31 @@ def do_slash_y_x():
         else:
 
             try:
-                x_ = y / x
+                x_ = y / x  # Python True Division
             except Exception as exc:
 
                 byo.exit_after_print_raise(exc)
+
+        stack_pop(2)
+        stack_push(x_)
+
+
+def do_slash_slash_y_x():  # kin to Forth SlashMod
+    """Push Y // X in place of Y X, if X not zeroed"""  # todo: what if zeroed
+
+    if not stack_has_x():
+        stack_push(9)  # suggest  9 2 //, else X 2 //
+    elif not stack_has_y():
+        stack_push(2)
+    else:
+
+        (y, x) = stack_peek(2)
+
+        try:
+            x_ = y // x  # Python Floor Division
+        except Exception as exc:
+
+            byo.exit_after_print_raise(exc)
 
         stack_pop(2)
         stack_push(x_)
@@ -814,7 +866,7 @@ def do_square_x():
         x = stack_peek()
 
         try:
-            x_ = x**2
+            x_ = x ** 2
         except Exception as exc:
 
             byo.exit_after_print_raise(exc)
@@ -869,34 +921,14 @@ def do_star_y_x():
 
 
 def try_docs_button(word):
+    """Run Buttons as sketched in Doc, even while not shipping deployed in Folder"""
+    # todo: move out of Easter Eggs
 
     docs_defs = dict()
 
     docs_defs["y↑x"] = do_pow_y_x
-    docs_defs["y/x"] = do_slash_y_x
-    docs_defs["y*x"] = do_star_y_x
-    docs_defs["y-x"] = do_dash_y_x
-    docs_defs["y+x"] = do_plus_y_x
-
-    docs_defs["yxz"] = do_rot_y_x_z
-    docs_defs["dropyx"] = do_pop_y_x
-    docs_defs["10**x"] = do_pow_10_x
-    docs_defs["e**x"] = do_pow_e_x
-    docs_defs["base"] = do_base_y_x
-    docs_defs["2**x"] = do_pow_2_x
-    docs_defs["1/x"] = do_slash_1_x
-    docs_defs["x*x"] = do_square_x
-    docs_defs["0-x"] = do_negate_x
-    docs_defs["abs"] = do_abs_x  # todo: move out of Easter Eggs
-
-    docs_defs["real,imag"] = do_complex_split_x
-    docs_defs["dropx"] = do_pop_x
-    docs_defs["log10"] = do_log_10_x
-    docs_defs["ln"] = do_log_e_x
-    docs_defs["logyx"] = do_log_y_x
-    docs_defs["log2"] = do_log_2_x
-    docs_defs["floordiv"] = do_floordiv_y_x  # todo: move out of Easter Eggs
-    docs_defs["mod"] = do_mod_y_x  # todo: move out of Easter Eggs
+    docs_defs[".real"] = do_real_x
+    docs_defs[".imag"] = do_imag_x
 
     # Run the hidden Egg, if found
 
@@ -919,10 +951,6 @@ def do_pop_y_x():
     assert False
 
 
-def do_slash_1_x():
-    assert False
-
-
 #
 # Define the Dot Button Files of our Calculator Folder, after a press of Dot
 #
@@ -941,14 +969,14 @@ def try_dot_button(word):
     # Hide 9 Easter Eggs
 
     dot_defs = dict(
-        i=do_complex_split_x,
+        i=do_real_x,
         over=do_swap_x_y,
         clear=do_pop_x,
         pi=do_log_10_x,
         e=do_log_e_x,
         pow=do_log_y_x,  # this key='pow' is a str, not the 'builtins.pow' Func
         sqrt=do_log_2_x,
-        slash=do_floordiv_y_x,
+        slash=do_slash_slash_y_x,
         star=do_mod_y_x,
     )
 
@@ -970,7 +998,7 @@ def try_dot_button(word):
         return True
 
 
-def do_complex_split_x():
+def do_real_x():
     assert False
 
 
@@ -983,10 +1011,6 @@ def do_log_e_x():
 
 
 def do_log_2_x():
-    assert False
-
-
-def do_floordiv_y_x():
     assert False
 
 
@@ -1008,13 +1032,14 @@ def try_comma_button(word):
     # Hide 10 Easter Eggs
 
     comma_defs = dict(
+        i=do_imag_x,
         over=do_rot_y_x_z,
         clear=do_drop_y_x,
         pi=do_pow_10_x,
         e=do_pow_e_x,
         pow=do_base_y_x,  # this key='pow' is a str, not the 'builtins.pow' Func
         sqrt=do_pow_2_x,
-        slash=do_truediv_1_x,
+        slash=do_slash_1_x,
         star=do_square_x,
         minus=do_negate_x,
         plus=do_abs_x,
@@ -1036,6 +1061,10 @@ def try_comma_button(word):
         func()
 
         return True
+
+
+def do_imag_x():
+    assert False
 
 
 def do_rot_y_x_z():
@@ -1062,7 +1091,7 @@ def do_pow_2_x():
     assert False
 
 
-def do_truediv_1_x():
+def do_slash_1_x():
     assert False
 
 
@@ -1220,14 +1249,14 @@ def do_swap_x_y():
         stack_push(0)
     else:
 
-        basenames = stack_triples_peek_basenames(2)
-        basename = basenames[0]
+        names = stack_triples_peek_names(2)
+        name = names[0]
 
-        shbasename = byo.shlex_dquote(basename)
+        shname = byo.shlex_dquote(name)
 
-        shline = "touch {}".format(shbasename)
-        if basename.startswith("-"):
-            shline = "touch -- {}".format(shbasename)
+        shline = "touch {}".format(shname)
+        if name.startswith("-"):
+            shline = "touch -- {}".format(shname)
 
         byo.stderr_print("+ {}".format(shline))
         byo.subprocess_run_stdio(shline)
@@ -1312,7 +1341,7 @@ def stack_has_y():
 #
 #   Serialize what 'json.dumps' knows how to serialize
 #   Serialize some of what Python Repr knows how to serialize too
-#   Give out some of the Basenames that Python Str knows how to choose
+#   Give out some of the Filename Basenames that Python Str knows how to choose
 #
 
 
@@ -1330,27 +1359,27 @@ def stackable_dumps(obj):
     if hasattr(obj, "json_dumps"):
         assert isinstance(obj, ButtonEntry), byo.class_mro_join(type(obj))
 
-        dumped = obj.json_dumps()  # such as: '_-1.2e_'
+        code = obj.stackable_dumps()  # such as: '_-1.2e_'
 
     # Dump any Json Type
 
     else:
         try:
 
-            dumped = json.dumps(obj)  # such as '"abc"'
+            code = json.dumps(obj)  # such as '"abc"'
 
         # Dump Complex Obj
 
         except TypeError:
             if isinstance(obj, complex):
 
-                dumped = repr_obj  # such as:  '(-1+2j)'
+                code = repr_obj  # such as:  '(-1+2j)'
 
             # Dump other Obj's as a Py Sourceline to Eval the Chars of Repr
             # todo:  Repr of Collections.Counter etc omits its ModuleName
 
             else:
-                dumped = "eval({})".format(repr_repr_obj)
+                code = "eval({})".format(repr_repr_obj)
 
                 for (nickname, modulename) in BY_NICKNAME.items():
                     prefix = modulename + "."
@@ -1358,24 +1387,24 @@ def stackable_dumps(obj):
                         alt_py = nickname + "." + repr_obj[len(prefix) :]
                         alt_repr_repr_obj = repr(alt_py)
 
-                        dumped = "eval({})".format(alt_repr_repr_obj)
+                        code = "eval({})".format(alt_repr_repr_obj)
                         # such as:  "eval('dt.datetime(2022, 7, 24, 16, 4, 7, 624925)')"
 
                         break
 
-    return dumped
+    return code
 
 
 def stackable_loads_else(s):
     """Unwrap the Object inside the Chars, else return None"""
 
-    dumped = s
+    code = s
 
     # Load any Json Type
 
     try:
 
-        loaded = json.loads(dumped)
+        obj = json.loads(code)
 
     except json.JSONDecodeError:
 
@@ -1383,151 +1412,159 @@ def stackable_loads_else(s):
 
         prefix = "eval("
         suffix = ")"
-        if dumped.startswith(prefix) and dumped.endswith(suffix):
-            repr_py = dumped[len(prefix) : -len(suffix)]
+        if code.startswith(prefix) and code.endswith(suffix):
+            repr_py = code[len(prefix) : -len(suffix)]
             py = ast.literal_eval(repr_py)
 
-            loaded = stack_eval_once(py)
+            obj = stack_eval_once(py)
 
         # Load Complex Values
 
         else:  # todo:  much too weak reasons to conclude is Rep of Complex
             try:
 
-                loaded = complex(dumped)
+                obj = complex(code)
 
             except ValueError:
                 try:
 
-                    loaded = ButtonEntry.json_loads(dumped)
+                    obj = ButtonEntry.stackable_loads(code)
 
                 except json.JSONDecodeError:
 
-                    loaded = None  # todo: could:  raise ValueError(dumped)
+                    obj = None  # todo: could:  raise ValueError(code)
 
-    return loaded
+    return obj
 
 
-def stackable_triple(value):
-    """Name the Print's of an Object"""
+def stackable_triple(obj):
+    """Form the 3 Takes on an Object:  its Filename, Serialization, & Self"""
 
-    basename = str(value)
-    dumped = stackable_dumps(value)
+    # Work differently for Complex or Float
 
-    if isinstance(value, complex):
-        assert not isinstance(value, collections.abc.Container), type(value)
+    if isinstance(obj, complex):
+        assert not isinstance(obj, collections.abc.Container), type(obj)
 
-        triple = stackable_triple_of_complex(value)
-
-        return triple
-
-    if isinstance(value, float):
-        assert not isinstance(value, collections.abc.Container), type(value)
-
-        triple = stackable_triple_of_float(value)
+        triple = stackable_triple_from_complex(obj)
 
         return triple
 
-    if isinstance(value, str):  # test Str before trying Container
-        assert isinstance(value, collections.abc.Container), type(value)
+    if isinstance(obj, float):
+        assert not isinstance(obj, collections.abc.Container), type(obj)
 
-        basename = value
-        triple = (basename, dumped, value)
-
-        return triple
-
-    if isinstance(value, collections.abc.Container):
-
-        basename = byo.class_fullname(type(value))
-        triple = (basename, dumped, value)
+        triple = stackable_triple_from_float(obj)
 
         return triple
 
-    triple = (basename, dumped, value)
+    # Work differently for Container, except Not differently for Str
+
+    if not isinstance(obj, str):
+        if isinstance(obj, collections.abc.Container):
+
+            name = byo.class_fullname(type(obj))
+            code = stackable_dumps(obj)
+            triple = StackableTriple(name, code=code, obj=obj)
+
+            return triple
+
+    # Fall back on to the naive choices
+
+    name = str(obj)  # the Look of the Self
+    code = stackable_dumps(obj)  # Code for Cloning the Self, like a Repr for Json
+    triple = StackableTriple(name, code=code, obj=obj)
 
     return triple
 
 
-def stackable_triple_of_float(value):
-    """Give a Basename to Float's, and snap out extreme precision"""
+def stackable_triple_from_complex(obj):
+    """Give a Basename to Complex'es, and snap out Extreme Precision"""
 
-    basename = None
-    alt_value = value
+    abs_imag_triple = stackable_triple_from_float(obj=obj.imag)
+    real_triple = stackable_triple_from_float(obj=obj.real)
 
-    # Give mixed case Basename's to the named Float's
+    # Forward Real without Imag
 
-    for str_float in ("-Inf", "NaN", "Inf"):
-        if str(value) == str_float.lower():
-            basename = str_float
+    imag = abs_imag_triple.obj
+    if not imag:
 
-    # Snap Float to Int
+        return real_triple
 
-    if basename is None:
-        int_value = int(value)
-        if abs(value - int_value) < EPSILON:
-            alt_value = int_value
-            basename = str(alt_value)
+    # Else forward Imag without Real
 
-    # Snap most of the precision out of the Basename
+    real = real_triple.obj
+    if not real:
 
-    if basename is None:
-        basename = str(round(value, FILENAME_PRECISION_3))
+        brief = abs_imag_triple.obj * 1j
+        code = stackable_dumps(brief)
+        name = str(brief)
 
-    # Succeed
+        triple = StackableTriple(name, code=code, obj=brief)
 
-    assert basename
+        return triple
 
-    alt_dumped = stackable_dumps(alt_value)
-    triple = (basename, alt_dumped, alt_value)
+    # Else forward Real with Imag
 
-    return triple
+    brief = complex(real, imag=imag)
 
-    # such as '-0.0' to 0, at:  = 0 -1 /
-    # such as '...' to 2.0000000000000004 at:  = 2 , sqrt , * -
+    code = str(brief)
 
+    name = "({}+{}j)".format(real_triple.name, abs_imag_triple.name)
+    if abs_imag_triple.name.startswith("-"):
+        name = "({}{}j)".format(real_triple.name, abs_imag_triple.name)
 
-def stackable_triple_of_complex(value):
-    """Give a Basename to Complex'es, and snap out extreme precision"""
+    alt_name = name  # such as '(nan-infj)'
+    alt_name = alt_name.replace("(", "").replace(")", "")
+    alt_name = alt_name.replace("j", SH_J)  # such as 'NaN-Infi
 
-    alt_value = value
-
-    # Snap the Complex to Int, in its Real dimension, in its Imag, or in both
-
-    real = value.real
-    alt_real = int(real) if (abs(real - int(real)) < EPSILON) else real
-
-    imag = value.imag
-    alt_imag = int(imag) if (abs(imag - int(imag)) < EPSILON) else imag
-
-    # Drop the Imag when it bumps against Zero
-
-    if not alt_imag:
-        alt_value = alt_real
-    elif (alt_real != value.real) or (alt_imag != value.imag):
-        alt_value = complex(alt_real, imag=alt_imag)
-
-    # Snap most of the precision out of the Basename
-
-    if not alt_imag:
-        basename = str(round(alt_value, FILENAME_PRECISION_3))
-    elif not alt_real:
-        basename = str(round(alt_value.imag, FILENAME_PRECISION_3)) + SH_J
-    else:
-        fuzzed_alt_real = round(alt_value.real, FILENAME_PRECISION_3)
-        fuzzed_alt_imag = round(alt_value.imag, FILENAME_PRECISION_3)
-        fuzzed_alt_value = complex(fuzzed_alt_real, imag=fuzzed_alt_imag)
-        basename = str(fuzzed_alt_value).replace("j", SH_J)
-
-    # Succeed
-
-    alt_dumped = stackable_dumps(alt_value)
-    triple = (basename, alt_dumped, alt_value)
+    triple = StackableTriple(alt_name, code=code, obj=brief)
 
     return triple
 
     # such as '(-1+0j)' to -1, at:  = j j *
     # such as '-1+1.2246467991473532e-16' to -1 at:  = e i pi * pow
     # such as '2.220446049250313e-16+1j' to 1j at:  = j sqrt , *
+
+
+def stackable_triple_from_float(obj):
+    """Give a Basename to Float's, and snap out extreme Precision"""
+
+    name = None
+
+    # Give the conventional Mixed Case Basename's to the Named Float's
+
+    for str_fuzz in ("-Inf", "NaN", "Inf"):
+        if str(obj) == str_fuzz.lower():
+
+            name = str_fuzz
+
+    # Keep the whole Value, else snap Float to Int
+
+    brief = obj
+    if name is None:
+        int_value = int(obj)
+        if abs(obj - int_value) < EPSILON:
+            brief = int_value
+
+            name = str(brief)
+
+    # Pick a Basename without much precision, if no Basename chosen already
+
+    if name is None:
+        fuzz = round(obj, FILENAME_PRECISION_3)
+
+        name = str(fuzz)
+
+    # Succeed
+
+    assert name
+
+    brief_code = stackable_dumps(brief)
+    triple = StackableTriple(name, code=brief_code, obj=brief)
+
+    return triple
+
+    # such as '-0.0' to 0, at:  = 0 -1 /
+    # such as '...' to 2.0000000000000004 at:  = 2 , sqrt , * -
 
 
 #
@@ -1564,7 +1601,7 @@ def stack_peek(depth=1):
 
 
 def stack_triples_pop(depth, asif_before_rm=""):
-    """Peek and remove some of the Basename-Chars Triples most recently pushed"""
+    """Peek and remove some of the StackableTriple's most recently pushed"""
 
     assert depth >= 0
 
@@ -1588,13 +1625,13 @@ def stack_triples_pop(depth, asif_before_rm=""):
     return triples
 
 
-def stack_triples_peek_basenames(depth):
+def stack_triples_peek_names(depth):
     """Peek at some of the Basename's most recently pushed"""
 
     triples = stack_triples_peek(depth)
-    basenames = list(_[0] for _ in triples)  # as if:  (basename, _, _) = triple
+    names = list(_[0] for _ in triples)  # as if:  (name, _, _) = triple
 
-    return basenames
+    return names
 
 
 def stack_triples_peek_values(depth):
@@ -1607,7 +1644,7 @@ def stack_triples_peek_values(depth):
 
 
 def stack_triples_peek(depth=1):
-    """Peek at some of the Basename-Chars Triples most recently pushed"""
+    """Peek at some of the StackableTriple's most recently pushed"""
 
     assert depth >= 0
 
@@ -1635,7 +1672,7 @@ def stack_triples_peek(depth=1):
                 pass
 
         if chars is not None:
-            dumped = chars.rstrip()  # todo: strip only trailing "\n"?
+            code = chars.rstrip()  # todo: strip only trailing "\n"?
 
             if False:
                 if filename == "2.718_":
@@ -1643,12 +1680,12 @@ def stack_triples_peek(depth=1):
 
             # Count the File only if it holds an intelligible Value
 
-            peek = stackable_loads_else(dumped)
-            if peek is None:  # such as json.JSONDecodeError
+            obj = stackable_loads_else(code)
+            if obj is None:  # such as json.JSONDecodeError
 
                 continue
 
-            triple = (str(path), dumped, peek)
+            triple = StackableTriple(str(path), code=code, obj=obj)
             triples.append(triple)
 
     # Limit the Depth peeked, except reserve Depth 0 to mean No Limit
@@ -1661,53 +1698,44 @@ def stack_triples_peek(depth=1):
     return triples
 
 
-def stack_push(value):
-    """Push the Json Chars of a Value, into a new Autonamed File"""
+def stack_push(obj):
+    """Write the Code to clone the Obj into a Filename Basename of the Obj"""
 
-    (basename, dumped, alt_value) = stackable_triple(value)
+    triple = stackable_triple(obj)
 
-    stack_push_basename_alt_value(basename, value=value, alt_value=alt_value)
+    # Mark up the Name to duck out of mutating some existing File
+
+    path = fresh_path_from_name(triple.name)
+    shpath = byo.shlex_dquote(str(path))
+
+    # Write the Code to clone the Obj into the Marked-Up Name
+
+    shcode = byo.shlex_dquote(triple.code)
+    shcomment = "  # {!r}".format(obj) if (repr(triple.obj) != repr(obj)) else ""
+
+    shline = "echo {} >{}{}".format(shcode, shpath, shcomment)
+    byo.stderr_print("+ {}".format(shline))
+
+    with open(shpath, "w") as writing:
+        writing.write("{}\n".format(triple.code))
 
 
-def stack_push_basename_alt_value(basename, value, alt_value):
-    """Push the Json Chars of a Value, into a fresh File"""
+def fresh_path_from_name(name):
+    """Find the next precise Basename in the Dir that doesn't already exist"""
 
-    # Choose the given Basename, else the next that doesn't already exist
-
-    path = pathlib.Path(basename)
-
-    alt_path = path
+    path = pathlib.Path(name)
     if path.exists():
-        alt_path = find_alt_path(path)
+        path = pathlib.Path("{}~".format(name))  # the 0th Alt
 
-    alt_shpath = byo.shlex_dquote(str(alt_path))
+        index = 1
+        while path.exists():
+            path = pathlib.Path("{}~{}~".format(name, index))
 
-    # Trace and run
+            index += 1
 
-    alt_dumped = stackable_dumps(alt_value)
-    alt_shvalue = byo.shlex_dquote(alt_dumped)
+    return path
 
-    alt_shcomment = "  # {!r}".format(value) if (repr(alt_value) != repr(value)) else ""
-
-    echo_shline = "echo {} >{}{}".format(alt_shvalue, alt_shpath, alt_shcomment)
-    byo.stderr_print("+ {}".format(echo_shline))
-
-    with open(alt_path, "w") as writing:
-        writing.write("{}\n".format(alt_dumped))
-
-
-def find_alt_path(path):
-    """Find the next Basename that doesn't already exist in the Dir"""
-
-    alt_path = pathlib.Path("{}~".format(path))  # the 0th Alt
-
-    index = 1
-    while alt_path.exists():
-        alt_path = pathlib.Path("{}~{}~".format(path, index))
-
-        index += 1
-
-    return alt_path
+    # try "name", "name~", "name~1~", "name~2~", etc
 
 
 #
@@ -2165,14 +2193,14 @@ def entry_peek():
     if stack_has_x():
 
         triple = stack_triples_peek()[-1]
-        (basename, dumped, value) = triple
+        (name, code, value) = triple
 
-        # Peek only if the Basename ends with '_' and was Dumped
+        # Peek only if the Basename ends with '_' and was code
 
-        if basename is not None:
-            if basename.endswith("_"):
-                basename_json = stackable_dumps(ButtonEntry(basename))
-                if basename_json == dumped:
+        if name is not None:
+            if name.endswith("_"):
+                name = stackable_dumps(ButtonEntry(name))
+                if name == code:
 
                     # Remove the Strong Mark of the Entry as inviting further input
 
