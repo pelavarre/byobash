@@ -55,7 +55,7 @@ examples:
 
   =  pdb.set_trace  # like to follow up with:  stack_peek(0)
 
-  # More sequences of digits and:  / * - + . , pi π i e over pow sqrt √ clear
+  # More usage of:  / * - + . , pi π i e over pow sqrt √ clear
 
   =  e i pi * pow  # another calculation
   =  dt.datetime.now dt.datetime.now over -  # dt.timedelta
@@ -104,6 +104,8 @@ BUTTONFILE_TESTCHARS = """
 
     @  # show these examples and exit
 
+    # usage:  / * - + . , pi π i e over pow sqrt √ clear
+
     = clear  &&  @  1 2 3 ,  # 123
     = clear  &&  @  3 2 1 π π 4 5 ,  # 345
     = clear  &&  @  . - 1 2 3 ,  # -123
@@ -119,7 +121,7 @@ BUTTONFILE_TESTCHARS = """
 
     = clear  &&  @  3 . 2 e - 1 ,  # 0.32
 
-    = clear  &&  @  . ,  . + ,  . - ,  # NaN, Inf, -Inf
+    = clear  &&  @  0 , 0 /  1 , 0 /   0 , 1 - 0 /  # NaN, Inf, -Inf
 
     = clear  &&  @  e i pi * pow  # -1
     = clear  &&  @  j , j /  # 1
@@ -128,15 +130,21 @@ BUTTONFILE_TESTCHARS = """
 
     = clear  &&  @  dt.datetime.now dt.datetime.now over -  # dt.timedelta
 
-    = clear && @ 9 , 2 , . slash  # take Dot Slash as Mod
-    = clear && @ 12 . sqrt   # take Dot Sqrt as Square
-    = clear && @ 10 e . pow   # take Dot Pow as Log
-    = clear && @ . pi  # take Dot Pi as Tau
+    # Easter Eggs at Dot Buttons
 
-    = clear && @ 123 456 . clear   # take Dot Clear as Drop
-    = clear && @ 123 456 . over    # take Dot Over as Swap
+    = clear  &&  @  i  # 1j  # FIXME: snap to int
+    = clear  &&  @  i  . i  =  # 0 1j
+    = clear  &&  @  e i  . over  =  # i e
 
-    # sequences chosen from digits and:  / * - + . , pi π i e over pow sqrt √ clear
+    FIXME
+
+    # Easter Eggs at Dot Comma Buttons
+
+    FIXME
+
+    # Easter Eggs at Modular Int Buttons
+
+    FIXME
 
 """
 
@@ -162,18 +170,6 @@ SH_J = "i"  # choose the Char to mark 'str' of '.imag', from outside r"[-+.01234
 STR_PI = "\N{Greek Small Letter Pi}"  # π
 STR_SQRT = "\N{Square Root}"  # √
 STR_TAU = "\N{Greek Small Letter Tau}"  # τ
-
-
-#
-# Declare how to change the Meaning of a Word by marking the Word
-# FIXME: Key Map
-#
-
-ALT_BY_WORD = dict(
-    clear="drop", over="swap", pi="tau", slash="mod", sqrt="square", pow="log"
-)
-ALT_BY_WORD["/"] = ALT_BY_WORD["slash"]
-ALT_BY_WORD[STR_PI] = ALT_BY_WORD["pi"]
 
 
 #
@@ -259,6 +255,18 @@ class ButtonEntry(str):
         loaded = json.loads(loadable)
 
         return loaded
+
+
+#
+# Declare how to work with Modular Int's
+#
+
+
+class ModularInt:
+    def __init__(self, bits, base, width):
+        self.bits = bits
+        self.base = base
+        self.width = width
 
 
 #
@@ -516,11 +524,16 @@ def form_noun_by_word():
 
     noun_by_word = dict(
         e=math.e,
-        i=MATH_J,  # Sci Folk
-        j=MATH_J,  # Eng Folk
-        pi=math.pi,  # π  # Classic Folk
-        tau=math.tau,  # τ  # Modern Folk
+        j=MATH_J,
+        pi=math.pi,
+        tau=math.tau,
     )
+
+    more = dict(
+        i=MATH_J,
+    )
+
+    noun_by_word.update(more)
 
     return noun_by_word
 
@@ -531,12 +544,11 @@ def form_verb_by_word():
     verb_by_word = dict(
         clear=do_clear,
         comma=do_comma,
-        dash=do_dash_y_x,  # invite Monosyllabic Folk to speak of the '-' Dash
+        dash=do_dash_y_x,
         dot=do_dot,
         drop=do_pop_x,
         equals=do_equals,
         log=do_log_y_x,
-        minus=do_dash_y_x,  # invite Calculator Folk to speak of the '-' Minus
         mod=do_mod_y_x,
         over=do_clone_y,
         plus=do_plus_y_x,
@@ -545,8 +557,14 @@ def form_verb_by_word():
         sqrt=do_sqrt_x,
         square=do_square_x,
         star=do_star_y_x,
-        swap=do_swap_y_x,
+        swap=do_swap_x_y,
     )
+
+    more = dict(
+        minus=do_dash_y_x,
+    )
+
+    verb_by_word.update(more)
 
     return verb_by_word
 
@@ -624,7 +642,7 @@ def parms_hash(parms):
 
 
 #
-# Define Calculator Buttons
+# Define the Button Files of our Calculator Folder
 #
 
 
@@ -635,7 +653,7 @@ def do_dash_y_x():
         stack_push(1)  # suggest 0 1 -, else 0 X -
     elif not stack_has_y():
         stack_push(0)
-        do_swap_y_x()  # push -X in place of X, when run twice  # a la HP "CHS"
+        do_swap_x_y()  # push -X in place of X, when run twice  # a la HP "CHS"
     else:
 
         (y, x) = stack_peek(2)
@@ -765,7 +783,7 @@ def do_slash_y_x():
         stack_push(0)  # suggest  1 0 /, else 1 X /
     elif not stack_has_y():
         stack_push(1)
-        do_swap_y_x()  # push (1 / X) in place of X, when run twice  # a la HP "1/X"
+        do_swap_x_y()  # push (1 / X) in place of X, when run twice  # a la HP "1/X"
     else:
 
         (y, x) = stack_peek(2)
@@ -796,7 +814,7 @@ def do_square_x():
         x = stack_peek()
 
         try:
-            x_ = x ** 2
+            x_ = x**2
         except Exception as exc:
 
             byo.exit_after_print_raise(exc)
@@ -846,6 +864,308 @@ def do_star_y_x():
 
 
 #
+# Define the Button Filenames mentioned by 'macos/README.md'
+#
+
+
+def try_docs_button(word):
+
+    docs_defs = dict()
+
+    docs_defs["y↑x"] = do_pow_y_x
+    docs_defs["y/x"] = do_slash_y_x
+    docs_defs["y*x"] = do_star_y_x
+    docs_defs["y-x"] = do_dash_y_x
+    docs_defs["y+x"] = do_plus_y_x
+
+    docs_defs["yxz"] = do_rot_y_x_z
+    docs_defs["dropyx"] = do_pop_y_x
+    docs_defs["10**x"] = do_pow_10_x
+    docs_defs["e**x"] = do_pow_e_x
+    docs_defs["base"] = do_base_y_x
+    docs_defs["2**x"] = do_pow_2_x
+    docs_defs["1/x"] = do_slash_1_x
+    docs_defs["x*x"] = do_square_x
+    docs_defs["0-x"] = do_negate_x
+    docs_defs["abs"] = do_abs_x  # todo: move out of Easter Eggs
+
+    docs_defs["real,imag"] = do_complex_split_x
+    docs_defs["dropx"] = do_pop_x
+    docs_defs["log10"] = do_log_10_x
+    docs_defs["ln"] = do_log_e_x
+    docs_defs["logyx"] = do_log_y_x
+    docs_defs["log2"] = do_log_2_x
+    docs_defs["floordiv"] = do_floordiv_y_x  # todo: move out of Easter Eggs
+    docs_defs["mod"] = do_mod_y_x  # todo: move out of Easter Eggs
+
+    # Run the hidden Egg, if found
+
+    if word in docs_defs.keys():
+
+        func = docs_defs[word]
+        alt_word = func.__name__
+        byo.stderr_print(
+            "byopyvm.py: Easter Egg:  Found {!r} at {}".format(
+                alt_word.title(), word.title()
+            )
+        )
+
+        func()
+
+        return True
+
+
+def do_pop_y_x():
+    assert False
+
+
+def do_slash_1_x():
+    assert False
+
+
+#
+# Define the Dot Button Files of our Calculator Folder, after a press of Dot
+#
+
+
+def try_dot_button(word):
+    """Run differently while the Entry is just the '.' Dot"""
+
+    # Quit unless an Entry Open as just the '.' Dot
+
+    entry = entry_peek_else()
+    if entry != ".":
+
+        return
+
+    # Hide 9 Easter Eggs
+
+    dot_defs = dict(
+        i=do_complex_split_x,
+        over=do_swap_x_y,
+        clear=do_pop_x,
+        pi=do_log_10_x,
+        e=do_log_e_x,
+        pow=do_log_y_x,  # this key='pow' is a str, not the 'builtins.pow' Func
+        sqrt=do_log_2_x,
+        slash=do_floordiv_y_x,
+        star=do_mod_y_x,
+    )
+
+    # Run the hidden Egg, if found
+
+    if word in dot_defs.keys():
+        do_pop_x()  # drop the "." Dot Entry, in place of 'entry_close_if_open()'
+
+        func = dot_defs[word]
+        alt_word = func.__name__
+        byo.stderr_print(
+            "byopyvm.py: Easter Egg:  Found {!r} at Dot {}".format(
+                alt_word.title(), word.title()
+            )
+        )
+
+        func()
+
+        return True
+
+
+def do_complex_split_x():
+    assert False
+
+
+def do_log_10_x():
+    assert False
+
+
+def do_log_e_x():
+    assert False
+
+
+def do_log_2_x():
+    assert False
+
+
+def do_floordiv_y_x():
+    assert False
+
+
+#
+# Define the Dot Comma Button Files of our Calculator Folder, after a press of Dot Comma
+#
+
+
+def try_comma_button(word):
+    """Run differently while the Entry is just the ',' Comma"""
+
+    # Quit unless an Entry Open as just the ',' Comma
+
+    entry = entry_peek_else()
+    if entry != ",":
+
+        return
+
+    # Hide 10 Easter Eggs
+
+    comma_defs = dict(
+        over=do_rot_y_x_z,
+        clear=do_drop_y_x,
+        pi=do_pow_10_x,
+        e=do_pow_e_x,
+        pow=do_base_y_x,  # this key='pow' is a str, not the 'builtins.pow' Func
+        sqrt=do_pow_2_x,
+        slash=do_truediv_1_x,
+        star=do_square_x,
+        minus=do_negate_x,
+        plus=do_abs_x,
+    )
+
+    # Run the hidden Egg, if found
+
+    if word in comma_defs.keys():
+        do_pop_x()  # drop the "," Comma Entry, in place of 'entry_close_if_open()'
+
+        func = comma_defs[word]
+        alt_word = func.__name__
+        byo.stderr_print(
+            "byopyvm.py: Easter Egg:  Found {!r} at Dot Comma {}".format(
+                alt_word.title(), word.title()
+            )
+        )
+
+        func()
+
+        return True
+
+
+def do_rot_y_x_z():
+    assert False
+
+
+def do_drop_y_x():
+    assert False
+
+
+def do_pow_10_x():
+    assert False
+
+
+def do_pow_e_x():
+    assert False
+
+
+def do_base_y_x():
+    assert False
+
+
+def do_pow_2_x():
+    assert False
+
+
+def do_truediv_1_x():
+    assert False
+
+
+def do_negate_x():
+    assert False
+
+
+def do_abs_x():
+    assert False
+
+
+#
+# Define the Button Files of our Calculator Folder, after a push of ModularInt
+#
+
+
+def try_bits_button(word):
+    """Run differently while Top of Stack is a ModularInt"""
+
+    # Quit unless Top of Stack is a ModularInt
+
+    entry = entry_peek_else()
+    if entry is not None:
+
+        return
+
+    if not stack_has_x():
+
+        return
+
+    x = stack_peek()
+    if not isinstance(x, ModularInt):
+
+        return
+
+    # Hide 9 Easter Eggs
+
+    bits_defs = dict(
+        i=do_weigh_x,
+        pi=do_shrink_x,
+        e=do_grow_x,
+        pow=do_int_x,  # this key='pow' is a str, not the 'builtins.pow' Func
+        sqrt=do_flip_x,
+        slash=do_hat_y_x,
+        star=do_amp_y_x,
+        minus=do_amp_flip_y_x,
+        plus=do_bar_x,
+    )
+
+    # Run the hidden Egg, if found
+
+    if word in bits_defs.keys():
+
+        func = bits_defs[word]
+        alt_word = func.__name__
+        byo.stderr_print(
+            "byopyvm.py: Easter Egg:  Found {!r} at Bits {}".format(
+                alt_word.title(), word.title()
+            )
+        )
+
+        func()
+
+        return True
+
+
+def do_weigh_x():
+    assert False
+
+
+def do_shrink_x():
+    assert False
+
+
+def do_grow_x():
+    assert False
+
+
+def do_int_x():
+    assert False
+
+
+def do_flip_x():
+    assert False
+
+
+def do_hat_y_x():
+    assert False
+
+
+def do_amp_y_x():
+    assert False
+
+
+def do_amp_flip_y_x():
+    assert False
+
+
+def do_bar_x():
+    assert False
+
+
+#
 # Define Stack Ops
 #
 
@@ -891,7 +1211,7 @@ def do_pop_x():  # a la Forth "DROP"
     # different than our 'def try_buttonfile_drop'
 
 
-def do_swap_y_x():
+def do_swap_x_y():
     """Drag the 2nd-to-Last Value to Top of Stack"""
 
     if not stack_has_x():
@@ -1431,76 +1751,85 @@ def try_buttonfile(parms):
 
     assert parms
 
-    # Take the Name of the Filename as the Word of Command, without the Ext
+    # Take the Root of the Basename as the Word, when given a Path with an Ext,
+    # but otherwise take the Word as given, such as "/" as "/", to run as "Slash"
 
     main_file = parms.pop(1)
 
-    if main_file == "/":  # FIXME: less hack to welcome quick test via extra Parms
-        word = main_file
-    else:
+    word = main_file
+    if main_file.endswith(".command"):
         basename = os.path.basename(main_file)
         (root, ext) = os.path.splitext(basename)
 
-        word = root if (ext == ".command") else basename
-
-    word = word.casefold()  # Ignore Upper/Lower Case in ButtonFile Names
+        word = root
 
     # Run the Word
 
-    keyed = try_entry_dot_key_map(word)
-    if not keyed:
+    word_found = try_alt_defs(word)
+    if not word_found:
 
-        moved = try_entry_move_by_word(word)
-        if not moved:
-            if word == "clear":
+        if word == "clear":
 
-                try_buttonfile_clear()  # works in place of 'entry_close_if_open()'
+            try_buttonfile_clear()  # works in place of 'entry_close_if_open()'
 
-            elif word in (",", "comma"):
+        elif word in (",", "comma"):
 
-                entry = entry_close_if_open()
-                if entry is None:
-                    do_comma()
+            entry = entry_close_if_open()
+            if entry is None:
+                do_comma()
 
-            else:
+        else:
 
-                entry_close_if_open()
-                parms_run_some(parms=[word])
+            entry_close_if_open()
+            parms_run_some(parms=[word])
 
 
-def try_entry_dot_key_map(word):
-    """Run an Alt Key Map after a leading "." Dot"""
+def try_alt_defs(word):
+    """Run some Alt Def of the ButtonFile, if found in this Corner as an Easter Egg"""
 
-    entry = entry_peek_else()
+    # Try the Buttons redefined while Entry in progress
+    # todo: stop making order matter, and randomise to show order unimportant
 
-    if entry == ".":
-        alt_word = ALT_BY_WORD.get(word)
-        if alt_word is not None:
-            byo.stderr_print(
-                "byopyvm.py: Easter Egg:  Found {} at Dot {}".format(
-                    alt_word.title(), word.title()
-                )
-            )  # Egg's of Mod Drop Log Square Swap Tau at Slash Clear Pow Sqrt Over Pi
+    dot_found = try_dot_button(word)
+    if dot_found:
 
-            do_pop_x()  # drop the "." Dot Entry, in place of 'entry_close_if_open()'
+        return True
 
-            if alt_word == "drop":
-                try_buttonfile_drop()
-            else:
-                parms_run_some(parms=[alt_word])
+    comma_found = try_comma_button(word)
+    if comma_found:
 
-            return True
+        return True
+
+    entry_found = try_entry_button(word)
+    if entry_found:
+
+        return True
+
+    # Try the Buttons redefined while Modular Int at Top of Stack
+
+    bits_found = try_bits_button(word)
+    if bits_found:
+
+        return True
+
+    # Try the Buttons defined only as Calculator Buttons in Docs, not as ordinary Words
+
+    docs_found = try_docs_button(word)
+    if docs_found:
+
+        return True
 
 
-def try_entry_move_by_word(word):
+def try_entry_button(word):
     """Return None after closing or dropping the Entry, else return the Open Entry"""
 
     entry = entry_peek_else()
     signable = entry_is_signable(entry)
+    forkable = entry in (".", ",")
 
     # Edit the Entry in one of many ways
 
-    moved = True
+    entry_found = True
 
     if entry and (word == "clear"):  # take Clear to empty the Entry, else empty Stack
         entry_write_char("")
@@ -1518,13 +1847,15 @@ def try_entry_move_by_word(word):
         entry_write_char("j")
     elif word in (".", "dot"):
         entry_write_char(".")
+    elif forkable and (word in (",", "comma")):
+        entry_write_char(",")
     else:
 
-        moved = False
+        entry_found = False
 
-    # Succeed anyhow, but return False after running no Word
+    # Return True, else False
 
-    return moved
+    return entry_found
 
 
 def entry_is_signable(entry):
@@ -1669,12 +2000,12 @@ def entry_take_char(entry, ch):
 
         # Allow Buttons "+" and "-" to make no reply, while Entry is "+" or "-"
 
-    elif ch in (".", "e", "j"):
+    elif ch in (",", ".", "e", "j"):
 
         if ch in editing:
             edited = editing.partition(ch)[0]  # . => Cut back to before Ch
-        elif editing == ".":
-            assert ch != ".", (entry, ch, editing)
+        elif editing in (",", "."):
+            assert ch != editing
             edited = ch  # Start over with Ch
         else:
             edited = editing + ch  # Append Ch  # may be wrongly after "j" till fixed

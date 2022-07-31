@@ -284,7 +284,7 @@ this Calculator Folder is a playground, in which we've hidden dozens of Easter E
 as the faces of the Button Files, you've been looking at
 
       i      π   7  8  9  y/x
-     yxy     e   4  5  6  y*x
+     over    e   4  5  6  y*x
             y↑x  1  2  3  y-x
     clear    √   0  .  ,  y+x
 
@@ -309,24 +309,24 @@ like the Delete Key on a Mac Keyboard
 and after Clear or , Comma,
 pressing the . Dot Button
 opens up the 2nd Folder of visually identical Button Files, and
-we've taught 13 Buttons to work differently there
+we've taught 9 Buttons to work differently there
 
-    real,imag  log10  7   8   9    div
-        yx       ln   4   5   6    mod
-               logyx  1   2   3    neg
-      dropx     log2  0  2nd 3rd   pos
+    real,imag  log10  7   8   9    floordiv
+        xy       ln   4   5   6       mod
+               logyx  1   2   3       ___
+      dropx     log2  0  2nd 3rd      ___
 
 and 1 Dot Slash splits an ordinary Python Float into Int and Frac Float
 
 and after Clear or , Comma,
 pressing the . Dot Button and then the , Comma Button
 opens up the 3rd Folder of visually identical Button Files, and
-we've taught 12 Buttons to work differently there
+we've taught 10 Buttons to work differently there
 
       ___  10**x  7   8   9   1/x
       yxz   e**x  4   5   6   x*x
             base  1   2   3   0-x
-    dropyx  2**x  0  2nd 3rd absx
+    dropyx  2**x  0  2nd 3rd  abs
 
 see those Base and Int Buttons?
 
