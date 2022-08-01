@@ -363,7 +363,12 @@ def exit_after_print_raise(exc):
     """Stderr Print the Exec and then Exit Nonzero"""
 
     typename = class_fullname(type(exc))
-    str_raise = "byotools.py: {}: {}".format(typename, exc)
+    str_exc = str(exc)
+    if not str_exc:
+        str_raise = "byotools.py: {}".format(typename)
+    else:
+        str_raise = "byotools.py: {}: {}".format(typename, exc)
+
     stderr_print(str_raise)
 
     sys.exit(1)  # Exit 1 for Unhandled Exception

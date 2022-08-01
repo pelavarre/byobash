@@ -135,38 +135,37 @@ BUTTONFILE_TESTCHARS = """
     # 11 Easter Eggs at Dot Buttons
 
     = clear  &&  @  e i pi * +  . i  =  # 2.718  # because Dot Real
-    = clear  &&  @  e i  . over  =  # i e  # because Swap
-    = clear  &&  @  e i  . clear  =  # e  # because Drop
+    = clear  &&  @  e i  . over  =  # i e  # because Dot Swap X Y
+    = clear  &&  @  e i  . clear  =  # e  # because Dot Drop X
 
-    = clear  &&  @  10 . - 3 pow  . pi =  # -3  # because Log 10 X
-    = clear  &&  @  pi 2 pow  pi . pow =  # 2  # because Log Y X
-    = clear  &&  @  e . - 1 pow  . e =  # -1  # because Log E X
-    = clear  &&  @  2 , . - 5 pow  . sqrt =  # -5  # because Log 2 X
+    = clear  &&  @  10 . - 3 pow  . pi  =  # -3  # because Dot Log 10 X
+    = clear  &&  @  pi 2 pow  pi . pow  =  # 2  # because Dot Log Y X
+    = clear  &&  @  e . - 1 pow  . e  =  # -1  # because Dot Log E X
+    = clear  &&  @  2 , . - 5 pow  . sqrt  =  # -5  # because Dot Log 2 X
 
-    = clear  &&  @  9 , 2 ,  . / =  # 4  # because // Slash Slash Floor Division
-    = clear  &&  @  9 , 2 ,  . * =  # 1  # because % Mod
-    = clear  &&  @  . - 7 , =  # -7  # because - Negative Sign
-    = clear  &&  @  . + 8 , =  # 8  # because + Positive Sign
+    = clear  &&  @  9 , 2 ,  . /  =  # 4  # because Dot // Slash Slash Floor Division
+    = clear  &&  @  9 , 2 ,  . *  =  # 1  # because Dot % Mod
+    = clear  &&  @  . - 7 ,  =  # -7  # because Dot - Negative Sign
+    = clear  &&  @  . + 8 ,  =  # 8  # because Dot + Positive Sign
 
     # 10 Easter Eggs at Dot Comma Buttons
 
-    = clear  &&  @  e i pi * +  . , i  # 3.142  # because Dot Comma Imag
+    = clear  &&  @  e i pi * +  . , i  =  # 3.142  # because Dot Comma Imag
+    = clear  &&  @  0 , 1 , 2 , 3 ,  . , over  =  # 0 2 3 1  # because Dot Comma Rot Y X Z
+    = clear  &&  @  0 , 1 , 2 , 3 ,  . , clear  =  # 0 2  # because Dot Comma Drop Y X
 
-    # FIXME: # because Rot Y X Z
-    # FIXME: # because Drop Y X
+    = clear  &&  @  . - 3 ,  . , pi  =  # 0.001  # because Dot Comma 10 X **
+    = clear  &&  @  . - 1 ,  . , e  =   # 0.001  # because Dot Comma E X **
+    = clear  &&  @  64 ,  . , sqrt  =  # 18446744073709551616  # Dot Comma 2 X **
 
-    # FIXME: # because 10 X **
-    # FIXME: # because E X **
-    # FIXME: # because 2 X **
-
-    # FIXME: # because 1 X /
-    # FIXME: # because X X *
-    # FIXME: # because 0 X -
-    # FIXME: # because X Abs
+    = clear  &&  @  i  . , /  =  # -1j  # because Dot Comma 1 X /
+    = clear  &&  @  i  . , *  =  # -1  # because Dot Comma X X *
+    = clear  &&  @  . - i ,  . , -  =  # 1j  # because Dot Comma 0 X -
+    = clear  &&  @  . + i ,  . , +  =  # 1j  # because Dot Comma X Abs
 
     # Easter Eggs at Modular Int Buttons
 
-    # FIXME: # because BASE
+    = clear  &&  @  15 16  . , pow  # FIXME  # because Dot Comma Y X Base
 
 """
 
@@ -745,11 +744,17 @@ def do_mod_y_x():
 
         (y, x) = stack_peek(2)
 
-        try:
-            x_ = y % x
-        except Exception as exc:
+        if y == x == 0:
+            x_ = float("NaN")
+        elif x == 0:
+            x_ = float("-Inf") if (y < 0) else float("InF")
+        else:
 
-            byo.exit_after_print_raise(exc)
+            try:
+                x_ = y % x
+            except Exception as exc:
+
+                byo.exit_after_print_raise(exc)
 
         stack_pop(2)
         stack_push(x_)
@@ -834,7 +839,7 @@ def do_slash_y_x():
         if y == x == 0:
             x_ = float("NaN")
         elif x == 0:
-            x_ = float("-Inf") if (repr(y).startswith("-")) else float("InF")
+            x_ = float("-Inf") if (y < 0) else float("InF")
         else:
 
             try:
@@ -858,11 +863,17 @@ def do_slash_slash_y_x():  # kin to Forth SlashMod
 
         (y, x) = stack_peek(2)
 
-        try:
-            x_ = y // x  # Python Floor Division
-        except Exception as exc:
+        if y == x == 0:
+            x_ = float("NaN")
+        elif x == 0:
+            x_ = float("-Inf") if (y < 0) else float("InF")
+        else:
 
-            byo.exit_after_print_raise(exc)
+            try:
+                x_ = y // x  # Python Floor Division
+            except Exception as exc:
+
+                byo.exit_after_print_raise(exc)
 
         stack_pop(2)
         stack_push(x_)
@@ -935,7 +946,7 @@ def do_star_y_x():
 def try_docs_button(word):
     """Run Buttons as sketched in Doc, even while not shipping deployed in Folder"""
 
-    docs_defs = dict() # todo: move out of Easter Eggs
+    docs_defs = dict()  # todo: move out of Easter Eggs
 
     docs_defs["y↑x"] = do_pow_y_x
     docs_defs[".real"] = do_real_x
@@ -958,10 +969,6 @@ def try_docs_button(word):
         return True
 
 
-def do_pop_y_x():
-    assert False
-
-
 #
 # Define the Dot Button Files of our Calculator Folder, after a press of Dot
 #
@@ -979,11 +986,11 @@ def try_dot_button(word):
 
     # Hide 9 Easter Eggs
 
-    dot_defs = dict(
+    dot_defs = dict(  # FIXME: move these to compile time
         i=do_real_x,
         j=do_real_x,
         over=do_swap_x_y,
-        clear=do_pop_x,
+        clear=try_buttonfile_drop_x,
         pi=do_log_10_x,
         e=do_log_e_x,
         pow=do_log_y_x,  # this key='pow' is a str, not the 'builtins.pow' Func
@@ -1111,12 +1118,12 @@ def try_comma_button(word):
 
     # Hide 10 Easter Eggs
 
-    comma_defs = dict(
+    comma_defs = dict(  # FIXME: move these to compile time
         dash=do_negate_x,
         i=do_imag_x,
         j=do_imag_x,
         over=do_rot_y_x_z,
-        clear=do_drop_y_x,
+        clear=try_buttonfile_drop_y_x,
         pi=do_pow_10_x,
         e=do_pow_e_x,
         pow=do_base_y_x,  # this key='pow' is a str, not the 'builtins.pow' Func
@@ -1129,6 +1136,8 @@ def try_comma_button(word):
 
     comma_defs["*"] = comma_defs["star"]
     comma_defs["/"] = comma_defs["slash"]
+    comma_defs["-"] = comma_defs["minus"]
+    comma_defs["+"] = comma_defs["plus"]
 
     comma_defs[STR_PI] = comma_defs["pi"]
     comma_defs[STR_SQRT] = comma_defs["sqrt"]
@@ -1170,39 +1179,126 @@ def do_imag_x():
         stack_push(x_.imag)
 
 
-def do_rot_y_x_z():
-    assert False
-
-
-def do_drop_y_x():
-    assert False
-
-
 def do_pow_10_x():
-    assert False
+    """Push (X ** 10) in place of X"""
+
+    if not stack_has_x():
+        stack_push(-1)  # suggest -1 Pow 10 X
+    else:
+
+        x = stack_peek()
+
+        try:
+            x_ = 10**x
+        except Exception as exc:
+
+            byo.exit_after_print_raise(exc)
+
+        stack_pop()
+        stack_push(x_)
 
 
 def do_pow_e_x():
-    assert False
+    """Push (X ** E) in place of X"""
 
+    if not stack_has_x():
+        stack_push(-1)  # suggest -1 Pow E X
+    else:
 
-def do_base_y_x():
-    assert False
+        x = stack_peek()
+
+        try:
+            x_ = math.exp(x)  # todo: compare vs 'math.e ** x'
+        except Exception as exc:
+
+            byo.exit_after_print_raise(exc)
+
+        stack_pop()
+        stack_push(x_)
 
 
 def do_pow_2_x():
-    assert False
+    """Push (X ** 2) in place of X"""
+
+    if not stack_has_x():
+        stack_push(-1)  # suggest -1 Pow 10 X
+    else:
+
+        x = stack_peek()
+
+        try:
+            x_ = 2**x
+        except Exception as exc:
+
+            byo.exit_after_print_raise(exc)
+
+        stack_pop()
+        stack_push(x_)
 
 
 def do_slash_1_x():
-    assert False
+    """Push (1 / X) in place of X"""
+
+    if not stack_has_x():
+        stack_push(-1)  # suggest 1 -1 /
+    else:
+
+        x = stack_peek()
+
+        try:
+            x_ = 1 / x
+        except Exception as exc:
+
+            byo.exit_after_print_raise(exc)
+
+        stack_pop()
+        stack_push(x_)
 
 
 def do_negate_x():
-    assert False
+    """Push -X in place of X"""
+
+    if not stack_has_x():
+        stack_push(1)  # suggest 1 -1 *
+    else:
+
+        x = stack_peek()
+
+        try:
+            x_ = -x
+        except Exception as exc:
+
+            byo.exit_after_print_raise(exc)
+
+        stack_pop()
+        stack_push(x_)
 
 
 def do_abs_x():
+    """Push ABS(X) in place of X"""
+
+    if not stack_has_x():
+        stack_push(-1)  # suggest -1 Abs
+    else:
+
+        x = stack_peek()
+
+        try:
+            x_ = abs(x)
+        except Exception as exc:
+
+            byo.exit_after_print_raise(exc)
+
+        stack_pop()
+        stack_push(x_)
+
+
+#
+# Work with Based Ints
+#
+
+
+def do_base_y_x():
     assert False
 
 
@@ -1325,7 +1421,7 @@ def do_clone_y():  # a la Forth "OVER", a la HP "RCL Y"
     """Push Y X Y in place of Y X"""  # chain bin ops at:  Y X  Over %  Over %  ...
 
     if not stack_has_x():
-        stack_push(1)  # suggest:  1 0 Over, else 0 Over
+        stack_push(1)  # suggest:  1 0 Over, else Y 0 Over
     elif not stack_has_y():
         stack_push(0)
     else:
@@ -1340,20 +1436,53 @@ def do_pop_x():  # a la Forth "DROP"
     if stack_has_x():
         stack_pop()
 
-    # different than our 'def try_buttonfile_drop'
+    # different than our 'def try_buttonfile_drop_x'
+
+
+def do_pop_y_x():  # a la Forth "2DROP" kin to 2DUP, 2OVER, 2SWAP
+    """Pop X if X"""
+
+    if stack_has_y():  # todo: think more about 'def do_pop_y_x' after 1 Push, not 0
+        stack_pop(2)
+
+    # different than our 'def try_buttonfile_drop_y_x'
+
+
+def do_rot_y_x_z():
+    """Drag the 3rd-to-Last Value to Top of Stack"""
+
+    if not stack_has_x():
+        stack_push(0)  # suggest:  0 1 2 Rot, else 1 2 Rot, else 2 Rot
+    elif not stack_has_y():
+        stack_push(1)
+    elif not stack_has_z():
+        stack_push(2)
+    else:
+
+        names = stack_triples_peek_names(3)
+        name = names[0]  # the Z File
+
+        shname = byo.shlex_dquote(name)
+
+        shline = "touch {}".format(shname)
+        if name.startswith("-"):
+            shline = "touch -- {}".format(shname)
+
+        byo.stderr_print("+ {}".format(shline))
+        byo.subprocess_run_stdio(shline)
 
 
 def do_swap_x_y():
     """Drag the 2nd-to-Last Value to Top of Stack"""
 
     if not stack_has_x():
-        stack_push(0)
+        stack_push(0)  # suggest:  0 1 Swap, else Y 0 Swap
     elif not stack_has_y():
-        stack_push(0)
+        stack_push(1)
     else:
 
         names = stack_triples_peek_names(2)
-        name = names[0]
+        name = names[0]  # the Y File
 
         shname = byo.shlex_dquote(name)
 
@@ -1440,6 +1569,14 @@ def stack_has_y():
     has_y = stack_depth() >= 2
 
     return has_y
+
+
+def stack_has_z():
+    """Say when the Stack contains three or more Values"""
+
+    has_z = stack_depth() >= 3
+
+    return has_z
 
 
 #
@@ -1602,7 +1739,7 @@ def stackable_triple_from_complex(obj):
 
         brief = abs_imag_triple.obj * 1j
         code = stackable_dumps(brief)
-        name = str(brief)
+        name = "{}j".format(abs_imag_triple.name)
 
         triple = StackableTriple(name, code=code, obj=brief)
 
@@ -1866,14 +2003,19 @@ def parms_buttonfile(parms):
 
             try_buttonfile(parms)
 
-        except Exception:
+        except Exception as exc:
             byo.stderr_print()
             traceback.print_exc()
             byo.stderr_print("Press ⌃D TTY EOF to quit\n")
 
-            sys.stdin.read()
+            try:
+                sys.stdin.read()
+            except KeyboardInterrupt as exc2:
+                byo.stderr_print()
 
-            raise
+                byo.exit_after_print_raise(exc2)
+
+            byo.exit_after_print_raise(exc)
 
         parms[::] = parms[1:]
 
@@ -2039,13 +2181,24 @@ def try_buttonfile_clear():
         stack_push(0)
 
 
-def try_buttonfile_drop():
+def try_buttonfile_drop_x():
     """Pop X if X, else push 0"""
 
     if not stack_has_x():
         stack_push(0)  # suggest:  0 Drop
     else:
         stack_pop()
+
+
+def try_buttonfile_drop_y_x():
+    """Pop Y X if Y X, else push 1 if Y, else push 0 1"""
+
+    if not stack_has_x():
+        stack_push(0)  # suggest:  0 1 Drop Y X, else Y 0 Drop Y X
+    if not stack_has_y():
+        stack_push(0)
+    else:
+        stack_pop(2)
 
 
 def do_comma():
