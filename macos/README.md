@@ -417,6 +417,6 @@ someday we might add a row of A B C D E F Buttons, to make keying hex go quicker
 
 ## Copied from
 
-Posted into:  https://github.com/pelavarre/byobash/blob/main/macos#readme
+posted into:  https://github.com/pelavarre/byobash/blob/main/macos/README.md
 <br>
-Copied from:  git clone https://github.com/pelavarre/byobash.git
+copied from:  git clone https://github.com/pelavarre/byobash.git

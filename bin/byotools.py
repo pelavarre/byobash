@@ -16,6 +16,8 @@ examples:
 
 
 import __main__
+import argparse
+import difflib
 import os
 import pathlib
 import pdb
@@ -28,11 +30,12 @@ import subprocess
 import sys
 import textwrap
 
+DEFAULT_NONE = None
 
 _ = pdb
 
 
-DEFAULT_NONE = None
+# FIXME: push 'def exit' variations as missing from 'import argparse/sys'
 
 
 #
@@ -346,7 +349,7 @@ def exit_after_some_argv(argvs):
     """Run the ArgV's in order, till exit nonzero, else exit zero after the last one"""
 
     for argv in argvs:
-        subprocess_run_loud_else_exit(argv)
+        subprocess_run_loud(argv, stdin=None)  # FIXME: when to chop off Tty Stdin
 
     sys.exit()  # Exit None after every ArgV exits Falsey
 
@@ -354,7 +357,7 @@ def exit_after_some_argv(argvs):
 def exit_after_one_argv(argv):
     """Call a Subprocess to run the ArgV, and then exit"""
 
-    subprocess_run_loud_else_exit(argv)
+    subprocess_run_loud(argv, stdin=None)  # FIXME: when to chop off Tty Stdin
 
     sys.exit()  # Exit None after an ArgV exits Falsey
 
@@ -372,21 +375,6 @@ def exit_after_print_raise(exc):
     stderr_print(str_raise)
 
     sys.exit(1)  # Exit 1 for Unhandled Exception
-
-
-def subprocess_run_loud_else_exit(argv, shpipe=None):
-    """Call a Subprocess to run the ArgV and return, except exit if exit nonzero"""
-
-    main_py_basename = os.path.basename(sys.argv[0])
-
-    alt_shpipe = shpipe if shpipe else shlex_djoin(argv)
-    stderr_print("+ {}".format(alt_shpipe))
-
-    run = subprocess.run(argv)  # close kin to 'subprocess.run(argv, check=True)'
-    if run.returncode:
-        stderr_print("{}: + exit {}".format(main_py_basename, run.returncode))
-
-        sys.exit(run.returncode)  # Pass back a NonZero Exit Status ReturnCode
 
 
 #
@@ -623,6 +611,155 @@ def str_splitgrafs(doc, keepends=False):  # todo:
 
 
 #
+# Add some Def's that 'import argparse' forgot
+#
+
+
+def compile_epi_argdoc(epi, add_help=True):
+    """Form an ArgumentParser from Main Doc, without Positional Args or Options"""
+
+    doc = __main__.__doc__
+    doclines = doc.strip().splitlines()
+    usage = doclines[0]
+
+    prog = usage.split()[1]  # second word of leading line of first paragraph
+
+    doc_headlines = list(_ for _ in doclines if _ and (_ == _.lstrip()))
+    description = doc_headlines[1]  # leading line of second paragraph
+
+    epilog_at = doc.index(epi)
+    epilog = doc[epilog_at:]
+
+    parser = argparse.ArgumentParser(
+        prog=prog,
+        description=description,
+        add_help=add_help,  # without Options other than the "-h". "--h", "--he", etc
+        formatter_class=argparse.RawTextHelpFormatter,
+        epilog=epilog,
+    )
+
+    return parser
+
+
+def compile_pos_argdoc(epi, add_help=True):
+    """Form an ArgumentParser from Main Doc, with exactly 1 Positional Arg"""
+
+    # Form an ArgumentParser from Main Doc, without Positional Args or Options
+
+    parser = compile_epi_argdoc(epi)
+
+    # Fetch Main Doc
+
+    doc = __main__.__doc__
+    doclines = doc.strip().splitlines()
+
+    usage = doclines[0]
+    prog = usage.split()[1]
+
+    # Forward 1 Positional Arg
+
+    matched = re.match(r"^usage: {} \[-h\] [^ ]*$".format(prog), string=usage)
+    assert matched, usage
+    argname = usage.split()[-1]
+
+    arglines = list(_ for _ in doclines if _.split() and _.split()[0] == argname)
+    assert len(arglines) == 1, arglines
+    argline = arglines[-1]
+
+    prefix = "  " + argname
+
+    arghelp = argline
+    arghelp = str_removeprefix(arghelp, prefix=prefix)
+    arghelp = arghelp.strip()
+
+    parser.add_argument(argname.casefold(), metavar=argname, help=arghelp)
+
+    # Succeed
+
+    return parser
+
+
+def exit_unless_doc_eq(doc, parser):
+    """Exit nonzero, unless Doc equals Parser Format_Help"""
+
+    # Fetch the Parser Doc from a fitting virtual Terminal
+    # Fetch from a Black Terminal of 89 columns, not current Terminal width
+    # Fetch from later Python of "options:", not earlier Python of "optional arguments:"
+
+    with_columns = os.getenv("COLUMNS")
+    os.environ["COLUMNS"] = str(89)
+    try:
+
+        parser_doc = parser.format_help()
+
+    finally:
+        if with_columns is None:
+            os.environ.pop("COLUMNS")
+        else:
+            os.environ["COLUMNS"] = with_columns
+
+    parser_doc = parser_doc.replace("optional arguments:", "options:")
+
+    # Fetch the Main Doc
+
+    file_filename = os.path.split(__file__)[-1]
+
+    main_doc = __main__.__doc__.strip()
+
+    got = main_doc
+    got_filename = "{} --help".format(file_filename)
+    want = parser_doc
+    want_filename = "argparse.ArgumentParser(..."
+
+    # Print the Diff to Parser Doc from Main Doc and exit, if Diff exists
+
+    difflines = list(
+        difflib.unified_diff(
+            a=got.splitlines(),
+            b=want.splitlines(),
+            fromfile=got_filename,
+            tofile=want_filename,
+        )
+    )
+
+    if difflines:
+        print("\n".join(difflines))
+
+        sys.exit(1)  # trust caller to log SystemExit exceptions well
+
+
+def parse_epi_args(epi):
+    """Parse Sh Command Line as per Main Doc, except Exit for Help or No Args"""
+
+    # Scrape the Parser out of the Main Doc
+
+    parser = compile_pos_argdoc(epi)
+
+    doc = __main__.__doc__
+    try:
+        exit_unless_doc_eq(doc, parser=parser)
+    except SystemExit:
+        print("byotools.py: ERROR: Main Doc and ArgParse Parser disagree")
+
+        raise
+
+    # Exit after Print of TestDoc, if given no Sh Parms
+
+    parms = sys.argv[1:]
+    if not parms:
+
+        exit_after_testdoc()
+
+    # Parse the Sh Parms
+
+    args = parser.parse_args(args=parms)
+
+    # Succeed
+
+    return args
+
+
+#
 # Add some Def's that 'import pdb' forgot
 #
 
@@ -715,6 +852,8 @@ def shlex_dquote(parm):
 
             return doublequoted
 
+            # such as:  print(shlex_dquote("i just can't"))  # "i just can't"
+
     # Give up and settle for the Library's work
 
     return quoted
@@ -737,6 +876,8 @@ def shlex_quote(parm):  # missing from Python till Oct/2019 Python 3.8
         quoted = shlex.quote(parm)
 
         return quoted
+
+        # see also:  git rev-parse --sq-quote "i just can't"  # 'i just can'\''t'
 
     # Emulate the library roughly, because often good enough
 
@@ -925,8 +1066,34 @@ def shutil_get_tty_size():
 #
 
 
+def subprocess_run_loud(argv, shpipe=None, stdin=subprocess.PIPE, stdout=None):
+    """Call a Subprocess to run the ArgV and return, except exit if exit nonzero"""
+
+    main_py_basename = os.path.basename(sys.argv[0])
+
+    alt_shpipe = shpipe if shpipe else shlex_djoin(argv)
+    stderr_print("+ {}".format(alt_shpipe))  # no 'main_py_basename' here
+
+    run = subprocess.run(argv, stdin=stdin, stdout=stdout)
+    if run.returncode:  # as if 'check=True'
+        stderr_print("{}: + exit {}".format(main_py_basename, run.returncode))
+
+        sys.exit(run.returncode)  # Pass back a NonZero Exit Status ReturnCode
+
+
 def subprocess_run_oneline(shline, *args, **kwargs):
     """Call 'subprocess_run_stdio' but require one line of Stdout and exit zero"""
+
+    lines = subprocess_run_somelines(shline, *args, **kwargs)
+
+    assert len(lines) == 1, (shline, args, kwargs, lines)
+    line = lines[0]
+
+    return line
+
+
+def subprocess_run_somelines(shline, *args, **kwargs):
+    """Call 'subprocess_run_stdio' but require lines of Stdout and exit zero"""
 
     run = subprocess_run_stdio(
         shline, *args, stdout=subprocess.PIPE, check=True, **kwargs
@@ -935,10 +1102,9 @@ def subprocess_run_oneline(shline, *args, **kwargs):
     stdout = run.stdout.decode()
     lines = stdout.splitlines()
 
-    assert len(lines) == 1, (shline, args, kwargs, lines)
-    line = lines[0]
+    assert lines, (shline, args, kwargs, lines)
 
-    return line
+    return lines
 
 
 def subprocess_run_stdio(shline, *args, **kwargs):

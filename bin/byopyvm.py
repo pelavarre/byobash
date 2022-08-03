@@ -84,6 +84,7 @@ examples:
 
 import ast
 import collections
+import datetime as dt
 import importlib
 import json
 import math
@@ -97,6 +98,8 @@ import textwrap
 import traceback
 
 import byotools as byo
+
+DEFAULT_NONE = None
 
 _ = math
 _ = pdb
@@ -199,7 +202,7 @@ STR_TAU = "\N{Greek Small Letter Tau}"  # τ
 
 
 NAME_REGEX = r"[A-Z_a-z][0-9A-Z_a-z]*"
-CLOSED_NAME_REGEX = r"^" + NAME_REGEX + r"$"
+CLOSED_NAME_REGEX = r"^" + NAME_REGEX + r"$"  # FIXME: call 're.fullmatch' on Open RegEx
 
 
 FULLNAME_REGEX = "({})([.]{})+".format(NAME_REGEX, NAME_REGEX)
@@ -415,8 +418,8 @@ def parms_run_one(parms):
     parm_0 = parms[0]
 
     given = parm_0  # the Parm as given, as typed, without correction
-    ink = INK_BY_CHAR.get(parm_0)  # such as 'plus' for '+', else None
-    blur = to_blurry_word(parm_0)  # such as 'lit_int' for '123', else None
+    ink = INK_BY_CHAR.get(parm_0, DEFAULT_NONE)  # such as 'plus' for '+'
+    blur = to_blurry_word(parm_0, default=None)  # such as 'lit_int' for '123'
 
     for word in (given, ink, blur):
 
@@ -451,16 +454,16 @@ def parms_run_one(parms):
 
     # After all else, then still do fall back to eval as Python
 
-    parms_eval(parms)  # such as when 'parms[0] == "dt.datetime(2038, 1, 19)"'
+    parms_pyish(parms)  # such as:  dt.date dt.date:2022,4,8 -
 
 
 BLURRY_WORDS = "lit_int lit_float fullname name".split()
 
 
-def to_blurry_word(word):
+def to_blurry_word(word, default):
     """Say what kind of Input Word this is, else say None"""
 
-    blur = None
+    blur = default  # often None
 
     if re.match(CLOSED_INT_REGEX, string=word):
         blur = "lit_int"
@@ -631,8 +634,56 @@ def form_adverb_by_word():
 #
 
 
+def parms_pyish(parms):
+    """Eval some incomplete Python Parm, such as 'dt.date' or 'dt.date:2022,4,8'"""
+
+    pyish = parms[0]
+
+    #
+
+    funcname = pyish.partition(":")[0]
+    is_name = re.fullmatch(FULLNAME_REGEX, string=funcname)
+    is_name = is_name or re.fullmatch(NAME_REGEX, string=funcname)
+
+    if not is_name:
+
+        parms_eval(parms)
+
+        return
+
+    #
+
+    tail = pyish.partition(":")[-1]
+
+    shargs = list()
+    if tail:
+        shargs = tail.split(",")
+
+    args = list()
+    for sharg in shargs:
+        try:
+            arg = ast.literal_eval(sharg)
+        except KeyboardInterrupt:
+            arg = sharg
+
+        args.append(arg)
+
+    if not args:
+        if funcname == "dt.date":
+            now = dt.datetime.now()
+            args = [now.year, now.month, now.day]
+
+    py = "{}({})".format(funcname, ", ".join(repr(_) for _ in args))
+    if py != pyish:
+        parms[0] = py  # todo: don't mutate?
+
+        byo.stderr_print("+ = {!r}".format(py))  # todo: quote Str well
+
+    parms_eval(parms)
+
+
 def parms_eval(parms):
-    """Eval a Parm (such as a Name or Fullname or other Py)"""
+    """Eval some complete Python Parm (such as a Name or other Py Fragment)"""
 
     py = parms[0]
 
@@ -652,7 +703,7 @@ def parms_eval(parms):
 def parms_fullname(parms):
     """Eval a Fullname, spoken as ModuleName Dot Name or as DottedModuleName Dot Name"""
 
-    parms_eval(parms)
+    parms_pyish(parms)
 
 
 def parms_lit_float(parms):
@@ -674,7 +725,7 @@ def parms_lit_int(parms):
 def parms_name(parms):
     """Eval a Name, spoken as a Nickname without Dots"""
 
-    parms_eval(parms)
+    parms_pyish(parms)
 
 
 def parms_hash(parms):
@@ -714,7 +765,7 @@ def do_dot():  # kin to Python's '-i' doing nothing after each None result
     """Pop X but print its Value, or do nothing if Stack is Empty"""
 
     if stack_has_x():
-        x = stack_pop(asif_before_rm="cat {} && ")
+        x = stack_pop(asif_before_rm="cat {} && ")  # FIXME, return None from Stack_Pop
         print(x)
 
 
@@ -979,7 +1030,7 @@ def try_dot_button(word):
 
     # Quit unless an Entry Open as just the '.' Dot
 
-    entry = entry_peek_else()
+    entry = entry_peek_else(default=None)
     if entry != ".":
 
         return
@@ -1111,7 +1162,7 @@ def try_comma_button(word):
 
     # Quit unless an Entry Open as just the ',' Comma
 
-    entry = entry_peek_else()
+    entry = entry_peek_else(default=None)
     if entry != ",":
 
         return
@@ -1312,7 +1363,7 @@ def try_bits_button(word):
 
     # Quit unless Top of Stack is a ModularInt
 
-    entry = entry_peek_else()
+    entry = entry_peek_else(default=None)
     if entry is not None:
 
         return
@@ -1638,7 +1689,7 @@ def stackable_dumps(obj):
     return code
 
 
-def stackable_loads_else(s):
+def stackable_loads_else(s, default):
     """Unwrap the Object inside the Chars, else return None"""
 
     code = s
@@ -1675,7 +1726,7 @@ def stackable_loads_else(s):
 
                 except json.JSONDecodeError:
 
-                    obj = None  # todo: could:  raise ValueError(code)
+                    obj = default
 
     return obj
 
@@ -1923,7 +1974,7 @@ def stack_triples_peek(depth=1):
 
             # Count the File only if it holds an intelligible Value
 
-            obj = stackable_loads_else(code)
+            obj = stackable_loads_else(code, default=None)
             if obj is None:  # such as json.JSONDecodeError
 
                 continue
@@ -2006,7 +2057,7 @@ def parms_buttonfile(parms):
         except Exception as exc:
             byo.stderr_print()
             traceback.print_exc()
-            byo.stderr_print("Press ⌃D TTY EOF to quit\n")
+            byo.stderr_print("Press ⌃D TTY EOF to quit")
 
             try:
                 sys.stdin.read()
@@ -2108,7 +2159,7 @@ def try_entry_button(word):
 
     # Fetch the Entry
 
-    entry = entry_peek_else()
+    entry = entry_peek_else(default=None)
     signable = entry_is_signable(entry)
 
     # Edit the Entry in one of many ways
@@ -2218,7 +2269,7 @@ def entry_write_char(ch):
 
     # Peek the Entry
 
-    entry = entry_peek_else()
+    entry = entry_peek_else(default=None)
 
     # Edit the Entry
 
@@ -2255,7 +2306,7 @@ def entry_write_char(ch):
     # Replace the Entry, else start the Entry
 
     if entry is not None:
-        _ = stack_pop(1)
+        stack_pop(1)
 
     stack_push(ButtonEntry(name))
 
@@ -2380,7 +2431,7 @@ def entry_close_if_open():
 
     # Replace the Entry with its Evaluation, except discard an Empty Entry
 
-    _ = stack_pop(1)
+    stack_pop(1)
     if evalled is not None:
         stack_push(evalled)
 
@@ -2448,10 +2499,10 @@ def entry_eval(entry):
     return evalled
 
 
-def entry_peek_else():
+def entry_peek_else(default):
     """Peek the collected Chars and return them, else return None"""
 
-    entry = None
+    entry = default
     if stack_has_x():
         entry = entry_peek()
 

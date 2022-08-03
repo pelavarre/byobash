@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+# todo:  link to https://git-scm.com/docs
 r"""
 usage: git.py [--help] VERB [ARG ...]
 usage: git.py [--help] --for-shproc SHVERB [ARG ...]
@@ -139,6 +140,8 @@ examples:
 
   rm -fr g.git git && git init --bare g.git && git clone g.git && cd g
   git rev-list $HASH..$HASH  # exit 0 only if $HASH found in in this Clone
+
+  git push origin HEAD:guests/jqdoe/clients
 """
 # todo:  Occasionally Needed Extras: making branches, deleting branches
 
@@ -680,7 +683,7 @@ def exit_if_by_git_stdout_line(parms):
             # Run the Shline
 
             vi_argv = shlex.split(vi_shline)
-            byo.subprocess_run_loud_else_exit(vi_argv)
+            byo.subprocess_run_loud(vi_argv, stdin=None)
 
             sys.exit()  # Exit None after an ArgV exits Falsey
 
@@ -778,7 +781,7 @@ def exit_if_git_no_ext(ext_parm, qd_chars, depth_parm, alt_parms):
     shshline = "bash -c {!r}".format(shpipe)
     argv = shlex.split(shshline)
 
-    byo.subprocess_run_loud_else_exit(argv, shpipe)
+    byo.subprocess_run_loud(argv, shpipe)  # implicit 'stdin=subprocess.PIPE'
 
     sys.exit()  # Exit None after an ArgV exits Falsey
 
@@ -882,11 +885,15 @@ def exit_if_shverb_qno(shverb, parms):
     # Fill out the ShLine Templates
 
     shparms = byo.shlex_djoin(parms)
+
     shpipe = " && ".join(_.format(shparms).rstrip() for _ in shlines)
+    if not shparms:
+        shpipe = shpipe.replace("$(qno )", "$(qno)")
+
     shshline = "bash -c {!r}".format(shpipe)
 
     argv = shlex.split(shshline)
-    byo.subprocess_run_loud_else_exit(argv, shpipe=shpipe)
+    byo.subprocess_run_loud(argv, stdin=None, shpipe=shpipe)
 
     sys.exit()  # Exit None after an ArgV exits Falsey
 

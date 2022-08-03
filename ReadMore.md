@@ -114,6 +114,6 @@ across all these last fifty years.
 
 ## Copied from
 
-Posted into:  https://github.com/pelavarre/byobash/blob/main/ReadMore.md
+posted into:  https://github.com/pelavarre/byobash/blob/main/ReadMore.md
 <br>
-Copied from:  git clone https://github.com/pelavarre/byobash.git
+copied from:  git clone https://github.com/pelavarre/byobash.git

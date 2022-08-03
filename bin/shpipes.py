@@ -1361,5 +1361,5 @@ if __name__ == "__main__":
 #
 
 
-# posted into:  https://.com/pelavarre/byobash/blob/main/bin/shpipes.py
+# posted into:  https://github.com/pelavarre/byobash/blob/main/bin/shpipes.py
 # copied from:  git clone https://github.com/pelavarre/byobash.git

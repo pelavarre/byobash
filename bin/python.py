@@ -37,7 +37,6 @@ examples:
 import __main__
 import argparse
 import datetime as dt
-import difflib
 import os
 import pathlib
 import shlex
@@ -81,12 +80,15 @@ def main():  # noqa: C901 complex
     if args.file:
         shfile = byo.shlex_quote(args.file)
 
+        # Form the ShPipe's
+
         pdb_shline = "{pythonx} -m pdb {shfile}".format(pythonx=PYTHONX, shfile=shfile)
+        pdb_shpipe = "{} >/dev/null".format(pdb_shline)
 
         black_shline = "black {}".format(shfile)
 
-        black_shshline = "{} && {}".format(activate_shline, black_shline)
-        black_shshline = "bash -c ''{!r}''".format(black_shshline)
+        black_shpipe = "{} && {}".format(activate_shline, black_shline)
+        black_shshline = "bash -c ''{!r}''".format(black_shpipe)
 
         flake8_shline = "flake8"
         flake8_shline += " --max-line-length=999 --max-complexity 10 --ignore="
@@ -94,15 +96,23 @@ def main():  # noqa: C901 complex
         flake8_shline += ",W503"  # Black over Flake8 W503 line break before binary op
         flake8_shline += " {}".format(shfile)
 
-        flake8_shshline = "{} && {}".format(activate_shline, flake8_shline)
-        flake8_shshline = "bash -c ''{!r}''".format(flake8_shshline)
+        flake8_shpipe = "{} && {}".format(activate_shline, flake8_shline)
+        flake8_shshline = "bash -c ''{!r}''".format(flake8_shpipe)
+
+        # Form the ArgV's
+
+        pdb_argv = shlex.split(pdb_shline)
+        black_argv = shlex.split(black_shshline)
+        flake8_argv = shlex.split(flake8_shshline)
+
+        # Run the ArgV's
 
         try:
-            subprocess_run(pdb_shline, stdout=subprocess.PIPE, check=True)
+            byo.subprocess_run_loud(pdb_argv, shpipe=pdb_shpipe, stdout=subprocess.PIPE)
             sys.stderr.write("+\n")
-            subprocess_run(black_shshline, check=True)
+            byo.subprocess_run_loud(black_argv, shpipe=black_shpipe)
             sys.stderr.write("+\n")
-            subprocess_run(flake8_shshline, check=True)
+            byo.subprocess_run_loud(flake8_argv, shpipe=flake8_shpipe)
             sys.stderr.write("+\n")
         except KeyboardInterrupt:
             sys.stderr.write("\n")
@@ -129,8 +139,9 @@ def main():  # noqa: C901 complex
 
     # Run it
 
+    pythonx_argv = shlex.split(pythonx_shline)
     try:
-        subprocess_run(pythonx_shline, stdin=None, check=True)
+        byo.subprocess_run_loud(pythonx_argv, stdin=None)
     except KeyboardInterrupt:
         sys.stderr.write("\n")
         sys.stderr.write("pythonx.py: KeyboardInterrupt\n")  # todo: python.py
@@ -197,7 +208,7 @@ def parse_pythonx_args():  # noqa C901 complex 11
 def compile_pythonx_argdoc():
     """Construct the ArgumentParser"""
 
-    parser = compile_argdoc(add_help=False, epi="quirks:")
+    parser = byo.compile_epi_argdoc(add_help=False, epi="quirks:")
 
     parser.add_argument(
         "file",
@@ -229,11 +240,10 @@ def compile_pythonx_argdoc():
     if basename == "python.py":  # todo: think more about when this is False
 
         doc = __main__.__doc__.strip()
-        verbs = os.path.split(__file__)[-1]
         try:
-            exit_unless_doc_eq(doc, parser=parser, verbs=verbs)
+            byo.exit_unless_doc_eq(doc, parser=parser)
         except SystemExit:
-            print("python.py: error: main doc and argparse parser disagree")
+            print("python.py: ERROR: main doc and argparse parser disagree")
 
             raise
 
@@ -281,7 +291,7 @@ def venv_create(venv):
     shlines = shchars.splitlines()
     for shline in shlines:
         shshline = "bash -c {!r}".format(shline)
-        subprocess_run(shshline, check=True)
+        byo.subprocess_run_loud(shshline)  # implicit 'stdin=subprocess.PIPE'
 
     # test with:  rm -fr ~/.venvs/byobash/
 
@@ -326,105 +336,7 @@ def venv_update(venv):
     shlines = shchars.splitlines()
     for shline in shlines:
         shshline = "bash -c {!r}".format(shline)
-        subprocess_run(shshline, check=True)
-
-
-#
-# Run on top of a layer of general-purpose Python idioms
-#
-
-
-# deffed in many files  # missing from docs.python.org
-def compile_argdoc(epi, add_help=True):
-    """Construct an ArgumentParser, without defining Positional Args and Options"""
-
-    doc = __main__.__doc__
-
-    doc_lines = doc.strip().splitlines()
-    prog = doc_lines[0].split()[1]  # second word of first line
-
-    doc_firstlines = list(_ for _ in doc_lines if _ and (_ == _.lstrip()))
-    description = doc_firstlines[1]  # first line of second paragraph
-
-    epilog_at = doc.index(epi)
-    epilog = doc[epilog_at:]
-
-    parser = argparse.ArgumentParser(
-        prog=prog,
-        description=description,
-        add_help=add_help,
-        formatter_class=argparse.RawTextHelpFormatter,
-        epilog=epilog,
-    )
-
-    return parser
-
-
-# deffed in many files  # missing from docs.python.org
-def exit_unless_doc_eq(doc, verbs, parser):
-    """Exit nonzero, unless Doc equals Parser Format_Help"""
-
-    # Fetch the Parser Doc from a fitting virtual Terminal
-    # Fetch from a Black Terminal of 89 columns, not current Terminal width
-    # Fetch from later Python of "options:", not earlier Python of "optional arguments:"
-
-    with_columns = os.getenv("COLUMNS")
-    os.environ["COLUMNS"] = str(89)
-    try:
-
-        parser_doc = parser.format_help()
-
-    finally:
-        if with_columns is None:
-            os.environ.pop("COLUMNS")
-        else:
-            os.environ["COLUMNS"] = with_columns
-
-    parser_doc = parser_doc.replace("optional arguments:", "options:")
-
-    # Fetch the Main Doc
-
-    file_filename = os.path.split(__file__)[-1]
-
-    main_doc = __main__.__doc__.strip()
-
-    got = main_doc
-    got_filename = "{} --help".format(file_filename)
-    want = parser_doc
-    want_filename = "argparse.ArgumentParser(..."
-
-    # Print the Diff to Parser Doc from Main Doc and exit, if Diff exists
-
-    difflines = list(
-        difflib.unified_diff(
-            a=got.splitlines(),
-            b=want.splitlines(),
-            fromfile=got_filename,
-            tofile=want_filename,
-        )
-    )
-
-    if difflines:
-        print("\n".join(difflines))
-
-        sys.exit(1)  # trust caller to log SystemExit exceptions well
-
-
-def subprocess_run(shline, stdin=subprocess.PIPE, stdout=None, check=None):
-    """
-    Launch another Process at the LocalHost
-    """
-
-    sys.stderr.write("+ {}\n".format(shline))
-
-    argv = shlex.split(shline)
-    run = subprocess.run(argv, stdin=stdin, stdout=stdout, check=False)
-
-    exitstatus = run.returncode
-    if check and exitstatus:
-        sys.stderr.write("+ exit {}\n".format(exitstatus))
-
-        sys.exit(exitstatus)
+        byo.subprocess_run_loud(shshline)  # implicit 'stdin=subprocess.PIPE'
 
 
 #

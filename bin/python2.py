@@ -20,6 +20,7 @@ examples:
   python2.py --h  # show this help message and exit
   python2.py --  # todo: run as you like it
 
+  : Oct/2008 Python 2.6  # minor release date
   : Jul/2010 Python 2.7  # minor release date
   : Jun/2016 Python 2.7.12  # micro release date
   : Mar/2019 Python 2.7.16  # micro release date
