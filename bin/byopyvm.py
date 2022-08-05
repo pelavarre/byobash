@@ -202,16 +202,13 @@ STR_TAU = "\N{Greek Small Letter Tau}"  # τ
 
 
 NAME_REGEX = r"[A-Z_a-z][0-9A-Z_a-z]*"
-CLOSED_NAME_REGEX = r"^" + NAME_REGEX + r"$"  # FIXME: call 're.fullmatch' on Open RegEx
 
 
 FULLNAME_REGEX = "({})([.]{})+".format(NAME_REGEX, NAME_REGEX)
-CLOSED_FULLNAME_REGEX = r"^" + FULLNAME_REGEX + r"$"
 
 
 DECINTEGER_REGEX = r"([1-9](_?[0-9])*)|(0(_0)*)"
 INT_REGEX = r"[-+]?" + r"({})".format(DECINTEGER_REGEX)
-CLOSED_INT_REGEX = r"^" + INT_REGEX + r"$"
 # as per 2.4.5 'Integer literals' in Jun/2022 Python 3.10.5 at Docs Python Org
 # https://docs.python.org/3/reference/lexical_analysis.html
 
@@ -227,7 +224,6 @@ EXPONENTFLOAT_REGEX = r"(({})|({})){}".format(
 )
 FLOATNUMBER_REGEX = r"({})|({})".format(POINTFLOAT_REGEX, EXPONENTFLOAT_REGEX)
 FLOAT_REGEX = r"[-+]?" + r"({})".format(FLOATNUMBER_REGEX)
-CLOSED_FLOAT_REGEX = r"^" + FLOAT_REGEX + "$"
 # as per 2.4.6 'Floating point literals' in Jun/2022 Python 3.10.5 at Docs Python Org
 # https://docs.python.org/3/reference/lexical_analysis.html
 
@@ -249,7 +245,6 @@ assert set(FORKABLE_ENTRIES).issubset(set(OPEN_ENTRIES))
 assert set(SIGNABLE_ENTRIES).issubset(set(OPEN_ENTRIES))
 
 ENTRY_REGEX = r"({}|{})[Jj]?".format(FLOAT_REGEX, INT_REGEX)
-CLOSED_ENTRY_REGEX = r"^" + ENTRY_REGEX + r"$"
 
 
 Q2 = '"'
@@ -465,13 +460,13 @@ def to_blurry_word(word, default):
 
     blur = default  # often None
 
-    if re.match(CLOSED_INT_REGEX, string=word):
+    if re.fullmatch(INT_REGEX, string=word):
         blur = "lit_int"
-    elif re.match(CLOSED_FLOAT_REGEX, string=word):
+    elif re.fullmatch(FLOAT_REGEX, string=word):
         blur = "lit_float"
-    elif re.match(CLOSED_FULLNAME_REGEX, string=word):
+    elif re.fullmatch(FULLNAME_REGEX, string=word):
         blur = "fullname"
-    elif re.match(CLOSED_NAME_REGEX, string=word):
+    elif re.fullmatch(NAME_REGEX, string=word):
         blur = "name"
 
     return blur
@@ -997,22 +992,20 @@ def do_star_y_x():
 def try_docs_button(word):
     """Run Buttons as sketched in Doc, even while not shipping deployed in Folder"""
 
-    docs_defs = dict()  # todo: move out of Easter Eggs
+    docs_funcs = dict()  # todo: move out of Easter Eggs
 
-    docs_defs["y↑x"] = do_pow_y_x
-    docs_defs[".real"] = do_real_x
-    docs_defs[".imag"] = do_imag_x
+    docs_funcs["y↑x"] = do_pow_y_x  # Found Do_Pow_Y_X at 'y↑x'
+    docs_funcs[".real"] = do_real_x  # Found Do_Real_X at '.real'
+    docs_funcs[".imag"] = do_imag_x  # Found Do_Imag_X at '.imag'
 
     # Run the hidden Egg, if found
 
-    if word in docs_defs.keys():
+    if word in docs_funcs.keys():
 
-        func = docs_defs[word]
+        func = docs_funcs[word]
         alt_word = func.__name__
         byo.stderr_print(
-            "byopyvm.py: Easter Egg:  Found {} at {}".format(
-                alt_word.title(), word.title()
-            )
+            "byopyvm.py: Easter Egg:  Found {} at {!r}".format(alt_word.title(), word)
         )
 
         func()
@@ -1037,31 +1030,31 @@ def try_dot_button(word):
 
     # Hide 9 Easter Eggs
 
-    dot_defs = dict(  # FIXME: move these to compile time
-        i=do_real_x,
-        j=do_real_x,
-        over=do_swap_x_y,
-        clear=try_buttonfile_drop_x,
-        pi=do_log_10_x,
-        e=do_log_e_x,
+    dot_funcs = dict(
+        i=do_real_x,  # Found Do_Real_X at Dot I
+        j=do_real_x,  # Found Do_Real_X at Dot J
+        over=do_swap_x_y,  # Found Swap at Dot Over
+        clear=do_drop_x_else,  # Found Do_Drop_X_Else at Dot Clear
+        pi=do_log_10_x,  # Found Do_Log_10_X at Dot Pi
+        e=do_log_e_x,  # Found Do_Log_E_X at Dot E
         pow=do_log_y_x,  # this key='pow' is a str, not the 'builtins.pow' Func
-        sqrt=do_log_2_x,
-        slash=do_slash_slash_y_x,
-        star=do_mod_y_x,
+        sqrt=do_log_2_x,  # Found Do_Log_2_X at Dot Sqrt
+        slash=do_slash_slash_y_x,  # Found Do_Slash_Slash_Y_X at Dot Slash
+        star=do_mod_y_x,  # Found Do_Mod_Y_X at Dot Star
     )
 
-    dot_defs["*"] = dot_defs["star"]
-    dot_defs["/"] = dot_defs["slash"]
+    dot_funcs["*"] = dot_funcs["star"]  # Found Do_Mod_Y_X at Dot *
+    dot_funcs["/"] = dot_funcs["slash"]  # Found Do_Slash_Slash_Y_X at Dot /
 
-    dot_defs[STR_PI] = dot_defs["pi"]
-    dot_defs[STR_SQRT] = dot_defs["sqrt"]
+    dot_funcs[STR_PI] = dot_funcs["pi"]
+    dot_funcs[STR_SQRT] = dot_funcs["sqrt"]
 
     # Run the hidden Egg, if found
 
-    if word in dot_defs.keys():
+    if word in dot_funcs.keys():
         do_pop_x()  # drop the "." Dot Entry, in place of 'entry_close_if_open()'
 
-        func = dot_defs[word]
+        func = dot_funcs[word]
         alt_word = func.__name__
         byo.stderr_print(
             "byopyvm.py: Easter Egg:  Found {} at Dot {}".format(
@@ -1169,36 +1162,36 @@ def try_comma_button(word):
 
     # Hide 10 Easter Eggs
 
-    comma_defs = dict(  # FIXME: move these to compile time
-        dash=do_negate_x,
-        i=do_imag_x,
-        j=do_imag_x,
-        over=do_rot_y_x_z,
-        clear=try_buttonfile_drop_y_x,
-        pi=do_pow_10_x,
-        e=do_pow_e_x,
-        pow=do_base_y_x,  # this key='pow' is a str, not the 'builtins.pow' Func
-        sqrt=do_pow_2_x,
-        slash=do_slash_1_x,
-        star=do_square_x,
-        minus=do_negate_x,
-        plus=do_abs_x,
+    comma_funcs = dict(
+        dash=do_negate_x,  # Found Do_Negate_X at Dot Comma Z
+        i=do_imag_x,  # Found Do_Imag_X at Dot Comma Z
+        j=do_imag_x,  # Found Do_Imag_X at Dot Comma Z
+        over=do_rot_y_x_z,  # Found Do_Rot_Y_X_z at Dot Comma Z
+        clear=do_drop_y_x_else,  # Found Do_Drop_Y_X_else at Dot Comma Z
+        pi=do_pow_10_x,  # Found Do_Pow_10_X at Dot Comma Z
+        e=do_pow_e_x,  # Found Do_Pow_e_X at Dot Comma Z
+        pow=do_base_y_x,  # Found Do_Base_Y_X at Dot Comma Z
+        sqrt=do_pow_2_x,  # Found Do_Pow_2_X at Dot Comma Z
+        slash=do_slash_1_x,  # Found Do_Slash_1_X at Dot Comma Z
+        star=do_square_x,  # Found Do_Square_X at Dot Comma Z
+        minus=do_negate_x,  # Found Do_Negate_X at Dot Comma Z
+        plus=do_abs_x,  # Found Do_Abs_X at Dot Comma Z
     )
 
-    comma_defs["*"] = comma_defs["star"]
-    comma_defs["/"] = comma_defs["slash"]
-    comma_defs["-"] = comma_defs["minus"]
-    comma_defs["+"] = comma_defs["plus"]
+    comma_funcs["*"] = comma_funcs["star"]
+    comma_funcs["/"] = comma_funcs["slash"]
+    comma_funcs["-"] = comma_funcs["minus"]
+    comma_funcs["+"] = comma_funcs["plus"]
 
-    comma_defs[STR_PI] = comma_defs["pi"]
-    comma_defs[STR_SQRT] = comma_defs["sqrt"]
+    comma_funcs[STR_PI] = comma_funcs["pi"]
+    comma_funcs[STR_SQRT] = comma_funcs["sqrt"]
 
     # Run the hidden Egg, if found
 
-    if word in comma_defs.keys():
+    if word in comma_funcs.keys():
         do_pop_x()  # drop the "," Comma Entry, in place of 'entry_close_if_open()'
 
-        func = comma_defs[word]
+        func = comma_funcs[word]
         alt_word = func.__name__
         byo.stderr_print(
             "byopyvm.py: Easter Egg:  Found {} at Dot Comma {}".format(
@@ -1379,23 +1372,23 @@ def try_bits_button(word):
 
     # Hide 9 Easter Eggs
 
-    bits_defs = dict(
-        i=do_weigh_x,
-        pi=do_shrink_x,
-        e=do_grow_x,
-        pow=do_int_x,  # this key='pow' is a str, not the 'builtins.pow' Func
-        sqrt=do_flip_x,
-        slash=do_hat_y_x,
-        star=do_amp_y_x,
-        minus=do_amp_flip_y_x,
-        plus=do_bar_x,
+    bits_funcs = dict(
+        i=do_weigh_x,  # Found Do_Weigh_X at Bits I
+        pi=do_shrink_x,  # Found Do_Shrink_X at Bits Pi
+        e=do_grow_x,  # Found Do_Grow_X at Bits E
+        pow=do_int_x,  # Found Do_Int_X at Bits Pow
+        sqrt=do_flip_x,  # Found Do_Flip_X at Bits Sqrt
+        slash=do_hat_y_x,  # Found Do_Hat_Y_X at Bits Slash
+        star=do_amp_y_x,  # Found Do_Amp_Y_X at Bits Star
+        minus=do_amp_flip_y_x,  # Found Do_Amp_flip_y_X at Bits Minus
+        plus=do_bar_x,  # Found Do_Bar_X at Bits Plus
     )
 
     # Run the hidden Egg, if found
 
-    if word in bits_defs.keys():
+    if word in bits_funcs.keys():
 
-        func = bits_defs[word]
+        func = bits_funcs[word]
         alt_word = func.__name__
         byo.stderr_print(
             "byopyvm.py: Easter Egg:  Found {} at Bits {}".format(
@@ -1454,8 +1447,6 @@ def do_clear():  # a la GForth "clearstack"
 
     stack_triples_pop(depth=0)
 
-    # different than our 'def try_buttonfile_clear'
-
 
 def do_clone_x():  # a la Forth "DUP", a la HP "Enter"
     """Push X X in place of X"""
@@ -1487,16 +1478,12 @@ def do_pop_x():  # a la Forth "DROP"
     if stack_has_x():
         stack_pop()
 
-    # different than our 'def try_buttonfile_drop_x'
-
 
 def do_pop_y_x():  # a la Forth "2DROP" kin to 2DUP, 2OVER, 2SWAP
     """Pop X if X"""
 
     if stack_has_y():  # todo: think more about 'def do_pop_y_x' after 1 Push, not 0
         stack_pop(2)
-
-    # different than our 'def try_buttonfile_drop_y_x'
 
 
 def do_rot_y_x_z():
@@ -2096,12 +2083,12 @@ def try_buttonfile(parms):
 
     # Run the Word
 
-    word_found = try_alt_defs(word)
+    word_found = try_alt_funcs(word)
     if not word_found:
 
         if word == "clear":
 
-            try_buttonfile_clear()  # works in place of 'entry_close_if_open()'
+            do_clear_else()  # works in place of 'entry_close_if_open()'
 
         elif word in (",", "comma"):
 
@@ -2115,7 +2102,7 @@ def try_buttonfile(parms):
             parms_run_some(parms=[word])
 
 
-def try_alt_defs(word):
+def try_alt_funcs(word):
     """Run some Alt Def of the ButtonFile, if found in this Corner as an Easter Egg"""
 
     # Try the Buttons redefined while Entry in progress
@@ -2221,7 +2208,7 @@ def entry_is_signable(entry):
     return signable
 
 
-def try_buttonfile_clear():
+def do_clear_else():
     """Pop X till no more X, else push 3, 2, 1, 0"""
 
     triples = stack_triples_pop(depth=0)
@@ -2232,7 +2219,7 @@ def try_buttonfile_clear():
         stack_push(0)
 
 
-def try_buttonfile_drop_x():
+def do_drop_x_else():
     """Pop X if X, else push 0"""
 
     if not stack_has_x():
@@ -2241,7 +2228,7 @@ def try_buttonfile_drop_x():
         stack_pop()
 
 
-def try_buttonfile_drop_y_x():
+def do_drop_y_x_else():
     """Pop Y X if Y X, else push 1 if Y, else push 0 1"""
 
     if not stack_has_x():
@@ -2289,10 +2276,10 @@ def entry_write_char(ch):
 
     fit = edited
     if edited not in OPEN_ENTRIES:
-        if not re.match(CLOSED_ENTRY_REGEX, string=edited):
+        if not re.fullmatch(ENTRY_REGEX, string=edited):
 
-            if not re.match(CLOSED_ENTRY_REGEX, string=fit_before_0):
-                matched = re.match(CLOSED_ENTRY_REGEX, string=fit_after_1_before_0)
+            if not re.fullmatch(ENTRY_REGEX, string=fit_before_0):
+                matched = re.fullmatch(ENTRY_REGEX, string=fit_after_1_before_0)
                 assert matched, (ch, entry, edited, fit_after_1_before_0)
 
                 fit = fit_after_1
@@ -2382,15 +2369,15 @@ def entry_celebrate_egg_found(entry, ch):
 
     finds = dict()
 
-    finds["+"] = "Plus Sign at Dot Plus"
-    finds["-"] = "Minus Sign at Dot Minus"
-    finds["e"] = "Exp at Dot E"
-    finds["j"] = "Imag at Dot J"
-    finds[STR_PI] = "Delete at Dot Pi"
+    finds["+"] = "Found Plus Sign at Dot Plus"
+    finds["-"] = "Found Minus Sign at Dot Minus"
+    finds["e"] = "Found Exp at Dot E"
+    finds["j"] = "Found Imag at Dot J"
+    finds[STR_PI] = "Found Delete at Dot Pi"
 
     if ch in finds.keys():
         find = finds[ch]
-        byo.stderr_print("byopyvm.py: Easter Egg:  Found {}".format(find))
+        byo.stderr_print("byopyvm.py: Easter Egg:  {}".format(find))
 
 
 def entry_close_if_open():
@@ -2478,10 +2465,10 @@ def entry_eval(entry):
     for fitted in (entry, fit_before_0):
 
         try:
-            evalled = int(fitted)  # covers CLOSED_REGEX_INT
+            evalled = int(fitted)  # covers REGEX_INT
         except ValueError:
             try:
-                evalled = float(fitted)  # covers CLOSED_REGEX_FLOAT
+                evalled = float(fitted)  # covers REGEX_FLOAT
             except ValueError:
                 try:
                     evalled = complex(fitted)  # covers "+j", "-j", and "j"
