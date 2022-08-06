@@ -1,6 +1,32 @@
 # bugs.txt
 
 
+++ dreaming since Aug/2022 ++
+
+% = dt.timedelta:days=45
+Traceback (most recent call last):
+  File "/Users/plavarre/Public/byobash/bin/byopyvm.py", line 2595, in <module>
+    main()
+  File "/Users/plavarre/Public/byobash/bin/byopyvm.py", line 348, in main
+    parms_run_some(parms=alt_parms)
+  File "/Users/plavarre/Public/byobash/bin/byopyvm.py", line 384, in parms_run_some
+    parms_run_one(parms)
+  File "/Users/plavarre/Public/byobash/bin/byopyvm.py", line 452, in parms_run_one
+    parms_pyish(parms)  # such as:  dt.date dt.date:2022,4,8 -
+  File "/Users/plavarre/Public/byobash/bin/byopyvm.py", line 660, in parms_pyish
+    arg = ast.literal_eval(sharg)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/ast.py", line 62, in literal_eval
+    node_or_string = parse(node_or_string.lstrip(" \t"), mode='eval')
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/ast.py", line 50, in parse
+    return compile(source, filename, mode, flags,
+  File "<unknown>", line 1
+    days=45
+        ^
+SyntaxError: invalid syntax
+zsh: exit 1
+%
+
+
 ++ dreaming since Jul/2022 ++
 
 

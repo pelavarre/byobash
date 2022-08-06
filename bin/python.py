@@ -291,7 +291,8 @@ def venv_create(venv):
     shlines = shchars.splitlines()
     for shline in shlines:
         shshline = "bash -c {!r}".format(shline)
-        byo.subprocess_run_loud(shshline)  # implicit 'stdin=subprocess.PIPE'
+        argv = shlex.split(shshline)
+        byo.subprocess_run_loud(argv)  # implicit 'stdin=subprocess.PIPE'
 
     # test with:  rm -fr ~/.venvs/byobash/
 
@@ -336,7 +337,8 @@ def venv_update(venv):
     shlines = shchars.splitlines()
     for shline in shlines:
         shshline = "bash -c {!r}".format(shline)
-        byo.subprocess_run_loud(shshline)  # implicit 'stdin=subprocess.PIPE'
+        argv = shlex.split(shshline)
+        byo.subprocess_run_loud(argv)  # implicit 'stdin=subprocess.PIPE'
 
 
 #

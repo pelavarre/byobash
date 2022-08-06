@@ -2547,6 +2547,9 @@ def entry_peek():
 
 _ = """
 
+morse code
+roman numerals
+
 towards buttons of Last X, Last Y
 keep up  __pycache__/x
 keep up  __pycache__/y

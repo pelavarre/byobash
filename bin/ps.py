@@ -1,4 +1,6 @@
-# ps -x -o start,ppid,pid,tty,stat,time,command
+# ps -x -o start,ppid,pid,tty,stat,time,command |grep
+# ps aux |grep
+# incremental search
 
 
 # classic Ps dumps the nearest Processes,with no Scroll limit, when given no Parms

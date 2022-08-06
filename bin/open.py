@@ -26,12 +26,14 @@ examples:
 
   open.py -- 'http://google.com/search?tbm=isch&q=Carelman+Everyday'
   open.py -- http://jira/issues/?jql=text%20~%20%27Hobbit%27
-  open.py -- http://wiki
+  open.py -- http://wiki.example.com/display/main/Welcome
   open.py -- https://twitter.com/pelavarre/status/1543460479720337409?s=20
   open.py -- 'https://www.google.com/search?tbm=isch&q=Carelman+Everyday'
 """
 
 
+import os
+import re
 import sys
 import urllib.parse
 
@@ -65,10 +67,43 @@ def main():
         alt_splits = alt_splits._replace(scheme="http")
     if netloc.startswith("www."):
         alt_splits = alt_splits._replace(netloc=byo.str_removeprefix(netloc, "www."))
-    if alt_splits != splits:
+
+    alt_unsplit = urllib.parse.urlunsplit(alt_splits)
+
+    if alt_unsplit != address:
 
         print()
         print(urllib.parse.urlunsplit(alt_splits))
+
+        # Try to give up some more Precision
+
+        vpn_splits = urllib.parse.urlsplit(alt_unsplit)
+        if "." in netloc:
+            vpn_netloc = vpn_splits.netloc.split(".")[0]
+            vpn_splits = vpn_splits._replace(netloc=vpn_netloc)
+
+            vpn_unsplit = urllib.parse.urlunsplit(vpn_splits)
+
+            print()
+            print(vpn_unsplit)
+
+    # Try to give up some Escapes
+
+    basename = os.path.basename(splits.path)
+    unquoted_basename = urllib.parse.unquote(basename)
+    if unquoted_basename != basename:
+
+        print()
+        print(unquoted_basename)
+
+        titled_basename = unquoted_basename
+        titled_basename = titled_basename.replace("+", " ")
+        titled_basename = titled_basename.replace(":", " - ")
+        titled_basename = re.sub(r" +", repl=" ", string=titled_basename)
+        titled_basename = titled_basename.title()
+
+        print()
+        print(titled_basename)
 
     # Add Line-Break's to the Query
 
