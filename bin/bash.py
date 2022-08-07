@@ -11,6 +11,7 @@ options:
   --norc       launch without running personal startup files
 
 quirks:
+  most Bash give no reactive meaning to env var names of 1 or 2 characters
   some Bash open a new Session, with an empty "$@", when given no Parms
   some Bash place no Scroll Limits on Sh Commands
   some Bash dump raw Control Sequences into Tty, a la 'less -R', 'less -r'

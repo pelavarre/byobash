@@ -30,26 +30,32 @@ except ImportError:
 def exit():
     """Take the name of the Main File as a Word of Command for ByoPyVm"""
 
-    if not hasattr(__main__, "pdb"):
-        __main__.pdb = pdb  # define 'pdb.pm()' for instances of 'python -i main.py'
+    # Define 'pdb.pm()' for instances of 'python -i main.py'
 
-    main_file = __main__.__file__
-    main_dirname = os.path.dirname(main_file)
-    os.chdir(main_dirname)
+    if not hasattr(__main__, "pdb"):
+        __main__.pdb = pdb
+
+    # Place the Stack into the Dir that contains the Buttonfile Py
+
+    module = sys.modules[__name__]
+    module_file = module.__file__
+    module_dirname = os.path.dirname(module_file)
+
+    os.chdir(module_dirname)
+
+    # Run the Basename of the Main File as a Parm,
+    # but remove the PyCache created for the Buttonfile Py,
+    # unless exiting abnormally or launching with that PyCache in place
 
     pycache_path = pathlib.Path("__pycache__")
     with_pycache = pycache_path.exists()
 
-    parms = ["buttonfile", main_file]
-    byopyvm.parms_run(parms)
+    parms = ["buttonfile", __main__.__file__]
+    byopyvm.parms_run_some(parms)
 
     if with_pycache:
         if pycache_path.exists():
             shutil.rmtree(pycache_path)
-
-
-# did you mean:  https://github.com/pelavarre/byobash/tree/main/macos#readme
-# sorry i've moved lots of words there, from:  BUTTON_FILE_DOC = """ ... """
 
 
 # posted into:  https://github.com/pelavarre/byobash/blob/main/macos/buttonfile.py

@@ -576,8 +576,8 @@ def form_verb_by_word():
     """Declare our Built-In Verbs"""
 
     verb_by_word = dict(
-        abs=do_abs_x,  # this key='abs' is a str, not the 'builtins.abs' Func
-        base=do_base_y_x,
+        abs=do_abs_x,  # this key="abs" is a Str Key, not the BuiltIns Abs Func
+        basex=do_base_y_x,
         clear=do_clear,
         comma=do_comma,
         dash=do_dash_y_x,
@@ -585,12 +585,22 @@ def form_verb_by_word():
         drop=do_pop_x,
         drop2=do_pop_y_x,
         equals=do_equals,
-        log=do_log_y_x,
+        floordiv=do_slash_slash_y_x,
+        imag=do_imag_x,
+        inv=do_slash_1_x,  # multiplicative inverse, reciprocal, x**-1, 1/x
         ln=do_log_e_x,
+        log10=do_log_10_x,
+        log2=do_log_2_x,
+        logx=do_log_y_x,
         mod=do_mod_y_x,
+        neg=do_negate_x,
         over=do_clone_y,
         plus=do_plus_y_x,
-        pow=do_pow_y_x,  # this key='pow' is a str, not the 'builtins.pow' Func
+        pow=do_pow_y_x,  # this key="pow" is a Str Key, not the BuiltIns Pow Func
+        pow10=do_pow_10_x,
+        pow2=do_pow_2_x,
+        powe=do_pow_e_x,
+        real=do_real_x,
         rot=do_rot_y_x_z,
         slash=do_slash_y_x,
         slash_slash=do_slash_slash_y_x,  # kin to Forth SlashMod
@@ -615,10 +625,10 @@ def form_adverb_by_word():
     adverb_by_word = dict(
         buttonfile=parms_buttonfile,
         fullname=parms_fullname,
+        hash=parms_hash,  # this key="hash" is a Str Key, not the BuiltIns Hash Func
         lit_float=parms_lit_float,
         lit_int=parms_lit_int,
         name=parms_name,
-        hash=parms_hash,  # this 'hash' is not the 'builtins.hash'
     )
 
     return adverb_by_word
@@ -870,7 +880,7 @@ def do_plus_y_x():
         stack_push(x_)
 
 
-def do_slash_y_x():
+def do_slash_y_x():  # kin to Python TrueDiv
     """Push Y / X in place of Y X, and slide into -Inf, NaN, InF when X zeroed"""
 
     if not stack_has_x():
@@ -898,7 +908,7 @@ def do_slash_y_x():
         stack_push(x_)
 
 
-def do_slash_slash_y_x():  # kin to Forth SlashMod
+def do_slash_slash_y_x():  # kin to Python FloorDiv  # kin to Forth SlashMod
     """Push Y // X in place of Y X, if X not zeroed"""  # todo: what if zeroed
 
     if not stack_has_x():
@@ -994,9 +1004,9 @@ def try_docs_button(word):
 
     docs_funcs = dict()  # todo: move out of Easter Eggs
 
-    docs_funcs["y↑x"] = do_pow_y_x  # Found Do_Pow_Y_X at 'y↑x'
-    docs_funcs[".real"] = do_real_x  # Found Do_Real_X at '.real'
     docs_funcs[".imag"] = do_imag_x  # Found Do_Imag_X at '.imag'
+    docs_funcs[".real"] = do_real_x  # Found Do_Real_X at '.real'
+    docs_funcs["y↑x"] = do_pow_y_x  # Found Do_Pow_Y_X at 'y↑x'
 
     # Run the hidden Egg, if found
 
@@ -1028,20 +1038,21 @@ def try_dot_button(word):
 
         return
 
-    # Hide 9 Easter Eggs
+    # Hide 9 Easter Eggs, except hide the I J Egg twice
 
     dot_funcs = dict(
+        clear=do_drop_x_else,  # Found Do_Drop_X_Else at Dot Clear
+        e=do_log_e_x,  # Found Do_Log_E_X at Dot E
         i=do_real_x,  # Found Do_Real_X at Dot I
         j=do_real_x,  # Found Do_Real_X at Dot J
         over=do_swap_x_y,  # Found Swap at Dot Over
-        clear=do_drop_x_else,  # Found Do_Drop_X_Else at Dot Clear
         pi=do_log_10_x,  # Found Do_Log_10_X at Dot Pi
-        e=do_log_e_x,  # Found Do_Log_E_X at Dot E
-        pow=do_log_y_x,  # this key='pow' is a str, not the 'builtins.pow' Func
-        sqrt=do_log_2_x,  # Found Do_Log_2_X at Dot Sqrt
+        pow=do_log_y_x,  # Found Do_Log_Y_X at Pow
         slash=do_slash_slash_y_x,  # Found Do_Slash_Slash_Y_X at Dot Slash
+        sqrt=do_log_2_x,  # Found Do_Log_2_X at Dot Sqrt
         star=do_mod_y_x,  # Found Do_Mod_Y_X at Dot Star
     )
+    # that key="pow" is a Str Key, not the BuiltIns Pow Func
 
     dot_funcs["*"] = dot_funcs["star"]  # Found Do_Mod_Y_X at Dot *
     dot_funcs["/"] = dot_funcs["slash"]  # Found Do_Slash_Slash_Y_X at Dot /
@@ -1160,23 +1171,24 @@ def try_comma_button(word):
 
         return
 
-    # Hide 10 Easter Eggs
+    # Hide 11 Easter Eggs, except hide the Dash Minus and I J Egg twice
 
     comma_funcs = dict(
-        dash=do_negate_x,  # Found Do_Negate_X at Dot Comma Z
-        i=do_imag_x,  # Found Do_Imag_X at Dot Comma Z
-        j=do_imag_x,  # Found Do_Imag_X at Dot Comma Z
-        over=do_rot_y_x_z,  # Found Do_Rot_Y_X_z at Dot Comma Z
-        clear=do_drop_y_x_else,  # Found Do_Drop_Y_X_else at Dot Comma Z
-        pi=do_pow_10_x,  # Found Do_Pow_10_X at Dot Comma Z
-        e=do_pow_e_x,  # Found Do_Pow_e_X at Dot Comma Z
-        pow=do_base_y_x,  # Found Do_Base_Y_X at Dot Comma Z
-        sqrt=do_pow_2_x,  # Found Do_Pow_2_X at Dot Comma Z
-        slash=do_slash_1_x,  # Found Do_Slash_1_X at Dot Comma Z
-        star=do_square_x,  # Found Do_Square_X at Dot Comma Z
-        minus=do_negate_x,  # Found Do_Negate_X at Dot Comma Z
-        plus=do_abs_x,  # Found Do_Abs_X at Dot Comma Z
+        clear=do_drop_y_x_else,  # Found Do_Drop_Y_X_else at Dot Comma Clear
+        dash=do_negate_x,  # Found Do_Negate_X at Dot Comma Dash
+        e=do_pow_e_x,  # Found Do_Pow_e_X at Dot Comma E
+        i=do_imag_x,  # Found Do_Imag_X at Dot Comma I
+        j=do_imag_x,  # Found Do_Imag_X at Dot Comma J
+        minus=do_negate_x,  # Found Do_Negate_X at Dot Comma Minus
+        over=do_rot_y_x_z,  # Found Do_Rot_Y_X_z at Dot Comma Over
+        pi=do_pow_10_x,  # Found Do_Pow_10_X at Dot Comma Pi
+        plus=do_abs_x,  # Found Do_Abs_X at Dot Comma Plus
+        pow=do_base_y_x,  # Found Do_Base_Y_X at Dot Comma Pow
+        slash=do_slash_1_x,  # Found Do_Slash_1_X at Dot Comma Slash
+        sqrt=do_pow_2_x,  # Found Do_Pow_2_X at Dot Comma Sqrt
+        star=do_square_x,  # Found Do_Square_X at Dot Comma Star
     )
+    # that key="pow" is a Str Key, not the BuiltIns Pow Func
 
     comma_funcs["*"] = comma_funcs["star"]
     comma_funcs["/"] = comma_funcs["slash"]
@@ -1373,16 +1385,17 @@ def try_bits_button(word):
     # Hide 9 Easter Eggs
 
     bits_funcs = dict(
-        i=do_weigh_x,  # Found Do_Weigh_X at Bits I
-        pi=do_shrink_x,  # Found Do_Shrink_X at Bits Pi
         e=do_grow_x,  # Found Do_Grow_X at Bits E
-        pow=do_int_x,  # Found Do_Int_X at Bits Pow
-        sqrt=do_flip_x,  # Found Do_Flip_X at Bits Sqrt
-        slash=do_hat_y_x,  # Found Do_Hat_Y_X at Bits Slash
-        star=do_amp_y_x,  # Found Do_Amp_Y_X at Bits Star
+        i=do_weigh_x,  # Found Do_Weigh_X at Bits I
         minus=do_amp_flip_y_x,  # Found Do_Amp_flip_y_X at Bits Minus
+        pi=do_shrink_x,  # Found Do_Shrink_X at Bits Pi
         plus=do_bar_x,  # Found Do_Bar_X at Bits Plus
+        pow=do_int_x,  # Found Do_Int_X at Bits Pow
+        slash=do_hat_y_x,  # Found Do_Hat_Y_X at Bits Slash
+        sqrt=do_flip_x,  # Found Do_Flip_X at Bits Sqrt
+        star=do_amp_y_x,  # Found Do_Amp_Y_X at Bits Star
     )
+    # that key="pow" is a Str Key, not the BuiltIns Pow Func
 
     # Run the hidden Egg, if found
 
@@ -2081,20 +2094,29 @@ def try_buttonfile(parms):
 
     word = mixed_word.casefold()
 
-    # Run the Word
+    # Run the Button Word as Button
 
     word_found = try_alt_funcs(word)
     if not word_found:
 
-        if word == "clear":
+        # Run the Button Word as Button in place of 'entry_close_if_open()'
 
-            do_clear_else()  # works in place of 'entry_close_if_open()'
+        if word == "clear":
+            do_clear_else()
+        elif word == "drop":
+            do_drop_x_else()
+        elif word == "drop2":
+            do_drop_y_x_else()
+
+        # Run the Button Word as Button differently inside and outside an Entry
 
         elif word in (",", "comma"):
 
             entry = entry_close_if_open()
             if entry is None:
                 do_comma()
+
+        # Run the Button Word as some other ordinary Word
 
         else:
 
@@ -2219,7 +2241,7 @@ def do_clear_else():
         stack_push(0)
 
 
-def do_drop_x_else():
+def do_drop_x_else():  # apart from def do_pop_x
     """Pop X if X, else push 0"""
 
     if not stack_has_x():
@@ -2373,6 +2395,7 @@ def entry_celebrate_egg_found(entry, ch):
     finds["-"] = "Found Minus Sign at Dot Minus"
     finds["e"] = "Found Exp at Dot E"
     finds["j"] = "Found Imag at Dot J"
+
     finds[STR_PI] = "Found Delete at Dot Pi"
 
     if ch in finds.keys():
@@ -2406,6 +2429,7 @@ def entry_close_if_open():
     finds = dict()
 
     finds[""] = "None at Dot Dot Op"
+
     finds["+"] = "None at Dot Plus Op"
     finds[","] = "None at Dot Comma Op"
     finds["-"] = "None at Dot Minus Op"
@@ -2445,6 +2469,7 @@ def entry_eval(entry):
     # Eval the remaining OPEN_ENTRIES, all of which are or could be FORKABLE_ENTRIES
 
     by_entry[""] = None
+
     by_entry["+"] = None
     by_entry[","] = None  # often intercepted by:  def try_comma_button
     by_entry["-"] = None

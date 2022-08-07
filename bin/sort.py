@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 
 """
-usage: sort.py [--h] [-]
+usage: sort.py [--h] [-tSEP [-kK,K ...] [-]
 
 read all of Stdin, end the last Line if needed, sort the Lines, write to Stdout
 
 options:
   --help  show this help message and exit
+  -tSEP   the separator between fields (inexpressible default r"[ ]+")
+  -kK,K   column to sort by, numbered up from 1
+  -n      sort by numeric value, not by string value
+  -R      shuffle, don't sort
+  -r      reverse the sort
 
 quirks:
 
@@ -19,8 +24,8 @@ examples:
   sort.py --h  # show this help message and exit
   sort.py --  # same as:  sort.py -
 
-  cat - |sort.py -  # let you finish typing, press ⌃D Tty Eof, before echoing it all
-  echo $'\xC0\x80' |sort.py -- |hexdump -C  # no worries re UnicodeDecodeError bytes
+  echo drop=do drop2=do |tr ' ' '\n' |sort -t= -k1,1  # sort 'key=value' pairs by key
+  echo $'\xC0\x80' |sort.py -- |hexdump -C  # do sort, don't say 'Illegal byte sequence'
 
 """
 

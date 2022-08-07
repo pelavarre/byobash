@@ -1,6 +1,14 @@
 # todo.txt
 
 
+++ dreaming since Aug/2022 ++
+
+v.py:  highlight to trail movement after M M until ' M
+v.py:  counter of }{ paragraphs since M M
+
+which.py:  list the conflicts in Sh Path, especially conflicts with ByoBash
+
+
 ++ dreaming since Jul/2022 ++
 
 % sw_vers.py
