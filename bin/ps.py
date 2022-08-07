@@ -2,6 +2,8 @@
 # ps aux |grep
 # incremental search
 
+# ps ef
+
 
 # classic Ps dumps the nearest Processes,with no Scroll limit, when given no Parms
 

@@ -443,6 +443,7 @@ class ShPath:
 #
 
 
+# deffed in many files  # missing from docs.python.org
 def class_fullname(cls):
     """Return the 'module.type' name for most types, but 'type' for 'builtins.type's"""
 
@@ -460,6 +461,7 @@ def class_fullname(cls):
     # but never the whole name 'builtins.OSError'
 
 
+# deffed in many files  # missing from docs.python.org
 def class_mro_join(cls):
     """Format the list of Class'es searched for Attributes missing from the Instance"""
 
@@ -476,6 +478,7 @@ def class_mro_join(cls):
 #
 
 
+# deffed in many files  # missing from docs.python.org
 def list_strip(items):
     """Drop the leading and trailing Falsey Items"""
 
@@ -514,6 +517,7 @@ def list_strip(items):
 #
 
 
+# deffed in many files  # missing from docs.python.org
 def str_ldent(chars):  # kin to 'str.lstrip'
     """Pick out the Spaces etc, at left of some Chars"""
 
@@ -534,6 +538,7 @@ def str_ripgraf(graf):
     return graf
 
 
+# deffed in many files  # missing from docs.python.org
 def str_removeprefix(chars, prefix):  # missing from Python till Oct/2020 Python 3.9
     """Remove Prefix from Chars if present"""
 
@@ -544,9 +549,11 @@ def str_removeprefix(chars, prefix):  # missing from Python till Oct/2020 Python
     return result
 
 
+# deffed in many files  # missing from docs.python.org
 bytes_removeprefix = str_removeprefix
 
 
+# deffed in many files  # missing from docs.python.org
 def str_removesuffix(chars, suffix):  # missing from Python till Oct/2020 Python 3.9
     """Remove Suffix from Chars if present"""
 
@@ -557,6 +564,7 @@ def str_removesuffix(chars, suffix):  # missing from Python till Oct/2020 Python
     return result
 
 
+# deffed in many files  # missing from docs.python.org
 bytes_removesuffix = str_removesuffix
 
 
@@ -615,6 +623,7 @@ def str_splitgrafs(doc, keepends=False):  # todo:
 #
 
 
+# deffed in many files  # missing from docs.python.org
 def compile_epi_argdoc(epi, add_help=True):
     """Form an ArgumentParser from Main Doc, without Positional Args or Options"""
 
@@ -679,6 +688,7 @@ def compile_pos_argdoc(epi, add_help=True):
     return parser
 
 
+# deffed in many files  # missing from docs.python.org
 def exit_unless_doc_eq(doc, parser):
     """Exit nonzero, unless Doc equals Parser Format_Help"""
 
@@ -764,13 +774,15 @@ def parse_epi_args(epi):
 #
 
 
-def pdb_iobreakif(flag):
+# deffed in many files  # missing from docs.python.org
+def pdb_iobreak_if(flag):
     """Breakpoint after reconnecting Py Stdio to Dev Tty, if Flag is Truthy"""
 
     if flag:
         pdb_iobreak()
 
 
+# deffed in many files  # missing from docs.python.org
 def pdb_iobreak():
     """Breakpoint after reconnecting Py Stdio to Dev Tty"""
 
@@ -802,6 +814,7 @@ SH_QUOTABLE = SH_PLAIN + " " + "!#&()*;<>?[]^{|}~"
 # all printable Ascii except not $ Dollar and ` Backtick, and not " and ' and \
 
 
+# deffed in many files  # missing from docs.python.org
 def shlex_djoin(parms):  # see also 'shlex.join' since Oct/2019 Python 3.8
     """Quote, but quote compactly despite '"' and '~', when that's still easy"""
 
@@ -810,6 +823,7 @@ def shlex_djoin(parms):  # see also 'shlex.join' since Oct/2019 Python 3.8
     return shline  # such as:  echo "let's" speak freely, even casually
 
 
+# deffed in many files  # missing from docs.python.org
 def shlex_dquote(parm):
     """Quote 1 Parm, but quote compactly despite '"' and '~', when that's still easy"""
 
@@ -867,6 +881,7 @@ def shlex_dquote(parm):
     # and the Dirs don't change out beneath us
 
 
+# deffed in many files  # missing from docs.python.org
 def shlex_quote(parm):  # missing from Python till Oct/2019 Python 3.8
     """Mark up 1 Parm with Quote Marks and Backslants, so Sh agrees it is 1 Word"""
 
@@ -1030,6 +1045,7 @@ def shlex_parms_partition(parms):
 #
 
 
+# deffed in many files  # missing from docs.python.org
 def shutil_get_tty_height():  # from $LINES, else Stdout, else DevTty
     """Count Screen Rows from exported $LINES, else Stdout, else Dev Tty"""
 
@@ -1038,6 +1054,7 @@ def shutil_get_tty_height():  # from $LINES, else Stdout, else DevTty
     return size.lines
 
 
+# deffed in many files  # missing from docs.python.org
 def shutil_get_tty_width():  # from $COLUMNS, else Stdout, else DevTty
     """Count Screen Columns from exported $COLUMNS, else Stdout, else Dev Tty"""
 
@@ -1046,6 +1063,7 @@ def shutil_get_tty_width():  # from $COLUMNS, else Stdout, else DevTty
     return size.columns
 
 
+# deffed in many files  # missing from docs.python.org
 def shutil_get_tty_size():
     """Count Screen Rows & Columns from $LINES & $COLUMNS, else Stdout, else Dev Tty"""
 
@@ -1066,6 +1084,7 @@ def shutil_get_tty_size():
 #
 
 
+# deffed in many files  # missing from docs.python.org
 def subprocess_run_loud(argv, shpipe=None, stdin=subprocess.PIPE, stdout=None):
     """Call a Subprocess to run the ArgV and return, except exit if exit nonzero"""
 
@@ -1081,6 +1100,7 @@ def subprocess_run_loud(argv, shpipe=None, stdin=subprocess.PIPE, stdout=None):
         sys.exit(run.returncode)  # Pass back a NonZero Exit Status ReturnCode
 
 
+# deffed in many files  # missing from docs.python.org
 def subprocess_run_oneline(shline, *args, **kwargs):
     """Call 'subprocess_run_stdio' but require one line of Stdout and exit zero"""
 
@@ -1092,6 +1112,7 @@ def subprocess_run_oneline(shline, *args, **kwargs):
     return line
 
 
+# deffed in many files  # missing from docs.python.org
 def subprocess_run_somelines(shline, *args, **kwargs):
     """Call 'subprocess_run_stdio' but require lines of Stdout and exit zero"""
 
@@ -1107,6 +1128,7 @@ def subprocess_run_somelines(shline, *args, **kwargs):
     return lines
 
 
+# deffed in many files  # missing from docs.python.org
 def subprocess_run_stdio(shline, *args, **kwargs):
     """Flush Stdout, flush Stderr, and then call without Stdin"""
 
@@ -1129,6 +1151,7 @@ def subprocess_run_stdio(shline, *args, **kwargs):
 #
 
 
+# deffed in many files  # missing from docs.python.org
 def stderr_print(*args, **kwargs):
     """Work like Print, but write Stderr in place of Stdout"""
 

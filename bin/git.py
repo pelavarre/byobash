@@ -81,7 +81,7 @@ examples:
   git.py s  # git show
   git.py sp  # git show --pretty=''
   git.py spno  # git show --pretty='' --name-only
-  git.py ssi  # git status --short --ignored  # calmer than 'git status'
+  git.py sis  # git status --ignored --short  # calmer than 'git status'
   git.py st  # git status
   git.py sun  # git status --untracked-files=no
   git.py vi  # qno ... && vi $(qno ...)
@@ -241,7 +241,7 @@ def main():
             if parms == ["--"]:
 
                 parms = ["co"]  # "git checkout"
-                # FIXME: print counts of 'gssi' as reminders for:  git add
+                # FIXME: print counts of 'gsis' as reminders for:  git add
 
     # Define the most conventional forms of 'git.py'
 
@@ -621,7 +621,7 @@ ALIASES = {
     "s3": "git show :3:{}",
     "sp": "git show --pretty='' {}",
     "spno": "git show --pretty='' --name-only {}",
-    "ssi": "git status --short --ignored",
+    "sis": "git status --ignored --short",
     "ssn": "git shortlog --summary --numbered",
     "st": "git status {}",
     "sun": "git status --untracked-files=no",
@@ -933,7 +933,8 @@ if __name__ == "__main__":
 # todo: add '-h' into 'git log grep' => grep -h def.shlex_quote $(-ggl def.shlex_quote)
 #
 
-# compaction for qssi = git status --short --ignored
+# compaction for qsis = git status --ignored --short
+# todo:  $(qsis) without its first column, wow like we could stderr its first column
 
 # q ..., could mean ... $(qno)  # so should it?
 

@@ -13,8 +13,6 @@ options:
 
 advanced Bash install:
 
-  alias @='~/Public/byobash/bin/byopyvm.py buttonfile'
-
   function = {
     : : 'Show Stack, else else do other Stack Work' : :
     if [ "$#" = 0 ]; then
@@ -24,6 +22,8 @@ advanced Bash install:
     fi
   }
 
+  function @ { ~/Public/byobash/bin/byopyvm.py buttonfile "$@"; }
+
 quick start:
 
   git clone https://github.com/pelavarre/byobash.git
@@ -32,7 +32,7 @@ quick start:
   function = { ~/Public/byobash/bin/byopyvm.py "$@"; }
   = 12 34 +
 
-  alias @='~/Public/byobash/bin/byopyvm.py buttonfile'
+  function @ { ~/Public/byobash/bin/byopyvm.py buttonfile "$@"; }
   @ 1 2 , 3 4 +
 
   open macos/
@@ -170,6 +170,10 @@ BUTTONFILE_TESTCHARS = """
 
     = clear  &&  @  15 16  . , pow  # FIXME  # because Dot Comma Y X Base
 
+    # Easter Eggs at Morse Code
+
+    = clear  && @ . . +  && @ . -  # send Morse DiDah, meaning 'a'
+
 """
 
 BUTTONFILE_TESTDOC = textwrap.dedent(BUTTONFILE_TESTCHARS).strip()
@@ -271,6 +275,10 @@ class ButtonEntry(str):
 
         return skidded
 
+        # FIXME:  every Json String becomes the chars of a Python Repr
+        # FIXME:  Repr at DumpS Suspend, Eval at LoadS Resume
+        # FIXME:  Stack as Json Int or Float only when Eval yields same Repr Str
+
     @classmethod
     def stackable_loads(cls, s):
         """Take the S as coming from 'json_dumps', else Raise 'json.JSONDecodeError'"""
@@ -318,8 +326,6 @@ def main():
 
     patchdoc = """
 
-      alias @='~/Public/byobash/bin/byopyvm.py buttonfile'
-
       function = {
         : : 'Show Stack, else else do other Stack Work' : :
         if [ "$#" = 0 ]; then
@@ -328,6 +334,8 @@ def main():
             ~/Public/byobash/bin/byopyvm.py "$@"
         fi
       }
+
+      function @ { ~/Public/byobash/bin/byopyvm.py buttonfile "$@"; }
 
     """
 
@@ -372,6 +380,62 @@ def collapse_star_parms(parms):
             index += 1
 
 
+def selftest():
+    """Call on Self enough to believe many things still work"""
+
+    shverb = __file__
+    shverb_plus = "{} {}".format(__file__, "buttonfile")
+
+    COUNT_1 = 1
+
+    #
+
+    path = pathlib.Path(__file__)
+    chars = path.read_text()
+    lines = chars.splitlines()
+
+    #
+
+    for line in lines:
+        join = " ".join(line.split())
+        if join.startswith("="):
+            partition = join.partition("#")[0]
+            rstrip = partition.rstrip()
+
+            shpipe = rstrip
+
+            #
+
+            skips = list()
+            skips.append("= pdb.set_trace")
+            skips.append("= clear && @ 15 16 . , pow")
+            skips.append("= clear && @ . . + && @ . -")
+
+            if shpipe in skips:
+                byo.stderr_print("byopyvm selftest: skipping:  {}".format(rstrip))
+
+                continue
+
+            #
+
+            shline = shpipe
+            shline = shline.replace("=", shverb, COUNT_1)
+            shline = shline.replace("@", shverb_plus, COUNT_1)
+
+            run = subprocess.run(
+                shline,
+                shell=True,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+
+            if run.returncode:
+                byo.stderr_print("FAIL at:  {}".format(shpipe))
+            else:
+                byo.stderr_print(shpipe)
+
+
 #
 # Parse input sourcelines
 #
@@ -395,7 +459,7 @@ def parms_run_one(parms):
     adverb_by_word = form_adverb_by_word()
 
     # Require each Word found exactly once
-    # todo: run this Contradictions Self-Test less often
+    # todo: run this Contradictions SelfTest less often
 
     keys = list()
     for kvs in (noun_by_word, verb_by_word, adverb_by_word, INK_BY_CHAR):
@@ -1021,6 +1085,86 @@ def try_docs_button(word):
         func()
 
         return True
+
+
+#
+# Define the Dot Dot Morse Button Files of our Calculator Folder, after Dot Dot
+#
+
+
+def try_morse_button(word):
+    """Run differently while the Entry is "" Empty or begins with " " Space"""
+
+    return  # FIXME
+
+    # Quit unless the Entry is "" Empty or begins with " " Space
+
+    entry = entry_peek_else(default=None)
+    if not ((entry == "") or (entry and entry.startswith(" "))):
+
+        return
+
+    # Quit unless the Buttonfile is one of:  + - .
+
+    if word in ("+", "plus"):
+
+        morse_close_if_open()
+
+        return True
+
+    if word in ("-", "dash", "minus"):
+
+        do_morse_dah()
+
+        return True
+
+    if word in (".", "dot"):
+
+        do_morse_dit()
+
+        return True
+
+
+def morse_close_if_open():
+    """End one Char and begin the next"""
+
+    entry = entry_peek_else(default=None)
+
+    entry_ = entry + " "
+
+    if entry is not None:
+        stack_pop(1)
+
+    name = entry_ + "_"
+    stack_push(ButtonEntry(name))
+
+
+def do_morse_dah():
+    """Add one Morse Dah"""
+
+    entry = entry_peek_else(default=None)
+
+    entry_ = entry + "-"
+
+    if entry is not None:
+        stack_pop(1)
+
+    name = entry_ + "_"
+    stack_push(ButtonEntry(name))
+
+
+def do_morse_dit():
+    """Add one Morse Dit"""
+
+    entry = entry_peek_else(default=None)
+
+    entry_ = entry + "."
+
+    if entry is not None:
+        stack_pop(1)
+
+    name = entry_ + "_"
+    stack_push(ButtonEntry(name))
 
 
 #
@@ -2130,6 +2274,11 @@ def try_alt_funcs(word):
     # Try the Buttons redefined while Entry in progress
     # todo: stop making order matter, and randomise to show order unimportant
 
+    morse_found = try_morse_button(word)
+    if morse_found:
+
+        return True
+
     dot_found = try_dot_button(word)
     if dot_found:
 
@@ -2484,6 +2633,11 @@ def entry_eval(entry):
 
         return evalled
 
+    # Eval the Morse Entries
+    # if entry.startswith(" "):
+    # pdb.set_trace()
+    # FIXME
+
     # Ask Python to eval the Entry, else append a "0" to autocomplete the Entry
 
     fit_before_0 = entry + "0"
@@ -2583,8 +2737,8 @@ but ouch not quite worth creating __pycache__/ it it doesn't already exist
 leading data type for the result
 trailing data type for the op
 
-= -i  # for interactive CLI, till ⌃D Tty Eof
-@ -i  # for interactive CLI, till ⌃D Tty Eof
+#   = -i  # for interactive CLI, till ⌃D Tty Eof
+#   @ -i  # for interactive CLI, till ⌃D Tty Eof
 
 conversions to Bits first dupe as floor Decimal Int, if given Complex or Float
     except it is Ceiling when negative
@@ -2597,7 +2751,7 @@ same thing in a TUI, TUI in a GShell
 --tui paper tape
 main.stderr
 
-= requests.get http://...
+#   = requests.get http://...
 work with Files and Dirs, not just Maths
 go with 'decimal.Decimal' over 'float'
 consider '^' for 'pow' for decimal Int/ Float/ Decimal

@@ -37,8 +37,6 @@ function funcs () {
 
 # for 'byobash/bin/byopyvm.py'
 
-alias @='~/Public/byobash/bin/byopyvm.py buttonfile'
-
 function = {
   : : 'Show Stack, else else do other Stack Work' : :
   if [ "$#" = 0 ]; then
@@ -47,6 +45,8 @@ function = {
       ~/Public/byobash/bin/byopyvm.py "$@"
   fi
 }
+
+function @ { ~/Public/byobash/bin/byopyvm.py buttonfile "$@"; }
 
 
 # for 'byobash/bin/cd.py'

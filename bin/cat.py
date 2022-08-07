@@ -26,7 +26,7 @@ quirks:
   Mac 'cat -tv' misprints $'\xCF\x80' U+03C0 GreekSmallLetterPi as b"\xCF\x4D\x2D"
 
 temporary workaround:
-  alias cat.py=~/Public/pybashish/bin/cat.py
+  function cat.py () { ~/Public/pybashish/bin/cat.py "@"; }
 
 examples:
 

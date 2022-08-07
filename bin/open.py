@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# FIXME: Stdin so no need to quote arg in Zsh
+
 """
 usage: open.py [-h] ADDRESS
 
