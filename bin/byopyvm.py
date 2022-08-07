@@ -2054,7 +2054,7 @@ def parms_buttonfile(parms):
 
             try_buttonfile(parms)
 
-        except Exception as exc:
+        except (Exception, SystemExit) as exc:
             byo.stderr_print()
             traceback.print_exc()
             byo.stderr_print("Press ⌃D TTY EOF to quit")
