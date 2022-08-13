@@ -54,6 +54,8 @@ def main():
     # Open with a mention of the Original
 
     print()
+    print("-- original, as header --")
+    print()
     print(address)
 
     # Break the Address into Parts
@@ -75,6 +77,8 @@ def main():
     if alt_unsplit != address:
 
         print()
+        print("-- shrug off Http S, WWW Dot --")
+        print()
         print(urllib.parse.urlunsplit(alt_splits))
 
         # Try to give up some more Precision
@@ -87,6 +91,8 @@ def main():
             vpn_unsplit = urllib.parse.urlunsplit(vpn_splits)
 
             print()
+            print("-- local network without much domain --")
+            print()
             print(vpn_unsplit)
 
     # Try to give up some Escapes
@@ -95,6 +101,8 @@ def main():
     unquoted_basename = urllib.parse.unquote(basename)
     if unquoted_basename != basename:
 
+        print()
+        print("-- unquoted basename --")
         print()
         print(unquoted_basename)
 
@@ -105,19 +113,45 @@ def main():
         titled_basename = titled_basename.title()
 
         print()
+        print("-- titled unquoted basename --")
+        print()
         print(titled_basename)
 
     # Add Line-Break's to the Query
 
-    if splits.query:
-        root = byo.str_removesuffix(address, suffix=splits.query)
+    kv_ch = "?"
+    kv_address = address
+    kv_splits_query = splits.query
+    if not splits.query:
+        COUNT_1 = 1
+
+        kv_ch = "#"
+        kv_address = address.replace("#", "?", COUNT_1)
+        kv_splits = urllib.parse.urlsplit(kv_address)
+        kv_splits_query = kv_splits.query
+
+    if kv_splits_query:
+        root = byo.str_removesuffix(kv_address, suffix=kv_splits_query)
+
+        rstrip = root.rstrip("?")
 
         print()
-        print(root.rstrip("?"))
+        print("-- without query --")
+        print()
+        print(rstrip)
+
+        if rstrip.endswith("/edit"):
+
+            print()
+            print("-- without query, without basename --")
+            print()
+            print(byo.str_removesuffix(rstrip, suffix="/edit"))
 
         print()
-        print(root)
-        pairs = urllib.parse.parse_qsl(splits.query)
+        print("-- with line-broken query --")
+        print()
+        print(rstrip + kv_ch)
+        pairs = urllib.parse.parse_qsl(kv_splits_query)
         for (index, pair) in enumerate(pairs):
             (name, value) = pair
             qvalue = urllib.parse.quote(value)
@@ -126,10 +160,25 @@ def main():
             else:
                 print("    &{}={}".format(name, qvalue))
 
+        joinable_query = urllib.parse.urlencode(pairs)
+        joinable_splits = urllib.parse.urlsplit(kv_address)
+        joinable_splits = joinable_splits._replace(query=joinable_query)
+        joinable_unsplit = urllib.parse.urlunsplit(joinable_splits)
+        joinable_unsplit = joinable_unsplit.replace("?", kv_ch, COUNT_1)
+
+        print()
+        print("-- unsplit query --")
+        print()
+        print(joinable_unsplit)
+
     # Close with a mention of the Original
 
     print()
+    print("-- original, as trailer --")
+    print()
     print(address)
+
+    # Print one last Empty Line to separate this Sh Verb Output from the Sh Prompt
 
     print()
 

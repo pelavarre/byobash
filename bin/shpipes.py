@@ -1344,6 +1344,11 @@ if __name__ == "__main__":
 # ToDo Txt for ShPipes Py
 #
 
+# todo: capture of 'cv >...' should report 'wc -l'
+
+# todo: whole word match wins over partial, such as across:  strip lstrip rstrip
+# todo: part word match doesn't force left match, such as:  dent dedent exdent indent
+
 # todo: cv spill
 # to inject line-break's well
 # such as http://api?k1=v1&k2=v2
