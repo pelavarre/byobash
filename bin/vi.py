@@ -20,6 +20,10 @@ examples:
   vi.py --  # todo: run as you like it
 
   vim -u /dev/null ~/.vimrc
+
+  vi +$ Makefile  # open up at end of file, not start of file
+  vi +':set background=light' Makefile  # choose Light Mode, when they didn't
+  vi +':set background=dark' Makefile  # choose Dark Mode, when they didn't
 """
 
 

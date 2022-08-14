@@ -22,6 +22,7 @@ import os
 import pathlib
 import pdb
 import re
+import select
 import shlex
 import shutil
 import signal
@@ -665,23 +666,50 @@ def compile_pos_argdoc(epi, add_help=True):
     usage = doclines[0]
     prog = usage.split()[1]
 
-    # Forward 1 Positional Arg
+    # Require 1 Positional Arg
 
     matched = re.match(r"^usage: {} \[-h\] [^ ]*$".format(prog), string=usage)
     assert matched, usage
-    argname = usage.split()[-1]
 
-    arglines = list(_ for _ in doclines if _.split() and _.split()[0] == argname)
+    argname = usage.split()[-1]
+    argname = argname.strip("[").strip("]")
+
+    # Pick out the 1 Positional Arg Line
+
+    wordlines = list(_ for _ in doclines if _.split())
+    arglines = list(_ for _ in wordlines if _.split()[0] == argname)
+
+    assert arglines
     assert len(arglines) == 1, arglines
     argline = arglines[-1]
 
-    prefix = "  " + argname
+    # Pick out the Help Words
 
     arghelp = argline
+    prefix = "  " + argname
     arghelp = str_removeprefix(arghelp, prefix=prefix)
     arghelp = arghelp.strip()
 
-    parser.add_argument(argname.casefold(), metavar=argname, help=arghelp)
+    # Pick out the NArgs
+
+    nargs_one = argname
+    nargs_query = "[{}]".format(argname)
+
+    if usage.endswith(nargs_one):
+        nargs = 1
+    elif usage.endswith(nargs_query):
+        nargs = argparse.OPTIONAL  # "?"
+    else:
+        assert False
+
+    # Declare the 1 Positional Arg
+
+    if nargs == 1:
+        parser.add_argument(argname.casefold(), metavar=argname, help=arghelp)
+    else:
+        parser.add_argument(
+            argname.casefold(), nargs=argparse.OPTIONAL, metavar=argname, help=arghelp
+        )
 
     # Succeed
 
@@ -1147,8 +1175,24 @@ def subprocess_run_stdio(shline, *args, **kwargs):
 
 
 #
-# Add some Def's that 'import sys' forgot
+# Add some Def's that 'import select' and 'import sys' forgot
 #
+
+
+# deffed in many files  # missing from docs.python.org
+def select_select(stdio):
+    """Return truthy if 'stdio.read(1)' won't now hang till more Input comes"""
+
+    rlist = [stdio]
+    wlist = list()
+    xlist = list()
+    timeout = 0
+    (r, w, x) = select.select(rlist, wlist, xlist, timeout)
+
+    assert not w, w
+    assert not x, x
+
+    return r
 
 
 # deffed in many files  # missing from docs.python.org
@@ -1158,6 +1202,30 @@ def stderr_print(*args, **kwargs):
     sys.stdout.flush()
     print(*args, file=sys.stderr, **kwargs)  # todo: what if "file" in kwargs.keys() ?
     sys.stderr.flush()
+
+
+# deffed in many files  # missing from docs.python.org
+def stdin_readline_else():
+    """Block till the Chars of an Input Line arrive, else exit zero or nonzero"""
+
+    SIGINT_RETURNCODE = 0x80 | signal.SIGINT
+    assert SIGINT_RETURNCODE == 130, SIGINT_RETURNCODE
+
+    try:
+        line = sys.stdin.readline()
+    except KeyboardInterrupt:
+        sys.stderr.write("\n")
+        sys.stderr.write("KeyboardInterrupt\n")
+
+        sys.exit(SIGINT_RETURNCODE)  # Exit 130 to say KeyboardInterrupt SIGINT
+
+    if not line:  # echoed as "^D\n" at Mac, echoed as "\n" at Linux
+
+        sys.exit(0)  # Exit 0 to say Stdin Closed
+
+    chars = line.splitlines()[0]
+
+    return chars
 
 
 class BrokenPipeSink:  # todo: add calls of it, don't just define it

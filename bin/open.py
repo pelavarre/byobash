@@ -1,11 +1,9 @@
 #!/usr/bin/env python3
 
-# FIXME: Stdin so no need to quote arg in Zsh
-
 """
-usage: open.py [-h] ADDRESS
+usage: open.py [-h] [ADDRESS]
 
-tell the browser to visit an address
+tell the browser to visit an address, or just split it into parts
 
 positional arguments:
   ADDRESS     some web address, maybe ending in '/' plus '?' '&' '=' pairs
@@ -14,24 +12,25 @@ options:
   -h, --help  show this help message and exit
 
 quirks:
-
   goes well with:  curl.py
   requires quoting of '&' when run inside any ordinary Sh
   requires quoting of '*' or '?' in Address'es, when haunted by 'zsh: no matches found'
-  doesn't visit Address when run as 'open.py --', instead
-    prints many forms of address to choose from, spun out from one address
+  accepts quoted '#' in place of '?' to introduce '&' '=' key-value pairs
+  takes '--' to mean print many forms of the Address, don't visit it
 
 examples:
 
   open.py  # show these examples and exit
   open.py --h  # show this help message and exit
 
-  open.py -- 'http://google.com/search?tbm=isch&q=Carelman+Everyday'
+  open.py --  # take an Address to split from Stdin
+
+  open.py -- 'https://www.google.com/search?tbm=isch&q=Carelman+Everyday'
   open.py -- http://jira/issues/?jql=text%20~%20%27Hobbit%27
   open.py -- http://wiki.example.com/display/main/Welcome
   open.py -- https://twitter.com/pelavarre/status/1543460479720337409?s=20
-  open.py -- 'https://www.google.com/search?tbm=isch&q=Carelman+Everyday'
 """
+# todo: look for '#' over '?' examples of key-value pairs, but found outside the Vpn's
 
 
 import os
@@ -44,12 +43,28 @@ import byotools as byo
 
 
 def main():
+    """Run from the Sh Command Line"""
 
     if "--" not in sys.argv[1:]:
         byo.exit()
 
     args = byo.parse_epi_args(epi="quirks")
-    address = args.address
+
+    if args.address is not None:
+        print_forms_of_address(address=args.address)
+    else:
+        byo.stderr_print("open.py: Type a Web Address and press Return")
+        byo.stderr_print()
+
+        address = byo.stdin_readline_else()
+        print_forms_of_address(address)
+        while byo.select_select(sys.stdin):
+            address = byo.stdin_readline_else()
+            print_forms_of_address(address)
+
+
+def print_forms_of_address(address):  # noqa C901 too complex (11)
+    """Print many forms of the Address, don't visit it"""
 
     # Open with a mention of the Original
 
@@ -119,11 +134,12 @@ def main():
 
     # Add Line-Break's to the Query
 
+    COUNT_1 = 1
+
     kv_ch = "?"
     kv_address = address
     kv_splits_query = splits.query
     if not splits.query:
-        COUNT_1 = 1
 
         kv_ch = "#"
         kv_address = address.replace("#", "?", COUNT_1)
