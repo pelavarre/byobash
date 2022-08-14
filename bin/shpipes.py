@@ -150,8 +150,8 @@ _ = pdb
 
 # Calc the process exit status returncode for Keyboard Interrupt
 
-SIGINT_RETURNCODE = 0x80 | signal.SIGINT
-assert SIGINT_RETURNCODE == 130, (SIGINT_RETURNCODE, 0x80, signal.SIGINT)
+SIGINT_RETURNCODE_130 = 0x80 | signal.SIGINT
+assert SIGINT_RETURNCODE_130 == 130, (SIGINT_RETURNCODE_130, 0x80, signal.SIGINT)
 
 
 # Mark the ShVerb's that wrongly fall back to hang for input at Tty Stdin,
@@ -1043,9 +1043,9 @@ def exit_after_one_argv(shline, argv):
         byo.stderr_print()
         byo.stderr_print("KeyboardInterrupt")
 
-        assert SIGINT_RETURNCODE == 130, SIGINT_RETURNCODE
+        assert SIGINT_RETURNCODE_130 == 130, SIGINT_RETURNCODE_130
 
-        sys.exit(SIGINT_RETURNCODE)  # Exit 130 to say KeyboardInterrupt SIGINT
+        sys.exit(SIGINT_RETURNCODE_130)  # Exit 130 to say KeyboardInterrupt SIGINT
 
     if run.returncode:  # Exit early, at the first NonZero Exit Status ReturnCode
         byo.stderr_print("+ exit {}".format(run.returncode))

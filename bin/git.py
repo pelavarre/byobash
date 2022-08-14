@@ -165,8 +165,8 @@ _ = pdb
 
 DEFAULT_NONE = None
 
-SIGINT_RETURNCODE = 0x80 | signal.SIGINT
-assert SIGINT_RETURNCODE == 130, (SIGINT_RETURNCODE, 0x80, signal.SIGINT)
+SIGINT_RETURNCODE_130 = 0x80 | signal.SIGINT
+assert SIGINT_RETURNCODE_130 == 130, (SIGINT_RETURNCODE_130, 0x80, signal.SIGINT)
 
 GitLikeAlias = collections.namedtuple("GitLikeAlias", "shlines authed".split())
 
@@ -486,9 +486,9 @@ def exit_if_shproc(shverb, parms, authed, shlines):  # todo  # noqa: C901 comple
             byo.stderr_print()
             byo.stderr_print("KeyboardInterrupt")
 
-            assert SIGINT_RETURNCODE == 130, SIGINT_RETURNCODE
+            assert SIGINT_RETURNCODE_130 == 130, SIGINT_RETURNCODE_130
 
-            sys.exit(SIGINT_RETURNCODE)  # Exit 130 to say KeyboardInterrupt SIGINT
+            sys.exit(SIGINT_RETURNCODE_130)  # Exit 130 to say KeyboardInterrupt SIGINT
 
     # Run each of the ArgV's and exit
 

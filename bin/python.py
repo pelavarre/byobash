@@ -51,8 +51,8 @@ import byotools as byo
 
 PYTHONX = "python3"  # todo: cope when PYTHONX != "python3"
 
-SIGINT_RETURNCODE = 0x80 | signal.SIGINT
-assert SIGINT_RETURNCODE == 130, (SIGINT_RETURNCODE, 0x80, signal.SIGINT)
+SIGINT_RETURNCODE_130 = 0x80 | signal.SIGINT
+assert SIGINT_RETURNCODE_130 == 130, (SIGINT_RETURNCODE_130, 0x80, signal.SIGINT)
 
 
 def main():  # noqa: C901 complex
@@ -118,9 +118,9 @@ def main():  # noqa: C901 complex
             sys.stderr.write("\n")
             sys.stderr.write("pythonx.py: KeyboardInterrupt\n")  # todo: python.py
 
-            assert SIGINT_RETURNCODE == 130, SIGINT_RETURNCODE
+            assert SIGINT_RETURNCODE_130 == 130, SIGINT_RETURNCODE_130
 
-            sys.exit(SIGINT_RETURNCODE)  # Exit 130 to say KeyboardInterrupt SIGINT
+            sys.exit(SIGINT_RETURNCODE_130)  # Exit 130 to say KeyboardInterrupt SIGINT
 
     # Form the ShLine
 
@@ -146,9 +146,9 @@ def main():  # noqa: C901 complex
         sys.stderr.write("\n")
         sys.stderr.write("pythonx.py: KeyboardInterrupt\n")  # todo: python.py
 
-        assert SIGINT_RETURNCODE == 130, SIGINT_RETURNCODE
+        assert SIGINT_RETURNCODE_130 == 130, SIGINT_RETURNCODE_130
 
-        sys.exit(SIGINT_RETURNCODE)  # Exit 130 to say KeyboardInterrupt SIGINT
+        sys.exit(SIGINT_RETURNCODE_130)  # Exit 130 to say KeyboardInterrupt SIGINT
 
 
 def parse_pythonx_args():  # noqa C901 complex 11

@@ -1208,8 +1208,8 @@ def stderr_print(*args, **kwargs):
 def stdin_readline_else():
     """Block till the Chars of an Input Line arrive, else exit zero or nonzero"""
 
-    SIGINT_RETURNCODE = 0x80 | signal.SIGINT
-    assert SIGINT_RETURNCODE == 130, SIGINT_RETURNCODE
+    SIGINT_RETURNCODE_130 = 0x80 | signal.SIGINT
+    assert SIGINT_RETURNCODE_130 == 130, SIGINT_RETURNCODE_130
 
     try:
         line = sys.stdin.readline()
@@ -1217,7 +1217,7 @@ def stdin_readline_else():
         sys.stderr.write("\n")
         sys.stderr.write("KeyboardInterrupt\n")
 
-        sys.exit(SIGINT_RETURNCODE)  # Exit 130 to say KeyboardInterrupt SIGINT
+        sys.exit(SIGINT_RETURNCODE_130)  # Exit 130 to say KeyboardInterrupt SIGINT
 
     if not line:  # echoed as "^D\n" at Mac, echoed as "\n" at Linux
 
