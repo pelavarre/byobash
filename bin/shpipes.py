@@ -46,6 +46,10 @@ Bash Install:
 call Python to filter Lines of the Os Copy/Paste Buffer
 
   python3 -c 'import this' |tail -n +3 |shpipes.py cv
+  pbpaste  # show those nineteen lines built here
+
+  shpipes.py pb 'ssh localhost' 'cd /usr/bin/' "export PS1='\\$ '"
+  pbpaste  # show those three lines built here (such that pressing ⌘V will run them)
 
   shpipes.py upper
   shpipes.py split
@@ -115,6 +119,7 @@ examples:
   shpipes.py m  # make --
   shpipes.py mo  # less -FIRX
   shpipes.py n  # cat -n -tv - |expand  # mostly redundant with 'shpipes.c'
+  shpipes.py pb  # (echo "$1"; echo "$2"; ...) |pbcopy
   shpipes.py q  # git checkout
   shpipes.py s  # sort -
   shpipes.py sp  # sponge.py --
@@ -296,6 +301,7 @@ def form_shfunc_by_verb():
         m=do_m,  # make --
         mo=do_mo,  # less -FIRX
         n=do_n,  # cat -n -tv - - |expand
+        pb=do_pb,  # (echo "$1"; echo "$2"; ...) |pbcopy
         pbedit=pbedit,  # Call on Vi to edit a Pipe Byte Stream, or on a chosen Editor
         q=do_q,  # git checkout
         s=do_s,  # sort -
@@ -311,7 +317,7 @@ def form_shfunc_by_verb():
     return shfunc_by_verb
 
 
-def do_a(parms):
+def do_a(parms):  # "qb/a"  # "a"
     """awk -F' ' '{print $NF}'  # usage: a, a SEP, a AWK_INDEX, a SEP AWK_INDEX, etc"""
 
     # Forward Parms transparently, when not taken as meaningful here:
@@ -382,7 +388,7 @@ def awk_repr_index(int_index):
     return repr_index
 
 
-def do_c(parms):
+def do_c(parms):  # "qb/c"  # "c"
     """cat - >/dev/null"""
 
     stdin_isatty = sys.stdin.isatty()
@@ -407,7 +413,7 @@ def do_c(parms):
     exit_after_shparms("cat", parms=parms)
 
 
-def do_cv(parms):
+def do_cv(parms):  # "qb/cv"  # "cv"
     """pbpaste inside tty, pbpaste from tty, pbcopy to tty, else tee to pbcopy"""
 
     stdin_isatty = sys.stdin.isatty()
@@ -447,7 +453,7 @@ def exit_after_framed_cv_paste(parms):
         exit_after_cv_pbpaste(parms)
     finally:
         sys.stdout.flush()
-        byo.stderr_print()
+        byo.stderr_print()  # too late somehow
 
 
 def exit_after_cv_pbpaste(parms):
@@ -538,7 +544,7 @@ def subprocess_run_self(parms):
             sys.stdout.flush()  # unneeded?
 
 
-def do_d(parms):
+def do_d(parms):  # "qb/d"  # "d"
     """diff -brpu a b |less -FIRX"""
 
     (options, seps, words) = byo.shlex_parms_partition(parms)
@@ -555,13 +561,13 @@ def do_d(parms):
     exit_after_shline_to_tty(shline)
 
 
-def do_e(parms):
+def do_e(parms):  # "qb/e"  # "e"
     """emacs -nw --no-splash --eval '(menu-bar-mode -1)'"""
 
     do_em(parms)
 
 
-def do_em(parms):
+def do_em(parms):  # "qb/em"  # "em"
     """emacs -nw --no-splash --eval '(menu-bar-mode -1)'"""
 
     if not parms:  # a la 'byo.exit_if_testdoc'
@@ -583,7 +589,7 @@ def do_em(parms):
     )
 
 
-def do_f(parms):
+def do_f(parms):  # "qb/f"  # "f"
     """find . -not -type d -not -path './.git/*' |less -FIRX"""  # Mac Find needs '.'
 
     (options, seps, words) = byo.shlex_parms_partition(parms)
@@ -598,7 +604,7 @@ def do_f(parms):
     exit_after_shline_to_tty(shline)
 
 
-def do_g(parms):
+def do_g(parms):  # "qb/g"  # "g"
     """grep -i ."""
 
     do_g_parms_shoptions_shwords(parms, shoptions="-i", shwords=".")
@@ -636,37 +642,37 @@ def do_g_parms_shoptions_shwords(parms, shoptions, shwords=None):
     exit_after_shline(shline)
 
 
-def do_gi(parms):
+def do_gi(parms):  # "qb/gi"  # "gi"
     """grep ."""
 
     do_g_parms_shoptions_shwords(parms, shoptions="", shwords=".")
 
 
-def do_gl(parms):
+def do_gl(parms):  # "qb/gl"  # "gl"
     """grep -ilR"""  # better No ShWords, than r"." to match too many Lines
 
     do_g_parms_shoptions_shwords(parms, shoptions="-ilR", shwords="")
 
 
-def do_gli(parms):
+def do_gli(parms):  # "qb/gli"  # "gli"
     """grep -lR"""  # better No ShWords, than r"." to match too many Lines
 
     do_g_parms_shoptions_shwords(parms, shoptions="-lR", shwords="")
 
 
-def do_gv(parms):
+def do_gv(parms):  # "qb/gv"  # "gv"
     """grep -v -i ."""
 
     do_g_parms_shoptions_shwords(parms, shoptions="-v -i", shwords="")
 
 
-def do_gvi(parms):
+def do_gvi(parms):  # "qb/gvi"  # "gvi"
     """grep -v"""
 
     do_g_parms_shoptions_shwords(parms, shoptions="-v", shwords="")
 
 
-def do_h(parms):
+def do_h(parms):  # "qb/h"  # "h"
     """head -16  # or whatever a third of the screen is"""
 
     rows = byo.shutil_get_tty_height()
@@ -682,13 +688,13 @@ def do_h(parms):
     exit_after_shline(shline)
 
 
-def do_hi(parms):
+def do_hi(parms):  # "qb/hi"  # "hi"
     """history  # but include the files at the '~/.bash_histories/' dir"""
 
     raise NotImplementedError()
 
 
-def do_ht(parms):  # FIXME: show 2/9th of screen at head, 1/9th at tail
+def do_ht(parms):  # "qb/ht"  # "ht"  # FIXME: show 2/9th of screen at head, 1/9th tail
     r"""sed -n -e '1,2p;3,3s/.*/&\n.../p;$p'"""
 
     rows = byo.shutil_get_tty_height()
@@ -703,19 +709,19 @@ def do_ht(parms):  # FIXME: show 2/9th of screen at head, 1/9th at tail
     exit_after_shline(shline)
 
 
-def do_m(parms):
+def do_m(parms):  # "qb/m"  # "m"
     """make --"""
 
     exit_after_shverb_shparms("make --", parms=parms)
 
 
-def do_mo(parms):
+def do_mo(parms):  # "qb/mo"  # "mo"
     """less -FIRX"""
 
     exit_after_shverb_shparms("less -FIRX", parms=parms)
 
 
-def do_n(parms):
+def do_n(parms):  # "qb/n"  # "n"
     """cat -n -tv - |expand"""
 
     (options, seps, words) = byo.shlex_parms_partition(parms)
@@ -733,25 +739,42 @@ def do_n(parms):
     exit_after_shpipe(shpipe)
 
 
-def do_q(parms):
+def do_pb(parms):  # "qb/pb"  # "pb"
+    """(echo "$1"; echo "$2"; ...) |pbcopy"""
+
+    for parm in parms:
+        qparm = byo.shlex_dquote(parm)
+        if parm == r"export PS1='\$ '":  # todo: generalise how to quote such well
+            qparm = '"' + r"export PS1='\\$ '" + '"'
+        byo.stderr_print("+ echo {}".format(qparm))
+
+    ichars = ""  # no lines
+    if parms:
+        ichars = "\n".join(parms) + "\n"  # one or more closed lines
+    ibytes = ichars.encode()
+
+    subprocess.run("pbcopy".split(), input=ibytes, check=True)
+
+
+def do_q(parms):  # "qb/q"  # "q"
     """git checkout"""
 
     exit_after_shparms("git checkout", parms=parms)
 
 
-def do_s(parms):
+def do_s(parms):  # "qb/s"  # "s"
     """sort -"""
 
     exit_after_shparms("sort -", parms=parms)
 
 
-def do_sp(parms):  # FIXME: pull source for 'sponge.py' into here
+def do_sp(parms):  # "qb/sp"  # "sp"  # FIXME: expand 'sponge.py' inline here
     """sponge.py --"""
 
     exit_after_shparms("sponge.py --", parms=parms)
 
 
-def do_t(parms):
+def do_t(parms):  # "qb/t"  # "t"
     """tail -16  # or whatever a third of the screen is"""
 
     rows = byo.shutil_get_tty_height()
@@ -767,13 +790,13 @@ def do_t(parms):
     exit_after_shline(shline)
 
 
-def do_u(parms):
+def do_u(parms):  # "qb/u"  # "u"
     """uniq -c - |expand"""
 
     exit_after_shverb_shparms("uniq -c - |expand", parms=parms)
 
 
-def do_v(parms):
+def do_v(parms):  # "qb/v"  # "v"
     """vim"""
 
     if not parms:  # a la 'byo.exit_if_testdoc'
@@ -789,19 +812,19 @@ def do_v(parms):
     exit_after_shparms("vim", parms=parms)
 
 
-def do_wcl(parms):
+def do_wcl(parms):  # "qb/wcl"  # "wcl"
     """wc -l"""
 
     exit_after_shverb_shparms("wc -l", parms=parms)
 
 
-def do_x(parms):
+def do_x(parms):  # "qb/x"  # "x"
     """hexdump -C"""
 
     exit_after_shverb_shparms("hexdump -C", parms=parms)
 
 
-def do_xp(parms):
+def do_xp(parms):  # "qb/xp"  # "xp"
     """expand"""
 
     exit_after_shparms("expand", parms=parms)
@@ -977,7 +1000,7 @@ def exit_after_shpipe(shpipe):
     shshline = "bash -c {}".format(shlex.quote(shline))
     argv = shlex.split(shshline)
 
-    exit_after_one_argv(shline=shpipe, argv=argv)  # not '(shshline,'
+    exit_after_shline_as_argv(shline=shpipe, argv=argv)  # not '(shshline,'
 
 
 def exit_after_shline(shline):
@@ -985,10 +1008,10 @@ def exit_after_shline(shline):
 
     argv = shlex.split(shline)
 
-    exit_after_one_argv(shline, argv=argv)
+    exit_after_shline_as_argv(shline, argv=argv)
 
 
-def exit_after_one_argv(shline, argv):
+def exit_after_shline_as_argv(shline, argv):
     """Trace as ShLine but run as ArgV, then exit"""
 
     # Collect context  # todo: weakly focuses on first command before '|'

@@ -40,6 +40,9 @@ examples:
   bash.py --  # todo: run as you like it
   command bin/bash.py --  # show the Advanced Bash Install of Bash Py and exit
 
+  set -- --pb "export PS1='\\$ '" && echo "$1" && echo "$2"  # show Words of Line
+  if true; then echo y; else echo n; fi  # show evalled Test is True else False
+
   bash --noprofile --norc  # run with less local quirks
   export |grep SHLVL  # show how deeply incepted
   set |grep -e ^PS1= -e ^PS4=  # show the outer and incepted shell prompts

@@ -36,6 +36,8 @@ examples:
   echo.py --  # echo "+ exit $?"  # mention the last Exit Status ReturnCode once
   command bin/echo.py --  # show the Advanced Bash Install of Echo Py and exit
 
+  echo.py -- ssh.py --pb 'cd /usr/bin' --pb "export PS1='\\$ '"  # echo five Args
+
   echo.py hello; echo.py --  # test Exit Code 0
   rm /dev/null/part; echo.py --  # test Exit Code 1
   bash -c 'exit 3'; echo.py --  # test Exit Code 3
@@ -51,6 +53,8 @@ examples:
 # print("\N{Greek Small Letter Pi}".encode())  # b'\xcf\x80'
 # print("\N{No-Break Space}".encode())  # b'\xc2\xa0'
 
+
+import sys
 
 import byotools as byo
 
@@ -73,6 +77,17 @@ def main():
     """
 
     byo.exit_if_patchdoc(patchdoc)
+
+    if sys.argv[1:2] == ["--"]:
+        for (i, arg) in enumerate(sys.argv):
+            if i:
+                if (i > 1) or (arg != "--"):
+                    print(
+                        "argv {} is {} chars of:  {}".format(i, len(arg), arg).rstrip()
+                    )
+
+        sys.exit(0)
+
     byo.exit()
 
 

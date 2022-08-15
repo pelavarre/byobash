@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""
+r"""
 usage: ssh.py [--h] [-t] [-f CONFIG] ...
 
 shell out to a host
@@ -21,6 +21,8 @@ examples:
   ssh.py  # show these examples and exit
   ssh.py --h  # show this help message and exit
   ssh.py --  # todo: run as you like it
+
+  ssh.py localhost --pb 'cd /usr/bin' --pb "export PS1='\$ '"  # choose remote PWD & PS1
 
   ssh.py  # call Ssh Py with no args to show these examples
   ssh -F /dev/null localhost  # go there without a custom Config File
