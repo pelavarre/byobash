@@ -48,7 +48,7 @@ call Python to filter Lines of the Os Copy/Paste Buffer
   python3 -c 'import this' |tail -n +3 |shpipes.py cv
   pbpaste  # show those nineteen lines built here
 
-  shpipes.py pb 'ssh localhost' 'cd /usr/bin/' "export PS1='\\$ '"
+  shpipes.py pbc 'ssh localhost' 'cd /usr/bin/' "export PS1='\\$ '"
   pbpaste  # show those three lines built here (such that pressing ⌘V will run them)
 
   shpipes.py upper
@@ -119,7 +119,7 @@ examples:
   shpipes.py m  # make --
   shpipes.py mo  # less -FIRX
   shpipes.py n  # cat -n -tv - |expand  # mostly redundant with 'shpipes.c'
-  shpipes.py pb  # (echo "$1"; echo "$2"; ...) |pbcopy
+  shpipes.py pbc  # (echo "$1"; echo "$2"; ...) |pbcopy
   shpipes.py q  # git checkout
   shpipes.py s  # sort -
   shpipes.py sp  # sponge.py --
@@ -301,7 +301,7 @@ def form_shfunc_by_verb():
         m=do_m,  # make --
         mo=do_mo,  # less -FIRX
         n=do_n,  # cat -n -tv - - |expand
-        pb=do_pb,  # (echo "$1"; echo "$2"; ...) |pbcopy
+        pbc=do_pbc,  # (echo "$1"; echo "$2"; ...) |pbcopy
         pbedit=pbedit,  # Call on Vi to edit a Pipe Byte Stream, or on a chosen Editor
         q=do_q,  # git checkout
         s=do_s,  # sort -
@@ -739,7 +739,7 @@ def do_n(parms):  # "qb/n"  # "n"
     exit_after_shpipe(shpipe)
 
 
-def do_pb(parms):  # "qb/pb"  # "pb"
+def do_pbc(parms):  # "qb/pbc"  # "pbc"
     """(echo "$1"; echo "$2"; ...) |pbcopy"""
 
     for parm in parms:
@@ -754,6 +754,9 @@ def do_pb(parms):  # "qb/pb"  # "pb"
     ibytes = ichars.encode()
 
     subprocess.run("pbcopy".split(), input=ibytes, check=True)
+
+    # macOS says "pb" means Os Copy/Paste Buffer, but sadly many people disagree
+    # so we can work "pbp" and "pbc" as abbreviations of "pbpaste" and "pbcopy"
 
 
 def do_q(parms):  # "qb/q"  # "q"
