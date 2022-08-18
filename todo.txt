@@ -3,6 +3,8 @@
 
 ++ dreaming since Aug/2022 ++
 
+v.py:  rewrite so as to keep Search Highlights correct after edits
+
 v.py:  highlight to trail movement after M M until ' M
 v.py:  counter of }{ paragraphs since M M
 

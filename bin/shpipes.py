@@ -128,11 +128,13 @@ examples:
   shpipes.py v  # vim -
   # w often means '/usr/bin/w'
   shpipes.py wcl  # wc -l
-  shpipes.py x  # hexdump -C
+  shpipes.py x  # hexdump -C  # od -A x -t x1 -v
+  shpipes.py xa  # xargs -n 1
   shpipes.py xp  # expand
 """
 # todo:  solve my Sh Rc Aliases:  black flake8 2to3 futurize
 # todo:  solve my Sh Rc Funcs:  :: ? cp dir-p-tac jqd mv o p py pylint pys while_ssh
+# todo:  shpipes.py x  -->  inline hexdump.py
 
 
 import argparse
@@ -422,38 +424,47 @@ def do_cv(parms):  # "qb/cv"  # "cv"
     # Work differently to drain Pb, else fill Pb, else stream through Pb
     # Forward or reject Parms, don't drop them
 
-    if stdin_isatty:  # cv |...
-        # byo.exit_if_rare_parms("shpipes.py cv ...", parms)  # no, not here
+    if stdin_isatty and stdout_isatty:  # cv ...
 
-        exit_after_framed_cv_paste(parms)  # drain Pb, even when last line unclosed
+        exit_after_framed_cv(parms)  # drain Pb, even when last line unclosed
 
-    elif stdout_isatty:  # ... |cv
+    elif stdin_isatty:  # cv ... |...
+
+        exit_after_cv(parms)
+
+    elif stdout_isatty:  # ... |cv ...
         byo.exit_if_rare_parms("shpipes.py ... cv", parms=parms)
 
         exit_after_shline("pbcopy")  # fill Pb
 
-    else:  # ... |cv |...
+    else:  # ... |cv ... |...
         byo.exit_if_rare_parms("shpipes.py ... cv ...", parms=parms)
 
         exit_after_shpipe("tee >(pbcopy)")  # stream through Pb
 
 
-def exit_after_framed_cv_paste(parms):
+def exit_after_framed_cv(parms):
     """Exit after Stderr Frame of Stdout 'pbpaste |cat -n -tv - |expand' for Sep"""
+
+    byo.stderr_print()
+    try:
+        exit_after_cv(parms)
+    finally:
+        sys.stdout.flush()
+        byo.stderr_print()
+
+
+def exit_after_cv(parms):
+    """Exit after 'pbpaste |cat -n -tv - |expand' for Sep"""
 
     (_, _, words) = byo.shlex_parms_partition(parms)
     if words:
-        if main.ext is None:
+        if main.ext is None:  # such as: todo
             exit_after_cv_cv_pipe(parms)
-        else:
+        else:  # such as: todo
             exit_after_cv_cv_pipe(["--ext={}".format(main.ext)] + parms)
 
-    sys.stdout.flush()  # todo: adopt byo.stderr_print
-    try:
-        exit_after_cv_pbpaste(parms)
-    finally:
-        sys.stdout.flush()
-        byo.stderr_print()  # too late somehow
+    exit_after_cv_pbpaste(parms)  # such as: todo
 
 
 def exit_after_cv_pbpaste(parms):
@@ -461,16 +472,16 @@ def exit_after_cv_pbpaste(parms):
 
     if not parms:
 
-        exit_after_shpipe("pbpaste\n")
+        exit_after_shpipe("pbpaste")
 
     (options, seps, words) = byo.shlex_parms_partition(parms)
     if seps and not (options or words):
-        shpipe = "pbpaste |cat -n -tv - |expand\n"
+        shpipe = "pbpaste |cat -n -tv - |expand"
 
         exit_after_shpipe(shpipe)
 
     shparms = byo.shlex_djoin(parms)
-    shpipe = "pbpaste |cat {} |expand\n".format(shparms)
+    shpipe = "pbpaste |cat {} |expand".format(shparms)
 
     exit_after_shpipe(shpipe)
 
@@ -825,6 +836,12 @@ def do_x(parms):  # "qb/x"  # "x"
     """hexdump -C"""
 
     exit_after_shverb_shparms("hexdump -C", parms=parms)
+
+
+def do_xa(parms):  # "qb/xa"  # "xa"
+    """xargs -n 1"""
+
+    exit_after_shverb_shparms("xargs -n 1", parms=parms)
 
 
 def do_xp(parms):  # "qb/xp"  # "xp"

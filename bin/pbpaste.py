@@ -28,6 +28,8 @@ examples:
   qb/cv |expand.py --| tee >(qb/cv)
 """
 
+# todo: option to always close the last Line, a la:  pbpaste |xargs -n 1
+
 
 import sys
 
