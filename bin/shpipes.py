@@ -830,7 +830,7 @@ def do_v(parms):  # "qb/v"  # "v"
     if not parms:  # a la 'byo.exit_if_testdoc'
 
         print()
-        print("ls |vi -")
+        print("ls |vi -  # fills Vi with Pipe")
         print()
 
         sys.exit(0)  # exits 0 after printing Help Lines

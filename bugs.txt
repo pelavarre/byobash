@@ -4,15 +4,6 @@
 ++ dreaming since Aug/2022 ++
 
 
-% v
-
-ls |vi -
-
-%
-% : # 'correct promise, but somehow does Not launch Vi'
-%
-
-
 % = dt.timedelta:days=45
 Traceback (most recent call last):
   File "/Users/plavarre/Public/byobash/bin/byopyvm.py", line 2595, in <module>
