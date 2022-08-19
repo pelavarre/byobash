@@ -136,6 +136,8 @@ examples:
 
   shpipes.py cv  # pbpaste  # but framed by 1 Blank Stderr Line above, & 1 below
   shpipes.py cv --  # pbpaste |cat -n -tv - |expand  # framed and numbered
+  shpipes.py cv dent  # as if:  cv sed 's,^,    ,'
+  shpipes.py cv dedent  # as if:  cv sed 's,^    ,,'
 """
 # todo:  solve my Sh Rc Aliases:  black flake8 2to3 futurize
 # todo:  solve my Sh Rc Funcs:  :: ? cp dir-p-tac jqd mv o p py pylint pys while_ssh
@@ -226,6 +228,8 @@ def exit_via_main_parms(parms):
     exit_if_shverb([shverb] + parms)
 
     # Autocomplete & run (or just print) the Code
+
+    exit_if_rare_autocomplete(shverb, parms=parms)
 
     main.shverb = shverb
     exit_after_autocomplete(parms)
@@ -435,7 +439,7 @@ def do_cv(parms):  # "qb/cv"  # "cv"
 
     elif stdin_isatty:  # cv ... |...
 
-        exit_after_cv(parms)
+        exit_after_cv(parms)  # drains Pb  # todo: close the last line, when it's open
 
     elif stdout_isatty:  # ... |cv ...
         byo.exit_if_rare_parms("shpipes.py ... cv", parms=parms)
@@ -453,7 +457,9 @@ def exit_after_framed_cv(parms):
 
     byo.stderr_print()
     try:
-        exit_after_cv(parms)
+
+        exit_after_cv(parms)  # such as:  cv
+
     finally:
         sys.stdout.flush()
         byo.stderr_print()
@@ -464,12 +470,15 @@ def exit_after_cv(parms):
 
     (_, _, words) = byo.shlex_parms_partition(parms)
     if words:
-        if main.ext is None:  # such as:  todo
+        if main.ext is None:  # such as:  cv dent
+
             exit_after_cv_cv_pipe(parms)
-        else:  # such as:  todo
+
+        else:  # such as:  cv --e dent
+
             exit_after_cv_cv_pipe(["--ext={}".format(main.ext)] + parms)
 
-    exit_after_cv_pbpaste(parms)  # such as:  todo
+    exit_after_cv_pbpaste(parms)  # such as:  cv |n
 
 
 def exit_after_cv_pbpaste(parms):
@@ -1197,7 +1206,65 @@ def exit_if_shverb(parms):
 
 
 #
-# Autocomplete & run fragments of Python
+# Autocomplete & trace, or run, rare fragments of Python
+#
+
+
+def exit_if_rare_autocomplete(shverb, parms):
+    """Autocomplete & run the Code & exit, else return"""
+
+    if main.ext is None:
+        if not parms:
+            if shverb == "dent":
+                exit_after_dent()
+            elif shverb == "dedent":
+                exit_after_dedent()
+
+
+def exit_after_dent():
+    """Insert 4 Spaces to the left of each Line"""
+
+    byo.stderr_print("+ py dent 4")
+
+    with open("/dev/stdin", "rb") as reading:
+        with open("/dev/stdout", "wb") as writing:
+
+            for iline in reading.readlines():
+                ibytes = iline.splitlines()[0]
+                itail = iline[len(ibytes) :]
+                ichars = ibytes.decode(errors="surrogateescape")
+
+                ochars = "    " + ichars
+
+                obytes = ochars.encode(errors="surrogateescape")
+                writing.write(obytes + itail)
+
+    sys.exit()  # exits None after running auto-complete'd Python
+
+
+def exit_after_dedent():
+    """Delete 4 Spaces at the left of each Line that begins with 4 Spaces"""
+
+    byo.stderr_print("+ py dedent 4")
+
+    with open("/dev/stdin", "rb") as reading:
+        with open("/dev/stdout", "wb") as writing:
+
+            for iline in reading.readlines():
+                ibytes = iline.splitlines()[0]
+                itail = iline[len(ibytes) :]
+                ichars = ibytes.decode(errors="surrogateescape")
+
+                ochars = byo.str_removeprefix(ichars, prefix="    ")
+
+                obytes = ochars.encode(errors="surrogateescape")
+                writing.write(obytes + itail)
+
+    sys.exit()  # exits None after running auto-complete'd Python
+
+
+#
+# Autocomplete & trace, or run, common fragments of Python
 #
 
 
@@ -1230,19 +1297,21 @@ def exit_after_autocomplete(parms):
 
                 for iline in reading.readlines():
                     ibytes = iline.splitlines()[0]
-                    iclose = byo.bytes_removeprefix(iline, ibytes)
+                    itail = iline[len(ibytes): ]
                     ichars = ibytes.decode()
 
                     ochars = ichars
 
                     obytes = ochars.encode()
-                    writing.write(obytes + iclose)
+                    writing.write(obytes + itail)
     '''
 
     pysource = textwrap.dedent(pysource)
 
     doc = "Run Py Code autocompleted by:  {}".format(byo.shlex_djoin(sys.argv))
     pysource = pysource.format(doc=doc)
+    # todo: abbreviate sys.argv[0] to home path
+    # todo: expand '--ext=' to an explicit '--ext=.py'
 
     # Patch up Py Source, so as to autocomplete the argv
 
@@ -1261,11 +1330,17 @@ def exit_after_autocomplete(parms):
     if main.ext is not None:
         byo.stderr_print("{}".format(pysource))
 
+        raise NotImplementedError(
+            "todo: trace unabbreviated Python", main.shverb, parms
+        )
+
         sys.exit(0)  # exits 0 after printing Help Lines
 
     # Else run and exit
 
     if True:
+
+        raise NotImplementedError("todo: run unabbreviated Python", main.shverb, parms)
 
         exec(pysource)
 
@@ -1276,13 +1351,13 @@ def exit_after_autocomplete(parms):
 
                 for iline in reading.readlines():
                     ibytes = iline.splitlines()[0]
-                    iclose = byo.bytes_removeprefix(iline, ibytes)
+                    itail = iline[len(ibytes) :]
                     ichars = ibytes.decode()
 
                     ochars = str.upper(ichars)
 
                     obytes = ochars.encode()
-                    writing.write(obytes + iclose)
+                    writing.write(obytes + itail)
 
     sys.exit()  # exits None after running Code
 

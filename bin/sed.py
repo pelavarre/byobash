@@ -29,7 +29,9 @@ examples:
   echo a b c d e |tr ' ' '\n' |sed -n -e '1p' -e '$p'  # first, last
   echo a b c d e |tr ' ' '\n' |sed -n -e '1,2p' -e $'3i\\\n...' -e '$p'  # head, tail
 
-   echo a b c |tr ' ' '\n' |sed 's,.*,&\n,'  # insert empty lines between lines
+  echo a b c |tr ' ' '\n' |sed 's,.*,&\n,'  # insert empty lines between lines
+
+  echo $'\xCF\x4D\x2D' |sed 's,^,,'  # 'sed: RE error: illegal byte sequence' at Mac
 """
 
 # todo: grow default w Screen Height
