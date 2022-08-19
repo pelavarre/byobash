@@ -33,6 +33,8 @@ import byotools as byo
 byo.exit(__name__)
 
 
+# todo: make sense of C E at 'one  two' does leave both spaces in place
+
 # todo: vim options akin to less -FIRX
 
 # todo: vim $(which ...)

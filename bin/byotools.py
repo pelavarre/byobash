@@ -9,9 +9,9 @@ usage: python3 bin/byotools.py  # run Self-Test's
 bundle the Python you need to make Sh welcome you sincerely and competently
 
 examples:
-  byo.exit()  # take no Parms to print Examples, '--help' to print Help, else just work
-  byo.exit(__name__)  # like 'byo.exit()' but return without exit when imported
-  byo.exit(shparms="--")  # like 'byo.exit()' but return when the only Parm is '--'
+  byo.exit()  # takes no Parms to print Examples, '--help' to print Help, else just work
+  byo.exit(__name__)  # like 'byo.exit()' but returns without exit when imported
+  byo.exit(shparms="--")  # like 'byo.exit()' but returns when the only Parm is '--'
 """
 
 
@@ -89,7 +89,7 @@ def exit_if_testdoc():
 
     parms = sys.argv[1:]
 
-    _ = fetch_testdoc()  # always fetch, sometimes print
+    _ = fetch_testdoc()  # always fetches, sometimes prints
 
     if not parms:
 
@@ -102,10 +102,10 @@ def exit_after_testdoc():
     testdoc = fetch_testdoc()
 
     print()
-    print(testdoc.strip())  # frame by 1 Empty Line above, and 1 Empty Line below
+    print(testdoc.strip())  # frames with 1 Empty Line above, and 1 Empty Line below
     print()
 
-    sys.exit(0)  # Exit 0 after printing Help Lines
+    sys.exit(0)  # exits 0 after printing Help Lines
 
 
 def fetch_testdoc():
@@ -177,7 +177,7 @@ def exit_if_argdoc():
 
     parms = sys.argv[1:]
 
-    _ = fetch_argdoc()  # always fetch, sometimes print
+    _ = fetch_argdoc()  # always fetches, sometimes prints
 
     if shlex_parms_want_help(parms):
 
@@ -200,15 +200,15 @@ def fetch_argdoc():
 def exit_after_argdoc():
     """Exit after printing an ArgDoc of Help Lines"""
 
-    argdoc = fetch_argdoc()  # always fetch, sometimes print
+    argdoc = fetch_argdoc()  # always fetches, sometimes prints
 
     print()
     print()
-    print(argdoc.strip())  # frame by 2 Empty Lines above, and 2 Empty Lines below
+    print(argdoc.strip())  # frames with 2 Empty Lines above, and 2 Empty Lines below
     print()
     print()
 
-    sys.exit(0)  # Exit 0 after printing Help Lines
+    sys.exit(0)  # exits 0 after printing Help Lines
 
 
 #
@@ -221,7 +221,7 @@ def exit_if_patchdoc(fetched_patchdoc):
 
     parms = sys.argv[1:]
 
-    _ = fetch_patchdoc(fetched_patchdoc)  # always fetch, sometimes print
+    _ = fetch_patchdoc(fetched_patchdoc)  # always fetches, sometimes prints
 
     if parms == ["--"]:
 
@@ -234,10 +234,10 @@ def exit_after_patchdoc(fetched_patchdoc):
     patchdoc = fetch_patchdoc(fetched_patchdoc)
 
     print()
-    print(patchdoc.strip())  # frame by 1 Empty Line above, and 1 Empty Line below
+    print(patchdoc.strip())  # frames with  1 Empty Line above, and 1 Empty Line below
     print()
 
-    sys.exit(0)  # Exit 0 after printing Help Lines
+    sys.exit(0)  # exits 0 after printing Help Lines
 
 
 def fetch_patchdoc(fetched_patchdoc):  # todo: pick the PatchDoc out of the ArgDoc
@@ -289,7 +289,7 @@ def exit_if_rare_parms(shline, parms):
     shparms = shlex_djoin(parms)
     stderr_print("{}: ERROR: unrecognized arguments: {}".format(shline, shparms))
 
-    sys.exit(2)  # Exit 2 for rare usage
+    sys.exit(2)  # exits 2 for rare usage
 
 
 def exit_after_shverb():
@@ -310,7 +310,7 @@ def exit_after_shverb():
         )
     )
 
-    sys.exit(2)  # Exit 2 for rare usage
+    sys.exit(2)  # exits 2 for rare usage
 
 
 def exit_if_shverb(argv):
@@ -352,7 +352,7 @@ def exit_after_some_argv(argvs):
     for argv in argvs:
         subprocess_run_loud(argv, stdin=None)  # FIXME: when to chop off Tty Stdin
 
-    sys.exit()  # Exit None after every ArgV exits Falsey
+    sys.exit()  # exits None after every ArgV exits Falsey
 
 
 def exit_after_one_argv(argv):
@@ -360,7 +360,7 @@ def exit_after_one_argv(argv):
 
     subprocess_run_loud(argv, stdin=None)  # FIXME: when to chop off Tty Stdin
 
-    sys.exit()  # Exit None after an ArgV exits Falsey
+    sys.exit()  # exits None after an ArgV exits Falsey
 
 
 def exit_after_print_raise(exc):
@@ -375,7 +375,7 @@ def exit_after_print_raise(exc):
 
     stderr_print(str_raise)
 
-    sys.exit(1)  # Exit 1 for Unhandled Exception
+    sys.exit(1)  # exits 1 for Unhandled Exception
 
 
 #
@@ -763,7 +763,7 @@ def exit_unless_doc_eq(doc, parser):
     if difflines:
         print("\n".join(difflines))
 
-        sys.exit(1)  # trust caller to log SystemExit exceptions well
+        sys.exit(1)  # trusts the caller to log SystemExit exceptions well
 
 
 def parse_epi_args(epi):
@@ -867,13 +867,13 @@ def shlex_dquote(parm):
 
     unplain_set = set(parm) - set(SH_PLAIN)
 
-    if parm.startswith("^"):  # Forward the ^ Caret as start of Parm
+    if parm.startswith("^"):  # forwards the ^ Caret as start of Parm
         unplain_set = set(parm[1:]) - set(SH_PLAIN)
 
-    if not parm.startswith("~"):  # Forward the ~ Tilde if after start of Parm
+    if not parm.startswith("~"):  # forwards the ~ Tilde if after start of Parm
         unplain_set = unplain_set - set("~")
 
-    if (parm.count("{") == 1) and (parm.count("}") == 1):  # Forward {} wout ,
+    if (parm.count("{") == 1) and (parm.count("}") == 1):  # forwards {} wout ,
         head = parm.partition("{")[0]
         tail = parm.rpartition("}")[-1]
         if "," not in (head + tail):  # todo: overly restrictive for:  echo ,}{,
@@ -931,7 +931,7 @@ def shlex_quote(parm):  # missing from Python till Oct/2019 Python 3.8
 
     quoted = repr(parm)  # as if the Py rules agree with Sh rules
 
-    return quoted  # such as print(shlex_quote("<=>"))  # the 5 chars '<=>'
+    return quoted  # such as:  print(shlex_quote("<=>"))  # the 5 chars '<=>'
 
     # test results with:  python3 -c 'import sys; print(sys.argv)' ...
 
@@ -940,7 +940,7 @@ def shlex_parms_want_help(parms):
     """Return Truthy if '--help' or '--hel' or ... '--h' before '--'"""
 
     for parm in parms:
-        if parm == "--":  # ignore '--help' etc after '--'
+        if parm == "--":  # ignores '--help' etc after '--'
 
             break
 
@@ -1012,7 +1012,7 @@ def shlex_parms_pop_option_value(parms, option, enough, const):
                             )
                         )
 
-                        sys.exit(2)  # Exit 2 for rare usage
+                        sys.exit(2)  # exits 2 for rare usage
 
             # Pop the Option and its Value too
 
@@ -1095,10 +1095,10 @@ def shutil_get_tty_width():  # from $COLUMNS, else Stdout, else DevTty
 def shutil_get_tty_size():
     """Count Screen Rows & Columns from $LINES & $COLUMNS, else Stdout, else Dev Tty"""
 
-    if sys.__stdout__.isatty():  # show how to call simpler 'os.' in place of 'shutil.'
+    if sys.__stdout__.isatty():  # shows how to call simpler 'os.' in place of 'shutil.'
         _ = os.get_terminal_size(sys.__stdout__.fileno())
 
-    with open("/dev/tty", "r") as tty:  # replace the cheap Fallback of (80, 24)
+    with open("/dev/tty", "r") as tty:  # replaces the cheap Fallback of (80, 24)
         fallback_size = os.get_terminal_size(tty.fileno())
 
     size = shutil.get_terminal_size(fallback=fallback_size)
@@ -1125,7 +1125,7 @@ def subprocess_run_loud(argv, shpipe=None, stdin=subprocess.PIPE, stdout=None):
     if run.returncode:  # as if 'check=True'
         stderr_print("{}: + exit {}".format(main_py_basename, run.returncode))
 
-        sys.exit(run.returncode)  # Pass back a NonZero Exit Status ReturnCode
+        sys.exit(run.returncode)  # exits same NonZero
 
 
 # deffed in many files  # missing from docs.python.org
@@ -1217,11 +1217,11 @@ def stdin_readline_else():
         sys.stderr.write("\n")
         sys.stderr.write("KeyboardInterrupt\n")
 
-        sys.exit(SIGINT_RETURNCODE_130)  # Exit 130 to say KeyboardInterrupt SIGINT
+        sys.exit(SIGINT_RETURNCODE_130)  # exits 130 to say KeyboardInterrupt SIGINT
 
-    if not line:  # echoed as "^D\n" at Mac, echoed as "\n" at Linux
+    if not line:  # echoes as "^D\n" at Mac, echoes as "\n" at Linux
 
-        sys.exit(0)  # Exit 0 to say Stdin Closed
+        sys.exit(0)  # exits 0 to say Stdin Closed
 
     chars = line.splitlines()[0]
 
@@ -1257,11 +1257,11 @@ class BrokenPipeSink:  # todo: add calls of it, don't just define it
             except BrokenPipeError as broken_pipe_error:
                 exc = broken_pipe_error
 
-        if isinstance(exc, BrokenPipeError):  # catch this one
+        if isinstance(exc, BrokenPipeError):  # catches this one Exception
             null_fileno = os.open(os.devnull, flags=os.O_WRONLY)
-            os.dup2(null_fileno, sys.stdout.fileno())  # duck the rest of them
+            os.dup2(null_fileno, sys.stdout.fileno())  # ducks the other Exceptions
 
-            sys.exit(self.returncode)  # Exit 141, or as chosen, after BrokenPipeError
+            sys.exit(self.returncode)  # exits 141, or as chosen, after BrokenPipeError
 
         # intervenes more narrowly than:
         #
@@ -1285,13 +1285,13 @@ QUOTED_ALT_MAIN_DOC = """
 
     examples:
 
-      ls -1 byotools.py p.py  # show you have come to work here with us
+      ls -1 byotools.py p.py  # shows you have come to work here with us
 
-      python3 p.py  # show these examples and exit
-      python3 p.py --h  # show this help message and exit
-      python3 p.py --  # do your choice of some other work for you
+      python3 p.py  # shows these examples and exit
+      python3 p.py --h  # shows this help message and exit
+      python3 p.py --  # does your choice of some other work for you
 
-      less -N -FIRX p.py  # show how this works
+      less -N -FIRX p.py  # shows how this works
 
 """
 

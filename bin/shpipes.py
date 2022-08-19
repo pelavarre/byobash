@@ -39,17 +39,17 @@ slang:
 
 Bash Install:
 
-  source qb/env-path-append.source  # define 'c', 'cv', 'd', 'g', 'gi', and so on
-  bash qb/env-path-append.source  # show how it works
-  export PATH="${PATH:+$PATH:}~/Public/byobash/qb"  # clone it into '~/.bashrc' yourself
+  source qb/env-path-append.source  # defines 'c', 'cv', 'd', 'g', 'gi', and so on
+  bash qb/env-path-append.source  # shows how to patch it into your Sh Path
+  export PATH="${PATH:+$PATH:}~/Public/byobash/qb"  # does patch it into your Sh Path
 
 call Python to filter Lines of the Os Copy/Paste Buffer
 
   python3 -c 'import this' |tail -n +3 |shpipes.py cv
-  pbpaste  # show those nineteen lines built here
+  pbpaste  # shows those nineteen lines built here
 
   shpipes.py pbc 'ssh localhost' 'cd /usr/bin/' "export PS1='\\$ '"
-  pbpaste  # show those three lines built here (such that pressing ⌘V will run them)
+  pbpaste  # shows those three lines built here (such that pressing ⌘V will run them)
 
   shpipes.py upper
   shpipes.py split
@@ -58,7 +58,7 @@ call Python to filter Lines of the Os Copy/Paste Buffer
   echo '  abc  ' |shpipes.py lstrip |cat -etv
   find . |shpipes.py 're.sub(r"/.*$", "/..."'
 
-  shpipes.py --ext=.py lstrip  # print how it works, don't do it
+  shpipes.py --ext=.py lstrip  # prints how it works, doesn't do it
 
 call Python to filter whole Copies of the Os Copy/Paste Buffer
 
@@ -69,35 +69,26 @@ call Python to filter whole Copies of the Os Copy/Paste Buffer
 
 call Sh to filter Lines of the Os Copy/Paste Buffer
 
-  shpipes.py cv cut -d/ -f4-  # drop 'http://.../' suffix
-  shpipes.py cv a '?' 1  # pbpaste |awk -F'?' '{print $1}' |pbcopy  # drop tracking tags
+  shpipes.py cv cut -d/ -f4-  # drops 'http://.../' suffix
+  shpipes.py cv a '?' 1  # pbpaste |awk -F'?' '{print $1}' |pbcopy  # drops trackers
   shpipes.py cv awk -F'?' '{print $1}'  # same work, but not so abbreviated
   shpipes.py cv sponge  # works even while "bash -c 'sponge'" is missing
 
-  shpipes.py --ext=.sh lstrip  # print how it works, don't do it
+  shpipes.py --ext=.sh lstrip  # prints how it works, doesn't do it
 
 examples:
 
-  shpipes.py  # show these examples and exit
-  shpipes.py --h  # show this help message and exit
-  shpipes.py --  # call on Vi to edit the Os Copy/Paste Buffer
-
-  shpipes.py pbedit vi +$  # call on 'vi +$' to edit the Os Copy/Paste Buffer
-  shpipes.py pbedit emacs -nw  # call on 'emacs -nw' to edit the Os Copy/Paste Buffer
-
   shpipes.py a  # awk '{print $NF}'  # usage: a, a SEP, a INDEX, a SEP INDEX, etc
-  shpipes.py a 0  # awk '{print $0}'  # close every Line
-  shpipes.py a /  # awk -F/ '{print $NF}'  # pick Basename out of Path
-  shpipes.py a / 1 # awk '{print $1}'  # print Top DirName out of Path
-  shpipes.py a / -1 # awk '{print $(NF - 1)}'  # pick Dir of Basename out of Path
+  shpipes.py a 0  # awk '{print $0}'  # closes every Line, same as:  shpipes.py xa
+  shpipes.py a /  # awk -F/ '{print $NF}'  # picks Basename out of Path
+  shpipes.py a / 1 # awk '{print $1}'  # prints Top DirName out of Path
+  shpipes.py a / -1 # awk '{print $(NF - 1)}'  # picks Dir of Basename out of Path
 
   shpipes.py c  # cat - >/dev/null
   shpipes.py c --  # ... |cat -n -tv - |expand  # shows PbPaste endswith unclosed Line
   shpipes.py c |sort  # cat - |sort
   shpipes.py echo abc |c  # cat -n -tv - |expand
 
-  shpipes.py cv  # pbpaste  # but framed by 1 Blank Stderr Line above, & 1 below
-  shpipes.py cv --  # pbpaste |cat -n -tv - |expand  # but framed
   shpipes.py cv -etv  # pbpaste |cat -etv |expand  # but framed
   echo -n abcde |shpipes.py cv  # ... |pbcopy
   echo abcdef |shpipes.py cv |cat -  # ... |tee >(pbcopy) |...
@@ -106,6 +97,7 @@ examples:
   shpipes.py e  # emacs -nw --no-splash --eval '(menu-bar-mode -1)'
   shpipes.py em  # emacs -nw --no-splash --eval '(menu-bar-mode -1)'
   shpipes.py f  # find . -not -type d -not -path './.git/*' |less -FIRX  # Mac needs .
+  # 'g' often means 'git'
   shpipes.py g  # grep -i .
   shpipes.py gi  # grep .  # without '-i'
   shpipes.py gl  # grep -ilR
@@ -115,22 +107,35 @@ examples:
   shpipes.py h  # head -16  # or whatever a third of the screen is
   shpipes.py hi  # history  # but include the '~/.bash_histories/' dir
   shpipes.py ht  # sed -n -e '1,2p;3,3s/.*/&\n.../p;$p'  # Head and also Tail
-  # l often means 'ls -CF' or 'less -FIRX'
+  # 'l' often means 'ls -CF' or 'less -FIRX'
   shpipes.py m  # make --
   shpipes.py mo  # less -FIRX
   shpipes.py n  # cat -n -tv - |expand  # mostly redundant with 'shpipes.c'
-  shpipes.py pbc  # (echo "$1"; echo "$2"; ...) |pbcopy
+  # 'pb' often doesn't mean Paste Buffer of macOS Copy/Paste
+  shpipes.py pbc ...  # (echo "$1"; echo "$2"; ...) |pbcopy
   shpipes.py q  # git checkout
   shpipes.py s  # sort -
   shpipes.py sp  # sponge.py --
   shpipes.py t  # tail -16  # or whatever a third of the screen is
   shpipes.py u  # uniq -c - |expand
   shpipes.py v  # vim -
-  # w often means '/usr/bin/w'
+  # 'w' often means '/usr/bin/w'
   shpipes.py wcl  # wc -l
   shpipes.py x  # hexdump -C  # od -A x -t x1 -v
   shpipes.py xa  # xargs -n 1
   shpipes.py xp  # expand
+
+examples:
+
+  shpipes.py  # shows these examples and exits
+  shpipes.py --h  # shows this help message and exits
+  shpipes.py --  # calls on Vi to edit the Os Copy/Paste Buffer
+
+  shpipes.py pbedit vi +$  # calls on 'vi +$' to edit the Os Copy/Paste Buffer
+  shpipes.py pbedit emacs -nw  # calls on 'emacs -nw' to edit the Os Copy/Paste Buffer
+
+  shpipes.py cv  # pbpaste  # but framed by 1 Blank Stderr Line above, & 1 below
+  shpipes.py cv --  # pbpaste |cat -n -tv - |expand  # framed and numbered
 """
 # todo:  solve my Sh Rc Aliases:  black flake8 2to3 futurize
 # todo:  solve my Sh Rc Funcs:  :: ? cp dir-p-tac jqd mv o p py pylint pys while_ssh
@@ -271,13 +276,13 @@ def exit_after_shfunc(shfunc, parms):
                 )
             )
 
-            sys.exit(2)  # Exit 2 for rare usage
+            sys.exit(2)  # exits 2 for rare usage
 
     # Trace and call and exit
 
-    shfunc(parms)  # call this cryptically abbreviated ShFunc
+    shfunc(parms)
 
-    sys.exit()  # Exit None after this cryptically abbreviated ShFunc
+    sys.exit()  # exits None after a Cryptically Abbreviated ShFunc
 
 
 def form_shfunc_by_verb():
@@ -348,11 +353,11 @@ def awk_parms_to_sep_repr_index(parms):
     sep = None
     repr_index = None
 
-    if parms[2:]:  # Forward Parms transparently, when there are many
+    if parms[2:]:  # forwards Parms transparently, when there are many
 
         pass
 
-    elif parms[1:]:  # Take usage: AWK_SEP (.|AWK_INDEX)
+    elif parms[1:]:  # takes usage: AWK_SEP (.|AWK_INDEX)
 
         if len(parms[0]) == 1:
             if re.match(r"^[-+]?[0-9]+$", string=parms[1]) or (parms[1] == "."):
@@ -360,7 +365,7 @@ def awk_parms_to_sep_repr_index(parms):
                 int_index = None if (parms[1] == ".") else int(parms[1])
                 repr_index = awk_repr_index(int_index)
 
-    elif parms:  # Take usage: .|AWK_INDEX|AWK_SEP
+    elif parms:  # takes usage: .|AWK_INDEX|AWK_SEP
 
         if re.match(r"^[-+]?[0-9]+$", string=parms[0]) or (parms[0] == "."):
             int_index = None if (parms[0] == ".") else int(parms[0])
@@ -426,7 +431,7 @@ def do_cv(parms):  # "qb/cv"  # "cv"
 
     if stdin_isatty and stdout_isatty:  # cv ...
 
-        exit_after_framed_cv(parms)  # drain Pb, even when last line unclosed
+        exit_after_framed_cv(parms)  # drains Pb, even when last line unclosed
 
     elif stdin_isatty:  # cv ... |...
 
@@ -435,12 +440,12 @@ def do_cv(parms):  # "qb/cv"  # "cv"
     elif stdout_isatty:  # ... |cv ...
         byo.exit_if_rare_parms("shpipes.py ... cv", parms=parms)
 
-        exit_after_shline("pbcopy")  # fill Pb
+        exit_after_shline("pbcopy")  # fills Pb
 
     else:  # ... |cv ... |...
         byo.exit_if_rare_parms("shpipes.py ... cv ...", parms=parms)
 
-        exit_after_shpipe("tee >(pbcopy)")  # stream through Pb
+        exit_after_shpipe("tee >(pbcopy)")  # streams through Pb
 
 
 def exit_after_framed_cv(parms):
@@ -459,12 +464,12 @@ def exit_after_cv(parms):
 
     (_, _, words) = byo.shlex_parms_partition(parms)
     if words:
-        if main.ext is None:  # such as: todo
+        if main.ext is None:  # such as:  todo
             exit_after_cv_cv_pipe(parms)
-        else:  # such as: todo
+        else:  # such as:  todo
             exit_after_cv_cv_pipe(["--ext={}".format(main.ext)] + parms)
 
-    exit_after_cv_pbpaste(parms)  # such as: todo
+    exit_after_cv_pbpaste(parms)  # such as:  todo
 
 
 def exit_after_cv_pbpaste(parms):
@@ -519,7 +524,7 @@ def exit_after_cv_cv_pipe(parms):
 
     stdout_dump(obytes)
 
-    sys.exit()  # Exit None after running Code
+    sys.exit()  # exits None after running Code
 
 
 def subprocess_run_self(parms):
@@ -543,7 +548,7 @@ def subprocess_run_self(parms):
             if run.returncode:
                 byo.stderr_print("+ exit {}".format(run.returncode))
 
-                sys.exit(run.returncode)  # Pass back a NonZero Exit Status ReturnCode
+                sys.exit(run.returncode)  # passes back a NonZero Exit Status ReturnCode
 
             #
 
@@ -587,7 +592,7 @@ def do_em(parms):  # "qb/em"  # "em"
         print("emacs -nw --no-splash --eval '(menu-bar-mode -1)'")
         print()
 
-        sys.exit(0)  # Exit 0 after printing Help Lines
+        sys.exit(0)  # exits 0 after printing Help Lines
 
     byo.stderr_print(
         "shpipes.py {}: Press Esc X revert Tab Return, and ⌃X⌃C, to quit".format(
@@ -634,12 +639,12 @@ def do_g_parms_shoptions_shwords(parms, shoptions, shwords=None):
 
         exit_after_shparms(shline, parms=parms)
 
-    # Else default to Options and Words
+    # Else default to Options and Words, except also add Color into a Tty Stdout
 
     options = shlex.split(shoptions)
     if stdout_isatty:
         if shwords:
-            options.append("--color=yes")  # Also add '--color=yes' into Options
+            options.append("--color=auto")
 
     if not words:
         if shwords:
@@ -819,7 +824,7 @@ def do_v(parms):  # "qb/v"  # "v"
         print("ls |vi -")
         print()
 
-        sys.exit(0)  # Exit 0 after printing Help Lines
+        sys.exit(0)  # exits 0 after printing Help Lines
 
     byo.stderr_print("shpipes.py v: Press ⇧Z ⇧Q to quit")
 
@@ -983,7 +988,7 @@ def exit_after_shparms(shline, parms):
             rindex = shline.rindex(mark)
             rindices.append(rindex)
 
-    rindex = min(rindices)  # Place the Parms inside the ShLine, else past its End
+    rindex = min(rindices)  # places the Parms inside the ShLine, else past its End
 
     # Forward the Parms
 
@@ -1073,7 +1078,7 @@ def exit_after_shline_as_argv(shline, argv):
 
     if main.ext is not None:
 
-        sys.exit(0)  # Exit 0 after printing Help Lines
+        sys.exit(0)  # exits 0 after printing Help Lines
 
     # Run the Code
 
@@ -1088,14 +1093,14 @@ def exit_after_shline_as_argv(shline, argv):
 
         assert SIGINT_RETURNCODE_130 == 130, SIGINT_RETURNCODE_130
 
-        sys.exit(SIGINT_RETURNCODE_130)  # Exit 130 to say KeyboardInterrupt SIGINT
+        sys.exit(SIGINT_RETURNCODE_130)  # exits 130 to say KeyboardInterrupt SIGINT
 
-    if run.returncode:  # Exit early, at the first NonZero Exit Status ReturnCode
+    if run.returncode:  # exits early, at the first NonZero Exit Status ReturnCode
         byo.stderr_print("+ exit {}".format(run.returncode))
 
-        sys.exit(run.returncode)  # Pass back a NonZero Exit Status ReturnCode
+        sys.exit(run.returncode)  # passes back a NonZero Exit Status ReturnCode
 
-    sys.exit()  # Exit None after this Subprocess
+    sys.exit()  # exits None after this Subprocess
 
 
 def form_tty_prompt(stdin_ispipe, shline, shverb):
@@ -1184,7 +1189,7 @@ def exit_if_shverb(parms):
             )
         )
 
-        sys.exit(2)  # Exit 2 for rare usage
+        sys.exit(2)  # exits 2 for rare usage
 
     # Else trace and call and exit
 
@@ -1211,7 +1216,7 @@ def exit_after_autocomplete(parms):
                 )
             )
 
-            sys.exit(2)  # Exit 2 for rare usage
+            sys.exit(2)  # exits 2 for rare usage
 
     # Compose Py Source
 
@@ -1256,7 +1261,7 @@ def exit_after_autocomplete(parms):
     if main.ext is not None:
         byo.stderr_print("{}".format(pysource))
 
-        sys.exit(0)  # Exit 0 after printing Help Lines
+        sys.exit(0)  # exits 0 after printing Help Lines
 
     # Else run and exit
 
@@ -1279,7 +1284,7 @@ def exit_after_autocomplete(parms):
                     obytes = ochars.encode()
                     writing.write(obytes + iclose)
 
-    sys.exit()  # Exit None after running Code
+    sys.exit()  # exits None after running Code
 
 
 #

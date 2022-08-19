@@ -41,9 +41,9 @@ quick start:
 
 examples:
 
-  byopyvm.py  # show these examples and exit
-  byopyvm.py --h  # show this help message and exit
-  command bin/byopyvm.py --  # show the Advanced Bash Install of ByoPyVm Py and exit
+  byopyvm.py  # shows these examples and exits
+  byopyvm.py --h  # shows this help message and exits
+  command bin/byopyvm.py --  # shows the Advanced Bash Install of ByoPyVm Py and exits
 
   # Maths
 
@@ -107,7 +107,7 @@ _ = pdb
 
 BUTTONFILE_TESTCHARS = """
 
-    @  # show these examples and exit
+    @  # shows these examples and exits
 
     # usage:  / * - + . , pi π i e over pow sqrt √ clear
 
@@ -186,14 +186,14 @@ BUTTONFILE_TESTDOC = textwrap.dedent(BUTTONFILE_TESTCHARS).strip()
 BY_NICKNAME = dict(D="decimal", dt="datetime", pd="pandas")  # abbreviate Module Names
 
 EPSILON = 0  # last wins
-EPSILON = 1e-15  # say how much to round off to make comparisons come out equal
+EPSILON = 1e-15  # says how much to round off to make comparisons come out equal
 
 FILENAME_PRECISION_3 = 3  # 3 digits means mention 'math.pi' as '3.142'
 
-MATH_J = 1j  # work around for Python forgetting to define 'math.j'
+MATH_J = 1j  # works around Python forgetting to define 'math.j'
 
 SH_J = "j"  # last wins
-SH_J = "i"  # choose the Char to mark 'str' of '.imag', from outside r"[-+.012345679Ee]"
+SH_J = "i"  # marks Str of Complex Imag's, from Chars not in r"[-+.012345679Ee]"
 
 STR_PI = "\N{Greek Small Letter Pi}"  # π
 STR_SQRT = "\N{Square Root}"  # √
@@ -812,10 +812,10 @@ def do_dash_y_x():
     """Push Y - X in place of Y X"""
 
     if not stack_has_x():
-        stack_push(1)  # suggest 0 1 -, else 0 X -
+        stack_push(1)  # suggests 0 1 -, else 0 X -
     elif not stack_has_y():
         stack_push(0)
-        do_swap_x_y()  # push -X in place of X, when run twice  # a la HP "CHS"
+        do_swap_x_y()  # pushes -X in place of X, when run twice  # a la HP "CHS"
     else:
 
         (y, x) = stack_peek(2)
@@ -857,7 +857,7 @@ def do_mod_y_x():
     """Push Y % X in place of Y X, if X not zeroed"""  # todo: what if zeroed
 
     if not stack_has_x():
-        stack_push(9)  # suggest  9 2 %, else X 2 %
+        stack_push(9)  # suggests 9 2 %, else X 2 %
     elif not stack_has_y():
         stack_push(2)
     else:
@@ -884,7 +884,7 @@ def do_log_y_x():
     """Push Log Base X of Y in place of Y X, by way of 'log(y, base_x)'"""
 
     if not stack_has_x():
-        stack_push(10)  # suggest 10 e log, else e log
+        stack_push(10)  # suggests 10 e log, else e log
     elif not stack_has_y():
         stack_push(math.e)
     else:
@@ -906,7 +906,7 @@ def do_pow_y_x():
     """Push Y ** X in place of Y X, by way of 'pow(y, exp=x)'"""
 
     if not stack_has_x():
-        stack_push(2)  # suggest 2 2 **, else 2 **
+        stack_push(2)  # suggests 2 2 **, else 2 **
     elif not stack_has_y():
         stack_push(2)
     else:
@@ -927,7 +927,7 @@ def do_plus_y_x():
     """Push Y + X in place of Y X"""
 
     if not stack_has_x():
-        stack_push(1)  # suggest 1 0 +, else 0 +
+        stack_push(1)  # suggests 1 0 +, else 0 +
     elif not stack_has_y():
         stack_push(0)
     else:
@@ -948,10 +948,10 @@ def do_slash_y_x():  # kin to Python TrueDiv
     """Push Y / X in place of Y X, and slide into -Inf, NaN, InF when X zeroed"""
 
     if not stack_has_x():
-        stack_push(0)  # suggest  1 0 /, else 1 X /
+        stack_push(0)  # suggests 1 0 /, else 1 X /
     elif not stack_has_y():
         stack_push(1)
-        do_swap_x_y()  # push (1 / X) in place of X, when run twice  # a la HP "1/X"
+        do_swap_x_y()  # pushes (1 / X) in place of X, when run twice  # a la HP "1/X"
     else:
 
         (y, x) = stack_peek(2)
@@ -976,7 +976,7 @@ def do_slash_slash_y_x():  # kin to Python FloorDiv  # kin to Forth SlashMod
     """Push Y // X in place of Y X, if X not zeroed"""  # todo: what if zeroed
 
     if not stack_has_x():
-        stack_push(9)  # suggest  9 2 //, else X 2 //
+        stack_push(9)  # suggests 9 2 //, else X 2 //
     elif not stack_has_y():
         stack_push(2)
     else:
@@ -1003,7 +1003,7 @@ def do_square_x():
     """Push (X ** 2) in place of X"""
 
     if not stack_has_x():
-        stack_push(-0.5)  # suggest -0.5 Square
+        stack_push(-0.5)  # suggests -0.5 Square
     else:
 
         x = stack_peek()
@@ -1022,7 +1022,7 @@ def do_sqrt_x():
     """Push (X ** (1 / 2)) in place of X, and slide into Complex when X negative"""
 
     if not stack_has_x():
-        stack_push(-1)  # suggest -1 Sqrt
+        stack_push(-1)  # suggests -1 Sqrt
     else:
 
         x = stack_peek()
@@ -1041,7 +1041,7 @@ def do_star_y_x():
     """Push Y * X in place of Y X"""
 
     if not stack_has_x():
-        stack_push(0)  # suggest 0 1 *, else 1 *
+        stack_push(0)  # suggests 0 1 *, else 1 *
     elif not stack_has_y():
         stack_push(1)
     else:
@@ -1068,9 +1068,9 @@ def try_docs_button(word):
 
     docs_funcs = dict()  # todo: move out of Easter Eggs
 
-    docs_funcs[".imag"] = do_imag_x  # Found Do_Imag_X at '.imag'
-    docs_funcs[".real"] = do_real_x  # Found Do_Real_X at '.real'
-    docs_funcs["y↑x"] = do_pow_y_x  # Found Do_Pow_Y_X at 'y↑x'
+    docs_funcs[".imag"] = do_imag_x  # says:  Found Do_Imag_X at '.imag'
+    docs_funcs[".real"] = do_real_x  # says:  Found Do_Real_X at '.real'
+    docs_funcs["y↑x"] = do_pow_y_x  # says:  Found Do_Pow_Y_X at 'y↑x'
 
     # Run the hidden Egg, if found
 
@@ -1185,21 +1185,21 @@ def try_dot_button(word):
     # Hide 9 Easter Eggs, except hide the I J Egg twice
 
     dot_funcs = dict(
-        clear=do_drop_x_else,  # Found Do_Drop_X_Else at Dot Clear
-        e=do_log_e_x,  # Found Do_Log_E_X at Dot E
-        i=do_real_x,  # Found Do_Real_X at Dot I
-        j=do_real_x,  # Found Do_Real_X at Dot J
-        over=do_swap_x_y,  # Found Swap at Dot Over
-        pi=do_log_10_x,  # Found Do_Log_10_X at Dot Pi
-        pow=do_log_y_x,  # Found Do_Log_Y_X at Pow
-        slash=do_slash_slash_y_x,  # Found Do_Slash_Slash_Y_X at Dot Slash
-        sqrt=do_log_2_x,  # Found Do_Log_2_X at Dot Sqrt
-        star=do_mod_y_x,  # Found Do_Mod_Y_X at Dot Star
+        clear=do_drop_x_else,  # says:  Found Do_Drop_X_Else at Dot Clear
+        e=do_log_e_x,  # says:  Found Do_Log_E_X at Dot E
+        i=do_real_x,  # says:  Found Do_Real_X at Dot I
+        j=do_real_x,  # says:  Found Do_Real_X at Dot J
+        over=do_swap_x_y,  # says:  Found Swap at Dot Over
+        pi=do_log_10_x,  # says:  Found Do_Log_10_X at Dot Pi
+        pow=do_log_y_x,  # says:  Found Do_Log_Y_X at Pow
+        slash=do_slash_slash_y_x,  # says:  Found Do_Slash_Slash_Y_X at Dot Slash
+        sqrt=do_log_2_x,  # says:  Found Do_Log_2_X at Dot Sqrt
+        star=do_mod_y_x,  # says:  Found Do_Mod_Y_X at Dot Star
     )
     # that key="pow" is a Str Key, not the BuiltIns Pow Func
 
-    dot_funcs["*"] = dot_funcs["star"]  # Found Do_Mod_Y_X at Dot *
-    dot_funcs["/"] = dot_funcs["slash"]  # Found Do_Slash_Slash_Y_X at Dot /
+    dot_funcs["*"] = dot_funcs["star"]  # says:  Found Do_Mod_Y_X at Dot *
+    dot_funcs["/"] = dot_funcs["slash"]  # says:  Found Do_Slash_Slash_Y_X at Dot /
 
     dot_funcs[STR_PI] = dot_funcs["pi"]
     dot_funcs[STR_SQRT] = dot_funcs["sqrt"]
@@ -1207,7 +1207,7 @@ def try_dot_button(word):
     # Run the hidden Egg, if found
 
     if word in dot_funcs.keys():
-        do_pop_x()  # drop the "." Dot Entry, in place of 'entry_close_if_open()'
+        do_pop_x()  # drops the "." Dot Entry, in place of 'entry_close_if_open()'
 
         func = dot_funcs[word]
         alt_word = func.__name__
@@ -1226,7 +1226,7 @@ def do_real_x():
     """Push the Real part of the Complex X"""
 
     if not stack_has_x():
-        stack_push(math.e + (1j * math.pi))  # suggest:  j π * e +
+        stack_push(math.e + (1j * math.pi))  # suggests j π * e +
     else:
 
         x = stack_peek()
@@ -1245,7 +1245,7 @@ def do_log_10_x():
     """Push Log Base 10 of X in place of X, by way of 'log(x, base_10)'"""
 
     if not stack_has_x():
-        stack_push(math.e)  # suggest the e of:  e 10 log
+        stack_push(math.e)  # suggests the e of:  e 10 log
     else:
 
         x = stack_peek()
@@ -1265,7 +1265,7 @@ def do_log_e_x():
     """Push Log Base E of X in place of X, by way of 'log(x)'"""
 
     if not stack_has_x():
-        stack_push(10)  # suggest the 10 of:  10 e log
+        stack_push(10)  # suggests the 10 of:  10 e log
     else:
 
         x = stack_peek()
@@ -1284,7 +1284,7 @@ def do_log_2_x():
     """Push Log Base 2 of X in place of X, by way of 'log(x, base_2)'"""
 
     if not stack_has_x():
-        stack_push(10)  # suggest the 10 of:  10 2 log
+        stack_push(10)  # suggests the 10 of:  10 2 log
     else:
 
         x = stack_peek()
@@ -1318,19 +1318,19 @@ def try_comma_button(word):
     # Hide 11 Easter Eggs, except hide the Dash Minus and I J Egg twice
 
     comma_funcs = dict(
-        clear=do_drop_y_x_else,  # Found Do_Drop_Y_X_else at Dot Comma Clear
-        dash=do_negate_x,  # Found Do_Negate_X at Dot Comma Dash
-        e=do_pow_e_x,  # Found Do_Pow_e_X at Dot Comma E
-        i=do_imag_x,  # Found Do_Imag_X at Dot Comma I
-        j=do_imag_x,  # Found Do_Imag_X at Dot Comma J
-        minus=do_negate_x,  # Found Do_Negate_X at Dot Comma Minus
-        over=do_rot_y_x_z,  # Found Do_Rot_Y_X_z at Dot Comma Over
-        pi=do_pow_10_x,  # Found Do_Pow_10_X at Dot Comma Pi
-        plus=do_abs_x,  # Found Do_Abs_X at Dot Comma Plus
-        pow=do_base_y_x,  # Found Do_Base_Y_X at Dot Comma Pow
-        slash=do_slash_1_x,  # Found Do_Slash_1_X at Dot Comma Slash
-        sqrt=do_pow_2_x,  # Found Do_Pow_2_X at Dot Comma Sqrt
-        star=do_square_x,  # Found Do_Square_X at Dot Comma Star
+        clear=do_drop_y_x_else,  # says:  Found Do_Drop_Y_X_else at Dot Comma Clear
+        dash=do_negate_x,  # says:  Found Do_Negate_X at Dot Comma Dash
+        e=do_pow_e_x,  # says:  Found Do_Pow_e_X at Dot Comma E
+        i=do_imag_x,  # says:  Found Do_Imag_X at Dot Comma I
+        j=do_imag_x,  # says:  Found Do_Imag_X at Dot Comma J
+        minus=do_negate_x,  # says:  Found Do_Negate_X at Dot Comma Minus
+        over=do_rot_y_x_z,  # says:  Found Do_Rot_Y_X_z at Dot Comma Over
+        pi=do_pow_10_x,  # says:  Found Do_Pow_10_X at Dot Comma Pi
+        plus=do_abs_x,  # says:  Found Do_Abs_X at Dot Comma Plus
+        pow=do_base_y_x,  # says:  Found Do_Base_Y_X at Dot Comma Pow
+        slash=do_slash_1_x,  # says:  Found Do_Slash_1_X at Dot Comma Slash
+        sqrt=do_pow_2_x,  # says:  Found Do_Pow_2_X at Dot Comma Sqrt
+        star=do_square_x,  # says:  Found Do_Square_X at Dot Comma Star
     )
     # that key="pow" is a Str Key, not the BuiltIns Pow Func
 
@@ -1345,7 +1345,7 @@ def try_comma_button(word):
     # Run the hidden Egg, if found
 
     if word in comma_funcs.keys():
-        do_pop_x()  # drop the "," Comma Entry, in place of 'entry_close_if_open()'
+        do_pop_x()  # drops the "," Comma Entry, in place of 'entry_close_if_open()'
 
         func = comma_funcs[word]
         alt_word = func.__name__
@@ -1364,7 +1364,7 @@ def do_imag_x():
     """Push the Imag part of the Complex X"""
 
     if not stack_has_x():
-        stack_push(math.e + (1j * math.pi))  # suggest:  j π * e +
+        stack_push(math.e + (1j * math.pi))  # suggests j π * e +
     else:
 
         x = stack_peek()
@@ -1383,7 +1383,7 @@ def do_pow_10_x():
     """Push (X ** 10) in place of X"""
 
     if not stack_has_x():
-        stack_push(-1)  # suggest -1 Pow 10 X
+        stack_push(-1)  # suggests -1 Pow 10 X
     else:
 
         x = stack_peek()
@@ -1402,7 +1402,7 @@ def do_pow_e_x():
     """Push (X ** E) in place of X"""
 
     if not stack_has_x():
-        stack_push(-1)  # suggest -1 Pow E X
+        stack_push(-1)  # suggests -1 Pow E X
     else:
 
         x = stack_peek()
@@ -1421,7 +1421,7 @@ def do_pow_2_x():
     """Push (X ** 2) in place of X"""
 
     if not stack_has_x():
-        stack_push(-1)  # suggest -1 Pow 10 X
+        stack_push(-1)  # suggests -1 Pow 10 X
     else:
 
         x = stack_peek()
@@ -1440,7 +1440,7 @@ def do_slash_1_x():
     """Push (1 / X) in place of X"""
 
     if not stack_has_x():
-        stack_push(-1)  # suggest 1 -1 /
+        stack_push(-1)  # suggests 1 -1 /
     else:
 
         x = stack_peek()
@@ -1459,7 +1459,7 @@ def do_negate_x():
     """Push -X in place of X"""
 
     if not stack_has_x():
-        stack_push(1)  # suggest 1 -1 *
+        stack_push(1)  # suggests 1 -1 *
     else:
 
         x = stack_peek()
@@ -1478,7 +1478,7 @@ def do_abs_x():
     """Push ABS(X) in place of X"""
 
     if not stack_has_x():
-        stack_push(-1)  # suggest -1 Abs
+        stack_push(-1)  # suggests -1 Abs
     else:
 
         x = stack_peek()
@@ -1529,15 +1529,15 @@ def try_bits_button(word):
     # Hide 9 Easter Eggs
 
     bits_funcs = dict(
-        e=do_grow_x,  # Found Do_Grow_X at Bits E
-        i=do_weigh_x,  # Found Do_Weigh_X at Bits I
-        minus=do_amp_flip_y_x,  # Found Do_Amp_flip_y_X at Bits Minus
-        pi=do_shrink_x,  # Found Do_Shrink_X at Bits Pi
-        plus=do_bar_x,  # Found Do_Bar_X at Bits Plus
-        pow=do_int_x,  # Found Do_Int_X at Bits Pow
-        slash=do_hat_y_x,  # Found Do_Hat_Y_X at Bits Slash
-        sqrt=do_flip_x,  # Found Do_Flip_X at Bits Sqrt
-        star=do_amp_y_x,  # Found Do_Amp_Y_X at Bits Star
+        e=do_grow_x,  # says:  Found Do_Grow_X at Bits E
+        i=do_weigh_x,  # says:  Found Do_Weigh_X at Bits I
+        minus=do_amp_flip_y_x,  # says:  Found Do_Amp_flip_y_X at Bits Minus
+        pi=do_shrink_x,  # says:  Found Do_Shrink_X at Bits Pi
+        plus=do_bar_x,  # says:  Found Do_Bar_X at Bits Plus
+        pow=do_int_x,  # says:  Found Do_Int_X at Bits Pow
+        slash=do_hat_y_x,  # says:  Found Do_Hat_Y_X at Bits Slash
+        sqrt=do_flip_x,  # says:  Found Do_Flip_X at Bits Sqrt
+        star=do_amp_y_x,  # says:  Found Do_Amp_Y_X at Bits Star
     )
     # that key="pow" is a Str Key, not the BuiltIns Pow Func
 
@@ -1609,7 +1609,7 @@ def do_clone_x():  # a la Forth "DUP", a la HP "Enter"
     """Push X X in place of X"""
 
     if not stack_has_x():
-        stack_push(0)  # suggest:  0 Dup
+        stack_push(0)  # suggests 0 Dup
     else:
 
         x = stack_peek()
@@ -1620,7 +1620,7 @@ def do_clone_y():  # a la Forth "OVER", a la HP "RCL Y"
     """Push Y X Y in place of Y X"""  # chain bin ops at:  Y X  Over %  Over %  ...
 
     if not stack_has_x():
-        stack_push(1)  # suggest:  1 0 Over, else Y 0 Over
+        stack_push(1)  # suggests 1 0 Over, else Y 0 Over
     elif not stack_has_y():
         stack_push(0)
     else:
@@ -1647,7 +1647,7 @@ def do_rot_y_x_z():
     """Drag the 3rd-to-Last Value to Top of Stack"""
 
     if not stack_has_x():
-        stack_push(0)  # suggest:  0 1 2 Rot, else 1 2 Rot, else 2 Rot
+        stack_push(0)  # suggests 0 1 2 Rot, else 1 2 Rot, else 2 Rot
     elif not stack_has_y():
         stack_push(1)
     elif not stack_has_z():
@@ -1671,7 +1671,7 @@ def do_swap_x_y():
     """Drag the 2nd-to-Last Value to Top of Stack"""
 
     if not stack_has_x():
-        stack_push(0)  # suggest:  0 1 Swap, else Y 0 Swap
+        stack_push(0)  # suggests 0 1 Swap, else Y 0 Swap
     elif not stack_has_y():
         stack_push(1)
     else:
@@ -1797,7 +1797,7 @@ def stackable_dumps(obj):
     if hasattr(obj, "json_dumps"):
         assert isinstance(obj, ButtonEntry), byo.class_mro_join(type(obj))
 
-        code = obj.stackable_dumps()  # such as: '_-1.2e_'
+        code = obj.stackable_dumps()  # such as '_-1.2e_'
 
     # Dump any Json Type
 
@@ -1811,7 +1811,7 @@ def stackable_dumps(obj):
         except TypeError:
             if isinstance(obj, complex):
 
-                code = repr_obj  # such as:  '(-1+2j)'
+                code = repr_obj  # such as '(-1+2j)'
 
             # Dump other Obj's as a Py Sourceline to Eval the Chars of Repr
             # todo:  Repr of Collections.Counter etc omits its ModuleName
@@ -1826,7 +1826,7 @@ def stackable_dumps(obj):
                         alt_repr_repr_obj = repr(alt_py)
 
                         code = "eval({})".format(alt_repr_repr_obj)
-                        # such as:  "eval('dt.datetime(2022, 7, 24, 16, 4, 7, 624925)')"
+                        # such as "eval('dt.datetime(2022, 7, 24, 16, 4, 7, 624925)')"
 
                         break
 
@@ -1952,7 +1952,7 @@ def stackable_triple_from_complex(obj):
 
     alt_name = name  # such as '(nan-infj)'
     alt_name = alt_name.replace("(", "").replace(")", "")
-    alt_name = alt_name.replace("j", SH_J)  # such as 'NaN-Infi
+    alt_name = alt_name.replace("j", SH_J)  # such as 'NaN-Infi'
 
     triple = StackableTriple(alt_name, code=code, obj=brief)
 
@@ -2119,7 +2119,7 @@ def stack_triples_peek(depth=1):
             # Count the File only if it holds an intelligible Value
 
             obj = stackable_loads_else(code, default=None)
-            if obj is None:  # such as json.JSONDecodeError
+            if obj is None:  # such as None because 'json.JSONDecodeError'
 
                 continue
 
@@ -2173,7 +2173,7 @@ def fresh_path_from_name(name):
 
     return path
 
-    # try "name", "name~", "name~1~", "name~2~", etc
+    # finds "name", "name~", "name~1~", "name~2~", etc
 
 
 #
@@ -2324,7 +2324,7 @@ def try_entry_button(word):
 
     entry_found = True
 
-    if entry and (word == "clear"):  # take Clear to empty the Entry, else empty Stack
+    if entry and (word == "clear"):  # takes Clear to empty Entry, else empties Stack
         entry_write_char("")
     elif (entry is not None) and (word in ("pi", STR_PI)):  # π
         entry_write_char("π")
@@ -2384,7 +2384,7 @@ def do_clear_else():
 
     triples = stack_triples_pop(depth=0)
     if not triples:
-        stack_push(3)  # suggest:  3 2 1 0 Clear
+        stack_push(3)  # suggests 3 2 1 0 Clear
         stack_push(2)
         stack_push(1)
         stack_push(0)
@@ -2394,7 +2394,7 @@ def do_drop_x_else():  # apart from def do_pop_x
     """Pop X if X, else push 0"""
 
     if not stack_has_x():
-        stack_push(0)  # suggest:  0 Drop
+        stack_push(0)  # suggests 0 Drop
     else:
         stack_pop()
 
@@ -2403,7 +2403,7 @@ def do_drop_y_x_else():
     """Pop Y X if Y X, else push 1 if Y, else push 0 1"""
 
     if not stack_has_x():
-        stack_push(0)  # suggest:  0 1 Drop Y X, else Y 0 Drop Y X
+        stack_push(0)  # suggests 0 1 Drop Y X, else Y 0 Drop Y X
     if not stack_has_y():
         stack_push(0)
     else:
@@ -2512,7 +2512,7 @@ def entry_take_char(entry, ch):
             assert ch != editing
             edited = ch  # Start over with Ch
         else:
-            edited = editing + ch  # Append Ch  # may be wrongly after "j" till fixed
+            edited = editing + ch  # Append Ch  # may be wrong after "j" till edited
 
         # Allow Button E to drop much stale input
 
@@ -2522,7 +2522,7 @@ def entry_take_char(entry, ch):
 
     else:
 
-        edited = editing + ch  # Append Ch  # may be wrongly after "j" till fixed
+        edited = editing + ch  # Append Ch  # may be wrong after "j" till edited
 
     # Warp the "j" to the far right end, if present, if not there already
 
