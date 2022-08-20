@@ -249,7 +249,10 @@ assert set(FORKABLE_ENTRIES).issubset(set(OPEN_ENTRIES))
 assert set(SIGNABLE_ENTRIES).issubset(set(OPEN_ENTRIES))
 
 ENTRY_REGEX = r"({}|{})[Jj]?".format(FLOAT_REGEX, INT_REGEX)
-
+# todo: "i" should be the Filename of 1j, not "1j"
+# todo: Bytes of the Files in the Stack should be purely standard Json
+# todo: for instance, Complex Values should be Json Strings
+# todo: Strings that are Strings should be Json Strings of Python Repr
 
 Q2 = '"'
 Q3 = "_"
@@ -642,7 +645,7 @@ def form_verb_by_word():
     verb_by_word = dict(
         abs=do_abs_x,  # this key="abs" is a Str Key, not the BuiltIns Abs Func
         basex=do_base_y_x,
-        clear=do_clear,
+        clear=do_clear,  # not '=do_clear_else'
         comma=do_comma,
         dash=do_dash_y_x,
         dot=do_dot,
@@ -1932,9 +1935,11 @@ def stackable_triple_from_complex(obj):
     real = real_triple.obj
     if not real:
 
-        brief = abs_imag_triple.obj * 1j
+        brief = imag * 1j
         code = stackable_dumps(brief)
-        name = "{}j".format(abs_imag_triple.name)
+        name = "{}{}".format(abs_imag_triple.name, SH_J)  # such as
+        if imag == 1:
+            name = "i"
 
         triple = StackableTriple(name, code=code, obj=brief)
 
@@ -2246,7 +2251,7 @@ def try_buttonfile(parms):
         # Run the Button Word as Button in place of 'entry_close_if_open()'
 
         if word == "clear":
-            do_clear_else()
+            do_clear_else()  # not 'do_clear()'
         elif word == "drop":
             do_drop_x_else()
         elif word == "drop2":
@@ -2324,7 +2329,7 @@ def try_entry_button(word):
 
     entry_found = True
 
-    if entry and (word == "clear"):  # takes Clear to empty Entry, else empties Stack
+    if entry and (word == "clear"):  # not 'do_clear()', not 'do_clear_else()'
         entry_write_char("")
     elif (entry is not None) and (word in ("pi", STR_PI)):  # π
         entry_write_char("π")
@@ -2413,8 +2418,8 @@ def do_drop_y_x_else():
 def do_comma():
     """Open Entry if no Entry open, else dupe Top of Stack"""
 
-    if not stack_has_x():
-        entry_write_char("")
+    if not stack_has_x():  # such as for:  = clear && @ comma
+        entry_write_char("")  # same as Button Clear of Entry
     else:
         do_clone_x()  # a la Forth "DUP", a la HP "Enter"
 
@@ -2469,7 +2474,7 @@ def entry_write_char(ch):
     stack_push(ButtonEntry(name))
 
 
-def entry_take_char(entry, ch):
+def entry_take_char(entry, ch):  # FIXME  # noqa  # C901 too complex(12)
     """Edit the Entry = Take the Ch as an Editor Command for the Entry"""
 
     editing = "" if (entry is None) else entry
@@ -2484,25 +2489,26 @@ def entry_take_char(entry, ch):
 
     if ch == "":
 
-        edited = ""  # Clear => Drop all Chars
+        edited = ""  # Clear => drops all Chars
 
         # Allow Button Clear to drop much stale input
 
     elif ch == STR_PI:
 
-        edited = editing[:-1]  # π Pi = Delete = Backspace => Drop the last Char
-
-        # Allow π to make no reply, while Entry Empty
+        if not editing:  # such as for:  = clear && @ dot dot pi
+            edited = "."  # ducks out of π making no reply, while Entry Empty
+        else:
+            edited = editing[:-1]  # π Pi = Delete = Backspace => Drop the last Char
 
     elif ch in ("+", "-"):
 
         if editing.endswith("e"):
             edited = editing + ch  # Append Ch
+        elif editing == ch:  # such as for:  = clear && @ dot dot plus plus
+            edited = ""  # ducks out of + or - making no reply, while already the Entry
         else:
             assert editing in SIGNABLE_ENTRIES, (entry, ch, editing)
-            edited = ch  # +, - => Start over with a choice of Sign
-
-        # Allow Buttons "+" and "-" to make no reply, while Entry is "+" or "-"
+            edited = ch  # + and - start over with a choice of Sign
 
     elif ch in (",", ".", "e", "j"):
 

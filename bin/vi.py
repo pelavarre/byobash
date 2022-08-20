@@ -33,6 +33,14 @@ import byotools as byo
 byo.exit(__name__)
 
 
+# todo: vim in the last line of the Terminal, as an editor of Os Copy/Paste Buffer
+# todo: immediate flush back into the Os Copy/Paste Buffer
+# todo: Alt Click as a way to look up shortest Vi input to get you there
+
+# todo: Ctrl to let you type Emacs into Vi, Alt to let you type Vi into Emacs
+
+# todo: Py Decorator to bind KeyChords to Code - such as Esc $ to mean Beyond Line
+
 # todo: make sense of C E at 'one  two' does leave both spaces in place
 
 # todo: vim options akin to less -FIRX

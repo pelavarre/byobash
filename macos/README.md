@@ -115,11 +115,11 @@ it was the "Don't Close The Window" choice there
 once it works, next you can make it prettier
 
 like you've already fixed the Icon,
-but if your Button File is still labeling itself as 'π.command', you can fix that too
+but if your Button File is still labeling itself as 'pi.command', you can fix that too
 
 go turn on its Control+Click > Get Info > Name & Extension > Hide Extension
 
-this will get it to label itself as 'π'
+this will get it to label itself as 'pi'
 
 except maybe first you have to go turn off
 Finder > Preferences > Advanced > Show All Filename Extensions -
@@ -299,9 +299,9 @@ but Easter Eggs are hiding in the corners
 
 we hid three Easter Eggs inside the / Slash Button =>
 
-    1 0 /  # Inf
-    0 1 -  # -Inf
-    0 0 /  # NaN
+    1 , 0 /  # Inf
+    0 , 1 -  # -Inf
+    0 , 0 /  # NaN
 
 and pressing Pi after typing a Digit undoes it,
 like the Delete Key on a Mac Keyboard

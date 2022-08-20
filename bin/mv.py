@@ -26,6 +26,8 @@ examples:
   ls.py --  # the 'ls -C' view of:  ls -1rt |tail -3
 """
 
+# todo:  --parents  make the TO_DIR, if it ends in '/.' and it doesn't already exist
+
 
 import byotools as byo
 
