@@ -433,13 +433,9 @@ def do_cv(parms):  # "qb/cv"  # "cv"
     # Work differently to drain Pb, else fill Pb, else stream through Pb
     # Forward or reject Parms, don't drop them
 
-    if stdin_isatty and stdout_isatty:  # cv ...
+    if stdin_isatty:  # cv ...  # also:  cv ... |...
 
-        exit_after_framed_cv(parms)  # drains Pb, even when last line unclosed
-
-    elif stdin_isatty:  # cv ... |...
-
-        exit_after_cv(parms)  # drains Pb  # todo: close the last line, when it's open
+        exit_after_framing_cv_if(parms)  # drains Pb
 
     elif stdout_isatty:  # ... |cv ...
         byo.exit_if_rare_parms("shpipes.py ... cv", parms=parms)
@@ -452,21 +448,8 @@ def do_cv(parms):  # "qb/cv"  # "cv"
         exit_after_shpipe("tee >(pbcopy)")  # streams through Pb
 
 
-def exit_after_framed_cv(parms):
-    """Exit after Stderr Frame of Stdout 'pbpaste |cat -n -tv - |expand' for Sep"""
-
-    byo.stderr_print()
-    try:
-
-        exit_after_cv(parms)  # such as:  cv
-
-    finally:
-        sys.stdout.flush()
-        byo.stderr_print()
-
-
-def exit_after_cv(parms):
-    """Exit after 'pbpaste |cat -n -tv - |expand' for Sep"""
+def exit_after_framing_cv_if(parms):
+    """Exit after PbPaste into PbCopy, or after PbPaste"""
 
     (_, _, words) = byo.shlex_parms_partition(parms)
     if words:
@@ -478,26 +461,37 @@ def exit_after_cv(parms):
 
             exit_after_cv_cv_pipe(["--ext={}".format(main.ext)] + parms)
 
-    exit_after_cv_pbpaste(parms)  # such as:  cv |n
+    exit_after_framing_pbpaste_if(parms)  # such as:  cv |n
 
 
-def exit_after_cv_pbpaste(parms):
-    """Exit after PbPaste '|cat -n -tv - |expand' for Sep"""
+def exit_after_framing_pbpaste_if(parms):
+    """Exit after PbPaste unmarked, or with Opts, or '|cat -n -tv - |expand' for Sep"""
 
-    if not parms:
+    stdout_isatty = sys.stdout.isatty()
+    plus = "\n" if stdout_isatty else ""  # todo: framing for Stdout Pipes
 
-        exit_after_shpipe("pbpaste")
+    try:
 
-    (options, seps, words) = byo.shlex_parms_partition(parms)
-    if seps and not (options or words):
-        shpipe = "pbpaste |cat -n -tv - |expand"
+        if not parms:
+            shpipe_plus = "pbpaste" + plus
 
-        exit_after_shpipe(shpipe)
+            exit_after_shpipe(shpipe=shpipe_plus)
 
-    shparms = byo.shlex_djoin(parms)
-    shpipe = "pbpaste |cat {} |expand".format(shparms)
+        (options, seps, words) = byo.shlex_parms_partition(parms)
+        if seps and not (options or words):
+            shpipe_plus = "pbpaste |cat -n -tv - |expand" + plus
 
-    exit_after_shpipe(shpipe)
+            exit_after_shpipe(shpipe=shpipe_plus)
+
+        shparms = byo.shlex_djoin(parms)
+        shpipe_plus = "pbpaste |cat {} |expand".format(shparms) + plus
+
+        exit_after_shpipe(shpipe=shpipe_plus)
+
+    finally:
+
+        if plus:
+            byo.stderr_print()
 
 
 def exit_after_cv_cv_pipe(parms):
@@ -1030,7 +1024,7 @@ def exit_after_shline_to_tty(shline):
 def exit_after_shpipe(shpipe):
     """Trace and run one ShPipe, then exit"""
 
-    shline = shpipe.rstrip()
+    shline = shpipe.rstrip()  # such as a ShPipe ending in "\n"
     shshline = "bash -c {}".format(shlex.quote(shline))
     argv = shlex.split(shshline)
 
