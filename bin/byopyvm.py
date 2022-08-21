@@ -731,21 +731,13 @@ def parms_pyish(parms):
     if tail:
         shargs = tail.split(",")
 
-    args = list()
-    for sharg in shargs:
-        try:
-            arg = ast.literal_eval(sharg)
-        except KeyboardInterrupt:
-            arg = sharg
-
-        args.append(arg)
-
-    if not args:
+    args = shargs
+    if not shargs:
         if funcname == "dt.date":
             now = dt.datetime.now()
-            args = [now.year, now.month, now.day]
+            args = list(str(_) for _ in (now.year, now.month, now.day))
 
-    py = "{}({})".format(funcname, ", ".join(repr(_) for _ in args))
+    py = "{}({})".format(funcname, ", ".join(_ for _ in args))
     if py != pyish:
         parms[0] = py  # todo: don't mutate?
 
