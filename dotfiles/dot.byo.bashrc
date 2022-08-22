@@ -109,7 +109,11 @@ function --- () {
 }
 
 function +++ () {
-  command git.py -- --for-shproc --- "$@"
+  command git.py -- --for-shproc +++ "$@"
+}
+
+function File () {
+  command git.py -- --for-shproc File "$@"
 }
 
 

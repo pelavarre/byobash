@@ -48,7 +48,11 @@ advanced Bash install:
   }
 
   function +++ () {
-    command git.py -- --for-shproc --- "$@"
+    command git.py -- --for-shproc +++ "$@"
+  }
+
+  function File () {
+    command git.py -- --for-shproc File "$@"
   }
 
 examples:
@@ -208,7 +212,11 @@ def main():
   }
 
   function +++ () {
-    command git.py -- --for-shproc --- "$@"
+    command git.py -- --for-shproc +++ "$@"
+  }
+
+  function File () {
+    command git.py -- --for-shproc File "$@"
   }
 
     """
@@ -709,8 +717,33 @@ def form_exit_if_funcs_by_shverb():
 
     exit_if_funcs["---"] = exit_if_by_git_stdout_line
     exit_if_funcs["+++"] = exit_if_by_git_stdout_line
+    exit_if_funcs["File"] = exit_if_by_py_stderr_line
+    # todo: coin a Verb to take "---", "+++", "File" etc as its first Parm
 
     return exit_if_funcs
+
+
+def exit_if_by_py_stderr_line(parms):  # todo: factor out into some other file?
+    """Take or suggest next action after being fed back a Line of Py Stderr"""
+
+    shverb = main.shverb
+
+    # Receive two Parms from such as:  File "bin/git.py", line 1091, in main
+
+    if (shverb == "File") and (len(parms) >= 1):
+        assert parms[0].endswith(","), parms
+        assert parms[1] == "line", parms
+        assert parms[2].endswith(","), parms
+        assert parms[3] == "in", parms
+        assert parms[4:], parms
+
+        path = byo.str_removesuffix(parms[0], suffix=",")
+        str_lineno = byo.str_removesuffix(parms[2], suffix=",")
+        lineno = int(str_lineno)
+
+        _ = lineno  # todo: jump to Line of File
+
+        exit_after_git_edit_path(path)
 
 
 def exit_if_by_git_stdout_line(parms):
@@ -728,21 +761,33 @@ def exit_if_by_git_stdout_line(parms):
             path = parms[0]
             path = byo.str_removeprefix(path, prefix=prefix)
 
-            # Form a ShLine to forward the one Parm into the local choice of Editor
+            exit_after_git_edit_path(path)
 
-            git_config_shline = "git config core.editor"
-            byo.stderr_print("+ {}".format(git_config_shline))
+            # todo: jump to Line of File when given 2 Lines of Paste
 
-            vi_shline = byo.subprocess_run_oneline("git config core.editor")
-            vi_shline = vi_shline + " " + byo.shlex_dquote(path)
-            vi_argv = shlex.split(vi_shline)
 
-            # Run the Shline
+def exit_after_git_edit_path(path):
+    """Forward one Parm into the local Editor"""
 
-            vi_argv = shlex.split(vi_shline)
-            byo.subprocess_run_loud(vi_argv, stdin=None)
+    # Form a ShLine to forward the one Parm into the local Editor
 
-            sys.exit()  # Exit None after an ArgV exits Falsey
+    git_config_shline = "git config core.editor"
+    byo.stderr_print("+ {}".format(git_config_shline))
+
+    vi_shline = byo.subprocess_run_oneline("git config core.editor")
+    vi_shline = vi_shline + " " + byo.shlex_dquote(path)
+    vi_argv = shlex.split(vi_shline)
+
+    # Run the Shline
+
+    vi_argv = shlex.split(vi_shline)
+    byo.subprocess_run_loud(vi_argv, stdin=None)
+
+    sys.exit()  # Exit None after an ArgV exits Falsey
+
+    # todo: jump to Line of File
+    # vi bin/git.py +785
+    # emacs -nw --eval '(menu-bar-mode -1)' bin/git.py --eval '(goto-line 785)'
 
 
 def exit_if_git_no(parms):
