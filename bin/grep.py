@@ -1,5 +1,7 @@
 # grep -w, vs grep '\<...\>'
 
+# default to search the $(ls -rt |tail -1)
+
 _ = """
 
 % echo |g -e 3.8.2 -e 3.10.5

@@ -3,6 +3,10 @@
 
 ++ dreaming since Aug/2022 ++
 
+v.py:  become my bottom-of-Terminal editor of Os Copy/Paste Buffer
+v.py:  refetch on wake and between every key and poll - such as a ping/pong back thread
+v.py:  resize the window for me, e.g. snap to 89 columns
+
 v.py:  rewrite so as to keep Search Highlights correct after edits
 
 v.py:  highlight to trail movement after M M until ' M

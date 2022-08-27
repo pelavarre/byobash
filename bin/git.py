@@ -106,6 +106,7 @@ examples:
   git.py lgs  # git log --oneline --no-decorate -S ...  # grep for adds/ deletes
   git.py lols  # git log --oneline --numstat  # list Files per Commit
   git.py lq  # git log --oneline --no-decorate -...  # default lots, -0 for no limit
+  git.py lq0  # git log --oneline --no-decorate
   git.py lq1  # git log --oneline --no-decorate -1
   git.py lqa  # git log --oneline --no-decorate --author=$USER -...
   git.py ls  # git log --numstat  # but see also:  git show --name-only
@@ -664,6 +665,7 @@ ALIASES = {
     "lgs": "git log --oneline --no-decorate -S {}",  # adds/deletes, aka Pickaxe
     "lols": "git log --oneline --numstat {}",
     "lq": "git log --oneline --no-decorate -{}",
+    "lq0": "git log --oneline --no-decorate {}",
     "lq1": "git log --oneline --no-decorate -1 {}",
     "lqa": "git log --oneline --no-decorate --author=$USER -{}",
     "ls": "git log --numstat {}",

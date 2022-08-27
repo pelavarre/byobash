@@ -36,6 +36,8 @@ examples:
 
 # todo: ls DIR1 DIR2 should mark them up for paste into Mv, such as:  dir1/.
 
+# todo: ls -$N for $N larger than 1 to limit how many, a la 'head -$N'
+
 
 import byotools as byo
 
