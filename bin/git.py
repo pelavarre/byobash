@@ -479,12 +479,31 @@ def exit_if_shproc(shverb, parms, authed, shlines):  # todo  # noqa: C901 comple
 
     if not authed:
         if auth_shline == "git push --force-with-lease":
-            rpar_shline = "git rev-parse --abbrev-ref HEAD"
 
+            gcue_shline = "git config user.email"
+            byo.stderr_print("+ {}".format(gcue_shline))
+            gcue_line = byo.subprocess_run_oneline(gcue_shline)
+            byo.stderr_print(gcue_line)
+
+            rpar_shline = "git rev-parse --abbrev-ref HEAD"
             byo.stderr_print("+ {}".format(rpar_shline))
-            rpar_argv = shlex.split(rpar_shline)
-            _ = subprocess.run(rpar_argv, stdin=subprocess.PIPE)
+            rpar_line = byo.subprocess_run_oneline(rpar_shline)
+            byo.stderr_print(rpar_line)
             byo.stderr_print("+")
+
+            guest = gcue_line.split("@")[0]
+            if "/{}/".format(guest) not in rpar_line:
+                byo.stderr_print(
+                    "git.py: {!r} not authorized for Qpfwl at Branch {!r}".format(
+                        guest, rpar_line
+                    )
+                )
+
+                byo.stderr_print("git.py:")
+                byo.stderr_print("git.py: did you mean:  {}".format(auth_shline))
+                byo.stderr_print("git.py:")
+
+                sys.exit(2)
 
     if not authed:
 

@@ -3,6 +3,10 @@
 
 ++ dreaming since Aug/2022 ++
 
+git.py:  charge more friction for pushes out of the domain, such as
+git.py:     from 'git config user.email' 'work-for-hire.com'
+git.py:     into 'github.com' at 'git remote -v'
+
 v.py:  become my bottom-of-Terminal editor of Os Copy/Paste Buffer
 v.py:  refetch on wake and between every key and poll - such as a ping/pong back thread
 v.py:  resize the window for me, e.g. snap to 89 columns

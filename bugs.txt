@@ -3,6 +3,4 @@
 
 ++ dreaming since Aug/2022 ++
 
-require 'git config user.email' in Branch name before:  qpfwl
-
 something's half-wrong with my ` backticks inside Vim
