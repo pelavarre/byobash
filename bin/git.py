@@ -502,26 +502,26 @@ def exit_if_shproc(shverb, parms, authed, shlines):  # todo  # noqa: C901 comple
 
     # Run each of the ArgV's and exit
 
-    require_cwd_in_clone_for_git_diff(argv=argvs[0])
+    require_cwd_in_clone_if_git_diff(argv=argvs[0])
 
     byo.exit_after_some_argv(argvs)
 
 
-def require_cwd_in_clone_for_git_diff(argv):
-    """Guard any call of Git Diff with a check for Cwd is in Clone"""
+def require_cwd_in_clone_if_git_diff(argv):
+    """Guard the call, if it's Git Diff, with a check for Cwd is in Clone"""
 
     if argv[:2] != "git diff".split():
 
         return
 
-    # Don't complexify results by risking the guard, unless it's plainly likely to fire
+    # Don't risk the guard complexifying results, in the normal case of Git Dir present
 
     path = pathlib.Path(".git")
     if path.is_dir():
 
         return
 
-    # Let the guard fire
+    # Call the guard
 
     qdno_shline = byo.shlex_djoin(argv)  # such as:  git diff --name-only
     qdno_argv = shlex.split(qdno_shline)
@@ -536,11 +536,18 @@ def require_cwd_in_clone_for_git_diff(argv):
     stdout = run.stdout.decode() if run.stdout else None
     stderr = run.stderr.decode() if run.stderr else None
 
+    # Silence this call and return now, when the guard doesn't fire,
+    # such as in the case of running in a Dir beneath the Top Dir of the Clone
+
+    if not run.returncode:
+
+        return
+
+    # Trace the guard firing, but compress the trace
+
     assert run.returncode, run.returncode  # often 129 of Git Diff, not 128 of Git Log
     assert not stdout, repr(stdout)
     assert stderr, stderr
-
-    # Trace the guard firing, but compress the trace
 
     byo.stderr_print("+ {}".format(qdno_shline))
     if stdout:
@@ -808,7 +815,7 @@ def exit_if_git_no(parms):
 
     qd_shline = "git diff --name-only"
     qd_argv = shlex.split(qd_shline)
-    require_cwd_in_clone_for_git_diff(argv=qd_argv)
+    require_cwd_in_clone_if_git_diff(argv=qd_argv)
     qd_run = subprocess.run(qd_argv, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
     assert not qd_run.returncode, qd_run.returncode
 
