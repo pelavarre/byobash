@@ -171,9 +171,13 @@ assert SIGINT_RETURNCODE_130 == 130, (SIGINT_RETURNCODE_130, 0x80, signal.SIGINT
 # Mark the ShVerb's that wrongly fall back to hang for input at Tty Stdin,
 # when given only Options and Seps, but not Words, in the absence of PbPaste Stdin
 
+EMACS_SHVERBS = "e em emacs".split()
+VI_SHVERBS = "v vi vim".split()
+NEED_FILE_SHVERBS = EMACS_SHVERBS + VI_SHVERBS  # todo: weakly accurate
+
 STR_PBPASTE_SHVERBS = """
     awk cat expand grep head hexdump less sed sort sponge sponge.py tail uniq wc
-"""  # FIXME: 'sponge.py' in the STR_PBPASTE_SHVERBS
+"""  # todo: weakly accurate  # FIXME: 'sponge.py' in the STR_PBPASTE_SHVERBS
 PBPASTE_SHVERBS = set(STR_PBPASTE_SHVERBS.split())
 
 
@@ -455,11 +459,11 @@ def exit_after_framing_cv_if(parms):
     if words:
         if main.ext is None:  # such as:  cv dent
 
-            exit_after_cv_cv_pipe(parms)
+            exit_after_cv_edit(parms)
 
         else:  # such as:  cv --e dent
 
-            exit_after_cv_cv_pipe(["--ext={}".format(main.ext)] + parms)
+            exit_after_cv_edit(["--ext={}".format(main.ext)] + parms)
 
     exit_after_framing_pbpaste_if(parms)  # such as:  cv |n
 
@@ -494,8 +498,55 @@ def exit_after_framing_pbpaste_if(parms):
             byo.stderr_print()
 
 
-def exit_after_cv_cv_pipe(parms):
+def exit_after_cv_edit(parms):
     """Exit after running the Parms to edit the Os Copy/Paste Buffer"""
+
+    shverb = parms[0]
+    if shverb in NEED_FILE_SHVERBS:
+
+        exit_after_cv_mktemp_pipe(parms)
+
+    else:
+
+        exit_after_cv_cv_pipe(parms)
+
+
+def exit_after_cv_mktemp_pipe(parms):
+    """Exit after running the Parms to edit a File of the Os Copy/Paste Buffer"""
+
+    # Copy the Os Copy/Paste Buffer into a File
+
+    with tempfile.NamedTemporaryFile() as sponge:
+        path = sponge.name
+
+        enter_run = subprocess.run(
+            "pbpaste".split(), stdin=subprocess.PIPE, stdout=sponge
+        )
+        assert not enter_run.returncode
+
+        # Call Self with Parms and Filename
+
+        argv_0 = os.path.abspath(sys.argv[0])
+        argv = [argv_0] + parms + [path]
+
+        wrapped_run = subprocess.run(argv)
+        if wrapped_run.returncode:
+            byo.stderr_print("+ exit {}".format(wrapped_run.returncode))
+
+            sys.exit(wrapped_run.returncode)
+
+        # Copy the File into the Os Copy/Paste Buffer
+
+        with open(path, "rb") as stdin:
+            exit_run = subprocess.run("pbcopy".split(), stdin=stdin)
+
+        assert not exit_run.returncode
+
+    sys.exit()
+
+
+def exit_after_cv_cv_pipe(parms):
+    """Exit after running the Parms to edit a Pipe of the Os Copy/Paste Buffer"""
 
     # Sponge up the Paste Buffer to serve as Stdin
 
@@ -515,7 +566,7 @@ def exit_after_cv_cv_pipe(parms):
 
     try:
         # exit_via_main_parms(parms)  # dies by 'io.UnsupportedOperation: fileno'
-        subprocess_run_self(parms)
+        subprocess_pipe_self(parms)
     finally:
         sys.stdin = with_stdin
         sys.stdout = with_stdout
@@ -530,7 +581,7 @@ def exit_after_cv_cv_pipe(parms):
     sys.exit()  # exits None after running Code
 
 
-def subprocess_run_self(parms):
+def subprocess_pipe_self(parms):
     """Call Self as a Pipe Filter between two Files"""
 
     with tempfile.TemporaryFile() as left_sponge:
@@ -596,12 +647,6 @@ def do_em(parms):  # "qb/em"  # "em"
         print()
 
         sys.exit(0)  # exits 0 after printing Help Lines
-
-    byo.stderr_print(
-        "shpipes.py {}: Press Esc X revert Tab Return, and ⌃X⌃C, to quit".format(
-            main.shverb
-        )
-    )
 
     exit_after_shverb_shparms(
         "emacs -nw --no-splash --eval '(menu-bar-mode -1)'", parms=parms
@@ -829,8 +874,6 @@ def do_v(parms):  # "qb/v"  # "v"
 
         sys.exit(0)  # exits 0 after printing Help Lines
 
-    byo.stderr_print("shpipes.py v: Press ⇧Z ⇧Q to quit")
-
     exit_after_shparms("vim", parms=parms)
 
 
@@ -1050,9 +1093,9 @@ def exit_after_shline_as_argv(shline, argv):
     shverb = alt_argv[0]
 
     stdin_ispipe = not sys.stdin.isatty()
-    tty_prompt = form_tty_prompt(stdin_ispipe, shline=shline, shverb=shverb)
-    pbpaste_shverb = judge_pbpaste_shverb(
-        shline, alt_argv=alt_argv, tty_prompt=tty_prompt
+    tty_prompt_pair = form_tty_prompt_pair(stdin_ispipe, shline=shline, shverb=shverb)
+    stdin_ispb = judge_stdin_ispb(
+        shline, alt_argv=alt_argv, tty_prompt_pair=tty_prompt_pair
     )
     shverb = alt_argv[0]
 
@@ -1067,10 +1110,10 @@ def exit_after_shline_as_argv(shline, argv):
 
     pbpaste_shpipe = "pbpaste |{}".format(shline)
 
-    if stdin_ispipe or tty_prompt:
+    if stdin_ispipe or tty_prompt_pair:
         byo.stderr_print("+ {}".format(shline))
         stdin = None
-    elif not pbpaste_shverb:
+    elif not stdin_ispb:
         byo.stderr_print("+ {}".format(no_stdin_shpipe))
         stdin = subprocess.PIPE
     else:
@@ -1085,18 +1128,27 @@ def exit_after_shline_as_argv(shline, argv):
 
     # Run the Code
 
-    if tty_prompt:
-        byo.stderr_print(tty_prompt)
+    if tty_prompt_pair:
+        byo.stderr_print(tty_prompt_pair[0])
 
     try:
-        run = subprocess.run(argv, stdin=stdin)
-    except KeyboardInterrupt:
-        byo.stderr_print()
-        byo.stderr_print("KeyboardInterrupt")
 
-        assert SIGINT_RETURNCODE_130 == 130, SIGINT_RETURNCODE_130
+        try:
+            run = subprocess.run(argv, stdin=stdin)
+        except KeyboardInterrupt:
+            byo.stderr_print()
+            byo.stderr_print("KeyboardInterrupt")
 
-        sys.exit(SIGINT_RETURNCODE_130)  # exits 130 to say KeyboardInterrupt SIGINT
+            tty_prompt_pair = None  # mutate
+
+            assert SIGINT_RETURNCODE_130 == 130, SIGINT_RETURNCODE_130
+
+            sys.exit(SIGINT_RETURNCODE_130)  # exits 130 to say KeyboardInterrupt SIGINT
+
+    finally:
+
+        if tty_prompt_pair:
+            byo.stderr_print(tty_prompt_pair[-1])
 
     if run.returncode:  # exits early, at the first NonZero Exit Status ReturnCode
         byo.stderr_print("+ exit {}".format(run.returncode))
@@ -1106,24 +1158,30 @@ def exit_after_shline_as_argv(shline, argv):
     sys.exit()  # exits None after this Subprocess
 
 
-def form_tty_prompt(stdin_ispipe, shline, shverb):
-    """Default to run without Tty, but make exceptions"""
+def form_tty_prompt_pair(stdin_ispipe, shline, shverb):
+    """Default to run without Tty, but make exceptions"""  # todo: weakly accurate
 
-    tty_prompt = None
+    entry_prompt = None
     if not stdin_ispipe:
         if shline in ("cat -", "cat - >/dev/null"):
-            tty_prompt = "shpipes.py {}: Press ⌃D TTY EOF to quit"
-        if shverb in ("em", "emacs"):
-            tty_prompt = "shpipes.py {}: Press Esc X revert Tab Return, and ⌃X⌃C, to quit".format(
-                shverb
+            entry_prompt = "shpipes.py {}: Press ⌃D TTY EOF to quit"
+        if shverb in EMACS_SHVERBS:
+            entry_prompt = (
+                "shpipes.py {}: "
+                "Press Esc X revert Tab Return, and ⌃X⌃C, to quit".format(shverb)
             )
-        if shverb in ("vi", "vim"):  # todo: weakly accurate
-            tty_prompt = "shpipes.py {}: Press ⇧Z ⇧Q to quit".format(shverb)
+        if shverb in VI_SHVERBS:
+            entry_prompt = "shpipes.py {}: Press ⇧Z ⇧Q to quit".format(shverb)
 
-    return tty_prompt
+    prompt_pair = None
+    if entry_prompt:
+        exit_prompt = "shpipes.py {}: Congrats, you did escape".format(shverb)
+        prompt_pair = (entry_prompt, exit_prompt)
+
+    return prompt_pair
 
 
-def judge_pbpaste_shverb(shline, alt_argv, tty_prompt):
+def judge_stdin_ispb(shline, alt_argv, tty_prompt_pair):
     """Choose when to take Stdin from PbPaste"""
 
     shverb = alt_argv[0]
@@ -1140,14 +1198,14 @@ def judge_pbpaste_shverb(shline, alt_argv, tty_prompt):
     if shverb == "sed":  # todo: weakly picks out does Sed have File Parms
         file_words = list()
 
-    pbpaste_shverb = shverb in PBPASTE_SHVERBS
-    if file_words or tty_prompt:
-        pbpaste_shverb = False
+    stdin_ispb = shverb in PBPASTE_SHVERBS
+    if file_words or tty_prompt_pair:
+        stdin_ispb = False
     if shverb == "grep":  # todo: weakly picks out does Grep have File Parms
         if ("-l" in shline) or ("-il" in shline):
-            pbpaste_shverb = False
+            stdin_ispb = False
 
-    return pbpaste_shverb
+    return stdin_ispb
 
 
 def stdin_demand():

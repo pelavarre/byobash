@@ -6,14 +6,3 @@
 require 'git config user.email' in Branch name before:  qpfwl
 
 something's half-wrong with my ` backticks inside Vim
-
-%
-% cv vi
-+ pbpaste
-+ vi
-Vim: Warning: Output is not to a terminal
-Vim: Warning: Input is not from a terminal
-shpipes.py: + exit 1
-+ exit 1
-zsh: exit 1     cv vi
-%
