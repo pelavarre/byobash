@@ -7,8 +7,6 @@ examples:
     python3.py py/0827pl.py $PWD
 """
 
-# cd ~/work/pure_tools/ && git log --pretty="%ae" --after=2022-04-16)
-
 
 import collections
 import datetime as dt

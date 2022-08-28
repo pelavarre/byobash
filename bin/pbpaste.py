@@ -43,9 +43,25 @@ except ModuleNotFoundError:
     AppKit = None
 
 
-if AppKit:
+if AppKit:  # i had 'pyobjc' in 'pip freeze' of my:  source ~/bin/pips.source
 
     pb = AppKit.NSPasteboard.generalPasteboard()
+
+    _ = """
+
+    import datetime as dt
+    import time
+    while True:  # i saw Oct/2021 Monterey macOS 12 deliver PbPaste updates into this
+
+        pbpaste = pb.stringForType_(AppKit.NSStringPboardType)
+        in_chars = str(pbpaste)
+
+        print(dt.datetime.now())
+        print(in_chars)
+
+        time.sleep(1)
+
+    """
 
     pbpaste = pb.stringForType_(AppKit.NSStringPboardType)
     in_chars = str(pbpaste)
