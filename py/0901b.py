@@ -10,10 +10,13 @@ examples:
 
 import os
 import pdb
+import signal
 import subprocess
 import sys
+import termios
 import threading
 import time
+import tty
 
 _ = pdb
 
@@ -31,10 +34,43 @@ except ImportError:
 _ = byo
 
 
+SIGINT_RETURNCODE_130 = 0x80 | signal.SIGINT
+assert SIGINT_RETURNCODE_130 == 130
+
+
 def main():
     """Run from the Sh Command Line"""
 
     byo.exit(shparms="--")  # do nothing without Parms
+
+    print("press Control+C to quit")
+    print()
+
+    fd = sys.stdin.fileno()
+    main.with_termios = termios.tcgetattr(fd)
+
+    tty.setraw(fd, when=termios.TCSADRAIN)  # not TCSAFLUSH
+
+    try:
+        run_threads()
+    finally:
+        tty_close()
+
+    sys.exit(SIGINT_RETURNCODE_130)
+
+
+def tty_close():
+
+    fd = sys.stdin.fileno()
+    when = termios.TCSADRAIN
+    attributes = main.with_termios
+    termios.tcsetattr(fd, when, attributes)
+
+
+def run_threads():
+    """Run some Threads in parallel"""
+
+    main.exiting = False
 
     thread_0 = threading.Thread(target=main_0)
     thread_1 = threading.Thread(target=main_1)
@@ -55,11 +91,11 @@ def main():
 def main_0():
     """Print Lines into Stdout"""
 
-    while True:
+    while not main.exiting:
 
         if main.lines:
             line = main.lines.pop(0)
-            print(line)
+            print(line + "\r")
 
         time.sleep(0.100)
 
@@ -67,9 +103,15 @@ def main_0():
 def main_1():
     """Copy each Line of Stdin to Os Copy/Paste Buffer via PbCopy"""
 
-    while True:
-        line_plus = sys.stdin.readline()
-        line = line_plus.splitlines()[0]
+    while not main.exiting:
+
+        stdin = os.read(sys.stdin.fileno(), 1)
+        if stdin == b"\x03":
+            main.exiting = True
+
+            break
+
+        line = repr(stdin) + "\n"
 
         main.lines.append("Caught new Stdin:  {}".format(repr(line)))
         main.buffer = line
@@ -82,7 +124,7 @@ def main_1():
 def main_2():
     """Watch for new revisions of Os Copy/Paste Buffer, send them onto Stdout"""
 
-    while True:
+    while not main.exiting:
 
         run = subprocess.run(
             "pbpaste".split(), stdin=subprocess.PIPE, stdout=subprocess.PIPE, check=True
