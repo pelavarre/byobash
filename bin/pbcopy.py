@@ -34,5 +34,22 @@ import byotools as byo
 byo.exit(__name__)
 
 
+# todo:
+_ = """
+
+integrate macOS 'AppKit.NSPasteboard.generalPasteboard' from 'pbpaste.py'
+
+cv             |...  |cv  # my own custom macOS
+pbpaste        |...  |pbcopy  # any merely standard macOS
+
+wl-paste ...   |...  |wl-copy ...  # one Linux
+xclip ...      |...  |xclip ...  # another Linux
+xsel ...       |...  |xsl ...  # another Linux
+
+Get-Clipboard  |...  |Set-Clipboard  # Windows
+
+"""
+
+
 # posted into:  https://github.com/pelavarre/byobash/blob/main/bin/pbcopy.py
 # copied from:  git clone https://github.com/pelavarre/byobash.git

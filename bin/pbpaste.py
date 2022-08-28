@@ -69,10 +69,20 @@ byo.exit(__name__)
 
 # todo:
 _ = """
+
+integrate macOS 'AppKit.NSPasteboard.generalPasteboard' into 'pbcopy.py'
+
+cv             |...  |cv  # my own custom macOS
+pbpaste        |...  |pbcopy  # any merely standard macOS
+
+wl-paste ...   |...  |wl-copy ...  # one Linux
+xclip ...      |...  |xclip ...  # another Linux
+xsel ...       |...  |xsl ...  # another Linux
+
+Get-Clipboard  |...  |Set-Clipboard  # Windows
+
+
 """
-
-
-# todo: posted as
 
 
 # posted into:  https://github.com/pelavarre/byobash/blob/main/bin/pbpaste.py
