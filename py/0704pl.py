@@ -132,5 +132,5 @@ if __name__ == "__main__":
     main()
 
 
-# posted into:  https://github.com/pelavarre/byobash/blob/main/py/makeover.py
+# posted into:  https://github.com/pelavarre/byobash/blob/main/py/0704pl.py
 # copied from:  git clone https://github.com/pelavarre/byobash.git

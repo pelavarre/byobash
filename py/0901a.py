@@ -3,7 +3,10 @@
 """
 usage: python3 py/0901a.py [--h] [--]
 
+show 3 threads interleaving prints of randomly delayed lines
+
 examples:
+    python3.py py/0901a.py  # show these examples
     python3.py py/0901a.py --
 """
 
@@ -75,5 +78,5 @@ if __name__ == "__main__":
     main()
 
 
-# posted into:  https://github.com/pelavarre/byobash/blob/main/py/0827pl.py
+# posted into:  https://github.com/pelavarre/byobash/blob/main/py/0901a.py
 # copied from:  git clone https://github.com/pelavarre/byobash.git
