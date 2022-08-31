@@ -3,6 +3,8 @@
 """
 usage: python3 py/0827pl.py [--h] [--]
 
+print Starplots of Git Commits pushed by Authors across Days
+
 examples:
     python3.py py/0827pl.py $PWD
 """
