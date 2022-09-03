@@ -36,8 +36,16 @@ DEFAULT_NONE = None
 
 _ = pdb
 
+_ = subprocess.run  # new since Sep/2015 Python 3.5
+_ = dt.datetime.now().astimezone()  # new since Dec/2016 Python 3.6
+# _ = importlib.import_module("dataclasses")  # new since Jun/2018 Python 3.7
+# _ = f"{sys.version_info[:3]=}"  # new since Oct/2019 Python 3.8
+# _ = shlex.join  # new since Oct/2019 Python 3.8
+# _ = str.removesuffix  # new since Oct/2020 Python 3.9
+# _  = list(zip([], [], strict=True))  # since Oct/2021 Python 3.10
 
-# FIXME: push 'def exit' variations as missing from 'import argparse/sys'
+
+# todo: push 'def exit' variations as missing from 'import argparse/sys'
 
 
 #
@@ -351,7 +359,7 @@ def exit_after_some_argv(argvs):
     """Run the ArgV's in order, till exit nonzero, else exit zero after the last one"""
 
     for argv in argvs:
-        subprocess_run_loud(argv, stdin=None)  # FIXME: when to chop off Tty Stdin
+        subprocess_run_loud(argv, stdin=None)  # todo: when to chop off Tty Stdin
 
     sys.exit()  # exits None after every ArgV exits Falsey
 
@@ -359,7 +367,7 @@ def exit_after_some_argv(argvs):
 def exit_after_one_argv(argv):
     """Call a Subprocess to run the ArgV, and then exit"""
 
-    subprocess_run_loud(argv, stdin=None)  # FIXME: when to chop off Tty Stdin
+    subprocess_run_loud(argv, stdin=None)  # todo: when to chop off Tty Stdin
 
     sys.exit()  # exits None after an ArgV exits Falsey
 
