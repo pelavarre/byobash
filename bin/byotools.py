@@ -17,6 +17,7 @@ examples:
 
 import __main__
 import argparse
+import datetime as dt
 import difflib
 import os
 import pathlib
@@ -795,6 +796,69 @@ def parse_epi_args(epi):
     # Succeed
 
     return args
+
+
+#
+# Add some Def's that 'import datetime' forgot
+#
+
+
+DTZ_FORMAT_ISO_ISH = "%Y-%m-%d %H:%M:%S.%f%z"
+# such as '1999-12-31 12:59:59.999999+00:00'
+# per https://en.wikipedia.org/wiki/ISO_8601
+
+
+def dtz_datetime_now(tzinfo=None):  # default to local, not to 'dt.datetime.now()' naive
+    """Say when Now is, in the Time Zone, else locally"""
+
+    now = dt.datetime.now(dt.timezone.utc).astimezone(tz=tzinfo)
+
+    return now
+
+    # now = byo.dtz_datetime_now()
+    # print(now.utcoffset(), now.tzname())  # -1 day, 17:00:00 PDT
+    # print(now.replace(tzinfo=None))  # 2022-09-03 15:22:42.099651
+
+
+def dtz_datetime_today_morning(tzinfo=None):
+    """Say when Midnight was, in the Time Zone, else locally"""
+
+    now = dt.datetime.now(dt.timezone.utc).astimezone(tzinfo)
+    replace = now.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    return replace
+
+    # today_morning = byo.dtz_datetime_today_morning()
+    # print(today_morning)  # 2022-09-03 00:00:00-07:00  # local midnight, zoned
+    # print(dt.datetime.today())  # 2022-09-03 15:51:21.128116  # naive, & not midnight
+
+    # print(byo.dtz_datetime_today_morning(tzinfo=dt.timezone(dt.timedelta(hours=5.5))))
+    # 2022-09-04 00:00:00+05:30  # midnight in chosen timezone
+
+
+def dtz_strftime(dtz_self, format=DTZ_FORMAT_ISO_ISH):
+    """Form a Date String from the DateTime by Format (inverse of StrPTime)"""
+
+    strftime = dtz_self.strftime(format)
+
+    return strftime
+
+    # print(byo.dtz_strftime(dt.datetime.now()))  # 2022-09-03 15:46:59.890232
+    # print(byo.dtz_strftime(byo.dtz_datetime_now()))  # 2022-09-03 15:47:00.762070-0700
+
+
+def dtz_strptime(date_string, format=DTZ_FORMAT_ISO_ISH):
+    """Parse a DateTime from the Date String by Format (inverse of StrFTime)"""
+
+    strptime = dt.datetime.strptime(date_string, format)
+
+    return strptime
+
+    # print(byo.dtz_strptime("1999-12-31 12:59:59.999999+00:00"))
+    # 1999-12-31 12:59:59.999999+00:00
+
+    # print(byo.dtz_strftime(byo.dtz_strptime("1999-12-31 12:59:59.999999+00:00")))
+    # 1999-12-31 12:59:59.999999+0000
 
 
 #

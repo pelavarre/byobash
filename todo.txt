@@ -3,6 +3,19 @@
 
 ++ dreaming since Aug/2022 ++
 
+g, qg:  grep to paragraphs, led by path, with hints indented
+
+qg:  default to search the least common prefix of:  qno
+
+qlv:  call for one more line, but chop it down to decorations, else .
+
+shelver.py - built out of Python's:  import shelf
+from shelver import requests
+from shelver import subprocess
+run the same as standard Python, but quick from cache, till next:  rm -fr __pycache__/
+
+--e, --ext=.py3:  if OPT["1"] or OPT["--oneword"]:  # 'ls -1', 'ls --oneword'
+
 git.py:  charge more friction for pushes out of the domain, such as
 git.py:     from 'git config user.email' 'work-for-hire.com'
 git.py:     into 'github.com' at 'git remote -v'

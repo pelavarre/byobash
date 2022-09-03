@@ -149,6 +149,8 @@ examples:
   git push origin HEAD:guests/jqdoe/clients
 """
 # todo:  Occasionally Needed Extras: making branches, deleting branches
+# todo:  Upkeep of the Slow Clone:  git fetch --tags --force
+# todo:  Upkeep of the Slow Clone:  git fetch --prune --prune-tags
 
 
 import __main__

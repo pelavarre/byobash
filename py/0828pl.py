@@ -7,7 +7,7 @@ show two days behind and five days ahead of hourly time across some timezones
 
 examples:
     python3.py py/0828pl.py  # show these examples
-    python3.py py/0828pl.py --  # -7 +3 +5.5
+    python3.py py/0828pl.py --  # -7 +2 +5.5
 """
 
 
@@ -37,8 +37,8 @@ def main():
 
     byo.exit(shparms="--")  # do nothing without Parms
 
-    zones = (-7, +3, +5.5)
-    str_zones = "-07:00 +03:00 +05:30".split()
+    zones = (-7, +2, +5.5)
+    str_zones = "-07:00 +02:00 +05:30".split()
 
     today = dt.datetime.now()
     today = dt.datetime(today.year, today.month, today.day)
