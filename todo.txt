@@ -3,9 +3,22 @@
 
 ++ dreaming since Aug/2022 ++
 
-g, qg:  grep to paragraphs, led by path, with hints indented
+
+Bash history by Dir
+
 
 qg:  default to search the least common prefix of:  qno
+
+
+g, qg:  grep to paragraphs, led by path, with hints indented
+
+
+# todo: jump to Line of File
+# vi bin/git.py +785
+# emacs -nw --eval '(menu-bar-mode -1)' bin/git.py --eval '(goto-line 785)'
+
+
+g, qg:  grep to paragraphs, led by path, with hints indented
 
 qlv:  call for one more line, but chop it down to decorations, else .
 

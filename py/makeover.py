@@ -38,28 +38,29 @@ except ImportError:
     import byotools as byo
 
 
-def main():
+def main():  # FIXME  # noqa: C901 too complex (11)
     """Run from the Sh Command Line"""
 
     byo.exit(shparms="--")  # do nothing without Parms
 
     # Choose Files to Review and Edit
 
-    if False:
+    if True:
 
         GLOB = "bin/*.py"
 
         authed_hits = list(glob.glob(GLOB))
-        if False:
-            authed_hits = authed_hits[:1]
 
-    # Choose Different Files to Review and Edit
+    if True:
 
-    shline = "git grep -il Posted"
-    byo.stderr_print("+ {}".format(shline))
-    lines = byo.subprocess_run_somelines(shline)
+        shline = "git grep -il Posted"
+        byo.stderr_print("+ {}".format(shline))
+        lines = byo.subprocess_run_somelines(shline)
 
-    authed_hits = lines
+        authed_hits = lines
+
+    if False:
+        authed_hits = authed_hits[:1]
 
     # Visit each File once
 
@@ -101,12 +102,24 @@ def main():
             else:
                 occasion = (hit, ilines[-3:])
 
-                assert ilines[-3] == "", occasion
-                assert ilines[-2].startswith("# posted "), occasion
-                assert ilines[-1].startswith("# copied "), occasion
+                try:
 
-                olines[-2] = "# posted into:  {}".format(posted)
-                olines[-1] = "# copied from:  {}".format(copied)
+                    assert ilines[-3] == "", occasion
+                    assert ilines[-2].startswith("# posted "), occasion
+                    assert ilines[-1].startswith("# copied "), occasion
+
+                    olines[-2] = "# posted into:  {}".format(posted)
+                    olines[-1] = "# copied from:  {}".format(copied)
+
+                except (AssertionError, IndexError):
+
+                    if True:
+
+                        raise
+
+                    olines += [""]
+                    olines += ["# posted into:  {}".format(posted)]
+                    olines += ["# copied from:  {}".format(copied)]
 
             # Only mutate the File if the Edit made changes
 

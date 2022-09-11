@@ -76,15 +76,17 @@ examples:
   git.py dhno  # git diff --name-only HEAD~..., default HEAD~1
   git.py dno  # git diff --name-only
   git.py em  # qno ... && em $(qno ...)
-  git.py g  # git grep -i
-  git.py gi  # git grep
-  git.py gl  # git grep -ilR
-  git.py gli  # git grep -lR
+  git.py g  # grep -i .
+  git.py gi  # git grep .  # without '-i'
+  git.py gli  # git grep -l .  # without '-i'
+  git.py gl  # git grep -il .
+  git.py gv  # git grep -v -i .
+  git.py gvi  # git grep -v .  # without '-i'
   git.py lf  # git ls-files
-  git.py no  # git diff --name-only, else same of HEAD~1, else the EXT there
+  git.py no  # usage: git.py no [EXT | DEPTH|HEAD~...|HASH [EXT]]  # for dno, dhno, spno
   git.py s  # git show
   git.py sp  # git show --pretty=''
-  git.py spno  # git show --pretty='' --name-only
+  git.py spno  # git show --pretty='' --name-only  # takes HEAD~..., defaults to  HEAD
   git.py sis  # git status --ignored --short  # calmer than 'git status'
   git.py st  # git status
   git.py sun  # git status --untracked-files=no
@@ -108,16 +110,20 @@ examples:
   git.py lq  # git log --oneline --no-decorate -...  # default lots, -0 for no limit
   git.py lq0  # git log --oneline --no-decorate
   git.py lq1  # git log --oneline --no-decorate -1
+  git.py lq2  # git log --oneline --no-decorate -2
+  git.py lq3  # git log --oneline --no-decorate -3
   git.py lqa  # git log --oneline --no-decorate --author=$USER -...
   git.py ls  # git log --numstat  # but see also:  git show --name-only
   git.py lv  # git log --oneline --decorate -...  # default lots, -0 for no limit
+  git.py lv0  # git log --oneline --decorate
   git.py lv1  # git log --oneline --decorate -1
+  git.py lva  # git log --oneline --decorate --author=$USER -...
   git.py rb  # git rebase
   git.py ri  # git rebase --interactive --autosquash HEAD~...  # else {@upstream}
   git.py rl  # git reflog  # show Commits of Clone, no matter the Branch
   git.py rlv  # git reflog --format=fuller  # show more detail for Commits of Clone
-  git.py rpar  # git rev-parse --abbrev-ref  # show the key line of:  git.py b
-  git.py rpsfn  # git rev-parse --symbolic-full-name  # like show @{-1} of 'co -'
+  git.py rpar  # git rev-parse --abbrev-ref  # show the key line of:  git branch
+  git.py rpsfn  # loop git rev-parse --symbolic-full-name  # like show @{-1} of 'co -'
   git.py rv  # git remote -v
   git.py ssn  # git shortlog --summary --numbered
 
@@ -148,6 +154,9 @@ examples:
 
   git push origin HEAD:guests/jqdoe/clients
 """
+
+# FIXME:  these are Aliases of 'git.py --for-shproc', not Aliases of 'git.py'
+
 # todo:  Occasionally Needed Extras: making branches, deleting branches
 # todo:  Upkeep of the Slow Clone:  git fetch --tags --force
 # todo:  Upkeep of the Slow Clone:  git fetch --prune --prune-tags
@@ -349,10 +358,6 @@ def exit_if_shproc(shverb, parms, authed, shlines):  # todo  # noqa: C901 comple
             alt_parms = ["HEAD"]
         elif alt_shlines == ["git commit --fixup {}"]:
             alt_parms = ["HEAD"]
-        # elif alt_shlines == ["git grep {}"]:  # no, because Git Grep defaults to -R
-        #     alt_parms = ["."]
-        # elif alt_shlines == ["git grep -i {}"]:
-        #     alt_parms = ["."]
         elif alt_shlines == ["git rev-parse --abbrev-ref {}"]:
             alt_parms = ["HEAD"]
 
@@ -396,7 +401,12 @@ def exit_if_shproc(shverb, parms, authed, shlines):  # todo  # noqa: C901 comple
 
             # Count off 0..N below HEAD, default 1, else take complex Parms
 
-            if " HEAD~{}" in shline:
+            if shline == "git show --pretty='' --name-only {}":
+                if intparm is not None:
+                    alt_shline = shline.replace(" {}", " HEAD~{}")
+                    parmed_shline = alt_shline.format(intparm, shparms_minus)
+
+            elif " HEAD~{}" in shline:
 
                 if not shparms:
                     parmed_shline = shline.format(1)
@@ -523,9 +533,9 @@ def exit_if_shproc(shverb, parms, authed, shlines):  # todo  # noqa: C901 comple
 
     # Run each of the ArgV's and exit
 
-    require_cwd_in_clone_if_git_diff(argv=argvs[0])
+    require_cwd_in_clone_if_git_diff(argv=argvs[0])  # duck around 125+ Lines of Error
 
-    byo.exit_after_some_argv(argvs)
+    byo.exit_after_some_loud_argv(argvs)
 
 
 def require_cwd_in_clone_if_git_diff(argv):
@@ -625,7 +635,7 @@ def form_aliases_by_shverb():
 
             continue
 
-        docline_twice = docline.format("...", "...")
+        docline_twice = docline.format("...", "...")  # no Exception when just 1 "{}"
         if docline_twice in doc:
 
             continue
@@ -681,10 +691,6 @@ ALIASES = {
     "em": "qno {} && em $(qno {})",
     "f": "git fetch",
     "frb": "git fetch && git rebase",
-    "g": "git grep -i {}",  # todo: default Grep of $(qno)
-    "gi": "git grep {}",  # todo: default Grep of $(qno)
-    "gl": "git grep -il {}",  # todo: default Grep of $(qno)
-    "gli": "git grep -l {}",  # todo: default Grep of $(qno)
     "l": "git log {}",
     "l1": "git log --decorate -1 {}",
     "lf": "git ls-files {}",
@@ -695,11 +701,15 @@ ALIASES = {
     "lq": "git log --oneline --no-decorate -{}",
     "lq0": "git log --oneline --no-decorate {}",
     "lq1": "git log --oneline --no-decorate -1 {}",
+    "lq2": "git log --oneline --no-decorate -2 {}",
+    "lq3": "git log --oneline --no-decorate -3 {}",
     "lqa": "git log --oneline --no-decorate --author=$USER -{}",
     "ls": "git log --numstat {}",
     "lv": "git log --oneline --decorate -{}",
+    "lv0": "git log --oneline --decorate {}",
     "lv1": "git log --oneline --decorate -1 {}",
-    "no": "git diff --name-only, else same of HEAD~1, else the EXT there",
+    "lva": "git log --oneline --decorate --author=$USER -{}",
+    "no": "usage: git.py no [EXT | DEPTH|HEAD~...|HASH [EXT]]",  # for dno, dhno, spno
     "pfwl": "cat - && git push --force-with-lease",
     "rb": "git rebase {}",  # auth w/out ⌃D
     "rh": "cat - && git reset --hard {}",
@@ -708,7 +718,7 @@ ALIASES = {
     "rl": "git reflog",
     "rlv": "git reflog --format=fuller",
     "rpar": "git rev-parse --abbrev-ref {}",
-    "rpsfn": "git rev-parse --symbolic-full-name {}",  # such as:  rpsfn @{-1]
+    "rpsfn": "loop git rev-parse --symbolic-full-name {}",  # like show @{-1} of 'co -'
     "rv": "git remote -v",
     "s": "git show {}",
     "s1": "git show :1:{}",
@@ -739,21 +749,32 @@ def form_exit_if_funcs_by_shverb():
     """Declare the Exit_If Func's, indexed by ShVerb"""
 
     exit_if_funcs = dict(
-        em=exit_if_em,
-        no=exit_if_git_no,
-        rpsfn=exit_if_git_rpsfn,
-        vi=exit_if_vi,
+        em=exit_if_em,  # "em"
+        g=exit_if_g,  # "g"
+        gi=exit_if_gi,  # "gi"
+        gl=exit_if_gl,  # "gl"
+        gli=exit_if_gli,  # "gli"
+        gv=exit_if_gv,  # "gv"
+        gvi=exit_if_gvi,  # "gvi"
+        no=exit_if_git_no,  # "no"
+        rpsfn=exit_if_git_rpsfn,  # "rpsfn"
+        vi=exit_if_vi,  # "vi"
     )
 
-    exit_if_funcs["---"] = exit_if_by_git_stdout_line
     exit_if_funcs["+++"] = exit_if_by_git_stdout_line
+    exit_if_funcs["---"] = exit_if_by_git_stdout_line
     exit_if_funcs["File"] = exit_if_by_py_stderr_line
-    # todo: coin a Verb to take "---", "+++", "File" etc as its first Parm
+    # todo: coin a ShVerb to take "+++", "---", "File" etc as its first Parm
 
     return exit_if_funcs
 
 
-def exit_if_by_py_stderr_line(parms):  # todo: factor out into some other file?
+#
+# Define some Git Alias'es to take looped-back Std/out/err Lines as Next Steps
+#
+
+
+def exit_if_by_py_stderr_line(parms):  # for ShVerb "File"
     """Take or suggest next action after being fed back a Line of Py Stderr"""
 
     shverb = main.shverb
@@ -775,8 +796,10 @@ def exit_if_by_py_stderr_line(parms):  # todo: factor out into some other file?
 
         exit_after_git_edit_path(path)
 
+    # todo: factor out 'def exit_if_by_py_stderr_line' into some other file?
 
-def exit_if_by_git_stdout_line(parms):
+
+def exit_if_by_git_stdout_line(parms):  # for ShVerbs "+++", "---"
     """Take or suggest next action after being fed back a Line of Git Stdout"""
 
     shverb = main.shverb
@@ -796,7 +819,7 @@ def exit_if_by_git_stdout_line(parms):
             # todo: jump to Line of File when given 2 Lines of Paste
 
 
-def exit_after_git_edit_path(path):
+def exit_after_git_edit_path(path):  # common to ShVerb's "+++", "---", "File"
     """Forward one Parm into the local Editor"""
 
     # Form a ShLine to forward the one Parm into the local Editor
@@ -820,10 +843,30 @@ def exit_after_git_edit_path(path):
     # emacs -nw --eval '(menu-bar-mode -1)' bin/git.py --eval '(goto-line 785)'
 
 
-def exit_if_git_no(parms):
+#
+# usage: git.py no [EXT | DEPTH|HEAD~...|HASH [EXT]]"  # for dno, dhno, spno
+#
+# show the tracked files in flight
+#
+# examples:
+#   qno  # 'qdno' else 'qdhno'
+#   qno .py  # same as 'qno', but cut back by:  |grep -e '[.]py$'
+#   qno py  # short for:  qno .py
+#   qno 3  # short for:  qdhno 3
+#   qno 3 .txt  # same as 'qno 3', but cut back by:  |grep -e '[.]txt$'
+#   qno HEAD  # short for:  qspno HEAD
+#   qno HEAD~3  # short for 'qspno HEAD~3', not for 'qdhno HEAD~3'
+#   qno abcdef0  # short for 'qspno abcdef0', not for 'qdhno abcdef0'
+#   qno abcdef0 .bash  # same as 'qno abcdef0' but cut back by:  |grep -e '[.]bash$'
+#
+
+
+def exit_if_git_no(parms):  # "qno"
     """List the Files of the Git Diff, else of Git Diff HEAD~1, else the EXT there"""
 
     aliases_by_shverb = form_aliases_by_shverb()
+
+    # Require some synch of 'qno' with 'qdno', 'qdhno', and 'qspno'
 
     dno_alias = aliases_by_shverb["dno"]
     assert dno_alias.shlines == ["git diff --name-only {}"], dno_alias.shlines
@@ -832,7 +875,7 @@ def exit_if_git_no(parms):
     spno_alias = aliases_by_shverb["spno"]
     assert spno_alias.shlines == ["git show --pretty='' --name-only {}"]
 
-    # Sample the 'git diff --name-only'
+    # Secretly sample the 'git diff --name-only'
 
     qd_shline = "git diff --name-only"
     qd_argv = shlex.split(qd_shline)
@@ -878,18 +921,29 @@ def exit_if_git_no(parms):
     if uint_parm:
         alt_parms[0] = "HEAD~{}".format(parms_0)
 
-    # Call on "git show --pretty=''" to deal with less simple Parms
+    # Call on "dhno" or "spno" to take Parms given without a chosen Ext
 
     if not ext_parm:
+        if uint_parm:
 
-        exit_if_by_shverb(shverb="spno", parms=alt_parms)
+            exit_if_by_shverb(shverb="dhno", parms=parms)
+
+        else:
+
+            exit_if_by_shverb(shverb="spno", parms=alt_parms)
+
+    # Call on "dno" else ("dhno" or "spno") to take Parms given with a chosen Ext
 
     exit_if_git_no_ext(
-        ext_parm, qd_chars=qd_chars, depth_parm=depth_parm, alt_parms=alt_parms
+        ext_parm,
+        qd_chars=qd_chars,
+        depth_parm=depth_parm,
+        uint_parm=uint_parm,
+        alt_parms=alt_parms,
     )
 
 
-def exit_if_git_no_ext(ext_parm, qd_chars, depth_parm, alt_parms):
+def exit_if_git_no_ext(ext_parm, qd_chars, depth_parm, uint_parm, alt_parms):
     """List only the Files of EXT found in a Git Diff"""
 
     # List the Files of the Git Diff, else of Git Diff HEAD~1, else of Chosen Depth
@@ -899,6 +953,8 @@ def exit_if_git_no_ext(ext_parm, qd_chars, depth_parm, alt_parms):
         shline = "git diff --name-only HEAD~1"
     if depth_parm:
         shline = "git diff --name-only {}".format(alt_parms[0])
+        if not uint_parm:
+            shline = "git show --pretty='' --name-only {}".format(alt_parms[0])
 
     # Form a Reg Ex to pick out only the Files of the Ext
 
@@ -919,7 +975,19 @@ def exit_if_git_no_ext(ext_parm, qd_chars, depth_parm, alt_parms):
     sys.exit()  # Exit None after an ArgV exits Falsey
 
 
-def exit_if_git_rpsfn(parms):
+#
+# usage: git.py rpsfn [-DEPTH]
+#
+# show Branch history below or thru '--abbrev-ref HEAD'
+#
+# examples:
+#   qrpsfn  # git rev-parse --symbolic-full-name @{-1}
+#   qrpsfn -1  # git rev-parse --symbolic-full-name HEAD |sed 's,^refs/heads/,,'
+#   qrpsfn -3  # git rev-parse --symbolic-full-name ... @{-2} |sed 's,^refs/heads/,,'
+#
+
+
+def exit_if_git_rpsfn(parms):  # "rpsfn"  # distinct from "rpar"
     """List the last Symbolic Full Names through to an Int, else forward Parms"""
 
     # Require the Alias "rpsfn" defined, same as here, across the ArgDoc and such
@@ -938,7 +1006,7 @@ def exit_if_git_rpsfn(parms):
     # Take an Int as the Last to show, but ignore the Sign on the Int
 
     alt_shlines = list()
-    alt_shlines.append("git rev-parse --abbrev-ref HEAD")
+    alt_shlines.append("git rev-parse --symbolic-full-name HEAD")
 
     alt_parms = parms
     if not parms:
@@ -971,19 +1039,13 @@ def exit_if_git_rpsfn(parms):
 def exit_after_rpsfn_shlines(shlines):
     """Trace all the ShLines before any of the Outputs, and drop the 'refs/heads/'"""
 
+    for shline in shlines:
+        byo.stderr_print("+ {} |sed 's,^refs/heads/,,'".format(shline))
+
     expansions = list()
     for shline in shlines:
-        if len(shlines) == 1:
-            byo.stderr_print("+ {}".format(shline))
         expansion = byo.subprocess_run_oneline(shline)
         expansions.append(expansion)
-
-    if len(shlines) != 1:
-        for (index, shline) in enumerate(shlines):
-            if not index:
-                byo.stderr_print("+ {}".format(shline))
-            else:
-                byo.stderr_print("+ {} |sed 's,^refs/heads/,,'".format(shline))
 
     for expansion in expansions:
         print(byo.str_removeprefix(expansion, "refs/heads/"))
@@ -991,11 +1053,107 @@ def exit_after_rpsfn_shlines(shlines):
     sys.exit(0)  # Exit 0 after printing Help Lines
 
 
-def exit_if_em(parms):
+#
+# Amp up 'g', 'gi', 'gl', 'gli', 'gv', 'gvi'
+# todo: merge with 'shpipes.py' near 'def do_g'
+#
+
+
+def exit_if_g(parms):  # "g"
+    """grep -i ."""
+
+    exit_if_g_parms_shoptions_shwords(parms, shoptions="-i", shwords=".")
+
+
+# todo: merge with 'grep.py' and 'shpipes.do_g_parms_shoptions_shwords'
+def exit_if_g_parms_shoptions_shwords(parms, shoptions, shwords=None):
+    """Forward ShLine of Options or Seps, else default to Options and Words"""
+
+    stdout_isatty = sys.stdout.isatty()
+
+    # Forward ShLine w Parms of Options or Seps
+
+    (options, seps, words) = byo.shlex_parms_partition(parms, mark="-e")
+    if options or seps:
+        shline = "git grep {}".format(shoptions).rstrip()
+
+        marked_alt_parms = options + seps + words
+        if set(marked_alt_parms) - set(parms):
+
+            exit_after_weak_shparms(shline, parms=marked_alt_parms)
+
+        else:
+
+            exit_after_weak_shparms(shline, parms=parms)
+
+    # Else default to Options and Words, except also add Color into a Tty Stdout
+
+    options = shlex.split(shoptions)
+    if stdout_isatty:
+        if shwords:
+            options.append("--color=auto")
+
+    if not words:
+        if shwords:
+            words = shlex.split(shwords)
+
+    # Trace and call and exit
+
+    shline = "git grep"
+    alt_parms = options + seps + words
+
+    exit_after_weak_shparms(shline, parms=alt_parms)
+
+
+# todo: merge with 'shpipe.exit_after_shparms'
+def exit_after_weak_shparms(shline, parms):
+    """Forward Parms into a Sh Subprocess - trace, call,and exit"""
+
+    argv = shlex.split(shline) + parms
+
+    byo.exit_after_one_loud_argv(argv)
+
+
+def exit_if_gi(parms):  # "qbin/gi"  # "gi"
+    """grep ."""
+
+    exit_if_g_parms_shoptions_shwords(parms, shoptions="", shwords=".")
+
+
+def exit_if_gl(parms):  # "qbin/gl"  # "gl"
+    """grep -il"""  # better No ShWords, than r"." to match too many Lines
+
+    exit_if_g_parms_shoptions_shwords(parms, shoptions="-il", shwords="")
+
+
+def exit_if_gli(parms):  # "qbin/gli"  # "gli"
+    """grep -l"""  # better No ShWords, than r"." to match too many Lines
+
+    exit_if_g_parms_shoptions_shwords(parms, shoptions="-l", shwords="")
+
+
+def exit_if_gv(parms):  # "qbin/gv"  # "gv"
+    """grep -v -i ."""
+
+    exit_if_g_parms_shoptions_shwords(parms, shoptions="-v -i", shwords=".")
+
+
+def exit_if_gvi(parms):  # "qbin/gvi"  # "gvi"
+    """grep -v"""
+
+    exit_if_g_parms_shoptions_shwords(parms, shoptions="-v", shwords=".")
+
+
+#
+# Layer over 'qno' synthesis of 'qdno', 'qdhno', 'qspno'
+#
+
+
+def exit_if_em(parms):  # "em"
     exit_if_shverb_qno("em", parms)
 
 
-def exit_if_vi(parms):
+def exit_if_vi(parms):  # "vi"
     exit_if_shverb_qno("vi", parms)
 
 
@@ -1045,19 +1203,15 @@ if __name__ == "__main__":
 #
 
 
+# todo: Git Py could decline to lose Stdin, such as refuse:  echo abc |git.py grep bc
+
+
 # todo: test:  qno qa  # it should mean:  git add $(git diff --name-only)
 
 # todo: echo qbin/qg{v,}{l,}{w,}{i,}
 # todo: echo qb/g{v,}{l,}{w,}{i,}
 # todo: auto-correct'ing the 'qg' [FILE ...] Parm to be:  $(qno)
 
-# todo: qno HEAD
-# $ qno HEAD
-# + git diff --name-only HEAD~1 |grep -e '[.]HEAD$'
-# git.py: + exit 1
-# $
-
-# FIXME: take each Arg of 'g...' as list of '-e' REGEX to Logical-Or, up to '--'
 # todo: define qg algorithmically
 # todo: fan out as full 32 inside:  echo qbin/qg{v,}{l,}{w,}{i,}{n,}
 # todo: ditto via 'shpipes.py' as full 32 inside:  echo qb/g{v,}{l,}{w,}{i,}{n,}

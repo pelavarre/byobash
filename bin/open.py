@@ -34,12 +34,14 @@ examples:
 
 
 import os
+import pdb
 import re
 import sys
 import urllib.parse
 
-
 import byotools as byo
+
+_ = pdb
 
 
 def main():
@@ -110,6 +112,20 @@ def print_forms_of_address(address):  # noqa C901 too complex (11)
             print()
             print(vpn_unsplit)
 
+    else:
+
+        vpn_splits = urllib.parse.urlsplit(address)
+        if "." in netloc:
+            vpn_netloc = vpn_splits.netloc.split(".")[0]
+            vpn_splits = vpn_splits._replace(netloc=vpn_netloc)
+
+            vpn_unsplit = urllib.parse.urlunsplit(vpn_splits)
+
+            print()
+            print("-- local network without much domain --")
+            print()
+            print(vpn_unsplit)  # may also drop ':$port', i'm not sure when
+
     # Try to give up some Escapes
 
     basename = os.path.basename(splits.path)
@@ -138,13 +154,13 @@ def print_forms_of_address(address):  # noqa C901 too complex (11)
 
     kv_ch = "?"
     kv_address = address
-    kv_splits_query = splits.query
+    kv_splits_query = splits.query  # such as from '...?a=1&b=2'
     if not splits.query:
 
         kv_ch = "#"
         kv_address = address.replace("#", "?", COUNT_1)
         kv_splits = urllib.parse.urlsplit(kv_address)
-        kv_splits_query = kv_splits.query
+        kv_splits_query = kv_splits.query  # such as from '...#a=1&b=2'
 
     if kv_splits_query:
         root = byo.str_removesuffix(kv_address, suffix=kv_splits_query)
@@ -167,14 +183,19 @@ def print_forms_of_address(address):  # noqa C901 too complex (11)
         print("-- with line-broken query --")
         print()
         print(rstrip + kv_ch)
-        pairs = urllib.parse.parse_qsl(kv_splits_query)
+
+        kv_sep = "&"  # todo: more 'kv_sep', such as None
+        if ("&" not in kv_splits_query) and (";" in kv_splits_query):
+            kv_sep = ";"
+
+        pairs = urllib.parse.parse_qsl(kv_splits_query, separator=kv_sep)
         for (index, pair) in enumerate(pairs):
             (name, value) = pair
             qvalue = urllib.parse.quote(value)
             if not index:
                 print("    {}={}".format(name, qvalue))
             else:
-                print("    &{}={}".format(name, qvalue))
+                print("    {}{}={}".format(kv_sep, name, qvalue))
 
         joinable_query = urllib.parse.urlencode(pairs)
         joinable_splits = urllib.parse.urlsplit(kv_address)

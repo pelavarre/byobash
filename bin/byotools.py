@@ -352,10 +352,10 @@ def exit_if_shverb(argv):
 
     # Else exit after calling Subprocess
 
-    exit_after_one_argv(argv=shverb_argv)
+    exit_after_one_loud_argv(argv=shverb_argv)
 
 
-def exit_after_some_argv(argvs):
+def exit_after_some_loud_argv(argvs):
     """Run the ArgV's in order, till exit nonzero, else exit zero after the last one"""
 
     for argv in argvs:
@@ -364,7 +364,7 @@ def exit_after_some_argv(argvs):
     sys.exit()  # exits None after every ArgV exits Falsey
 
 
-def exit_after_one_argv(argv):
+def exit_after_one_loud_argv(argv):
     """Call a Subprocess to run the ArgV, and then exit"""
 
     subprocess_run_loud(argv, stdin=None)  # todo: when to chop off Tty Stdin
@@ -963,14 +963,17 @@ def shlex_dquote(parm):
     if not unquotable_ascii_set:
         doublequoted = '"' + parm + '"'
         if len(doublequoted) < len(quoted):
+            late = shlex_quote_later(doublequoted)
 
-            return doublequoted
+            return late
 
             # such as:  print(shlex_dquote("i just can't"))  # "i just can't"
 
-    # Give up and settle for the Library's work
+    # Give up and mostly settle for the Library's work
 
-    return quoted
+    late = shlex_quote_later(quoted)
+
+    return late
 
     # todo: figure out when the ^ Caret is plain enough to need no quoting
     # todo: figure out when the {} Braces are plain enough to need no quoting
@@ -979,6 +982,22 @@ def shlex_dquote(parm):
     # todo: figure out when the * ? [ ] are plain enough to need no quoting
     # so long as we're calling Bash not Zsh
     # and the Dirs don't change out beneath us
+
+
+# deffed in many files  # missing from docs.python.org
+def shlex_quote_later(early):
+    """Slide the ' Quote or " DoubleQuote past the Mark of an Option"""
+
+    matched = re.match(r"^'-[A-Z_a-z]+", string=early)
+    matched = matched or re.match(r'^"-[A-Z_a-z]+', string=early)
+    if not matched:
+
+        return early
+
+    stop = matched.end()
+    late = early[1:stop] + early[0] + early[stop:]  # such as -e'$' from '-e$'
+
+    return late
 
 
 # deffed in many files  # missing from docs.python.org
@@ -1096,7 +1115,7 @@ def shlex_parms_pop_option_value(parms, option, enough, const):
             return option_value
 
 
-def shlex_parms_partition(parms):
+def shlex_parms_partition(parms, mark=None):
     """Split Options from Positional Args, in the classic way of ArgParse and Sh"""
 
     options = list()
@@ -1113,31 +1132,24 @@ def shlex_parms_partition(parms):
 
         # Pick out each Option, before the First Sep
 
-        elif (not seps) and (parm != "-") and parm.startswith("-"):
-            options.append(parm)
+        elif not seps:
+            if (parm != "-") and parm.startswith("-") and not parm.startswith("---"):
+                options.append(parm)
 
-        # Pick out each Arg, before the First Sep
+            # Pick out each Arg before the First Sep
+
+            elif mark is not None:
+                marked = mark + parm
+                options.append(marked)
+            else:
+                words.append(parm)
+
+        # Pick out each Arg after the First Sep
 
         else:
             words.append(parm)
 
     return (options, seps, words)
-
-    #   look deeper into when '---' is an option, like Grep votes '---' is an Arg
-    #
-    #       % qd |g -e +++ -e ---
-    #       + git diff
-    #       ('+ grep -i -e +++ -e ---',)
-    #       --- a/bin/byotools.py
-    #       +++ b/bin/byotools.py
-    #       --- a/bin/git.py
-    #       +++ b/bin/git.py
-    #       --- a/bin/shpipes.py
-    #       +++ b/bin/shpipes.py
-    #       --- a/todo.txt
-    #       +++ b/todo.txt
-    #       %
-    #
 
 
 #

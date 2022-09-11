@@ -50,9 +50,13 @@ examples:
   less -FIRX screenlog.0  # trust and run the Esc sequences
   less screenlog.0  # show the Esc sequences without running them
 """
+
+
+# screen.py -r  # pick the latest, and autonumber them a b c ..., don't demand just one
+
+
 # talk out how best to clear Bash History for a Bash Screen
 # Linux only -Logfile LOG         choose a name for the LogFile (default: 'screenlog.0')
-# screen.py -r  # pick the latest, and autonumber them a b c ..., don't demand just one
 # screen.pr --rt  # sort by latest last
 # -t      forward control of the local terminal (-tt for more force)
 

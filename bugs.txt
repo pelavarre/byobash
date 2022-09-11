@@ -3,4 +3,56 @@
 
 ++ dreaming since Aug/2022 ++
 
+
+% qcl bin
++ git --for-shproc cl bin
+unknown option: --for-shproc
+usage: git [--version] [--help] [-C <path>] [-c <name>=<value>]
+           [--exec-path[=<path>]] [--html-path] [--man-path] [--info-path]
+           [-p | --paginate | -P | --no-pager] [--no-replace-objects] [--bare]
+           [--git-dir=<path>] [--work-tree=<path>] [--namespace=<name>]
+           <command> [<args>]
+git.py: + exit 129
+zsh: exit 129   qcl bin
+% 
+
+
+
+$ xa
++ xa
+Traceback (most recent call last):
+  File "/u/plavarre/Public/byobash/bin/shpipes.py", line 1515, in <module>
+    main()
+  File "/u/plavarre/Public/byobash/bin/shpipes.py", line 201, in main
+    exit_via_main_parms(parms)
+  File "/u/plavarre/Public/byobash/bin/shpipes.py", line 232, in exit_via_main_parms
+    exit_if_shverb([shverb] + parms)
+  File "/u/plavarre/Public/byobash/bin/shpipes.py", line 1257, in exit_if_shverb
+    byo.exit_if_shverb(argv)
+  File "/dogfood-home/eng_home/plavarre/public_html/byobash/bin/byotools.py", line 346, in exit_if_shverb
+    exit_after_one_argv(argv=shverb_argv)
+  File "/dogfood-home/eng_home/plavarre/public_html/byobash/bin/byotools.py", line 361, in exit_after_one_argv
+    subprocess_run_loud(argv, stdin=None)  # FIXME: when to chop off Tty Stdin
+  File "/dogfood-home/eng_home/plavarre/public_html/byobash/bin/byotools.py", line 1124, in subprocess_run_loud
+    run = subprocess.run(argv, stdin=stdin, stdout=stdout)
+  File "/usr/lib/python3.8/subprocess.py", line 493, in run
+    with Popen(*popenargs, **kwargs) as process:
+  File "/usr/lib/python3.8/subprocess.py", line 858, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "/usr/lib/python3.8/subprocess.py", line 1704, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+OSError: [Errno 8] Exec format error: 'xa'
+$
+
+
+
 something's half-wrong with my ` backticks inside Vim
+
+
+$ qs 2
++ git show 2
+fatal: ambiguous argument '2': unknown revision or path not in the working tree.
+Use '--' to separate paths from revisions, like this:
+'git <command> [<revision>...] -- [<file>...]'
+git.py: + exit 128
+$

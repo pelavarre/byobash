@@ -101,9 +101,9 @@ examples:
   shpipes.py g  # grep -i .
   shpipes.py gi  # grep .  # without '-i'
   shpipes.py gl  # grep -ilR
-  shpipes.py gli  # grep -lR  # without '-il'
-  shpipes.py gv  # grep -v -i
-  shpipes.py gvi  # grep -v  # without '-i'
+  shpipes.py gli  # grep -lR  # without '-i'
+  shpipes.py gv  # grep -v -i .
+  shpipes.py gvi  # grep -v .  # without '-i'
   shpipes.py h  # head -16  # or whatever a third of the screen is
   shpipes.py hi  # history  # but include the '~/.bash_histories/' dir
   shpipes.py ht  # sed -n -e '1,2p;3,3s/.*/&\n.../p;$p'  # Head and also Tail
@@ -306,10 +306,10 @@ def form_shfunc_by_verb():
         f=do_f,  # find . -not -type d -not -path './.git/*' |less -FIRX  # Mac needs .
         g=do_g,  # grep -i .
         gi=do_gi,  # grep .  # without '-i'
-        gli=do_gli,  # grep -lR  # without '-il'
+        gli=do_gli,  # grep -lR  # without '-i'
         gl=do_gl,  # grep -ilR
-        gv=do_gv,  # grep -v -i
-        gvi=do_gvi,  # grep -v  # without '-i'
+        gv=do_gv,  # grep -v -i .
+        gvi=do_gvi,  # grep -v .  # without '-i'
         h=do_h,  # head -16  # or whatever a third of the screen is
         hi=do_hi,  # history  # but include the '~/.bash_histories/' dir
         ht=do_ht,  # sed -n -e '1,2p;3,3s/.*/&\n.../p;$p'  # Head and also Tail
@@ -330,6 +330,11 @@ def form_shfunc_by_verb():
     )
 
     return shfunc_by_verb
+
+
+#
+# Define:  a, c
+#
 
 
 def do_a(parms):  # "qb/a"  # "a"
@@ -426,6 +431,11 @@ def do_c(parms):  # "qb/c"  # "c"
         exit_after_shline("cat -")
 
     exit_after_shparms("cat", parms=parms)
+
+
+#
+# Define:  cv
+#
 
 
 def do_cv(parms):  # "qb/cv"  # "cv"
@@ -614,6 +624,11 @@ def subprocess_pipe_self(parms):
             sys.stdout.flush()  # unneeded?
 
 
+#
+# Define:  d, e, f
+#
+
+
 def do_d(parms):  # "qb/d"  # "d"
     """diff -brpu a b |less -FIRX"""
 
@@ -668,12 +683,19 @@ def do_f(parms):  # "qb/f"  # "f"
     exit_after_shline_to_tty(shline)
 
 
+#
+# Define:  g, gi, gl, gli, gv, gvi
+# todo: merge with 'git.py' near 'def exit_if_g'
+#
+
+
 def do_g(parms):  # "qb/g"  # "g"
     """grep -i ."""
 
     do_g_parms_shoptions_shwords(parms, shoptions="-i", shwords=".")
 
 
+# todo: merge with 'grep.py' and 'git.exit_if_g_parms_shoptions_shwords'
 def do_g_parms_shoptions_shwords(parms, shoptions, shwords=None):
     """Forward ShLine of Options or Seps, else default to Options and Words"""
 
@@ -681,11 +703,18 @@ def do_g_parms_shoptions_shwords(parms, shoptions, shwords=None):
 
     # Forward ShLine w Parms of Options or Seps
 
-    (options, seps, words) = byo.shlex_parms_partition(parms)
+    (options, seps, words) = byo.shlex_parms_partition(parms, mark="-e")
     if options or seps:
         shline = "grep {}".format(shoptions).rstrip()
 
-        exit_after_shparms(shline, parms=parms)
+        marked_alt_parms = options + seps + words
+        if set(marked_alt_parms) - set(parms):
+
+            exit_after_shparms(shline, parms=marked_alt_parms)
+
+        else:
+
+            exit_after_shparms(shline, parms=parms)
 
     # Else default to Options and Words, except also add Color into a Tty Stdout
 
@@ -700,10 +729,10 @@ def do_g_parms_shoptions_shwords(parms, shoptions, shwords=None):
 
     # Trace and call and exit
 
-    argv = ["grep"] + options + seps + words
-    shline = byo.shlex_djoin(argv)
+    shline = "grep"
+    alt_parms = options + seps + words
 
-    exit_after_shline(shline)
+    exit_after_shparms(shline, parms=alt_parms)
 
 
 def do_gi(parms):  # "qb/gi"  # "gi"
@@ -727,13 +756,18 @@ def do_gli(parms):  # "qb/gli"  # "gli"
 def do_gv(parms):  # "qb/gv"  # "gv"
     """grep -v -i ."""
 
-    do_g_parms_shoptions_shwords(parms, shoptions="-v -i", shwords="")
+    do_g_parms_shoptions_shwords(parms, shoptions="-v -i", shwords=".")
 
 
 def do_gvi(parms):  # "qb/gvi"  # "gvi"
     """grep -v"""
 
-    do_g_parms_shoptions_shwords(parms, shoptions="-v", shwords="")
+    do_g_parms_shoptions_shwords(parms, shoptions="-v", shwords=".")
+
+
+#
+#  Define:  h, hi, ht, m, mo, n, pbc, q, s, sp, t, u, v, wcl, x, xa, xp
+#
 
 
 def do_h(parms):  # "qb/h"  # "h"
@@ -1018,8 +1052,9 @@ def exit_after_shverb_shparms(shline, parms):
     exit_after_shparms(shline=shverb, parms=parms)
 
 
+# todo: merge with 'shpipe.exit_after_weak_shparms'
 def exit_after_shparms(shline, parms):
-    """Forward Parms into a Sh Subprocess and exit"""
+    """Forward Parms into a Sh Subprocess - trace, call,and exit"""
 
     shparms = byo.shlex_djoin(parms)
 
