@@ -4,8 +4,17 @@
 ++ dreaming since Aug/2022 ++
 
 
-% qcl bin
-+ git --for-shproc cl bin
+unmarked Cv alone should give me an experience close to this
+
+% cv |wcl
++ pbpaste
++ wc -l
+    2417
+%
+
+
+% qcl bin/
++ git --for-shproc cl bin/
 unknown option: --for-shproc
 usage: git [--version] [--help] [-C <path>] [-c <name>=<value>]
            [--exec-path[=<path>]] [--html-path] [--man-path] [--info-path]
@@ -13,9 +22,8 @@ usage: git [--version] [--help] [-C <path>] [-c <name>=<value>]
            [--git-dir=<path>] [--work-tree=<path>] [--namespace=<name>]
            <command> [<args>]
 git.py: + exit 129
-zsh: exit 129   qcl bin
-% 
-
+zsh: exit 129   qcl bin/
+%
 
 
 $ xa

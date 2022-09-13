@@ -123,7 +123,7 @@ examples:
   git.py rl  # git reflog  # show Commits of Clone, no matter the Branch
   git.py rlv  # git reflog --format=fuller  # show more detail for Commits of Clone
   git.py rpar  # git rev-parse --abbrev-ref  # show the key line of:  git branch
-  git.py rpsfn  # loop git rev-parse --symbolic-full-name  # like show @{-1} of 'co -'
+  git.py rpsfn  # git rev-parse --symbolic-full-name  # like show @{-1..N} of 'co -'
   git.py rv  # git remote -v
   git.py ssn  # git shortlog --summary --numbered
 
@@ -718,7 +718,7 @@ ALIASES = {
     "rl": "git reflog",
     "rlv": "git reflog --format=fuller",
     "rpar": "git rev-parse --abbrev-ref {}",
-    "rpsfn": "loop git rev-parse --symbolic-full-name {}",  # like show @{-1} of 'co -'
+    "rpsfn": "git rev-parse --symbolic-full-name {}",  # like show @{-1..N} of 'co -'
     "rv": "git remote -v",
     "s": "git show {}",
     "s1": "git show :1:{}",
