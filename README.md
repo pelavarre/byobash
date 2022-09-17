@@ -1,5 +1,9 @@
 # byobash
 
+Give you the Python you need to welcome you competently into Sh work
+
+## Quick start
+
 Type the first Word of any Command Line into your Terminal Shell, and then
 
 1 ) press the 2 keys \<Dot\> \<Tab\> before \<Return\>

@@ -19,6 +19,8 @@ examples:
 
   echo '[{"a": 1}, {"b": 2}]' |jq .
 """
+# echo 123.000 |jq .   # 123
+# echo 123.000 |json_pp  # 123
 
 
 import byotools as byo

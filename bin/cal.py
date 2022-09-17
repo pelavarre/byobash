@@ -31,6 +31,7 @@ examples:
   cal.py  # a month of the five weeks around today
   MM=$(date +%m) && cal -m $((MM - 1)) && cal -m $MM && cal -m $((MM + 1))  # ditto
   cal.py 314  # show the Pi day of this year, a la:  cal -m 3
+  cal.py 20210314  # show the Pi day of a chosen year
   cal.py 1999  # show the last year of last century
   cal.py -b  # flat weeks, started on UK Monday's, a la:  Linux ncal -M -b
   cal.py -S -b  # flat weeks, started on US Sunday's, a la:  Linux ncal -b

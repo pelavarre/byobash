@@ -6,7 +6,7 @@
 usage: import byotools as byo  # define Func's
 usage: python3 bin/byotools.py  # run Self-Test's
 
-bundle the Python you need to make Sh welcome you sincerely and competently
+give you the Python you need to welcome you competently into Sh work
 
 examples:
   byo.exit()  # takes no Parms to print Examples, '--help' to print Help, else just work
@@ -484,12 +484,12 @@ def class_mro_join(cls):
 
 
 #
-# Add some Def's to List's
+# Add some Def's to Class List
 #
 
 
 # deffed in many files  # missing from docs.python.org
-def list_strip(items):
+def list_strip(items):  # todo: coin a name for "\n".join(items).strip().splitlines()
     """Drop the leading and trailing Falsey Items"""
 
     # Find the leftmost Truthy Item, else 0
@@ -522,8 +522,7 @@ def list_strip(items):
 
 
 #
-# Add some Def's to Str's and Byte's,
-# partly because not found in 'import textwrap'
+# Add some Def's to Class Str and Class Bytes, not found in 'import textwrap'
 #
 
 
@@ -538,12 +537,14 @@ def str_ldent(chars):  # kin to 'str.lstrip'
     return dent
 
 
+# good enough for now, but not yet obviously complete and correct
 def str_ripgraf(graf):
     """Pick the lines below the head line of a paragraph, and dedent them"""
 
     grafdoc = "\n".join(graf[1:])
-    grafdoc = textwrap.dedent(grafdoc)
-    graf = grafdoc.splitlines()
+    dedent = textwrap.dedent(grafdoc)
+    strip = dedent.strip()
+    graf = strip.splitlines()
 
     return graf
 
@@ -578,8 +579,21 @@ def str_removesuffix(chars, suffix):  # missing from Python till Oct/2020 Python
 bytes_removesuffix = str_removesuffix
 
 
+# deffed in many files  # missing from docs.python.org
+def str_joingrafs(grafs):
+    """Form a Doc of Grafs separated by Empty Lines, from a List of Lists of Lines"""
+
+    chars = ""
+    for graf in epilog_grafs:
+        if chars:
+            chars += "\n"
+        chars += "\n".join(graf)
+
+    return chars
+
+
 def str_splitgrafs(doc, keepends=False):  # todo:
-    """Form a List of every Paragraph of Lines, out of a DocString"""
+    """Form a List of Lists of Lines, from a Doc of Grafs separated by Empty Lines"""
 
     assert not keepends  # todo: develop keepends=True
 
@@ -603,7 +617,7 @@ def str_splitgrafs(doc, keepends=False):  # todo:
 
             graf.append(line)
 
-        # Strip and close this Graf, and pick it up if it's not Empty
+        # Else strip and close this Graf
 
         else:
             strip = list_strip(graf)
@@ -611,14 +625,12 @@ def str_splitgrafs(doc, keepends=False):  # todo:
 
                 grafs.append(strip)
 
-            # Open the next Graf, with a No More Dented Line, else as Empty
+            # And then open the next Graf with this Line
 
             graf = list()
-            if line:
+            graf.append(line)
 
-                graf.append(line)
-
-    # Strip and close the last Graf too, and pick it up too if it's not Empty
+    # Strip and close the last Graf too
 
     strip = list_strip(graf)
     if strip:
@@ -629,7 +641,7 @@ def str_splitgrafs(doc, keepends=False):  # todo:
 
 
 #
-# Add some Def's that 'import argparse' forgot
+# Add some Def's to Import ArgParse
 #
 
 
@@ -652,7 +664,7 @@ def compile_epi_argdoc(epi, add_help=True):
     parser = argparse.ArgumentParser(
         prog=prog,
         description=description,
-        add_help=add_help,  # without Options other than the "-h". "--h", "--he", etc
+        add_help=add_help,  # False to leave "-h". "--h", "--he", ... "--help" undefined
         formatter_class=argparse.RawTextHelpFormatter,
         epilog=epilog,
     )
@@ -807,7 +819,7 @@ def parse_epi_args(epi):
 
 
 #
-# Add some Def's that 'import datetime' forgot
+# Add some Def's to Import DateTime
 #
 
 
@@ -870,7 +882,7 @@ def dtz_strptime(date_string, format=DTZ_FORMAT_ISO_ISH):
 
 
 #
-# Add some Def's that 'import pdb' forgot
+# Add some Def's to Import Pdb
 #
 
 
@@ -896,7 +908,9 @@ def pdb_iobreak():
 
 
 #
-# Add some Def's that 'import shlex' and 'import string' forgot
+# Add some Def's to Import ShLex and Import String
+#
+# todo: sort these Def's more strictly alphabetically?
 #
 
 
@@ -1153,7 +1167,7 @@ def shlex_parms_partition(parms, mark=None):
 
 
 #
-# Add some Def's that 'import shutil' forgot
+# Add some Def's to Import ShUtil
 #
 
 
@@ -1192,7 +1206,7 @@ def shutil_get_tty_size():
 
 
 #
-# Add some Def's that 'import subprocess' forgot
+# Add some Def's to Import SubProcess
 #
 
 
@@ -1259,7 +1273,7 @@ def subprocess_run_stdio(shline, *args, **kwargs):
 
 
 #
-# Add some Def's that 'import select' and 'import sys' forgot
+# Add some Def's to Import Select and Import Sys
 #
 
 
@@ -1283,8 +1297,12 @@ def select_select(stdio):
 def stderr_print(*args, **kwargs):
     """Work like Print, but write Stderr in place of Stdout"""
 
+    kwargs_ = dict(kwargs)
+    if "file" not in kwargs_.keys():
+        kwargs_["file"] = sys.stderr
+
     sys.stdout.flush()
-    print(*args, file=sys.stderr, **kwargs)  # todo: what if "file" in kwargs.keys() ?
+    print(*args, **kwargs_)
     sys.stderr.flush()
 
 

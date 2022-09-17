@@ -4,6 +4,23 @@
 ++ dreaming since Aug/2022 ++
 
 
+@ qg pattern1 pattern2 child/grandchild
+demand the explicit '--'
+
+
+bury more abandoned repos into AboutMe-PELaVarre
+
+N@
+byo.str.removesuffix
+
+
+uniq.py --everseen  # like for my own '~/.bash_profile_secrets'
+
+
+compressed output from Git Fetch - just a few lines
+tell me top hash added, and above base
+
+
 Bash history by Dir
 
 
