@@ -67,5 +67,18 @@ import byotools as byo
 byo.exit(__name__)
 
 
+_ = """
+
+function __screen () {
+    local pid=$(
+        (screen -ls || :) |grep '\t'| head -$1 |tail -1 |
+            tr -d '\t' |cut -d. -f1
+    )
+    (set -xe && screen -r $pid)
+    }
+
+"""
+
+
 # posted into:  https://github.com/pelavarre/byobash/blob/main/bin/screen.py
 # copied from:  git clone https://github.com/pelavarre/byobash.git

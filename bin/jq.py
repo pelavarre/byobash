@@ -17,10 +17,15 @@ examples:
   jq.py --h  # show this help message and exit
   jq.py --  # todo: run as you like it
 
-  echo '[{"a": 1}, {"b": 2}]' |jq .
+  echo '[{"a": 1}, {"b": 2}]' |jq .  # 2 Column Dents
 """
+
+# todo: prompt Tty Stdin for:  jq.py .
+
+#
 # echo 123.000 |jq .   # 123
 # echo 123.000 |json_pp  # 123
+#
 
 
 import byotools as byo

@@ -4,6 +4,10 @@
 ++ dreaming since Aug/2022 ++
 
 
+write a 'screen.py' in something like the style of 'json_pp.py'
+    to accept such Bash Input Lines as:  screen.py -- 3
+
+
 @ qg pattern1 pattern2 child/grandchild
 demand the explicit '--'
 

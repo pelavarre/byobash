@@ -4,6 +4,12 @@
 ++ dreaming since Aug/2022 ++
 
 
+byotools.py:
+change to byo.exit_if, from byo.exit
+stop defaulting to forward 'alef.py --' to 'alef',
+    instead demand more thought
+
+
 unmarked Cv alone should give me an experience close to this
 
 % cv |wcl
