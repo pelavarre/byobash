@@ -1,5 +1,7 @@
-# du -a /home/ |sort -n -r  |head -20
-# du --max-depth=1
+# watch du __pycache__
+
+# du -a $PWD |sort -n -r  |head -20
+# du --max-depth=1 |sort -n -r  |head -20
 
 
 # classic Du dumps the full Find tree, with no Scroll limit, when given no Parms

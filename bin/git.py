@@ -96,7 +96,7 @@ examples:
 
   git.py b  # git branch  # and see also:  git rev-parse --abbrev-ref
   git.py ba  # git branch --all
-  git.py cofrb  # git checkout ... && git fetch && git rebase  # auth w/out ⌃D
+  git.py fcorb  # git fetch && git checkout ... && git rebase  # auth w/out ⌃D
   git.py cp  # git cherry-pick
   git.py dad  # git describe --always --dirty
   git.py f  # git fetch
@@ -681,7 +681,6 @@ ALIASES = {
     "cls": "cat - && sudo true && sudo git clean -ffxdq",
     "cm": "git commit -m wip",
     "co": "git checkout {}",
-    "cofrb": "git checkout {} && git fetch && git rebase",  # auth w/out ⌃D
     "cp": "git cherry-pick {}",
     "d": "git diff {}",
     "dad": "git describe --always --dirty",
@@ -690,6 +689,7 @@ ALIASES = {
     "dno": "git diff --name-only {}",
     "em": "qno {} && em $(qno {})",
     "f": "git fetch",
+    "fcorb": "git fetch && git checkout {} && git rebase",  # auth w/out ⌃D
     "frb": "git fetch && git rebase",
     "l": "git log {}",
     "l1": "git log --decorate -1 {}",
@@ -1201,6 +1201,9 @@ if __name__ == "__main__":
 #
 # ToDo Txt for Git Py
 #
+
+
+# for X in 3.2.1^{{tag,commit,tree}}; do (set -xe; git rev-parse $X); done
 
 
 # todo: Git Py could decline to lose Stdin, such as refuse:  echo abc |git.py grep bc

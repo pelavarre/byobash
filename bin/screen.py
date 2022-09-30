@@ -6,9 +6,10 @@ usage: screen.py [--h] [-ls] [-L [-Logfile LOG]] [-d] [-r [CLUE]] [-X hardcopy -
 limit a Terminal window to a few rows and columns shared between hosts
 
 options:
-  --help  show this help message and exit
-  -ls                  list the Screens you have made
-  -L                   frequently flush a copy of the Screen output into './screenlog.0'
+  --help               show this help message and exit
+  -ls                  list the Screens you have made, from most to least recent
+  -L                   frequently flush a copy of the Screen output to the Log File
+  -Logfile LOGFILE     name the Log File (default: 'screenlog.0')
   -d                   detach the one you're in (or you can press ⌃A D)
   -r [CLUE]            re-attach a Screen found by name (default: list all Screens)
   -X hardcopy -h SNAP  export a LogFile of what Less Mode can see
@@ -21,7 +22,7 @@ quirks:
   '-r' fails when you give no CLUE, if there is more than one Screen
   says 'Copy mode' to mean it's working in the Less Mode
   says 'Copy mode aborted' to mean it's back to working in the default Mode
-  takes a '-Logfile LOGFILE' option at Linux to separate LogFiles from a shared Dir
+  takes a '-L -Logfile LOGFILE' option at Linux to separate LogFiles from a shared Dir
 
 examples:
 
@@ -36,7 +37,8 @@ examples:
   screen -d  # detach the one you're in (or you can press ⌃A D)
   exit  # delete this Screen that you've made (or you can press ⌃D)
 
-  screen -S Screen1 -L  # name the Screen, often flush its Output to './screenlog.0'
+  screen -L -S Screen1  # name the Screen and often flush its Output to './screenlog.0'
+  screen -L -Logfile screenlog.1  # don't name the Screen but do name the Log File
   screen -r Screen1  # find a Screen by name, and re-attach that Screen
   # ⌃A ?  # show Keyboard Shortcuts
   # ⌃A A  # send an ordinary Control+A keystroke

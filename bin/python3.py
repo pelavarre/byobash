@@ -32,6 +32,7 @@ examples:
   : Dec/2016 Python 3.6  # minor release date
   : : Mar/2018 Python 3.6.5  # micro release date
   : : Jul/2019 Python 3.6.9  # micro release date
+  : : Dec/2019 Python 3.6.10  # micro release date
   : Dec/2016 CPython 3.6  # minor release date  # Dict Keys ordered by Insertion
   : Jun/2018 Python 3.7  # minor release date  # Dict Keys ordered by Insertion
   : : Mar/2019 Python 3.7.3  # micro release date

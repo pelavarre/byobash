@@ -584,7 +584,7 @@ def str_joingrafs(grafs):
     """Form a Doc of Grafs separated by Empty Lines, from a List of Lists of Lines"""
 
     chars = ""
-    for graf in epilog_grafs:
+    for graf in grafs:
         if chars:
             chars += "\n"
         chars += "\n".join(graf)

@@ -4,6 +4,23 @@
 ++ dreaming since Aug/2022 ++
 
 
+count both ways
+__screen -1
+__screen 1
+
+
+vim.py ⌃O ⌃I walks should step across bursts of '{' or '}' etc
+
+
+ql1
+should imply explicit --pretty=fuller
+
+
+cv a .
+is the explict that isn't -1
+mmm i had forgotten this
+
+
 byotools.py:
 change to byo.exit_if, from byo.exit
 stop defaulting to forward 'alef.py --' to 'alef',
