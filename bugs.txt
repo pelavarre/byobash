@@ -4,6 +4,9 @@
 ++ dreaming since Aug/2022 ++
 
 
+blank line before and after:  grep . *.eq.* |--orientation=portrait
+
+
 count both ways
 __screen -1
 __screen 1

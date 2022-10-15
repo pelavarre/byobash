@@ -1,7 +1,29 @@
 # todo.txt
 
 
+++ dreaming since Oct/2022 ++
+
+
+search out repeated source lines, such as:  return x, return x
+
+
+maybe sit more inside 'open.py' and 'q' to do more than 1 thing
+
+
+from pel_backports import str  # early access for '.removeprefix', '.removesuffix'
+
+
+
 ++ dreaming since Aug/2022 ++
+
+
+qrhu
+should trace qb, same as qpfwl does
+
+
+cv tac
+should '|tail -r' at Mac, should '|tac' at Linux
+and vice versa
 
 
 def str_striplines(chars):  return (chars.strip("\n") + "\n")

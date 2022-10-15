@@ -11,6 +11,19 @@ A='{if (k != $1) {print ""; print $1":"; k = $1}; gsub(/^[^:]*:/, ""); print "  
 alias -- --a="awk -F: '$A'"
 unset A
 
+# --orientation=portrait
+
+awk -F: '''
+    if (k != $1) {
+        print ""
+        print $1":"
+        k = $1}
+    gsub(/^[^:]*:/, "")
+    print "   ", $0
+}
+'''
+
+
 # todo: could abbreviate as -hh
 
 

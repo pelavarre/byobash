@@ -1,6 +1,10 @@
 # find . -not -type d -not -path './.git/*'
 # find . -not -type d -not -path './.git/*' |grep -v '/[.]'
 
+# find __pycache__/ -mtime -1 -ls |wc -l
+# du -sh $PWD/*
+# df |grep /$
+
 # goes well with:  cat.py
 
 #   Find Py chooses the empty TOP '', not the explicit './' TOP, when given no Parms

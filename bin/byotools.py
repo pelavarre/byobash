@@ -17,6 +17,7 @@ examples:
 
 import __main__
 import argparse
+import collections
 import datetime as dt
 import difflib
 import os
@@ -484,6 +485,108 @@ def class_mro_join(cls):
 
 
 #
+# Add some Def's to Class Float
+#
+
+
+def float_split_else_exit(chars, keys, aliases, add_help):
+    """Take Chars split by Floats as KwArgs, such as '3h' to mean {'hours':'3'}"""
+
+    # Split the Chars and eval the Key Aliases
+
+    items = float_split_items(chars)
+    items = list(
+        ((aliases[k], v) if (k in aliases.keys()) else (k, v)) for (k, v) in items
+    )
+
+    # Pick out Undefined Keys, if any
+
+    deffed_keys = list(keys) + list(aliases.keys())
+
+    matched_items = list()
+    alt_keys = list()
+    for (k, v) in items:
+        matches = list(_ for _ in deffed_keys if _.startswith(k))
+        if k and (len(matches) == 1):
+            match = matches[-1]
+            matched_item = (match, v)
+            matched_items.append(matched_item)
+        else:
+            alt_keys.append(k)  # k is empty "", or not starting any of 'deffed_keys'
+
+    # Reject Undefined Keys
+
+    str_deffed_keys = ", ".join(_ for _ in deffed_keys)
+    str_alt_keys = str(alt_keys)
+
+    if alt_keys:
+
+        if add_help:
+            if any((_ in alt_keys) for _ in "h he hel help".split()):
+                print(add_help)
+
+                sys.exit(0)  # exit 0 after printing Help Lines
+
+        raise TypeError(
+            "unexpected keyword arguments {} in place of {}".format(
+                str_alt_keys, str_deffed_keys
+            )
+        )
+
+    # Reject Colliding Keys, if any, without detailing how they were abbreviated
+
+    count_by_k = collections.Counter(k for (k, _) in matched_items)
+    for (k, count) in count_by_k.items():
+        if count != 1:
+            raise SyntaxError("keyword argument repeated: {}".format(k))
+
+    # Succeed
+
+    return matched_items
+
+
+def float_split_items(chars):
+    """Take Chars split by Floats as Dict Items, such as '3h' to mean {'h':'3'}"""
+
+    unsplit_item = (chars, "")
+    unsplit_items = [unsplit_item]
+
+    # Divide the Chars into Float-ish and not
+    # todo: deal well with '.' or '.' as a Key
+
+    # ....... 0 ................. 1
+    regex = r"([+-]?[.0123456789]+([Ee][+-]?[0123456789]+)?)"
+    splits = re.split(regex, string=chars)  # [0] leading, then 0 or more of [0,1,2]
+
+    assert (len(splits) % 3) == 1, splits
+
+    if not splits[1:]:
+
+        return unsplit_items  # Key without Float Literal
+
+    splits_0 = splits[0]
+    if splits_0:
+
+        return unsplit_items  # Key before Float Literal
+
+    # Require the join of the parts to recreate the original whole
+
+    triples = list(zip(splits[1::3], splits[2::3], splits[3::3]))
+    join = "".join((_[0] + _[-1]) for _ in triples)
+    assert chars == join, (chars, join, triples)
+
+    assert all(_[0].endswith(_[1]) for _ in triples if _[1]), triples
+
+    # Pair the [3 + -1] Key before the [0] Value
+
+    items = list((_[-1], _[0]) for _ in triples)
+
+    # Succeed
+
+    return items  # some of these key-value pairs may begin with a "" empty key
+
+
+#
 # Add some Def's to Class List
 #
 
@@ -554,7 +657,7 @@ def str_removeprefix(chars, prefix):  # missing from Python till Oct/2020 Python
     """Remove Prefix from Chars if present"""
 
     result = chars
-    if chars.startswith(prefix):
+    if prefix and chars.startswith(prefix):
         result = chars[len(prefix) :]
 
     return result
@@ -569,7 +672,7 @@ def str_removesuffix(chars, suffix):  # missing from Python till Oct/2020 Python
     """Remove Suffix from Chars if present"""
 
     result = chars
-    if chars.endswith(suffix):
+    if suffix and chars.endswith(suffix):
         result = chars[: -len(suffix)]
 
     return result
@@ -828,6 +931,21 @@ DTZ_FORMAT_ISO_ISH = "%Y-%m-%d %H:%M:%S.%f%z"
 # per https://en.wikipedia.org/wiki/ISO_8601
 
 
+def dt_strftime(when):
+    """Give 'w d h m s ms us ms' to mean 'weeks=', 'days=', etc"""
+
+    dt_adb = when.strftime("%a %d/%b")
+    dt_adb = dt_adb.replace(" 0", " ")
+
+    dt_imp = when.strftime("%I.%M%p")
+    dt_imp = dt_imp.lower()[: len("12.00p")].lstrip("0")
+    dt_imp = "12.00n" if (dt_imp == "12.00p") else dt_imp
+
+    dt_imp_adb = "{} {}".format(dt_imp, dt_adb)
+
+    return dt_imp_adb  # such as '10.28p Wed 12/Oct'
+
+
 def dtz_datetime_now(tzinfo=None):  # default to local, not to 'dt.datetime.now()' naive
     """Say when Now is, in the Time Zone, else locally"""
 
@@ -879,6 +997,77 @@ def dtz_strptime(date_string, format=DTZ_FORMAT_ISO_ISH):
 
     # print(byo.dtz_strftime(byo.dtz_strptime("1999-12-31 12:59:59.999999+00:00")))
     # 1999-12-31 12:59:59.999999+0000
+
+
+def td_strftime(td, str_zero="0s"):
+    """Give 'w d h m s ms us ms' to mean 'weeks=', 'days=', etc"""
+
+    # Pick Weeks out of Days, Minutes out of Seconds, and Millis out of Micros
+
+    w = td.days // 7
+    d = td.days % 7
+
+    h = td.seconds // 3600
+    h_s = td.seconds % 3600
+    m = h_s // 60
+    s = h_s % 60
+
+    ms = td.microseconds // 1000
+    us = td.microseconds % 1000
+
+    # Catenate Value-Key Pairs in order, but strip leading and trailing Zeroes,
+    # and choose one unit arbitrarily when speaking of any zeroed TimeDelta
+
+    keys = "w d h m s ms us".split()
+    values = (w, d, h, m, s, ms, us)
+
+    chars = ""
+    for (index, (k, v)) in enumerate(zip(keys, values)):
+        if (chars or v) and any(values[index:]):
+            chars += "{}{}".format(v, k)
+
+    str_zeroes = list((str(0) + _) for _ in keys)
+    if not chars:
+        assert str_zero in str_zeroes, (str_zero, str_zeroes)
+        chars = str_zero
+
+    # Succeed
+
+    return chars  # such as '4m29s334ms'
+
+
+def td_strptime(chars):
+    """Take 'w d h m s ms us ms' to mean 'weeks=', 'days=', etc"""
+
+    # Take Chars split by Floats as KwArgs, such as '3h' to mean {'hours':'3'}
+
+    keys = "days seconds microseconds milliseconds minutes hours weeks".split()
+    aliases = dict(m="minutes", ms="milliseconds", us="microseconds")
+    add_help = "{!r} is not a time delta - choose '5s', '47m', '3h' etc".format(chars)
+
+    items = float_split_else_exit(chars, keys=keys, aliases=aliases, add_help=add_help)
+
+    # Convert each Value to Int, else Float, else raise ValueError
+
+    kvs = dict()
+    for (k, v) in items:
+        try:
+            kvs[k] = int(v)
+        except Exception:
+            try:
+                kvs[k] = float(v)
+            except Exception:
+                raise ValueError(
+                    "could not convert string to float: {}={!r}".format(k, v)
+                )
+
+    # Succeed
+
+    assert all((k in keys) for k in kvs.keys()), list(kvs.keys())
+
+    td = dt.timedelta(**kvs)
+
+    return td
 
 
 #
@@ -1328,6 +1517,10 @@ def stdin_readline_else():
     chars = line.splitlines()[0]
 
     return chars
+
+
+# deffed in many files  # missing from docs.python.org
+sys_parms = list(sys.argv[1:])
 
 
 class BrokenPipeSink:  # todo: add calls of it, don't just define it

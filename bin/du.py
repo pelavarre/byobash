@@ -1,5 +1,6 @@
 # watch du __pycache__
 
+# du -hs $PWD/*
 # du -a $PWD |sort -n -r  |head -20
 # du --max-depth=1 |sort -n -r  |head -20
 

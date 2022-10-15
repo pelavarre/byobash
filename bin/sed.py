@@ -37,6 +37,8 @@ examples:
 # todo: grow default w Screen Height
 # todo: demo how to code Sed to replace with color, a la:  grep --color=yes
 
+# todo: stop hassling me with:  sed: -e expression #1, char 7: unterminated `s' command
+
 
 import byotools as byo
 
