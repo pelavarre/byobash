@@ -1537,6 +1537,7 @@ class BrokenPipeSink:  # todo: add calls of it, don't just define it
     RETURN_CODE_141 = 141  # Mac & Linux convention for Signal SigPipe
     assert RETURN_CODE_141 == (0x80 | signal.SIGPIPE), (0x80, signal.SIGPIPE)
 
+    # mmm, 'def __enter__' is not 'def __init__'
     def __enter__(self, returncode=RETURN_CODE_141):
         self.returncode = returncode
 
