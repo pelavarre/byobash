@@ -30,6 +30,7 @@ import difflib
 import os
 import pdb
 import select
+import string
 import sys
 import termios
 import textwrap
@@ -52,42 +53,116 @@ def main():
 
     parse_keycaps_args()  # exits if no args, etc
 
-    eot = unicodedata_lookup("EOT")
+    eot_stroke = unicodedata_lookup("EOT").encode()
     crlf = "\r\n"
 
     print("Press ^D EOT twice to quit")
     with stdtty_open(sys.stderr) as chatting:
-        ch = None
+        stroke = None
         while True:
-            ch_minus = ch
+            stroke_minus = stroke
 
             (millis, stroke) = chatting.read_millis_stroke()
             str_int_millis = "{:6}".format(int(millis))
 
-            if not isinstance(stroke, str):
+            keycaps = KEYCAPS_BY_STROKE.get(stroke, DEFAULT_NONE)
 
-                print(str_int_millis, repr(stroke), end=crlf)
+            print(str_int_millis, bytes_hex_repr(stroke), keycaps, end=crlf)
 
-            elif isinstance(stroke, str):
+            if stroke_minus == stroke == eot_stroke:
 
-                ch = unicodedata_lookup(stroke)
-                rep_0 = bytes_hex_repr(ch.encode())
-                rep_1 = ch_encode_repr(ch)
-
-                print(str_int_millis, rep_0, repr(stroke), rep_1, end=crlf)
-
-                if ch_minus == ch == eot:
-
-                    break
+                break
 
 
 #
-# Layer over Import ArgParse
+# Draw the Keyboard of a MacBook Pro (Retina, 15-inch, Mid 2015)
+#
+
+
+assert string.ascii_uppercase == "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+assert string.ascii_lowercase == "abcdefghijklmnopqrstuvwxyz"
+
+KEYCAPS_BY_INDEX = [
+    "Esc F1 F2 F3 F4 F5 F6 F7 F8 F9 F10 F11 F12".split(),
+    "` 1 2 3 4 5 6 7 8 9 0 - = Del".split(),
+    "Tab Q W E R T Y U I O P [ ] \\".split(),
+    "A S D F G H J K L ; '".split(),
+    "⇧ Z X C V B N M , . / ⇧".split(),
+    "Fn ⌃ ⌥ ⌘ Space ⌘ ⌥ ← ↑ ↓ →".split(),
+]
+
+KEYCAPS = list(keycap for row in KEYCAPS_BY_INDEX for keycap in row)
+
+KEYCAPS_BY_STROKE = dict()
+
+for CH_ in string.ascii_uppercase:  # Control + Letter
+    KEYCAPS_BY_STROKE[chr(ord(CH_) ^ 0x40).encode()] = "^{}".format(CH_)
+
+_KEYCAPS_0 = "`1234567890-=" "[]\\" ";'" ",./"
+_KEYCAPS_1 = "~!@#$%^&*()_+" "{}|" ':"' "<>?"  # Shifted Punctuation
+for _KC1 in _KEYCAPS_1:
+    _KC0 = _KEYCAPS_0[_KEYCAPS_1.index(_KC1)]
+    KEYCAPS_BY_STROKE[_KC1.encode()] = "⇧{}".format(_KC0)
+
+for _KC in KEYCAPS:  # Letter, or Shift + Letter
+    _XXS = _KC.lower().encode()
+    if len(_XXS) == 1:
+        KEYCAPS_BY_STROKE[_XXS] = _KC
+        if _KC.upper() != _KC.lower():
+            KEYCAPS_BY_STROKE[_KC.encode()] = "⇧{}".format(_KC)
+
+KEYCAPS_BY_STROKE = dict((k, list(v)) for (k, v) in KEYCAPS_BY_STROKE.items())
+
+KEYCAPS_BY_STROKE.update(  # ⌃ ⌥ ⇧ ⌘ also spoken as Control Alt-Option Shift Command
+    {
+        b"\x00": "⌃ Space".split(),
+        b"\x09": "Tab".split(),  # could be ⌃I  # or drawn as ⇥
+        b"\x0D": "Return".split(),  # could be ⌃M  # or drawn as ↩
+        b"\x1B": "Esc".split(),  # could be ⌃[ or ⌃⇧[  # or drawn as ⎋
+        b"\x1B\x4F\x50": "F1",  # or drawn as:  fn F1
+        b"\x1B\x4F\x51": "F2",
+        b"\x1B\x4F\x52": "F3",
+        b"\x1B\x4F\x53": "F4",
+        b"\x1B\x5B\x31\x35\x7E": "F5",
+        b"\x1B\x5B\x31\x37\x7E": "F6",  # could be ⌥ F1
+        b"\x1B\x5B\x31\x38\x7E": "F7",  # could be ⌥ F2
+        b"\x1B\x5B\x31\x39\x7E": "F8",  # could be ⌥ F3
+        b"\x1B\x5B\x31\x3B\x32\x43": "⇧ →".split(),
+        b"\x1B\x5B\x31\x3B\x32\x44": "⇧ ←".split(),
+        b"\x1B\x5B\x32\x30\x7E": "F9",  # could be ⌥ F4
+        b"\x1B\x5B\x32\x31\x7E": "F10",  # could be ⌥ F5
+        b"\x1B\x5B\x32\x33\x7E": "F11",  # could be ⌥ F6
+        b"\x1B\x5B\x32\x34\x7E": "F12",  # could be ⌥ F7
+        b"\x1B\x5B\x32\x35\x7E": "⌥ F8",
+        b"\x1B\x5B\x32\x36\x7E": "⌥ F9",
+        b"\x1B\x5B\x32\x38\x7E": "⌥ F10",
+        b"\x1B\x5B\x32\x39\x7E": "⌥ F11",
+        b"\x1B\x5B\x33\x31\x7E": "⌥ F12",
+        b"\x1B\x5B\x41": "↑",  # or drawn as ▲
+        b"\x1B\x5B\x42": "↓",  # or drawn as ▼
+        b"\x1B\x5B\x43": "→",  # or drawn as ▶
+        b"\x1B\x5B\x44": "←",  # or drawn as ◀
+        b"\x1B\x5B\x5A": "⇧ Tab".split(),  # or drawn as ⇤
+        b"\x1B\x62": "⌥ ←".split(),
+        b"\x1B\x66": "⌥ →".split(),
+        b"\x1C": "⌃\\",  # could be ⌃⇧\
+        b"\x1D": "⌃]",  # could be ⌃⇧]  # near to ⇧] for }
+        b"\x1E": "⌃⇧6",  # near to ⇧6 for ^
+        b"\x1F": "⌃-",  # could be ⌃⇧-  # near to ⇧- for _
+        b"\x20": "Space".split(),
+        b"\x7F": "Delete".split(),  # or drawn as ⌫ and ⌦
+        b"\xC2\xA0": "⌥ Space".split(),
+    }
+)
+
+
+#
+# Take Words from the Sh Command Line into KeyCaps Py
 #
 
 
 def parse_keycaps_args():
-    """Take in Words from the Sh Command Line"""
+    """Take Words from the Sh Command Line into KeyCaps Py"""
 
     # Drop the '--' Separator if present, even while declaring no Pos Args
 
@@ -110,7 +185,7 @@ def parse_keycaps_args():
 
 
 def compile_keycaps_argdoc():
-    """Construct the ArgumentParser"""
+    """Form an ArgumentParser for KeyCaps Py"""
 
     doc = __main__.__doc__
     parser = compile_argdoc(doc, epi="quirks")
@@ -127,8 +202,13 @@ def compile_keycaps_argdoc():
     return parser
 
 
+#
+# Layer over Import ArgParse
+#
+
+
 def compile_argdoc(doc, epi):
-    """Construct an ArgumentParser, without defining Positional Args and Options"""
+    """Form an ArgumentParser, without defining Positional Args and Options"""
 
     doc_lines = doc.strip().splitlines()
     prog = doc_lines[0].split()[1]  # second word of first line
@@ -358,19 +438,13 @@ class stdtty_open:  # Linux & Mac only?
                     xxs += os.read(fd, 1)
 
         try:
-            chars = xxs.decode()
+            xxs.decode()
         except UnicodeDecodeError:
-            chars = None
-
             print("UnicodeDecodeError: {}".format(xxs))
 
             raise
 
         stroke = xxs
-        if chars and (len(chars) == 1):  # if is not Paste
-            ch = chars[-1]
-            name = unicodedata_name(ch)
-            stroke = name
 
         return stroke
 
