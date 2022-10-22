@@ -25,6 +25,7 @@ examples:
 
 import __main__
 import argparse
+import collections
 import datetime as dt
 import difflib
 import os
@@ -56,7 +57,13 @@ def main():
     eot_stroke = unicodedata_lookup("EOT").encode()
     crlf = "\r\n"
 
+    print()
+    print("Beware of Caps Lock changing your Keyboard Input Byte Codes")
+    print("Beware of ⌃ ⌥ Space or ⌃ ⌥ ⇧ Space changing your Keyboard Input Source")
+
+    print()
     print("Press ^D EOT twice to quit")
+
     with stdtty_open(sys.stderr) as chatting:
         stroke = None
         while True:
@@ -65,9 +72,11 @@ def main():
             (millis, stroke) = chatting.read_millis_stroke()
             str_int_millis = "{:6}".format(int(millis))
 
-            keycaps = KEYCAPS_BY_STROKE.get(stroke, DEFAULT_NONE)
+            keycaps = KEYCAP_LISTS_BY_STROKE.get(stroke, DEFAULT_NONE)
+            hexxed = bytes_hex_repr(stroke)
+            vimmed = vim_c0_repr(stroke.decode())
 
-            print(str_int_millis, bytes_hex_repr(stroke), keycaps, end=crlf)
+            print(str_int_millis, hexxed, keycaps, vimmed, end=crlf)
 
             if stroke_minus == stroke == eot_stroke:
 
@@ -79,10 +88,9 @@ def main():
 #
 
 
-assert string.ascii_uppercase == "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-assert string.ascii_lowercase == "abcdefghijklmnopqrstuvwxyz"
+# List the Key Caps by Row
 
-KEYCAPS_BY_INDEX = [
+KEYCAPS_BY_ROW = [
     "Esc F1 F2 F3 F4 F5 F6 F7 F8 F9 F10 F11 F12".split(),
     "` 1 2 3 4 5 6 7 8 9 0 - = Del".split(),
     "Tab Q W E R T Y U I O P [ ] \\".split(),
@@ -91,69 +99,152 @@ KEYCAPS_BY_INDEX = [
     "Fn ⌃ ⌥ ⌘ Space ⌘ ⌥ ← ↑ ↓ →".split(),
 ]
 
-KEYCAPS = list(keycap for row in KEYCAPS_BY_INDEX for keycap in row)
 
-KEYCAPS_BY_STROKE = dict()
+# List the Punctuation Marks found by Chords of Shift plus a Key Cap
 
-for CH_ in string.ascii_uppercase:  # Control + Letter
-    KEYCAPS_BY_STROKE[chr(ord(CH_) ^ 0x40).encode()] = "^{}".format(CH_)
+_KEYCAPS_0 = "`1234567890-=" "[]\\" ";'" ",./"  # unshifted
+_KEYCAPS_1 = "~!@#$%^&*()_+" "{}|" ':"' "<>?"  # shifted
 
-_KEYCAPS_0 = "`1234567890-=" "[]\\" ";'" ",./"
-_KEYCAPS_1 = "~!@#$%^&*()_+" "{}|" ':"' "<>?"  # Shifted Punctuation
-for _KC1 in _KEYCAPS_1:
+
+# List all the Key Caps
+
+KEYCAPS = sorted(keycap for row in KEYCAPS_BY_ROW for keycap in row)
+
+
+# List the Lists of Chords of Key Caps found as Byte Strings,
+# but speak in terms of ⌃ ⌥ ⇧ ⌘ also known as Control Alt-Option Shift Command,
+# and speak in terms of F also known as Fn
+
+KEYCAP_LISTS_BY_STROKE = dict()
+
+assert string.ascii_uppercase == "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+for CH_ in string.ascii_uppercase:  # Control, or Control Option, of English Letter
+    S_ = chr(ord(CH_) ^ 0x40).encode()
+    KEYCAP_LISTS_BY_STROKE[S_] = ["⌃ {}".format(CH_), "⌃ ⌥ {}".format(CH_)]
+
+for _KC1 in _KEYCAPS_1:  # Shift of Key Cap for the Key Caps that aren't English Letters
     _KC0 = _KEYCAPS_0[_KEYCAPS_1.index(_KC1)]
-    KEYCAPS_BY_STROKE[_KC1.encode()] = "⇧{}".format(_KC0)
+    KEYCAP_LISTS_BY_STROKE[_KC1.encode()] = ["⇧ {}".format(_KC0)]
 
-for _KC in KEYCAPS:  # Letter, or Shift + Letter
+for _KC in KEYCAPS:  # Key Caps of the Keyboard that aren't Multiletter Words
     _XXS = _KC.lower().encode()
     if len(_XXS) == 1:
-        KEYCAPS_BY_STROKE[_XXS] = _KC
-        if _KC.upper() != _KC.lower():
-            KEYCAPS_BY_STROKE[_KC.encode()] = "⇧{}".format(_KC)
+        KEYCAP_LISTS_BY_STROKE[_XXS] = [_KC]
 
-KEYCAPS_BY_STROKE = dict((k, list(v)) for (k, v) in KEYCAPS_BY_STROKE.items())
+        if _KC.upper() != _KC.lower():  # Shift of English Letter
+            KEYCAP_LISTS_BY_STROKE[_KC.encode()] = ["⇧ {}".format(_KC)]
 
-KEYCAPS_BY_STROKE.update(  # ⌃ ⌥ ⇧ ⌘ also spoken as Control Alt-Option Shift Command
+_8_DELETES = [
+    "Delete",
+    "⌃ Delete",
+    "⌥ Delete",
+    "⇧ Delete",
+    "⌃ ⌥ Delete",
+    "⌃ ⇧ Delete",
+    "⌥ ⇧ Delete",
+    "⌃ ⌥ ⇧ Delete",
+]
+
+CHORDS = list(_.replace("Delete", "").strip() for _ in _8_DELETES)
+
+_11_RETURNS = ["⌃ M", "⌃ ⌥ M", "⌃ ⌥ ⇧ M"]
+_11_RETURNS += list(_.replace("Delete", "Return") for _ in _8_DELETES)
+
+_12_ESCAPES = ["⌃ [", "⌃ ⌥ [", "⌃ ⌥ [", "⌃ ⌥ ⇧ ["]
+_12_ESCAPES += list(_.replace("Delete", "Esc") for _ in _8_DELETES)
+
+KEYCAP_LISTS_BY_STROKE.update(  # the rest of Printable Ascii and Control C0 Ascii
     {
-        b"\x00": "⌃ Space".split(),
-        b"\x09": "Tab".split(),  # could be ⌃I  # or drawn as ⇥
-        b"\x0D": "Return".split(),  # could be ⌃M  # or drawn as ↩
-        b"\x1B": "Esc".split(),  # could be ⌃[ or ⌃⇧[  # or drawn as ⎋
-        b"\x1B\x4F\x50": "F1",  # or drawn as:  fn F1
-        b"\x1B\x4F\x51": "F2",
-        b"\x1B\x4F\x52": "F3",
-        b"\x1B\x4F\x53": "F4",
-        b"\x1B\x5B\x31\x35\x7E": "F5",
-        b"\x1B\x5B\x31\x37\x7E": "F6",  # could be ⌥ F1
-        b"\x1B\x5B\x31\x38\x7E": "F7",  # could be ⌥ F2
-        b"\x1B\x5B\x31\x39\x7E": "F8",  # could be ⌥ F3
-        b"\x1B\x5B\x31\x3B\x32\x43": "⇧ →".split(),
-        b"\x1B\x5B\x31\x3B\x32\x44": "⇧ ←".split(),
-        b"\x1B\x5B\x32\x30\x7E": "F9",  # could be ⌥ F4
-        b"\x1B\x5B\x32\x31\x7E": "F10",  # could be ⌥ F5
-        b"\x1B\x5B\x32\x33\x7E": "F11",  # could be ⌥ F6
-        b"\x1B\x5B\x32\x34\x7E": "F12",  # could be ⌥ F7
-        b"\x1B\x5B\x32\x35\x7E": "⌥ F8",
-        b"\x1B\x5B\x32\x36\x7E": "⌥ F9",
-        b"\x1B\x5B\x32\x38\x7E": "⌥ F10",
-        b"\x1B\x5B\x32\x39\x7E": "⌥ F11",
-        b"\x1B\x5B\x33\x31\x7E": "⌥ F12",
-        b"\x1B\x5B\x41": "↑",  # or drawn as ▲
-        b"\x1B\x5B\x42": "↓",  # or drawn as ▼
-        b"\x1B\x5B\x43": "→",  # or drawn as ▶
-        b"\x1B\x5B\x44": "←",  # or drawn as ◀
-        b"\x1B\x5B\x5A": "⇧ Tab".split(),  # or drawn as ⇤
-        b"\x1B\x62": "⌥ ←".split(),
-        b"\x1B\x66": "⌥ →".split(),
-        b"\x1C": "⌃\\",  # could be ⌃⇧\
-        b"\x1D": "⌃]",  # could be ⌃⇧]  # near to ⇧] for }
-        b"\x1E": "⌃⇧6",  # near to ⇧6 for ^
-        b"\x1F": "⌃-",  # could be ⌃⇧-  # near to ⇧- for _
-        b"\x20": "Space".split(),
-        b"\x7F": "Delete".split(),  # or drawn as ⌫ and ⌦
-        b"\xC2\xA0": "⌥ Space".split(),
+        b"\x00": ["⌃ Space", "⌃ ⇧ Space", "⌃ ⇧ 2", "⌃ ⌥ ⇧ 2"],  # near to ⇧2 for @
+        b"\x09": ["⌃ I", "Tab", "⌃ Tab", "⌥ Tab", "⌃ ⌥ Tab"],  # drawn as ⇥
+        b"\x0D": _11_RETURNS,  # drawn as ↩
+        b"\x1B": _12_ESCAPES,  # drawn as ⎋
+        b"\x1B\x5B\x5A": ["⇧ Tab", "⌃ ⇧ Tab", "⌥ ⇧ Tab", "⌃ ⌥ ⇧ Tab"],  # drawn as ⇥
+        b"\x1C": ["⌃ \\", "⌃ ⌥ \\", "⌃ ⌥ \\", "⌃ ⌥ ⇧ \\"],
+        b"\x1D": ["⌃ ]", "⌃ ⌥ ]", "⌃ ⌥ ]", "⌃ ⌥ ⇧ ]"],
+        b"\x1E": ["⌃ ⇧ 6", "⌃ ⌥ ⇧ 6"],  # near to ⇧6 for ^
+        b"\x1F": ["⌃ -", "⌃ ⌥ -", "⌃ ⌥ -", "⌃ ⌥ ⇧ -"],  # near to ⇧- for _
+        b"\x20": ["Space", "⇧ Space"],
+        b"\x7F": _8_DELETES,  # or drawn as ⌫ and ⌦
+        b"\xC2\xA0": ["⌥ Space", "⌥ ⇧ Space"],
     }
 )
+
+for _N in range(0x80):  # require all the b"\x00"..b"\x7F" Ascii found by Strokes
+    assert chr(_N).encode() in KEYCAP_LISTS_BY_STROKE.keys(), _N
+
+assert (0x40 ^ ord("@")) == 0x00
+
+assert (0x40 ^ ord("\\")) == 0x1C
+assert (0x40 ^ ord("]")) == 0x1D
+assert (0x40 ^ ord("^")) == 0x1E
+assert (0x40 ^ ord("_")) == 0x1F
+assert (0x40 ^ ord("?")) == 0x7F
+
+KEYCAP_LISTS_BY_STROKE.update(  # the Arrow Key Caps
+    {
+        b"\x1B\x5B\x31\x3B\x32\x43": ["⇧ →"],
+        b"\x1B\x5B\x31\x3B\x32\x44": ["⇧ ←"],
+        b"\x1B\x5B\x41": ["↑", "⌥ ↑", "⇧ ↑", "⌃ ⌥ ↑", "⌃ ⇧ ↑", "⌃ ⌥ ⇧ ↑"],  # drawn as ▲
+        b"\x1B\x5B\x42": ["↓", "⌥ ↓", "⇧ ↓", "⌃ ⌥ ↓", "⌃ ⇧ ↓", "⌃ ⌥ ⇧ ↓"],  # drawn as ▼
+        b"\x1B\x5B\x43": ["→", "⌃ ⌥ →", "⌃ ⇧ →", "⌥ ⇧ →", "⌃ ⌥ ⇧ →"],  # drawn as ▶
+        b"\x1B\x5B\x44": ["←", "⌃ ⌥ ←", "⌃ ⇧ ←", "⌥ ⇧ ←", "⌃ ⌥ ⇧ ←"],  # drawn as ◀
+        b"\x1B\x62": ["⌥ ←"],
+        b"\x1B\x66": ["⌥ →"],
+    }
+)
+
+KEYCAP_LISTS_BY_STROKE.update(  # the Fn Key Caps
+    {
+        b"\x1B\x4F\x50": ["F1"],  # drawn as:  fn F1
+        b"\x1B\x4F\x51": ["F2"],
+        b"\x1B\x4F\x52": ["F3"],
+        b"\x1B\x4F\x53": ["F4"],
+        b"\x1B\x5B\x31\x35\x7E": ["F5"],
+        b"\x1B\x5B\x31\x37\x7E": ["F6", "⌥ F1"],
+        b"\x1B\x5B\x31\x38\x7E": ["F7", "⌥ F2"],
+        b"\x1B\x5B\x31\x39\x7E": ["F8", "⌥ F3"],
+        b"\x1B\x5B\x32\x30\x7E": ["F9", "⌥ F4"],
+        b"\x1B\x5B\x32\x31\x7E": ["F10", "⌥ F5"],
+        b"\x1B\x5B\x32\x33\x7E": ["F11", "⌥ F6"],
+        b"\x1B\x5B\x32\x34\x7E": ["F12", "⌥ F7"],
+        b"\x1B\x5B\x32\x35\x7E": ["⌥ F8", "⇧ F5"],
+        b"\x1B\x5B\x32\x36\x7E": ["⌥ F9", "⇧ F6"],
+        b"\x1B\x5B\x32\x38\x7E": ["⌥ F10", "⇧ F7"],
+        b"\x1B\x5B\x32\x39\x7E": ["⌥ F11", "⇧ F8"],
+        b"\x1B\x5B\x33\x31\x7E": ["⌥ F12", "⇧ F9"],
+        b"\x1B\x5B\x33\x32\x7E": ["⇧ F10"],
+        b"\x1B\x5B\x33\x33\x7E": ["⇧ F11"],
+        b"\x1B\x5B\x33\x34\x7E": ["⇧ F12"],
+    }
+)
+
+
+def require_keycap_lists_sorted():
+    """Require Chords in each KeyCap List sorted by '', '⌃', '⌥', '⇧', '⌃ ⌥', etc"""
+
+    for (stroke, keycap_list) in KEYCAP_LISTS_BY_STROKE.items():
+        assert isinstance(keycap_list, list), repr(keycap_list)
+
+        chord_by_cap = collections.defaultdict(list)
+        for keycap in keycap_list:
+            assert isinstance(keycap, str), repr(keycap)
+
+            splits = keycap.split()
+            chord = " ".join(splits[:-1])
+            cap = splits[-1]
+
+            chord_by_cap[cap].append(chord)
+
+        for (cap, chords) in chord_by_cap.items():
+            indices = list(CHORDS.index(_) for _ in chords)
+            assert indices == sorted(indices), (keycap_list, indices)
+
+            # print(stroke, chords, cap, indices)
+
+
+require_keycap_lists_sorted()
 
 
 #
@@ -337,6 +428,20 @@ def ch_encode_repr(ch):
         rep = rep.replace(r"\X", r"\x")
 
     return rep  # such as b'\a\b\f\n\t\r ' for itself  # such as b'\x1B' for Esc
+
+
+def vim_c0_repr(chars):
+    """Encode Chars as themselves, except Space and C0 Ascii as their Xor 0x40"""
+
+    rep = ""
+    for ch in chars:
+        n = ord(ch)
+        if (n < 0x21) or (n == 0x7F):
+            rep += "^" + chr(0x40 ^ n)
+        else:
+            rep += ch
+
+    return rep
 
 
 #

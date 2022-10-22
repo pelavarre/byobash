@@ -4,6 +4,30 @@
 ++ dreaming since Oct/2022 ++
 
 
+go with qb and qb0
+qrpar is expensive to type, but cheap to watch, just 1 line out
+qb is cheap to type, but expensive to watch, many lines and 1 star line out
+
+
+Vim search entry should count its length for me
+Vim movement without much pause or edit should count its length for me
+Vim should have -w in the way of Grep
+
+
+qg
+should default to focus on the dirs of the 'qno' and not their descendants
+
+qg ... |--o
+could give a table-of-contents up front, just the -l of the files
+
+
+let Bash Paste do its own Echo in the Sh,
+so it can grow its columns as it gets new input
+
+
+call Echo Pipe into Bash I to get at the usual Aliases and Functions
+
+
 search out repeated source lines, such as:  return x, return x
 
 

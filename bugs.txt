@@ -1,6 +1,17 @@
 # bugs.txt
 
 
+++ dreaming since Oct/2022 ++
+
+
+g a b -- f
+should be:  cat f |g a b
+but isn't
+
+
+'qg' w no args?
+
+
 ++ dreaming since Aug/2022 ++
 
 

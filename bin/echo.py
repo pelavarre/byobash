@@ -49,6 +49,8 @@ examples:
   echo -ne '\e[8;'$(stty size |cut -d' ' -f1)';101t'  # change to 101 Columns
 """
 
+# todo:  the echo.py -- could be the 50;89
+
 # todo:  echo.py --pb "$1" "$2" ...  # fills Os Copy/Paste Buffer with 1 Line per Arg
 
 # todo:  do these work better when spelled differently, as:  echo -n $'...'
