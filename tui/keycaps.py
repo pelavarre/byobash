@@ -122,6 +122,8 @@ assert string.ascii_uppercase == "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 for CH_ in string.ascii_uppercase:  # Control, or Control Option, of English Letter
     S_ = chr(ord(CH_) ^ 0x40).encode()
     KEYCAP_LISTS_BY_STROKE[S_] = ["⌃ {}".format(CH_), "⌃ ⌥ {}".format(CH_)]
+    if CH_ not in "BF":
+        KEYCAP_LISTS_BY_STROKE[S_] += ["⌃ ⌥ ⇧ {}".format(CH_)]
 
 for _KC1 in _KEYCAPS_1:  # Shift of Key Cap for the Key Caps that aren't English Letters
     _KC0 = _KEYCAPS_0[_KEYCAPS_1.index(_KC1)]
@@ -135,29 +137,32 @@ for _KC in KEYCAPS:  # Key Caps of the Keyboard that aren't Multiletter Words
         if _KC.upper() != _KC.lower():  # Shift of English Letter
             KEYCAP_LISTS_BY_STROKE[_KC.encode()] = ["⇧ {}".format(_KC)]
 
-_8_DELETES = [
-    "Delete",
-    "⌃ Delete",
-    "⌥ Delete",
-    "⇧ Delete",
-    "⌃ ⌥ Delete",
-    "⌃ ⇧ Delete",
-    "⌥ ⇧ Delete",
-    "⌃ ⌥ ⇧ Delete",
+CHORDS = [
+    "",
+    "⌃",
+    "⌥",
+    "⇧",
+    "⌃ ⌥",
+    "⌃ ⇧",
+    "⌥ ⇧",
+    "⌃ ⌥ ⇧",
 ]
 
-CHORDS = list(_.replace("Delete", "").strip() for _ in _8_DELETES)
-
-_11_RETURNS = ["⌃ M", "⌃ ⌥ M", "⌃ ⌥ ⇧ M"]
-_11_RETURNS += list(_.replace("Delete", "Return") for _ in _8_DELETES)
+_8_DELETES = list("{} Delete".format(_).strip() for _ in CHORDS)
 
 _12_ESCAPES = ["⌃ [", "⌃ ⌥ [", "⌃ ⌥ [", "⌃ ⌥ ⇧ ["]
-_12_ESCAPES += list(_.replace("Delete", "Esc") for _ in _8_DELETES)
+_12_ESCAPES += list("{} Esc".format(_).strip() for _ in CHORDS)
+
+_11_TABS = ["⌃ I", "⌃ ⌥ I", "⌃ ⌥ ⇧ I"]
+_11_TABS += list("{} Tab".format(_).strip() for _ in CHORDS)
+
+_11_RETURNS = ["⌃ M", "⌃ ⌥ M", "⌃ ⌥ ⇧ M"]
+_11_RETURNS += list("{} Return".format(_).strip() for _ in CHORDS)
 
 KEYCAP_LISTS_BY_STROKE.update(  # the rest of Printable Ascii and Control C0 Ascii
     {
         b"\x00": ["⌃ Space", "⌃ ⇧ Space", "⌃ ⇧ 2", "⌃ ⌥ ⇧ 2"],  # near to ⇧2 for @
-        b"\x09": ["⌃ I", "Tab", "⌃ Tab", "⌥ Tab", "⌃ ⌥ Tab"],  # drawn as ⇥
+        b"\x09": _11_TABS,  # drawn as ⇥
         b"\x0D": _11_RETURNS,  # drawn as ↩
         b"\x1B": _12_ESCAPES,  # drawn as ⎋
         b"\x1B\x5B\x5A": ["⇧ Tab", "⌃ ⇧ Tab", "⌥ ⇧ Tab", "⌃ ⌥ ⇧ Tab"],  # drawn as ⇥
@@ -166,6 +171,7 @@ KEYCAP_LISTS_BY_STROKE.update(  # the rest of Printable Ascii and Control C0 Asc
         b"\x1E": ["⌃ ⇧ 6", "⌃ ⌥ ⇧ 6"],  # near to ⇧6 for ^
         b"\x1F": ["⌃ -", "⌃ ⌥ -", "⌃ ⌥ -", "⌃ ⌥ ⇧ -"],  # near to ⇧- for _
         b"\x20": ["Space", "⇧ Space"],
+        b"\x5C": ["\\", "⌥ Y"],  # ⌥ Y is \ in place of ¥, when inside Terminal
         b"\x7F": _8_DELETES,  # or drawn as ⌫ and ⌦
         b"\xC2\xA0": ["⌥ Space", "⌥ ⇧ Space"],
     }
@@ -217,6 +223,108 @@ KEYCAP_LISTS_BY_STROKE.update(  # the Fn Key Caps
         b"\x1B\x5B\x33\x32\x7E": ["⇧ F10"],
         b"\x1B\x5B\x33\x33\x7E": ["⇧ F11"],
         b"\x1B\x5B\x33\x34\x7E": ["⇧ F12"],
+    }
+)
+
+KEYCAP_LISTS_BY_STROKE.update(  # the Option Digit strokes
+    {
+        b"\xC2\xBA": ["⌥ 0"],
+        b"\xC2\xA1": ["⌥ 1"],
+        b"\xE2\x84\xA2": ["⌥ 2"],
+        b"\xC2\xA3": ["⌥ 3"],
+        b"\xC2\xA2": ["⌥ 4"],
+        b"\xE2\x88\x9E": ["⌥ 5"],
+        b"\xC2\xA7": ["⌥ 6"],
+        b"\xC2\xB6": ["⌥ 7"],
+        b"\xE2\x80\xA2": ["⌥ 8"],
+        b"\xC2\xAA": ["⌥ 9"],
+        b"\xE2\x80\x9A": ["⌥ ⇧ 0"],
+        b"\xE2\x81\x84": ["⌥ ⇧ 1"],
+        b"\xE2\x82\xAC": ["⌥ ⇧ 2"],
+        b"\xE2\x80\xB9": ["⌥ ⇧ 3"],
+        b"\xE2\x80\xBA": ["⌥ ⇧ 4"],
+        b"\xEF\xAC\x81": ["⌥ ⇧ 5"],
+        b"\xEF\xAC\x82": ["⌥ ⇧ 6"],
+        b"\xE2\x80\xA1": ["⌥ ⇧ 7"],
+        b"\xC2\xB0": ["⌥ ⇧ 8"],
+        b"\xC2\xB7": ["⌥ ⇧ 9"],
+    }
+)
+
+KEYCAP_LISTS_BY_STROKE.update(  # the Option Letter strokes that don't set up accents
+    {
+        b"\xC3\xA5": ["⌥ A"],
+        b"\xE2\x88\xAB": ["⌥ B"],
+        b"\xC3\xA7": ["⌥ C"],
+        b"\xE2\x88\x82": ["⌥ D"],  # not followed by ⌥ E
+        b"\xC6\x92": ["⌥ F"],
+        b"\xC2\xA9": ["⌥ G"],
+        b"\xCB\x99": ["⌥ H"],  # not followed by ⌥ I
+        b"\xE2\x88\x86": ["⌥ J"],
+        b"\xCB\x9A": ["⌥ K"],
+        b"\xC2\xAC": ["⌥ L"],
+        b"\xC2\xB5": ["⌥ M"],  # not followed by ⌥ N
+        b"\xC3\xB8": ["⌥ O"],
+        b"\xCF\x80": ["⌥ P"],
+        b"\xC5\x93": ["⌥ Q"],
+        b"\xC2\xAE": ["⌥ R"],
+        b"\xC3\x9F": ["⌥ S"],
+        b"\xE2\x80\xA0": ["⌥ T"],  # not followed by ⌥ U
+        b"\xE2\x88\x9A": ["⌥ V"],
+        b"\xE2\x88\x91": ["⌥ W"],
+        b"\xE2\x89\x88": ["⌥ X"],
+        b"\xCE\xA9": ["⌥ Z"],
+        b"\xC3\x85": ["⌥ ⇧ A"],
+        b"\xC4\xB1": ["⌥ ⇧ B"],
+        b"\xC3\x87": ["⌥ ⇧ C"],
+        b"\xC3\x8E": ["⌥ ⇧ D"],
+        b"\xC2\xB4": ["⌥ ⇧ E"],
+        b"\xC3\x8F": ["⌥ ⇧ F"],
+        b"\xCB\x9D": ["⌥ ⇧ G"],
+        b"\xC3\x93": ["⌥ ⇧ H"],
+        b"\xCB\x86": ["⌥ ⇧ I"],
+        b"\xC3\x94": ["⌥ ⇧ J"],
+        b"\xEF\xA3\xBF": ["⌥ ⇧ K"],
+        b"\xC3\x92": ["⌥ ⇧ L"],
+        b"\xC3\x82": ["⌥ ⇧ M"],
+        b"\xCB\x9C": ["⌥ ⇧ N"],
+        b"\xC3\x98": ["⌥ ⇧ O"],
+        b"\xE2\x88\x8F": ["⌥ ⇧ P"],
+        b"\xC5\x92": ["⌥ ⇧ Q"],
+        b"\xE2\x80\xB0": ["⌥ ⇧ R"],
+        b"\xC3\x8D": ["⌥ ⇧ S"],
+        b"\xCB\x87": ["⌥ ⇧ T"],
+        b"\xC2\xA8": ["⌥ ⇧ U"],
+        b"\xE2\x97\x8A": ["⌥ ⇧ V"],
+        b"\xE2\x80\x9E": ["⌥ ⇧ W"],
+        b"\xCB\x9B": ["⌥ ⇧ X"],
+        b"\xC3\x81": ["⌥ ⇧ Y"],
+        b"\xC2\xB8": ["⌥ ⇧ Z"],
+    }
+)
+
+KEYCAP_LISTS_BY_STROKE.update(  # the Option Punctuation-Mark strokes
+    {
+        b"\xE2\x80\x93": ["⌥ -"],
+        b"\xE2\x89\xA0": ["⌥ ="],
+        b"\xE2\x80\x9C": ["⌥ ["],
+        b"\xE2\x80\x98": ["⌥ ]"],
+        b"\xC2\xAB": ["⌥ \\"],
+        b"\xE2\x80\xA6": ["⌥ ;"],
+        b"\xC3\xA6": ["⌥ '"],
+        b"\xE2\x89\xA4": ["⌥ ,"],
+        b"\xE2\x89\xA5": ["⌥ ."],
+        b"\xC3\xB7": ["⌥ /"],
+        b"\xE2\x80\x94": ["⌥ ⇧ -"],
+        b"\xC2\xB1": ["⌥ ⇧ ="],
+        b"\xE2\x80\x9D": ["⌥ ⇧ ["],
+        b"\xE2\x80\x99": ["⌥ ⇧ ]"],
+        b"\xC2\xBB": ["⌥ ⇧ \\"],
+        b"\xC3\x9A": ["⌥ ⇧ ;"],
+        b"\xC3\x86": ["⌥ ⇧ '"],
+        b"\xC2\xAF": ["⌥ ⇧ ,"],
+        b"\xCB\x98": ["⌥ ⇧ ."],
+        b"\xC2\xBF": ["⌥ ⇧ /"],
     }
 )
 
