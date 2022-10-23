@@ -86,7 +86,7 @@ examples:
   git.py no  # usage: git.py no [EXT | DEPTH|HEAD~...|HASH [EXT]]  # for dno, dhno, spno
   git.py s  # git show
   git.py sp  # git show --pretty=''
-  git.py spno  # git show --pretty='' --name-only  # takes HEAD~..., defaults to  HEAD
+  git.py spno  # git show --pretty='' --name-only  # takes HEAD~..., defaults to HEAD
   git.py sis  # git status --ignored --short  # calmer than 'git status'
   git.py st  # git status
   git.py sun  # git status --untracked-files=no
@@ -94,7 +94,8 @@ examples:
 
   # Branch and Log Work (~27 aliases)
 
-  git.py b  # git branch  # and see also:  git rev-parse --abbrev-ref
+  git.py b  # git rev-parse --abbrev-ref  # default HEAD  # 1 line from:  git branch
+  git.py b0  # git branch
   git.py ba  # git branch --all
   git.py fcorb  # git fetch && git checkout ... && git rebase  # auth w/out ⌃D
   git.py cp  # git cherry-pick
@@ -122,7 +123,7 @@ examples:
   git.py ri  # git rebase --interactive --autosquash HEAD~...  # else {@upstream}
   git.py rl  # git reflog  # show Commits of Clone, no matter the Branch
   git.py rlv  # git reflog --format=fuller  # show more detail for Commits of Clone
-  git.py rpar  # git rev-parse --abbrev-ref  # show the key line of:  git branch
+  git.py rpar  # git rev-parse --abbrev-ref  # default HEAD  # 1 line from:  git branch
   git.py rpsfn  # git rev-parse --symbolic-full-name  # like show @{-1..N} of 'co -'
   git.py rv  # git remote -v
   git.py ssn  # git shortlog --summary --numbered
@@ -668,7 +669,8 @@ def form_aliases_by_shverb():
 ALIASES = {
     "a": "git add {}",
     "ap": "git add --patch {}",
-    "b": "git branch",
+    "b": "git rev-parse --abbrev-ref {}",
+    "b0": "git branch",
     "ba": "git branch --all",
     "c": "git commit {}",
     "ca": "git commit --amend {}",
