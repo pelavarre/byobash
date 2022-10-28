@@ -4,6 +4,10 @@
 ++ dreaming since Oct/2022 ++
 
 
+aggressive auto-complete for Vim
+such as:  :set nonumber from N, :set nowrap from W, etc
+
+
 go with qb and qb0
 qrpar is expensive to type, but cheap to watch, just 1 line out
 qb is cheap to type, but expensive to watch, many lines and 1 star line out

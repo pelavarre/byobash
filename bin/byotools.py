@@ -651,6 +651,20 @@ def str_ripgraf(graf):
 
     return graf
 
+    #
+    # one Fold is a List of Lines, with all Lines left Open
+    #
+    # Join undoes Split exactly when Burst of 1 or more Empty Lines separated the Folds
+    # Fold undoes Unfold exactly if each Line was dented just so much
+    #
+    # todo:  folds = str_splitfolds("\n", doc)
+    # todo:  fold = str_fold(dent, title, fold)
+    # todo:  (title, fold) = str_unfold(dent, fold)  # in the way of 'removeprefix'
+    # todo:  doc = str_joinfolds("\n", folds)
+    #
+    # 'str_ripgraf' caught the idea of 'str_unfold(dent, fold)[-1]'
+    #
+
 
 # deffed in many files  # missing from docs.python.org
 def str_removeprefix(chars, prefix):  # missing from Python till Oct/2020 Python 3.9
@@ -693,6 +707,8 @@ def str_joingrafs(grafs):
         chars += "\n".join(graf)
 
     return chars
+
+    # todo: chars = "\n\n".join("\n".join(_) for _ in grafs)
 
 
 def str_splitgrafs(doc, keepends=False):  # todo:

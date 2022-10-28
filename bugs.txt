@@ -4,6 +4,15 @@
 ++ dreaming since Oct/2022 ++
 
 
+__screen --
+should pick the __screen 1 for me and kind of does and kind of doesn't
+$ __screen
++ screen -r 1 Socket in /run/screen/S-plavarre
+There is no screen to be resumed matching 1.
+$
+
+
+
 g a b -- f
 should be:  cat f |g a b
 but isn't
