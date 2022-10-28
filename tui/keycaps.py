@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 
 """
-usage: keycaps.py [-h]
+usage: keycaps.py [-h] [--loopback]
 
 fire key caps bright when struck, fade to black, then grey, then gone
 
 options:
   -h, --help  show this help message and exit
+  --loopback  show one line per keystroke
 
 quirks:
   reacts complexly to
   + Control, Fn, ⌥ Option Alt, & ⌘ Command keys for shifting keys
   + Option Grave and Option E I N U keys for prefixing other keys
   + Terminal > Preferences > Profiles > Keyboard > Use Option As Meta
+  + pressing ⌃ ⌥ Space to change System Preferences > Keyboard > Input Sources
 
 examples:
   git clone https://github.com/pelavarre/byobash.git
@@ -52,52 +54,150 @@ DEFAULT_NONE = None
 def main():
     """Run from the Sh command line"""
 
-    parse_keycaps_args()  # exits if no args, etc
+    args = parse_keycaps_args()  # exits if no args, etc
 
-    eot_stroke = unicodedata_lookup("EOT").encode()
-    crlf = "\r\n"
+    if args.loopback:
+        run_loopback()
+
+        return
+
+    run_fireplace()
+
+
+def run_loopback():
+    """Show one line per keystroke"""
+
+    # Greet people
 
     print()
     print("Beware of Caps Lock changing your Keyboard Input Byte Codes")
     print("Beware of ⌃ ⌥ Space or ⌃ ⌥ ⇧ Space changing your Keyboard Input Source")
 
     print()
-    print("Press ^D EOT twice to quit")
+    print("Press the same keystroke twice to quit")
+
+    # React to each Stroke as it comes, don't wait for more
 
     with stdtty_open(sys.stderr) as chatting:
+
         stroke = None
         while True:
             stroke_minus = stroke
 
             (millis, stroke) = chatting.read_millis_stroke()
+
+            # Work up details on the Stroke
+
             str_int_millis = "{:6}".format(int(millis))
 
             keycaps = KEYCAP_LISTS_BY_STROKE.get(stroke, DEFAULT_NONE)
             hexxed = bytes_hex_repr(stroke)
             vimmed = vim_c0_repr(stroke.decode())
 
-            print(str_int_millis, hexxed, keycaps, vimmed, end=crlf)
+            # Print the details
 
-            if stroke_minus == stroke == eot_stroke:
+            print(str_int_millis, hexxed, keycaps, vimmed, end="\r\n")
+
+            # Quit after the first keystroke that comes twice in a row
+
+            if stroke_minus == stroke:
+
+                break
+
+
+def run_fireplace():
+    """Fire key caps bright when struck, fade to black, then grey, then gone"""
+
+    DENT = "    "
+
+    # Greet people
+
+    print()
+    print("Beware of Caps Lock changing your Keyboard Input Byte Codes")
+    print("Beware of ⌃ ⌥ Space or ⌃ ⌥ ⇧ Space changing your Keyboard Input Source")
+
+    print()
+    print("Press the same keystroke twice to quit")
+
+    print()
+
+    # Form a Board of Keycaps to print
+
+    plottable = textwrap.dedent(MACBOOK_KEYCAP_CHARS).strip()
+    indexable = "\n".join((DENT + _ + DENT) for _ in plottable.splitlines())
+    plotted = "\n".join((len(_) * " ") for _ in indexable.splitlines())
+
+    # React to each keystroke as it comes, don't wait for more
+
+    with stdtty_open(sys.stderr) as chatting:
+
+        stroke = None
+        while True:
+            stroke_minus = stroke
+
+            (_, stroke) = chatting.read_millis_stroke()
+            keycaps = KEYCAP_LISTS_BY_STROKE.get(stroke, DEFAULT_NONE)
+
+            # Trace the Key Caps of the Stroke
+
+            print(end="\r\n")
+            print(end="\r\n")
+
+            print(keycaps, end="\r\n")
+
+            # Form a new Board
+
+            for keycap_list in keycaps:
+                for keycap in keycap_list.split():
+                    whole = " " + keycap + " "
+
+                    start = 0
+                    while True:
+                        find = indexable.find(whole, start)
+                        if find < 0:
+
+                            break
+
+                        start = find + len(whole)
+                        plotted = plotted[:find] + whole + plotted[start:]
+
+            # Quit after the first keystroke that comes twice in a row
+
+            print(end="\r\n")
+            print(end="\r\n")
+
+            for line in plotted.splitlines():
+                print(line.rstrip(), end="\r\n")
+
+            #
+
+            if stroke_minus == stroke:
 
                 break
 
 
 #
-# Draw the Keyboard of a MacBook Pro (Retina, 15-inch, Mid 2015)
+# Sketch the Keyboard of a MacBook Pro (Retina, 15-inch, Mid 2015)
 #
 
 
-# List the Key Caps by Row
+# Draw the Keyboard as 6.5 Rows of 49 Columns of Chars
 
-KEYCAPS_BY_ROW = [
-    "Esc F1 F2 F3 F4 F5 F6 F7 F8 F9 F10 F11 F12".split(),
-    "` 1 2 3 4 5 6 7 8 9 0 - = Del".split(),
-    "Tab Q W E R T Y U I O P [ ] \\".split(),
-    "A S D F G H J K L ; '".split(),
-    "⇧ Z X C V B N M , . / ⇧".split(),
-    "Fn ⌃ ⌥ ⌘ Space ⌘ ⌥ ← ↑ ↓ →".split(),
-]
+MACBOOK_KEYCAP_CHARS = r"""
+
+    Esc F1 F2 F3 F4 F5 F6 F7 F8 F9 F10 F11 F12
+
+    `    1  2  3  4  5  6  7  8  9  0   -   =  Delete
+
+    Tab   Q  W  E  R  T  Y  U  I  O  P  [  ]  \
+
+           A  S  D  F  G  H  J  K  L  ;  '  Return
+
+    ⇧       Z  X  C  V  B  N  M  ,  .  /         ⇧
+                                            ↑
+    Fn  ⌃  ⌥  ⌘   Space          ⌘   ⌥    ← ↓ →
+
+"""
 
 
 # List the Punctuation Marks found by Chords of Shift plus a Key Cap
@@ -108,7 +208,7 @@ _KEYCAPS_1 = "~!@#$%^&*()_+" "{}|" ':"' "<>?"  # shifted
 
 # List all the Key Caps
 
-KEYCAPS = sorted(keycap for row in KEYCAPS_BY_ROW for keycap in row)
+KEYCAPS = sorted(MACBOOK_KEYCAP_CHARS.split())
 
 
 # List the Lists of Chords of Key Caps found as Byte Strings,
@@ -387,7 +487,11 @@ def compile_keycaps_argdoc():
     """Form an ArgumentParser for KeyCaps Py"""
 
     doc = __main__.__doc__
+
     parser = compile_argdoc(doc, epi="quirks")
+    parser.add_argument(
+        "--loopback", action="count", help="show one line per keystroke"
+    )
 
     try:
 
